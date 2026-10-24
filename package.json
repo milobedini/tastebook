@@ -1,0 +1,36 @@
+{
+  "name": "tastebook",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.14.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "pnpm --filter frontend dev",
+    "build": "pnpm --filter frontend build",
+    "test": "pnpm --filter frontend test",
+    "test:e2e": "pnpm --filter frontend test:e2e",
+    "type-check": "pnpm --filter frontend type-check",
+    "generate:api": "pnpm --filter frontend generate:api",
+    "lint:biome": "biome check .",
+    "lint": "pnpm lint:biome && pnpm type-check",
+    "format": "biome check --write .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*": [
+      "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
+    ],
+    "backend/**/*.py": [
+      "uv run --project backend ruff format",
+      "uv run --project backend ruff check --fix"
+    ]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "typescript": "7.0.2"
+  }
+}

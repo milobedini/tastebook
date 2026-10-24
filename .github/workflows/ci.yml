@@ -1,0 +1,129 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DATABASE_URL: postgres://tastebook:tastebook@localhost:5432/tastebook
+
+jobs:
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: tastebook
+          POSTGRES_PASSWORD: tastebook
+          POSTGRES_DB: tastebook
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U tastebook"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run python manage.py makemigrations --check --dry-run
+      - run: uv run pytest
+
+  api-contract:
+    name: API contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Regenerate the OpenAPI schema
+        working-directory: backend
+        run: uv run python manage.py spectacular --validate --fail-on-warn --file schema.yml
+      - run: pnpm generate:api
+      - name: Fail if the schema or the frontend types are stale
+        run: |
+          if ! git diff --exit-code -- backend/schema.yml frontend/src/api/schema.d.ts; then
+            echo "::error::Run 'uv run python manage.py spectacular --file schema.yml' in backend/ and 'pnpm generate:api', then commit the result."
+            exit 1
+          fi
+
+  e2e:
+    name: End-to-end
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: tastebook
+          POSTGRES_PASSWORD: tastebook
+          POSTGRES_DB: tastebook
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U tastebook"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: uv sync --locked
+        working-directory: backend
+      - run: uv run python manage.py migrate --noinput
+        working-directory: backend
+      - run: pnpm --filter frontend exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+          retention-days: 14

@@ -1,0 +1,16 @@
+node_modules
+.DS_Store
+.env*
+!.env.example
+dist
+coverage
+*.tsbuildinfo
+playwright-report
+test-results
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+staticfiles
+.worktrees

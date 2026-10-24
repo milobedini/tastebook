@@ -1,0 +1,13 @@
+{
+  "name": "@tastebook/openapi",
+  "private": true,
+  "type": "module",
+  "description": "Generates frontend API types from backend/schema.yml. Kept apart because openapi-typescript needs the TypeScript 6 JS API.",
+  "scripts": {
+    "generate": "openapi-typescript ../../backend/schema.yml -o ../../frontend/src/api/schema.d.ts"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0",
+    "typescript": "npm:@typescript/typescript6@6.0.2"
+  }
+}
