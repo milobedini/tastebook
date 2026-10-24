@@ -8,20 +8,20 @@ paths:
     get:
       operationId: health_retrieve
       tags:
-        - health
+      - health
       responses:
-        "200":
+        '200':
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Health"
-          description: ""
+                $ref: '#/components/schemas/Health'
+          description: ''
 components:
   schemas:
     DatabaseEnum:
       enum:
-        - ok
-        - unavailable
+      - ok
+      - unavailable
       type: string
       description: |-
         * `ok` - ok
@@ -30,14 +30,14 @@ components:
       type: object
       properties:
         status:
-          $ref: "#/components/schemas/StatusEnum"
+          $ref: '#/components/schemas/StatusEnum'
         database:
-          $ref: "#/components/schemas/DatabaseEnum"
+          $ref: '#/components/schemas/DatabaseEnum'
       required:
-        - database
-        - status
+      - database
+      - status
     StatusEnum:
       enum:
-        - ok
+      - ok
       type: string
-      description: "* `ok` - ok"
+      description: '* `ok` - ok'

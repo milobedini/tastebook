@@ -14,7 +14,8 @@
       "!!**/playwright-report",
       "!!**/test-results",
       "!!**/.venv",
-      "!!frontend/src/api/schema.d.ts"
+      "!!frontend/src/api/schema.d.ts",
+      "!!backend/schema.yml"
     ]
   },
   "formatter": {
