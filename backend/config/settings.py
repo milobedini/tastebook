@@ -5,11 +5,13 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = os.environ.get('DJANGO_DEBUG', 'true').lower() == 'true'
+DEBUG = os.environ.get('DJANGO_DEBUG', 'false').lower() == 'true'
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'insecure-local-only-key' if DEBUG else '')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '')
 if not SECRET_KEY:
-    raise RuntimeError('DJANGO_SECRET_KEY must be set when DJANGO_DEBUG is false')
+    if not DEBUG:
+        raise RuntimeError('DJANGO_SECRET_KEY must be set unless DJANGO_DEBUG is true')
+    SECRET_KEY = 'insecure-local-only-key'
 
 ALLOWED_HOSTS = [host for host in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host]
 

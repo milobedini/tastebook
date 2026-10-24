@@ -13,6 +13,7 @@ permissions:
   contents: read
 
 env:
+  DJANGO_DEBUG: "true"
   DATABASE_URL: postgres://tastebook:tastebook@localhost:5432/tastebook
 
 jobs:
@@ -52,7 +53,7 @@ jobs:
         working-directory: backend
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.2
         with:
           enable-cache: true
       - run: uv sync --locked
@@ -66,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.2
         with:
           enable-cache: true
       - uses: pnpm/action-setup@v6
@@ -104,7 +105,7 @@ jobs:
           --health-retries 15
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.2
         with:
           enable-cache: true
       - uses: pnpm/action-setup@v6

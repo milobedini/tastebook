@@ -19,6 +19,7 @@ export default defineConfig({
     {
       command: 'uv run python manage.py runserver 8000',
       cwd: '../backend',
+      env: { DJANGO_DEBUG: 'true' },
       url: 'http://localhost:8000/api/health/',
       reuseExistingServer: !isCi
     },

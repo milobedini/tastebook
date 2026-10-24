@@ -38,6 +38,7 @@ Tastebook is a recipe hub. One repo, two apps: `frontend/` (React 19, Vite, TanS
 - [n] import inside functions; keep imports at module level.
 - [a] describe every endpoint's request and response with serializers (or `@extend_schema`), so the OpenAPI schema is complete.
 - [a] commit a migration with every model change; CI runs `makemigrations --check`.
+- [a] keep settings fail-closed: `DEBUG` is off unless `DJANGO_DEBUG=true`, and production needs `DJANGO_SECRET_KEY`. Local commands load `backend/.env` with `uv run --env-file .env`.
 - [n] mock the database in tests. Use the test database through `pytest-django`.
 
 **Tests**
@@ -72,15 +73,15 @@ From the repo root unless noted.
 | What                         | Command                                                                                     |
 | ---------------------------- | ------------------------------------------------------------------------------------------- |
 | Start Postgres               | `docker compose up -d --wait`                                                               |
-| Install                      | `pnpm install` and `uv sync` (in `backend/`)                                                |
-| Run the backend              | `uv run python manage.py migrate && uv run python manage.py runserver` (in `backend/`)      |
+| Install                      | `pnpm install`, then `uv sync && cp .env.example .env` (in `backend/`)                      |
+| Run the backend              | `uv run --env-file .env python manage.py migrate`, then `… runserver` (in `backend/`)      |
 | Run the frontend             | `pnpm dev` (proxies `/api` to `localhost:8000`)                                             |
 | Lint and type-check frontend | `pnpm lint` (fix with `pnpm format`)                                                        |
 | Lint backend                 | `uv run ruff check . && uv run ruff format --check .` (in `backend/`)                       |
 | Frontend tests               | `pnpm test`                                                                                 |
 | Backend tests                | `uv run pytest` (in `backend/`)                                                             |
 | End-to-end tests             | `pnpm test:e2e` (starts both servers; needs Postgres)                                       |
-| Regenerate the API contract  | `uv run python manage.py spectacular --file schema.yml` (in `backend/`), then `pnpm generate:api` |
+| Regenerate the API contract  | `uv run --env-file .env python manage.py spectacular --file schema.yml` (in `backend/`), then `pnpm generate:api` |
 
 [a] run the linters and the tests for every area you changed before you commit.
 

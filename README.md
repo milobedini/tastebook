@@ -14,8 +14,8 @@ Needs Node 24+, pnpm, uv and Docker.
 ```sh
 docker compose up -d --wait
 pnpm install
-(cd backend && uv sync && uv run python manage.py migrate)
-(cd backend && uv run python manage.py runserver) &
+(cd backend && uv sync && cp .env.example .env && uv run --env-file .env python manage.py migrate)
+(cd backend && uv run --env-file .env python manage.py runserver) &
 pnpm dev
 ```
 
