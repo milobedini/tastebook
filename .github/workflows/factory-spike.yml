@@ -1,0 +1,104 @@
+# Throwaway: answers the stage workflow's open questions. Never merged.
+name: Factory spike
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  spike:
+    if: github.head_ref == 'factory-spike'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      FACTORY_REPORT_PATH: ${{ github.workspace }}/../factory-report.json
+      LINEAR_ACCESS_TOKEN: dummy-not-a-secret
+      LINEAR_AGENT_SESSION_ID: dummy-session
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Fetch the factory plugin
+        run: git clone --depth 1 https://github.com/milobedini/mb-factory.git "$RUNNER_TEMP/mb-factory"
+
+      - name: Make a test image
+        run: |
+          python3 - <<'EOF'
+          import struct, zlib
+          def chunk(kind, data):
+              return struct.pack('>I', len(data)) + kind + data + struct.pack('>I', zlib.crc32(kind + data))
+          rows = b''.join(b'\x00' + b'\xd9\x77\x06' * 32 for _ in range(32))
+          png = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', 32, 32, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(rows)) + chunk(b'IEND', b'')
+          open('spike.png', 'wb').write(png)
+          EOF
+
+      - name: Run Claude
+        id: claude
+        continue-on-error: true
+        uses: anthropics/claude-code-action@70f88a9fad3080e3383237f821b29116898c9cf4 # v1.0.262
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          settings: '{"env": {"SPIKE_SETTINGS_VAR": "from-settings"}}'
+          claude_args: |
+            --model haiku
+            --max-turns 8
+            --plugin-dir ${{ runner.temp }}/mb-factory/plugin
+            --allowedTools Bash
+          prompt: |
+            This is a factory spike run. Do exactly these steps, then stop. Never print a variable's value.
+
+            Brief (mock):
+            stage: implement
+            issue: TAS-0
+            trigger: rerun
+
+            1. Run this Bash command and keep its output:
+               for v in FACTORY_REPORT_PATH LINEAR_ACCESS_TOKEN LINEAR_AGENT_SESSION_ID SPIKE_SETTINGS_VAR PR_NUMBER GH_TOKEN GITHUB_TOKEN; do if [ -n "${!v}" ]; then echo "$v=set"; else echo "$v=unset"; fi; done
+            2. Run: gh pr comment ${{ github.event.pull_request.number }} --attach 'spike.png#Spike image' --body 'Spike: attach from inside the agent run'
+               Keep the exit code and the last line of its output.
+            3. Write one JSON object to the path in FACTORY_REPORT_PATH, or to ../factory-report.json if it is unset:
+               {"env": {"<NAME>": "set" or "unset", ...}, "briefStage": "<the stage from the brief>", "attach": {"exitCode": <number>, "output": "<last line>"}}
+
+      - name: Summarise the run
+        if: always()
+        env:
+          EXECUTION_FILE: ${{ steps.claude.outputs.execution_file }}
+        run: |
+          python3 - <<'EOF'
+          import json, os
+          path = os.environ.get('EXECUTION_FILE') or ''
+          print('execution_file:', path or '(none)')
+          if path and os.path.exists(path):
+              text = open(path).read()
+              try:
+                  events = json.loads(text)
+              except json.JSONDecodeError:
+                  events = [json.loads(line) for line in text.splitlines() if line.strip()]
+              if isinstance(events, dict):
+                  events = [events]
+              print('event types:', [(e.get('type'), e.get('subtype')) for e in events])
+              for e in events:
+                  if e.get('subtype') == 'init':
+                      print('model:', e.get('model'))
+                      print('factory agents:', [a for a in e.get('agents', []) if a.startswith('mb-factory:')])
+                      print('factory skills:', [s for s in e.get('skills', []) if s.startswith('mb-factory:')])
+                      print('plugins:', [p.get('name') for p in e.get('plugins', [])])
+                  if e.get('type') == 'rate_limit_event':
+                      print('rate_limit_event:', json.dumps(e.get('rate_limit_info')))
+                  if e.get('type') == 'result':
+                      print('result:', json.dumps({k: e.get(k) for k in ('subtype', 'is_error', 'num_turns', 'duration_ms', 'total_cost_usd', 'usage', 'modelUsage')}))
+          report = os.environ['FACTORY_REPORT_PATH']
+          print('report:', open(report).read() if os.path.exists(report) else '(missing)')
+          EOF
+
+      - name: Attach with GITHUB_TOKEN, outside the agent
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh --version | head -1
+          gh pr comment "$PR_NUMBER" --attach 'spike.png#Spike image' --body 'Spike: attach from a plain step with GITHUB_TOKEN'
