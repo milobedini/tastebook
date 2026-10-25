@@ -46,6 +46,17 @@ describe('HomePage', () => {
     expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
   });
 
+  it('shows the version the API reports beneath its status', async () => {
+    server.use(
+      http.get('/api/health/', () => HttpResponse.json<Health>({ status: 'ok', database: 'ok', version: '2.3.4' }))
+    );
+
+    renderRoute('/');
+
+    expect(await screen.findByText('API: ok, database: ok')).toBeInTheDocument();
+    expect(screen.getByText('API version 2.3.4')).toBeInTheDocument();
+  });
+
   it('says the API is unreachable and offers a retry when the health check fails', async () => {
     failHealth();
 
@@ -53,6 +64,7 @@ describe('HomePage', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('The API is unreachable.');
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+    expect(screen.queryByText(/API version/)).not.toBeInTheDocument();
   });
 
   it('checks the API again and shows its status when the retry succeeds', async () => {

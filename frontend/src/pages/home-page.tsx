@@ -51,6 +51,7 @@ const ApiStatus = () => {
       <p>
         API: {data.status}, database: {data.database}
       </p>
+      <p>API version {data.version}</p>
       <LastChecked at={lastCheckedAt} />
     </>
   );
