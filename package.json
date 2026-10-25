@@ -7,7 +7,10 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "pnpm --filter frontend dev",
+    "dev": "pnpm dev:setup && concurrently --kill-others --names api,web --prefix-colors blue,magenta \"pnpm dev:api\" \"pnpm dev:web\"",
+    "dev:setup": "pnpm install && docker compose up -d --wait && cd backend && uv sync && (test -f .env || cp .env.example .env) && uv run --env-file .env python manage.py migrate",
+    "dev:api": "cd backend && uv run --env-file .env python manage.py runserver 8000",
+    "dev:web": "pnpm --filter frontend dev",
     "build": "pnpm --filter frontend build",
     "test": "pnpm --filter frontend test",
     "test:e2e": "pnpm --filter frontend test:e2e",
@@ -29,6 +32,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.2",
+    "concurrently": "10.0.6",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
     "typescript": "7.0.2"

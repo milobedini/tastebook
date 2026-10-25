@@ -12,12 +12,10 @@ A recipe hub. Built with [mb-factory](https://github.com/milobedini/mb-factory):
 Needs Node 24+, pnpm, uv and Docker.
 
 ```sh
-docker compose up -d --wait
-pnpm install
-(cd backend && uv sync && cp .env.example .env && uv run --env-file .env python manage.py migrate)
-(cd backend && uv run --env-file .env python manage.py runserver) &
 pnpm dev
 ```
+
+This starts Postgres in Docker, installs dependencies, creates `backend/.env` if it's missing, applies migrations, then runs the API and the frontend together. Ctrl+C stops both servers; Postgres keeps running until `docker compose down`.
 
 Open <http://localhost:5173>. The API is at <http://localhost:8000/api/>, with its docs at `/api/schema/docs/`.
 
