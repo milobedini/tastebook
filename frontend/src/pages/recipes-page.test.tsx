@@ -36,8 +36,8 @@ describe('RecipesPage', () => {
   it('shows a loading message, then the recipes in the order the API sends', async () => {
     const release = holdRecipes(() =>
       HttpResponse.json<Recipe[]>([
-        { id: 7, title: 'Shakshuka', description: 'Eggs in spiced tomatoes.' },
-        { id: 3, title: 'Apple tart', description: '' }
+        { id: 7, slug: 'shakshuka', title: 'Shakshuka', description: 'Eggs in spiced tomatoes.' },
+        { id: 3, slug: 'apple-tart', title: 'Apple tart', description: '' }
       ])
     );
 
@@ -82,7 +82,9 @@ describe('RecipesPage', () => {
     const tryAgain = await screen.findByRole('button', { name: 'Try again' });
 
     const release = holdRecipes(() =>
-      HttpResponse.json<Recipe[]>([{ id: 7, title: 'Shakshuka', description: 'Eggs in spiced tomatoes.' }])
+      HttpResponse.json<Recipe[]>([
+        { id: 7, slug: 'shakshuka', title: 'Shakshuka', description: 'Eggs in spiced tomatoes.' }
+      ])
     );
     await userEvent.click(tryAgain);
 
