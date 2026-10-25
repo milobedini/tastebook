@@ -1,0 +1,20 @@
+# Factory stage runs, dispatched by the mb-factory console. The stage workflow validates every payload field.
+name: Factory
+
+on:
+  repository_dispatch:
+    types: [factory-stage]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  stage:
+    uses: milobedini/mb-factory/.github/workflows/stage.yml@main
+    with:
+      run_id: ${{ github.event.client_payload.run_id }}
+      model: ${{ github.event.client_payload.model }}
+      prompt: ${{ github.event.client_payload.prompt }}
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

@@ -1,0 +1,29 @@
+name: Factory setup
+description: Installs the toolchains and starts Postgres before a factory stage run, so the agent can run every command in AGENTS.md.
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v6
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 24
+        cache: pnpm
+    - uses: astral-sh/setup-uv@v10.3.2
+      with:
+        enable-cache: true
+    - name: Install dependencies
+      shell: bash
+      run: |
+        pnpm install --frozen-lockfile
+        cd backend && uv sync --locked && cp .env.example .env
+    - name: Start Postgres
+      shell: bash
+      run: docker compose up -d --wait
+    - name: Match CI's backend environment
+      shell: bash
+      run: |
+        {
+          echo "DJANGO_DEBUG=true"
+          echo "DATABASE_URL=postgres://tastebook:tastebook@localhost:5432/tastebook"
+        } >> "$GITHUB_ENV"
