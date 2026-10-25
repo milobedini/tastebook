@@ -33,9 +33,12 @@ components:
           $ref: '#/components/schemas/StatusEnum'
         database:
           $ref: '#/components/schemas/DatabaseEnum'
+        version:
+          type: string
       required:
       - database
       - status
+      - version
     StatusEnum:
       enum:
       - ok
