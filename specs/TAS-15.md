@@ -1,8 +1,8 @@
 ---
 issue: TAS-15
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tas-15-let-visitors-search-recipes-by-title
-pr:
+pr: 12
 ---
 
 # Let visitors search recipes by title
