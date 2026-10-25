@@ -1,13 +1,30 @@
+import { useCallback } from 'react';
+
 import { useHealth } from '../api/health';
 
-const ApiStatus = () => {
-  const { data, isPending, isError } = useHealth();
+type ApiUnreachableProps = {
+  onRetry: () => void;
+};
 
-  if (isPending) {
+const ApiUnreachable = ({ onRetry }: ApiUnreachableProps) => (
+  <>
+    <p role="alert">The API is unreachable.</p>
+    <button type="button" onClick={onRetry}>
+      Try again
+    </button>
+  </>
+);
+
+const ApiStatus = () => {
+  const { data, isPending, isError, isFetching, refetch } = useHealth();
+  const retry = useCallback(() => void refetch(), [refetch]);
+
+  // A failed query keeps its error status while it refetches, so isPending alone would leave the message up.
+  if (isPending || (isError && isFetching)) {
     return <p>Checking the API…</p>;
   }
   if (isError) {
-    return <p role="alert">The API is unreachable.</p>;
+    return <ApiUnreachable onRetry={retry} />;
   }
   return (
     <p>
