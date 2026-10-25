@@ -11,6 +11,13 @@ class RecipeQuerySet(models.QuerySet['Recipe']):
         # id breaks ties, so the recipe added first comes first when two titles match.
         return self.order_by(Lower('title'), 'id')
 
+    def matching_title(self, text: str) -> RecipeQuerySet:
+        term = text.strip()
+        if term == '':
+            return self
+        # unaccent is bilateral, so the term loses its accents too: 'crème' and 'creme' both find 'Crème brûlée'.
+        return self.filter(title__unaccent__icontains=term)
+
     def unique_slug_for(self, title: str) -> str:
         base = base_slug(title)
         taken = set(self.filter(slug__startswith=base).values_list('slug', flat=True))

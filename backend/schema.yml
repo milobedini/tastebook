@@ -19,6 +19,13 @@ paths:
   /api/recipes/:
     get:
       operationId: recipes_list
+      parameters:
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Only recipes whose title contains this text, ignoring case and
+          accents.
       tags:
       - recipes
       responses:

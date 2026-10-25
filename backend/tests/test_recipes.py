@@ -151,3 +151,29 @@ def test_returns_the_recipes_id_slug_title_and_description() -> None:
         'title': 'Shakshuka',
         'description': 'Eggs in spiced tomatoes.',
     }
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('q', 'titles'),
+    [
+        ('tart', ['Apple tart', 'Tarte Tatin']),
+        ('TART', ['Apple tart', 'Tarte Tatin']),
+        ('creme', ['Crème brûlée']),
+        ('CRÈME', ['Crème brûlée']),
+        ('brulee', ['Crème brûlée']),
+        ('  bread  ', ['Banana bread']),
+        ('pie', []),
+        ('%', []),
+        ('_', []),
+        ('', ['Apple tart', 'Banana bread', 'Crème brûlée', 'Tarte Tatin']),
+    ],
+)
+def test_searches_titles_anywhere_ignoring_case_accents_and_surrounding_spaces(q: str, titles: list[str]) -> None:
+    for title in ['Tarte Tatin', 'Crème brûlée', 'Banana bread', 'Apple tart']:
+        Recipe.objects.create(title=title)
+
+    response = APIClient().get(reverse('recipe-list'), {'q': q})
+
+    assert response.status_code == 200
+    assert [recipe['title'] for recipe in response.json()] == titles

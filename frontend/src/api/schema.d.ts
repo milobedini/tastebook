@@ -108,7 +108,10 @@ export interface operations {
     };
     recipes_list: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Only recipes whose title contains this text, ignoring case and accents. */
+                q?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
