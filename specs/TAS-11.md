@@ -1,8 +1,8 @@
 ---
 issue: TAS-11
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tas-11-keep-the-api-status-on-the-home-page-up-to-date
-pr:
+pr: 8
 ---
 
 # Keep the API status on the home page up to date
@@ -141,6 +141,7 @@ stateDiagram-v2
 - A local `isRetrying` flag in `ApiStatus` decides the checking message, because TanStack Query can't tell a visitor's refetch from an interval refetch. It is user intent, not a copy of query state.
 - Rely on TanStack's built-in `refetchInterval` and focus refetching rather than a custom timer or visibility listener, because they already pause in hidden tabs and catch up on return.
 - `Math.max(dataUpdatedAt, errorUpdatedAt)` for the last check, because each field moves on only one kind of result.
+- Built: `ApiStatus` decides its branch from `dataUpdatedAt` and `errorUpdatedAt` (no completed check: checking; `errorUpdatedAt` newer or no data: unreachable; otherwise good) instead of `isPending` and `isError`, because re-checking a query that has never succeeded resets it to `pending` and clears its error (`fetchState` in `@tanstack/query-core` 5.104), which would show "Checking the API…" on every automatic check. The timestamps survive a re-check. Same behaviour and copy as specced.
 - Hardcode the `en-GB` locale in the formatter, because the visitor's own locale can produce other shapes ("15.42", "3:42 PM") and the agreed copy is "15:42".
 
 ## Assumptions
