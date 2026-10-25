@@ -10,3 +10,13 @@ test('the home page links to the recipes page, which loads from the real API', a
   await expect(page.getByText('No recipes yet.').or(page.getByRole('list'))).toBeVisible();
   await expect(page.getByRole('alert')).toHaveCount(0);
 });
+
+test('a search with no matches says so through the real API', async ({ page }) => {
+  await page.goto('/recipes');
+
+  await page.getByRole('searchbox', { name: 'Search recipes' }).fill('xyzzy');
+
+  await expect(page).toHaveURL(/\/recipes\?q=xyzzy$/);
+  await expect(page.getByText('No recipes match “xyzzy”.')).toBeVisible();
+  await expect(page.getByRole('alert')).toHaveCount(0);
+});
