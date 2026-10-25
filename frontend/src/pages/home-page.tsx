@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useHealth } from '../api/health';
 
@@ -15,21 +15,44 @@ const ApiUnreachable = ({ onRetry }: ApiUnreachableProps) => (
   </>
 );
 
-const ApiStatus = () => {
-  const { data, isPending, isError, isFetching, refetch } = useHealth();
-  const retry = useCallback(() => void refetch(), [refetch]);
+// en-GB pins the 24-hour "15:42" shape; the time zone stays the visitor's own.
+const checkTime = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
 
-  // A failed query keeps its error status while it refetches, so isPending alone would leave the message up.
-  if (isPending || (isError && isFetching)) {
+type LastCheckedProps = { at: number };
+
+const LastChecked = ({ at }: LastCheckedProps) => <p>Last checked at {checkTime.format(at)}.</p>;
+
+const ApiStatus = () => {
+  const { data, dataUpdatedAt, errorUpdatedAt, refetch } = useHealth();
+  const [isRetrying, setIsRetrying] = useState(false);
+  const retry = useCallback(async () => {
+    setIsRetrying(true);
+    await refetch();
+    setIsRetrying(false);
+  }, [refetch]);
+
+  const lastCheckedAt = Math.max(dataUpdatedAt, errorUpdatedAt);
+  // Re-checking a query that has never succeeded resets it to pending and clears its error, so the
+  // timestamps, which a re-check leaves alone, say what the last check found. Only a visitor's retry
+  // shows the checking message; automatic checks leave the current status up until they finish.
+  if (lastCheckedAt === 0 || isRetrying) {
     return <p>Checking the API…</p>;
   }
-  if (isError) {
-    return <ApiUnreachable onRetry={retry} />;
+  if (data === undefined || errorUpdatedAt > dataUpdatedAt) {
+    return (
+      <>
+        <ApiUnreachable onRetry={() => void retry()} />
+        <LastChecked at={lastCheckedAt} />
+      </>
+    );
   }
   return (
-    <p>
-      API: {data.status}, database: {data.database}
-    </p>
+    <>
+      <p>
+        API: {data.status}, database: {data.database}
+      </p>
+      <LastChecked at={lastCheckedAt} />
+    </>
   );
 };
 

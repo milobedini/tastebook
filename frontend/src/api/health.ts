@@ -11,5 +11,6 @@ export const useHealth = () =>
         throw new Error('Health check failed');
       }
       return data;
-    }
+    },
+    refetchInterval: 60_000
   });

@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { components } from '../api/schema';
 import { renderRoute } from '../test/render-route';
@@ -24,6 +24,12 @@ const holdHealth = (respond: () => Response) => {
     })
   );
   return () => gate.release();
+};
+
+// TanStack Query listens for visibilitychange on window, not document.
+const setTabVisibility = (state: DocumentVisibilityState) => {
+  Object.defineProperty(document, 'visibilityState', { value: state, configurable: true });
+  window.dispatchEvent(new Event('visibilitychange'));
 };
 
 describe('HomePage', () => {
@@ -81,5 +87,87 @@ describe('HomePage', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('The API is unreachable.');
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+  });
+});
+
+describe('HomePage status checks', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date(2026, 9, 25, 15, 42));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    setTabVisibility('visible');
+  });
+
+  it('shows when the status was checked', async () => {
+    renderRoute('/');
+
+    expect(await screen.findByText('API: ok, database: ok')).toBeInTheDocument();
+    expect(screen.getByText('Last checked at 15:42.')).toBeInTheDocument();
+  });
+
+  it('re-checks after a minute and updates the time', async () => {
+    renderRoute('/');
+    await screen.findByText('API: ok, database: ok');
+
+    server.use(http.get('/api/health/', () => HttpResponse.json<Health>({ status: 'ok', database: 'unavailable' })));
+    await vi.advanceTimersByTimeAsync(60_000);
+
+    expect(await screen.findByText('API: ok, database: unavailable')).toBeInTheDocument();
+    expect(screen.getByText('Last checked at 15:43.')).toBeInTheDocument();
+  });
+
+  it('replaces a good status with the unreachable message when a re-check fails', async () => {
+    renderRoute('/');
+    await screen.findByText('API: ok, database: ok');
+
+    failHealth();
+    await vi.advanceTimersByTimeAsync(59_000);
+
+    expect(screen.getByText('API: ok, database: ok')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+    await vi.advanceTimersByTimeAsync(1_000);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('The API is unreachable.');
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+    expect(screen.queryByText('API: ok, database: ok')).not.toBeInTheDocument();
+    expect(screen.getByText('Last checked at 15:43.')).toBeInTheDocument();
+  });
+
+  it('keeps the message and retry up during an automatic check', async () => {
+    failHealth();
+    renderRoute('/');
+    await screen.findByRole('alert');
+
+    const release = holdHealth(() => HttpResponse.json<Health>({ status: 'ok', database: 'ok' }));
+    await vi.advanceTimersByTimeAsync(60_000);
+
+    expect(screen.getByRole('alert')).toHaveTextContent('The API is unreachable.');
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+    expect(screen.queryByText('Checking the API…')).not.toBeInTheDocument();
+
+    release();
+
+    expect(await screen.findByText('API: ok, database: ok')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
+  });
+
+  it('pauses while the tab is hidden and checks on return', async () => {
+    renderRoute('/');
+    await screen.findByText('API: ok, database: ok');
+
+    failHealth();
+    setTabVisibility('hidden');
+    await vi.advanceTimersByTimeAsync(120_000);
+
+    expect(screen.getByText('API: ok, database: ok')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+    setTabVisibility('visible');
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('The API is unreachable.');
   });
 });
