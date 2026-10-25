@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 
@@ -10,6 +10,16 @@ describe('NotFoundPage', () => {
 
     expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Back to Tastebook' })).toHaveAttribute('href', '/');
+  });
+
+  it('titles the tab "Page not found · Tastebook" and resets it on the way home', async () => {
+    renderRoute('/nope');
+
+    await waitFor(() => expect(document.title).toBe('Page not found · Tastebook'));
+
+    await userEvent.click(screen.getByRole('link', { name: 'Back to Tastebook' }));
+
+    await waitFor(() => expect(document.title).toBe('Tastebook'));
   });
 
   it('takes the visitor home from the back link', async () => {
