@@ -1,8 +1,8 @@
 ---
 issue: TAS-13
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tas-13-let-visitors-browse-a-list-of-recipes
-pr:
+pr: 10
 ---
 
 # Let visitors browse a list of recipes
@@ -214,6 +214,7 @@ stateDiagram-v2
 - The order lives in `RecipeQuerySet.alphabetical()`, not `Meta.ordering`, because `AGENTS.md` keeps logic in querysets and a default ordering would apply to every query, including the admin's.
 - `RecipeList` branches on `data` first, then `isPending`, rather than on `isError`. A never-loaded query that is refetched goes back to `pending` (see the lesson), so "Try again" shows "Loading recipes…" with no `isRetrying` flag. A list already on screen stays up if a background refetch on window focus fails, because a slightly stale list is more use to a visitor than an error.
 - An empty description is `''` in the database and the API, not `null`, following Django's convention for text fields and ruff's `DJ001`.
+- `RecipeSerializer` sets `extra_kwargs = {'description': {'required': True, 'allow_blank': True}}`, because a `blank=True` model field otherwise comes out optional in the schema (`description?: string`), while the API contract above says the field is always sent. Found during the build.
 - A small end-to-end check, because the unit tests mock HTTP and nothing else proves the page reaches the real endpoint through the Vite proxy. It accepts either the empty state or a list, so a local database with recipes in it doesn't break it.
 
 ## Assumptions
