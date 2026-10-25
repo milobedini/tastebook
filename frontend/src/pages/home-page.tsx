@@ -18,6 +18,7 @@ const ApiStatus = () => {
 
 export const HomePage = () => (
   <main>
+    <title>Tastebook</title>
     <h1>Tastebook</h1>
     <ApiStatus />
   </main>
