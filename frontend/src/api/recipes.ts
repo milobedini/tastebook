@@ -1,17 +1,21 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { api } from './client';
 
-export const useRecipes = () =>
+export const useRecipes = (searchTerm: string) =>
   useQuery({
-    queryKey: ['recipes'],
+    queryKey: ['recipes', { q: searchTerm }],
     queryFn: async () => {
-      const { data, error } = await api.GET('/api/recipes/');
+      const { data, error } = await api.GET('/api/recipes/', {
+        params: { query: searchTerm === '' ? {} : { q: searchTerm } }
+      });
       if (error || !data) {
         throw new Error('Recipes request failed');
       }
-      return data;
-    }
+      // The term travels with its results, so previous results shown while loading keep their own empty message.
+      return { searchTerm, recipes: data };
+    },
+    placeholderData: keepPreviousData
   });
 
 export const useRecipe = (slug: string) =>
