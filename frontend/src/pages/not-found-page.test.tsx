@@ -1,0 +1,23 @@
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it } from 'vitest';
+
+import { renderRoute } from '../test/render-route';
+
+describe('NotFoundPage', () => {
+  it.each(['/nope', '/recipes/missing/deeper'])('shows "Page not found" for %s', async (path) => {
+    renderRoute(path);
+
+    expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Back to Tastebook' })).toHaveAttribute('href', '/');
+  });
+
+  it('takes the visitor home from the back link', async () => {
+    renderRoute('/nope');
+
+    await userEvent.click(await screen.findByRole('link', { name: 'Back to Tastebook' }));
+
+    expect(await screen.findByRole('heading', { name: 'Tastebook' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Page not found' })).not.toBeInTheDocument();
+  });
+});
