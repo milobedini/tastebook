@@ -114,6 +114,26 @@ Evidence: feature — visitors see a new search box that narrows the list as the
   ```
 
   The full list still requests `/api/recipes/` with no `q`. The key `['recipes', { q }]` can't clash with `useRecipe`'s `['recipes', slug]`, because a slug is a string and this is an object.
+- **Debounce hook.** New `frontend/src/hooks/use-debounced-value.ts`, the app's first shared hook that isn't tied to a resource. It is generic over the value's type, so any later page can debounce any value with it:
+
+  ```ts
+  import { useEffect, useState } from 'react';
+
+  // Syncs with a timer, not with React state: the value settles once it stops changing for delayMs.
+  export const useDebouncedValue = <Value>(value: Value, delayMs: number): Value => {
+    const [settled, setSettled] = useState(value);
+    useEffect(() => {
+      const timer = setTimeout(() => setSettled(value), delayMs);
+      return () => clearTimeout(timer);
+    }, [value, delayMs]);
+    return settled;
+  };
+  ```
+
+  It returns the settled value itself, not an object: it is a stand-in for the value, like `useDeferredValue`, so the house rule that custom hooks return objects is for hooks with several results. The first render returns `value` at once, with no delay. A change of `value` within `delayMs` restarts the timer. Values are compared by `Object.is`, so callers pass a primitive or a memoised reference.
+
+  `AGENTS.md`'s Layout gains one line under `src/app/`: `src/hooks/        shared hooks that aren't tied to an API resource`.
+
 - **Page.** `frontend/src/pages/recipes-page.tsx`. New pieces, all local to the file:
 
   ```tsx
@@ -124,16 +144,6 @@ Evidence: feature — visitors see a new search box that narrows the list as the
   const toSearchTerm = (text: string) => {
     const term = text.trim();
     return term.length >= MIN_SEARCH_LENGTH ? term : '';
-  };
-
-  // Syncs with a timer, not with React state: the value settles once typing pauses.
-  const useDebouncedValue = (value: string, delayMs: number) => {
-    const [settled, setSettled] = useState(value);
-    useEffect(() => {
-      const timer = setTimeout(() => setSettled(value), delayMs);
-      return () => clearTimeout(timer);
-    }, [value, delayMs]);
-    return settled;
   };
 
   type RecipeSearchProps = {
@@ -189,7 +199,7 @@ Evidence: feature — visitors see a new search box that narrows the list as the
   Changes to existing pieces:
   - `RecipeList` takes `{ searchTerm }: RecipeListProps` (`type RecipeListProps = { searchTerm: string }`), calls `useRecipes(searchTerm)`, and renders `<Recipes recipes={data.recipes} searchTerm={data.searchTerm} />`. Its branching order (data, then `isPending`, then `RecipesUnavailable`) and comments stay.
   - `Recipes` takes `searchTerm` too (`type RecipesProps = { recipes: Recipe[]; searchTerm: string }`) and returns `<NoRecipes searchTerm={searchTerm} />` for an empty array instead of the inline "No recipes yet.".
-  - Imports: `ChangeEvent` as a type from `react`, plus `useCallback`, `useEffect` and `useState`; `useSearchParams` from `react-router`.
+  - Imports: `ChangeEvent` as a type from `react`, plus `useCallback` and `useState`; `useSearchParams` from `react-router`; `useDebouncedValue` from `../hooks/use-debounced-value`.
   - `RecipeItem`, `RecipesUnavailable`, the heading, tab title and back link are unchanged.
 
 - **Test helper.** `frontend/src/test/render-route.tsx` returns `{ ...render(…), router }`, so tests can read `router.state.location` and call `router.navigate(-1)`. Existing callers ignore the return value.
@@ -217,6 +227,7 @@ sequenceDiagram
 - `INSTALLED_APPS` gains `django.contrib.postgres`. It adds no models or URLs. Re-run the full `pytest` suite and the admin tests.
 - Every database now needs the `unaccent` extension, which the migration creates. CI's and `compose.yaml`'s `tastebook` role is the Postgres superuser, so `migrate` and `pytest-django`'s test database can create it. Production is an assumption (see below).
 - `useRecipes` takes an argument and returns `{ searchTerm, recipes }` instead of `Recipe[]`. Its only caller is `RecipeList` (`recipes-page.tsx:48`). Its query key changes from `['recipes']` to `['recipes', { q }]`; nothing invalidates or reads `['recipes']` by key.
+- `useDebouncedValue` is new and exported, with one caller (`RecipesPage`). Nothing existing changes for it.
 - `renderRoute` returns more; its callers in `home-page.test.tsx`, `not-found-page.test.tsx`, `recipe-page.test.tsx` and `recipes-page.test.tsx` only call it.
 - `holdRecipes` in `recipes-page.test.tsx` returns `{ requested, release }` instead of a function, so its three existing callers (lines 37, 84 and 105 today) destructure `release`.
 - The default MSW list handler (`frontend/src/test/handlers.ts:15`) ignores `q` and stays as it is; search tests install their own.
@@ -230,9 +241,11 @@ sequenceDiagram
    Done when: `uv run pytest` passes, `uv run ruff check . && uv run ruff format --check .` is clean, and `uv run python manage.py makemigrations --check --dry-run` reports no changes (all in `backend/`).
 2. **Regenerate the contract.** `backend/schema.yml`, `frontend/src/api/schema.d.ts` (regenerated, never hand-edited).
    Done when: `uv run --env-file .env python manage.py spectacular --validate --fail-on-warn --file schema.yml` passes and `schema.d.ts` types `recipes_list`'s query as `{ q?: string }`.
-3. **Search from the list page.** `frontend/src/api/recipes.ts`, `frontend/src/pages/recipes-page.tsx`, `frontend/src/test/render-route.tsx`, `frontend/src/pages/recipes-page.test.tsx` (edit).
+3. **Add the shared debounce hook.** `frontend/src/hooks/use-debounced-value.ts` (new), `frontend/src/hooks/use-debounced-value.test.ts` (new), `AGENTS.md` (edit: the one Layout line).
+   Done when: `pnpm test` passes the new hook test and `pnpm lint` is clean.
+4. **Search from the list page.** `frontend/src/api/recipes.ts`, `frontend/src/pages/recipes-page.tsx`, `frontend/src/test/render-route.tsx`, `frontend/src/pages/recipes-page.test.tsx` (edit).
    Done when: `pnpm test` passes and `pnpm lint` is clean.
-4. **Check search against the real API.** `frontend/e2e/recipes.spec.ts` (edit: one new test).
+5. **Check search against the real API.** `frontend/e2e/recipes.spec.ts` (edit: one new test).
    Done when: `pnpm test:e2e` passes.
 
 ### Tests
@@ -252,6 +265,10 @@ sequenceDiagram
 
     asserts: status 200 and `[recipe['title'] for recipe in response.json()] == titles`.
   - The existing tests stay as they are and must still pass.
+- `frontend/src/hooks/use-debounced-value.test.ts`, new. `beforeEach` calls `vi.useFakeTimers()` and `afterEach` calls `vi.useRealTimers()`, as `home-page.test.tsx` does. Each case calls `renderHook(({ value }) => useDebouncedValue(value, 300), { initialProps: { value: 'a' } })` from `@testing-library/react` and moves time with `act(() => { vi.advanceTimersByTime(ms); })`.
+  - Returns the first value at once: asserts `result.current` is `'a'` before any time passes.
+  - Settles after the delay: `rerender({ value: 'ab' })`, advance 299 ms, asserts `result.current` is `'a'`; advance 1 ms more, asserts `result.current` is `'ab'`.
+  - Restarts the delay on each change: `rerender({ value: 'ab' })`, advance 200 ms, `rerender({ value: 'abc' })`, advance 200 ms, asserts `result.current` is `'a'`; advance 100 ms more, asserts `result.current` is `'abc'` (never `'ab'`).
 - `frontend/src/pages/recipes-page.test.tsx`. Add fixtures `appleTart` (`{ id: 1, slug: 'apple-tart', title: 'Apple tart', description: 'Sharp apples on buttery pastry.' }`) and `bananaBread` (`{ id: 2, slug: 'banana-bread', title: 'Banana bread', description: '' }`). Add a helper:
 
   ```ts
@@ -296,6 +313,7 @@ sequenceDiagram
 - The address is updated with `replace` on every keystroke, so typing adds no history entries and Back leaves the page rather than stepping back through letters. Back from a recipe returns to `/recipes?q=tart` with the search in place.
 - The search box keeps its own text in state, initialised from the address once. Driving the box straight from `useSearchParams` would update the input through a router navigation, which can lag a keystroke and move the caret. With `replace` there are no in-page history entries, so the address can't change under the open page; a reload or Back from another page mounts it again from the address.
 - The debounce is a small `useEffect` timer, which `AGENTS.md` allows because it syncs with a timer rather than deriving state. Debouncing in the change handler would leave a timer that can fire after the page has gone, with nothing to clear it.
+- The debounce is a shared, generic hook in `frontend/src/hooks/use-debounced-value.ts` with its own test, not a helper local to the recipes page. Debouncing isn't about recipes, and the next search or filter box would otherwise copy it. A new `src/hooks/` folder, rather than `src/api/`, because `src/api/` holds one hook module per API resource. No debounce library is added: the hook is eight lines. Asked: shouldn't debounce be reusable → yes.
 - `useRecipes` returns `{ searchTerm, recipes }`, so the results on screen always carry the term they answered. With `keepPreviousData`, the hook's data can belong to the previous term while the next one loads, and the empty message must name the term that produced it.
 - `RecipeList` keeps branching on `data`, then `isPending` (see the lesson). After a failed search the query has no data of its own, so the alert shows; pressing "Try again" shows the previous search's results while it retries, if there were any, and "Loading recipes…" otherwise.
 - The search box is a `form` with `role="search"` and a visible label "Search recipes" around an `input type="search"`, so it is a landmark and a named `searchbox`, and browsers that offer a clear button on search inputs clear it in one click.
