@@ -317,6 +317,8 @@ sequenceDiagram
 - `useRecipes` returns `{ searchTerm, recipes }`, so the results on screen always carry the term they answered. With `keepPreviousData`, the hook's data can belong to the previous term while the next one loads, and the empty message must name the term that produced it.
 - `RecipeList` keeps branching on `data`, then `isPending` (see the lesson). After a failed search the query has no data of its own, so the alert shows; pressing "Try again" shows the previous search's results while it retries, if there were any, and "Loading recipes…" otherwise.
 - The search box is a `form` with `role="search"` and a visible label "Search recipes" around an `input type="search"`, so it is a landmark and a named `searchbox`, and browsers that offer a clear button on search inputs clear it in one click.
+- The search box is a `<search>` element around the label, with no `form`, instead of `<form role="search">`. Biome's `lint/a11y/useSemanticElements` rejects `role="search"` and asks for the native element. Without a form there is nothing for Enter to submit, so the behaviour is the same: a search landmark, a `searchbox` named "Search recipes", and Enter does nothing. Found during the build; see `specs/lessons/biome-wants-native-landmark-elements.md`.
+- Steps 1 and 2 share a commit, because `AGENTS.md` says the endpoint change and both regenerated contract files are committed together. Found during the build.
 
 ## Assumptions
 
