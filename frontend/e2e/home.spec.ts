@@ -5,5 +5,5 @@ test('the home page shows a healthy API and database, and the API version', asyn
 
   await expect(page.getByRole('heading', { name: 'Tastebook' })).toBeVisible();
   await expect(page.getByText('API: ok, database: ok')).toBeVisible();
-  await expect(page.getByText('API version 0.1.0')).toBeVisible();
+  await expect(page.getByText(/^API version \d+(\.\d+)+$/)).toBeVisible();
 });

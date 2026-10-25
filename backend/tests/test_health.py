@@ -1,3 +1,4 @@
+import re
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -20,7 +21,10 @@ def test_health_reports_ok_with_a_live_database_and_the_api_version() -> None:
     response = APIClient().get(reverse('health'))
 
     assert response.status_code == 200
-    assert response.json() == {'status': 'ok', 'database': 'ok', 'version': '0.1.0'}
+    body = response.json()
+    assert {'status': body['status'], 'database': body['database']} == {'status': 'ok', 'database': 'ok'}
+    # Matches any release, so bumping the version in pyproject.toml doesn't break this test.
+    assert re.fullmatch(r'\d+(\.\d+)+', body['version'])
 
 
 @pytest.mark.django_db
@@ -31,4 +35,4 @@ def test_health_reports_the_version_declared_in_pyproject(tmp_path: Path, monkey
 
     response = APIClient().get(reverse('health'))
 
-    assert response.json()['version'] == '2.3.4'
+    assert response.json() == {'status': 'ok', 'database': 'ok', 'version': '2.3.4'}
