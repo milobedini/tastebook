@@ -8,9 +8,12 @@ import { routes } from '../app/routes';
 export const renderRoute = (path: string) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const router = createMemoryRouter(routes, { initialEntries: [path] });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
+  return {
+    ...render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    ),
+    router
+  };
 };
