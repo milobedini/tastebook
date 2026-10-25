@@ -13,3 +13,19 @@ export const useRecipes = () =>
       return data;
     }
   });
+
+export const useRecipe = (slug: string) =>
+  useQuery({
+    queryKey: ['recipes', slug],
+    queryFn: async () => {
+      const { data, error, response } = await api.GET('/api/recipes/{slug}/', { params: { path: { slug } } });
+      // A missing recipe is an answer, not a failure, so it's cached and never retried.
+      if (response.status === 404) {
+        return null;
+      }
+      if (error || !data) {
+        throw new Error('Recipe request failed');
+      }
+      return data;
+    }
+  });

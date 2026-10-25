@@ -30,6 +30,26 @@ paths:
                 items:
                   $ref: '#/components/schemas/Recipe'
           description: ''
+  /api/recipes/{slug}/:
+    get:
+      operationId: recipes_retrieve
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - recipes
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+          description: ''
+        '404':
+          description: No recipe has this slug.
 components:
   schemas:
     DatabaseEnum:
@@ -59,6 +79,10 @@ components:
         id:
           type: integer
           readOnly: true
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
         title:
           type: string
           maxLength: 200
@@ -68,6 +92,7 @@ components:
       required:
       - description
       - id
+      - slug
       - title
     StatusEnum:
       enum:

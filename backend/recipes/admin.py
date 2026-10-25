@@ -6,3 +6,4 @@ from recipes.models import Recipe
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('title', 'description')
+    readonly_fields = ('slug',)

@@ -36,8 +36,8 @@ describe('RecipesPage', () => {
   it('shows a loading message, then the recipes in the order the API sends', async () => {
     const release = holdRecipes(() =>
       HttpResponse.json<Recipe[]>([
-        { id: 7, title: 'Shakshuka', description: 'Eggs in spiced tomatoes.' },
-        { id: 3, title: 'Apple tart', description: '' }
+        { id: 7, slug: 'shakshuka', title: 'Shakshuka', description: 'Eggs in spiced tomatoes.' },
+        { id: 3, slug: 'apple-tart', title: 'Apple tart', description: '' }
       ])
     );
 
@@ -82,7 +82,9 @@ describe('RecipesPage', () => {
     const tryAgain = await screen.findByRole('button', { name: 'Try again' });
 
     const release = holdRecipes(() =>
-      HttpResponse.json<Recipe[]>([{ id: 7, title: 'Shakshuka', description: 'Eggs in spiced tomatoes.' }])
+      HttpResponse.json<Recipe[]>([
+        { id: 7, slug: 'shakshuka', title: 'Shakshuka', description: 'Eggs in spiced tomatoes.' }
+      ])
     );
     await userEvent.click(tryAgain);
 
@@ -109,6 +111,19 @@ describe('RecipesPage', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent("The recipes couldn't be loaded.");
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+  });
+
+  it('opens a recipe from its title in the list', async () => {
+    renderRoute('/recipes');
+
+    const link = await screen.findByRole('link', { name: 'Apple tart' });
+    expect(link).toHaveAttribute('href', '/recipes/apple-tart');
+
+    await userEvent.click(link);
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Apple tart' })).toBeInTheDocument();
+    expect(screen.getByText('Sharp apples on buttery pastry.')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Recipes' })).not.toBeInTheDocument();
   });
 
   it('takes the visitor home from the back link', async () => {

@@ -22,7 +22,9 @@ type RecipeItemProps = { recipe: Recipe };
 
 const RecipeItem = ({ recipe }: RecipeItemProps) => (
   <li>
-    <h2>{recipe.title}</h2>
+    <h2>
+      <Link to={`/recipes/${recipe.slug}`}>{recipe.title}</Link>
+    </h2>
     {recipe.description !== '' && <p>{recipe.description}</p>}
   </li>
 );
