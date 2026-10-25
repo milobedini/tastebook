@@ -15,6 +15,8 @@
       "!!**/test-results",
       "!!**/.venv",
       "!!frontend/src/api/schema.d.ts",
+      "!pnpm-lock.yaml",
+      "!**/.claude/settings.local.json",
       "!!backend/schema.yml"
     ]
   },
