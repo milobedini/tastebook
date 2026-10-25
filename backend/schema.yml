@@ -16,6 +16,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/Health'
           description: ''
+  /api/recipes/:
+    get:
+      operationId: recipes_list
+      tags:
+      - recipes
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+          description: ''
 components:
   schemas:
     DatabaseEnum:
@@ -39,6 +53,22 @@ components:
       - database
       - status
       - version
+    Recipe:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 300
+      required:
+      - description
+      - id
+      - title
     StatusEnum:
       enum:
       - ok
