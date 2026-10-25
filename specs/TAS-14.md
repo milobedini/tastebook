@@ -306,6 +306,8 @@ stateDiagram-v2
 - A load failure shows the alert "The recipe couldn't be loaded." with "Try again", which shows "Loading recipe…" again; not found is never retried. Asked: error state → yes, mirror the list page.
 - `RecipeUnavailable` and the test helpers `failRecipe` and `holdRecipe` stay local to the recipe page, as TAS-13 decided for the list page. Sharing them means editing the home and list pages, which this issue didn't ask for; the TAS-13 follow-up covers all three.
 - The end-to-end check covers the "not found" path only, because CI's database has no recipes and seeding one means changing the CI workflow.
+- The migration's `AddField` sets `db_index=False`, because on Postgres altering an indexed `SlugField` to `unique=True` tries to create the same `_like` index again and fails with `relation "recipes_recipe_slug_b40bdd3d_like" already exists`. The `AlterField` creates the unique constraint and the `_like` index once. Found during the build; see `specs/lessons/indexed-slugfield-to-unique-migration.md`.
+- The list's "opens a recipe from its title" test is committed with the recipe page, not in step 4, because it clicks through to the page that step 5 adds. Found during the build.
 
 ## Assumptions
 
