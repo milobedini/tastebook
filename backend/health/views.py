@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from health.serializers import HealthSerializer
+from health.services import api_version
 
 
 def database_status() -> str:
@@ -21,5 +22,5 @@ class HealthView(APIView):
 
     @extend_schema(responses=HealthSerializer, operation_id='health_retrieve')
     def get(self, request: Request) -> Response:
-        serializer = HealthSerializer({'status': 'ok', 'database': database_status()})
+        serializer = HealthSerializer({'status': 'ok', 'database': database_status(), 'version': api_version()})
         return Response(serializer.data)

@@ -60,7 +60,7 @@ describe('HomePage', () => {
     renderRoute('/');
     const tryAgain = await screen.findByRole('button', { name: 'Try again' });
 
-    const release = holdHealth(() => HttpResponse.json<Health>({ status: 'ok', database: 'ok' }));
+    const release = holdHealth(() => HttpResponse.json<Health>({ status: 'ok', database: 'ok', version: '0.1.0' }));
     await userEvent.click(tryAgain);
 
     expect(await screen.findByText('Checking the API…')).toBeInTheDocument();
@@ -112,7 +112,11 @@ describe('HomePage status checks', () => {
     renderRoute('/');
     await screen.findByText('API: ok, database: ok');
 
-    server.use(http.get('/api/health/', () => HttpResponse.json<Health>({ status: 'ok', database: 'unavailable' })));
+    server.use(
+      http.get('/api/health/', () =>
+        HttpResponse.json<Health>({ status: 'ok', database: 'unavailable', version: '0.1.0' })
+      )
+    );
     await vi.advanceTimersByTimeAsync(60_000);
 
     expect(await screen.findByText('API: ok, database: unavailable')).toBeInTheDocument();
@@ -142,7 +146,7 @@ describe('HomePage status checks', () => {
     renderRoute('/');
     await screen.findByRole('alert');
 
-    const release = holdHealth(() => HttpResponse.json<Health>({ status: 'ok', database: 'ok' }));
+    const release = holdHealth(() => HttpResponse.json<Health>({ status: 'ok', database: 'ok', version: '0.1.0' }));
     await vi.advanceTimersByTimeAsync(60_000);
 
     expect(screen.getByRole('alert')).toHaveTextContent('The API is unreachable.');

@@ -33,6 +33,7 @@ export interface components {
         Health: {
             status: components["schemas"]["StatusEnum"];
             database: components["schemas"]["DatabaseEnum"];
+            version: string;
         };
         /**
          * @description * `ok` - ok
