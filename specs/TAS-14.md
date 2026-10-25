@@ -1,8 +1,8 @@
 ---
 issue: TAS-14
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tas-14-let-visitors-open-a-recipe-to-see-its-details
-pr:
+pr: 11
 ---
 
 # Let visitors open a recipe to see its details
