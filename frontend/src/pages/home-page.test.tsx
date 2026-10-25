@@ -100,6 +100,14 @@ describe('HomePage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('The API is unreachable.');
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
   });
+  it('opens the recipes page from the "Browse recipes" link', async () => {
+    renderRoute('/');
+
+    await userEvent.click(screen.getByRole('link', { name: 'Browse recipes' }));
+
+    expect(await screen.findByRole('heading', { name: 'Recipes' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Tastebook' })).not.toBeInTheDocument();
+  });
 });
 
 describe('HomePage status checks', () => {

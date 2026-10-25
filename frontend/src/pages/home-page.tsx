@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { Link } from 'react-router';
 
 import { useHealth } from '../api/health';
 
@@ -61,6 +62,7 @@ export const HomePage = () => (
   <main>
     <title>Tastebook</title>
     <h1>Tastebook</h1>
+    <Link to="/recipes">Browse recipes</Link>
     <ApiStatus />
   </main>
 );
