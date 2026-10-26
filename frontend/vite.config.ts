@@ -1,4 +1,6 @@
+import { fileURLToPath } from 'node:url';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
@@ -6,14 +8,20 @@ import { defineConfig } from 'vite';
 // three the browser needs are passed in by name; nothing else under SENTRY_ reaches it.
 const { SENTRY_AUTH_TOKEN, SENTRY_DSN = '', VERCEL_ENV = '', VERCEL_GIT_COMMIT_SHA = '' } = process.env;
 
+// Previews and production are both Vercel builds; only VERCEL_ENV tells them apart.
+// Anything on Vercel that isn't a preview counts as production, so a missing variable hides the page.
+const showStyleguide = process.env.VERCEL !== '1' || VERCEL_ENV === 'preview';
+
 export default defineConfig({
   define: {
+    'import.meta.env.VITE_SHOW_STYLEGUIDE': JSON.stringify(showStyleguide),
     'import.meta.env.VITE_SENTRY_DSN': JSON.stringify(SENTRY_DSN),
     'import.meta.env.VITE_SENTRY_ENVIRONMENT': JSON.stringify(VERCEL_ENV),
     'import.meta.env.VITE_SENTRY_RELEASE': JSON.stringify(VERCEL_GIT_COMMIT_SHA)
   },
   plugins: [
     react(),
+    tailwindcss(),
     sentryVitePlugin({
       disable: !SENTRY_AUTH_TOKEN,
       telemetry: false,
@@ -22,6 +30,11 @@ export default defineConfig({
       sourcemaps: { filesToDeleteAfterUpload: ['./dist/**/*.map'] }
     })
   ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  },
   build: {
     sourcemap: SENTRY_AUTH_TOKEN ? 'hidden' : false
   },
