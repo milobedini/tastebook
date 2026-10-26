@@ -1,9 +1,8 @@
 import type { RouteObject } from 'react-router';
 
-import { HomePage } from '../pages/home-page';
-import { NotFoundPage } from '../pages/not-found-page';
-import { RecipePage } from '../pages/recipe-page';
-import { RecipesPage } from '../pages/recipes-page';
+import { RecipePage, RecipesPage } from '../recipes';
+import { HomePage } from './home-page';
+import { NotFoundPage } from './not-found-page';
 
 export const routes: RouteObject[] = [
   { path: '/', Component: HomePage },

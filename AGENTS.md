@@ -32,7 +32,7 @@ What the product does and won't do is in the Linear team's Vision document; each
 - [n] `import React from 'react'`; import what you need by name.
 - [n] reach for `useEffect` to derive state or respond to events. Derive during render or handle it in the event handler.
 - [a] build UI from the design system's tokens and components and follow [`docs/design.md`](docs/design.md); [n] use a literal colour, font or radius.
-- [a] give every request a loading and an error state, using a TanStack Query hook in `src/api/`.
+- [a] give every request a loading and an error state, using a TanStack Query hook in the area's folder.
 - [n] edit `src/api/schema.d.ts` by hand. It's generated from `backend/schema.yml` (see [API contract](#api-contract)).
 - [a] mock HTTP in tests with MSW (`src/test/handlers.ts` for defaults, `server.use(...)` per test). [n] mock `fetch` or the API client directly.
 
@@ -73,7 +73,7 @@ The code is organised by domain area, the same areas on both sides, named in the
 | `planning`    | the meal plan, the shopping list                                                           |
 | `importing`   | importing from a web address, pasted text and the Tastebook format                         |
 
-- The backend has one Django app per area. The frontend has one folder per area, `src/<area>/`, with that area's pages, components and API hooks together; `src/ui/` holds the design-system components, `src/app/` the router and providers, `src/lib/` shared code with at least three users. (The frontend moves to this layout in TAS-23; until then it's as in [Layout](#layout).)
+- The backend has one Django app per area. The frontend has one folder per area, `src/<area>/`, with that area's pages, components and API hooks together; `src/ui/` holds the design-system components, `src/app/` the router and providers, `src/lib/` shared code with at least three users.
 - [a] reach another area's behaviour through its public surface: its `services.py` (and querysets) in the backend, its `index.ts` exports in the frontend. Foreign keys to another area's models are fine.
 - [n] import another area's internals (views, serializers, private helpers, components it doesn't export).
 - Dependencies point one way: every area may depend on `households` (who owns what); `collections`, `kitchen` and `importing` depend on `recipes`; `planning` depends on `recipes` and `kitchen`; `households` depends on no other area. [n] add a dependency that points back.
@@ -82,11 +82,12 @@ The code is organised by domain area, the same areas on both sides, named in the
 
 ```text
 frontend/
-  src/api/          typed client (openapi-fetch), generated schema.d.ts, one hook module per resource
-  src/app/          router, query client
-  src/components/   UI pieces shared by more than one page
-  src/hooks/        shared hooks that aren't tied to an API resource
-  src/pages/        one route component per file, with its *.test.tsx beside it
+  src/<area>/       one folder per domain area (recipes/ so far): its pages, components and
+                    API hooks, each *.test.tsx beside its file; index.ts exports what other areas use
+  src/app/          router, query client, and what belongs to no area (home and not-found pages, health check)
+  src/api/          typed client (openapi-fetch) and generated schema.d.ts, shared by every area
+  src/ui/           design-system components (none yet; TAS-29)
+  src/lib/          shared code with at least three users (none yet)
   src/test/         MSW server and default handlers, render helpers
   e2e/              Playwright specs (run against the real backend)
 backend/

@@ -1,8 +1,8 @@
 import { Link, useParams } from 'react-router';
 
-import { useRecipe } from '../api/recipes';
 import type { components } from '../api/schema';
-import { RecipeCuisines } from '../components/recipe-cuisines';
+import { RecipeCuisines } from './recipe-cuisines';
+import { useRecipe } from './recipes-api';
 
 type Recipe = components['schemas']['Recipe'];
 
