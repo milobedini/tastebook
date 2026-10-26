@@ -69,7 +69,7 @@ _planned: Real recipes._
 | Errors | Sentry for the frontend and Django, free plan, through the Marketplace. _planned: TAS-25._ | Problems are found without someone reporting them. |
 | Success measures | Events in Tastebook's own database (a plan used, cooking mode opened, an import saved without fixes), shown on a staff page. _planned._ | Measures exactly what the Vision asks, sends nobody's data elsewhere, costs nothing. |
 | Backups | A nightly GitHub Action dumps production into a private Blob store, kept 30 days. _planned: TAS-27._ | Neon's free plan only restores a few hours back, and losing the household's recipes is the worst thing that could happen. |
-| Checks on previews | Playwright end to end, axe for WCAG 2.2 AA, Lighthouse on mobile. _planned: TAS-26._ | Work is checked as it ships, before review. Thresholds are in `AGENTS.md`, Standards. |
+| Checks on previews | Playwright end to end, axe for WCAG 2.2 AA, Lighthouse on mobile, run by `.github/workflows/preview-checks.yml` when Vercel reports a preview deployed; results are a comment on the PR. | Work is checked as it ships, before review. Thresholds are in `AGENTS.md`, Standards. |
 | Dependencies | Dependabot weekly with a 7-day cooldown; pnpm and uv ignore releases under a day old. | Routine updates without supply-chain surprises. |
 
 ## Code
