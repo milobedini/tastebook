@@ -13,6 +13,8 @@ export const startErrorReporting = (): RootOptions => {
     dsn,
     environment: import.meta.env.VITE_SENTRY_ENVIRONMENT,
     release: import.meta.env.VITE_SENTRY_RELEASE,
+    // Ad blockers drop requests to sentry.io; vercel.json forwards this same-origin path to the project's ingest URL.
+    tunnel: '/monitoring',
     // A request's body can hold a recipe's text; cookies and user details are a person's.
     dataCollection: { userInfo: false, cookies: false, httpBodies: [] }
   });
