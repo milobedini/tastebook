@@ -1,7 +1,9 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures.ts';
 
-test('the home page links to the recipes page, which loads from the real API', async ({ page }) => {
+test('the home page links to the recipes page, which loads from the real API', async ({ page, accessibility }) => {
   await page.goto('/');
+  await expect(page.getByRole('link', { name: 'Browse recipes' })).toBeVisible();
+  await accessibility.check();
 
   await page.getByRole('link', { name: 'Browse recipes' }).click();
 
