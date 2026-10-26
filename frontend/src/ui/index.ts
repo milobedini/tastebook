@@ -9,6 +9,7 @@ export { FilterChip } from './filter-chip';
 export { IconButton } from './icon-button';
 export { Input, SearchInput } from './input';
 export { NativeSelect } from './native-select';
+export { Page } from './page';
 export { RecipeCard } from './recipe-card';
 export { SegmentedControl } from './segmented-control';
 export { ServingsStepper } from './servings-stepper';
