@@ -1,0 +1,59 @@
+import { CircleAlert } from 'lucide-react';
+import { type ReactNode, useId } from 'react';
+
+export type FieldControlProps = {
+  id: string;
+  'aria-describedby'?: string;
+  'aria-invalid'?: true;
+};
+
+type FieldProps = {
+  label: string;
+  help?: string;
+  error?: string;
+  children: (control: FieldControlProps) => ReactNode;
+};
+
+type FieldTextProps = { id: string; children: string };
+
+const FieldHelp = ({ id, children }: FieldTextProps) => (
+  <p id={id} className="text-small text-muted">
+    {children}
+  </p>
+);
+
+const FieldError = ({ id, children }: FieldTextProps) => (
+  <p id={id} className="flex items-center gap-1.5 text-danger text-small">
+    <CircleAlert aria-hidden="true" className="size-4 shrink-0" />
+    {children}
+  </p>
+);
+
+const FieldDescription = ({ id, help, error }: { id: string; help?: string; error?: string }) => {
+  if (error) {
+    return <FieldError id={id}>{error}</FieldError>;
+  }
+  if (help) {
+    return <FieldHelp id={id}>{help}</FieldHelp>;
+  }
+  return null;
+};
+
+export const Field = ({ label, help, error, children }: FieldProps) => {
+  const id = useId();
+  const descriptionId = `${id}-description`;
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-label">
+        {label}
+      </label>
+      {children({
+        id,
+        'aria-describedby': error || help ? descriptionId : undefined,
+        'aria-invalid': error ? true : undefined
+      })}
+      <FieldDescription id={descriptionId} help={help} error={error} />
+    </div>
+  );
+};

@@ -306,7 +306,7 @@ flowchart LR
   - PR 2. Filter chip: click `button` "Under 30 min", asserts: it has `aria-pressed="true"` (it starts `false`).
   - PR 2. Checkbox row: click `checkbox` "2 courgettes", asserts: it is checked (it starts unchecked).
   - PR 2. Field error: `textbox` "Servings" has `aria-invalid="true"` and accessible description "Enter a number, like 4."; `textbox` "Recipe title" has accessible description "Shown on cards and at the top of the recipe." and no `aria-invalid`.
-  - PR 2. Icon buttons have names: `button` "Add to Favourites", "Share" and "More actions" are present; click "Add to Favourites", asserts: it has `aria-pressed="true"`.
+  - PR 2. Icon buttons have names: `button` "Favourite", "Share" and "More actions" are present; click "Favourite", asserts: it has `aria-pressed="true"` and is still named "Favourite".
   - PR 2. Toast: click "Show a toast", asserts: text "Saved to Favourites" and `button` "Undo" appear.
   - PR 2. Dialog: click "Delete account", asserts: `alertdialog` "Delete your account?" is present; click "Cancel", asserts: no `alertdialog` and focus is on the "Delete account" trigger.
   - PR 2. Recipe card: `link` "Courgette and lemon orzo" has `href` `/recipes/courgette-and-lemon-orzo`.
@@ -331,6 +331,8 @@ flowchart LR
 - The issue lists the whole set up front, which the rule of three in `AGENTS.md` and `docs/design.md` would otherwise forbid; the issue's explicit list is the stated exception, and the style guide is every component's first user. Components no page uses yet (stepper, chips, checkbox rows, toast, dialog) stay unused outside the style guide until their features arrive. (agent)
 - `SegmentedControl` and `FilterChip` are written on Radix `Toggle` rather than shadcn's `toggle`/`toggle-group`, because both are `aria-pressed` buttons as in the reference, and one shared `toggle.tsx` with two variants would be a middle man. (agent)
 - The search field keeps its visible "Search recipes" label above it (the reference hides it), because the existing tests find the box by that name and Enamel's Field rule asks for a visible label. (agent)
+- The checkbox's corner is its own token, `--radius-check: 8px`, because the 12 px field corner would make a 24 px box a circle and `AGENTS.md` rules out an arbitrary radius. Asked (in review of PR 2): how should the checkbox get its 8 px corner? → Add an 8 px corner token.
+- An icon button that toggles keeps one name ("Favourite") and carries its state in `aria-pressed`, because the ARIA button pattern advises against changing a toggle's name with its state. Asked (in review of PR 2): how should the Favourites toggle tell a screen reader its state? → Fixed label, pressed state.
 - `src/ui/` files use the `@/` alias the CLI writes; everything else keeps relative imports, so no existing import changes. (agent)
 
 ## Assumptions
