@@ -1,8 +1,8 @@
 ---
 issue: TAS-29
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tas-29-enamel-foundation
-pr:
+pr: 26
 ---
 
 # Set up the Enamel design system in the frontend
