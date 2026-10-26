@@ -1,8 +1,8 @@
 ---
 issue: TAS-17
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tas-17-let-visitors-filter-recipes-by-cuisine
-pr:
+pr: 14
 ---
 
 # Let visitors filter recipes by cuisine
