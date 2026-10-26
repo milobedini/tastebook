@@ -8,6 +8,7 @@ dependencies = [
     "djangorestframework>=3.18.3",
     "drf-spectacular>=0.30.0",
     "psycopg[binary]>=3.3.6",
+    "sentry-sdk[django]>=2.73.0",
 ]
 
 [dependency-groups]

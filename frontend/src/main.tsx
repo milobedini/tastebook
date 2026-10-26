@@ -9,6 +9,7 @@ import '@fontsource/atkinson-hyperlegible/400.css';
 import '@fontsource/atkinson-hyperlegible/700.css';
 import './ui/enamel.css';
 
+import { startErrorReporting } from './app/error-reporting';
 import { createQueryClient } from './app/query-client';
 import { routes } from './app/routes';
 
@@ -17,10 +18,11 @@ if (!root) {
   throw new Error('Missing #root element');
 }
 
+const rootOptions = startErrorReporting();
 const router = createBrowserRouter(routes);
 const queryClient = createQueryClient();
 
-createRoot(root).render(
+createRoot(root, rootOptions).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
