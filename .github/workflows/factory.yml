@@ -18,3 +18,6 @@ jobs:
       prompt: ${{ github.event.client_payload.prompt }}
     secrets:
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      # The factory's own GitHub App, which can push workflow files.
+      FACTORY_APP_CLIENT_ID: ${{ secrets.FACTORY_APP_CLIENT_ID }}
+      FACTORY_APP_PRIVATE_KEY: ${{ secrets.FACTORY_APP_PRIVATE_KEY }}
