@@ -86,7 +86,12 @@ To restore, with the Postgres 18 client tools (`pg_restore`) on your `PATH`, fro
 BACKUP_BLOB_READ_WRITE_TOKEN=<token> TARGET_DATABASE_URL=<direct connection string> pnpm --filter @tastebook/backup restore [tastebook-2026-10-26T021705Z.dump]
 ```
 
-Leave out the dump's name to restore the latest. It drops and recreates the dump's tables in the target in one transaction, so a failed restore changes nothing. Try it on a preview's Neon branch (its direct connection string is in the Neon console), never production unless production is what you're recovering.
+Leave out the dump's name to restore the latest. It drops and recreates the dump's tables in the target in one transaction, so a failed restore changes nothing.
+
+- **Client tools on a Mac:** `brew install libpq` gives Postgres 18's `pg_restore`; it isn't linked, so put `/opt/homebrew/opt/libpq/bin` first on the `PATH` for the command.
+- **The token:** Vercel → Storage → `tastebook-backups` → `.env.local`; paste the value alone, without its name or quotes.
+- **The target:** a Neon branch's direct connection string (Neon console → Connect, with connection pooling off): it starts `postgresql://` and its host has no `-pooler`. Check the host is the branch you mean before running, never production's unless production is what you're recovering. Reading both values with `read -s` keeps them out of your shell history.
+- **Trying it:** preview branches are copies of production, so a restore into one looks the same whether it worked or not. Make a throwaway branch from production, change some rows on it, restore, compare it with production, then delete the branch. Tried this way on 26 Oct with the first backup: the changed rows, tables, constraints, indexes and sequences all matched production.
 
 ## Code
 
