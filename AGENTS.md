@@ -86,7 +86,7 @@ frontend/
                     API hooks, each *.test.tsx beside its file; index.ts exports what other areas use
   src/app/          router, query client, and what belongs to no area (home and not-found pages, health check)
   src/api/          typed client (openapi-fetch) and generated schema.d.ts, shared by every area
-  src/ui/           design-system components (none yet; TAS-29)
+  src/ui/           design-system components: shadcn/ui restyled to Enamel, tokens in enamel.css; add one with pnpm --filter frontend ui:add <name>
   src/lib/          shared code with at least three users (none yet)
   src/test/         MSW server and default handlers, render helpers
   e2e/              Playwright specs (run against the real backend)
