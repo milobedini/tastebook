@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router';
 
 import { useRecipes } from '../api/recipes';
 import type { components } from '../api/schema';
+import { RecipeCuisines } from '../components/recipe-cuisines';
 import { useDebouncedValue } from '../hooks/use-debounced-value';
 
 type Recipe = components['schemas']['Recipe'];
@@ -51,6 +52,7 @@ const RecipeItem = ({ recipe }: RecipeItemProps) => (
     <h2>
       <Link to={`/recipes/${recipe.slug}`}>{recipe.title}</Link>
     </h2>
+    <RecipeCuisines cuisines={recipe.cuisines} />
     {recipe.description !== '' && <p>{recipe.description}</p>}
   </li>
 );

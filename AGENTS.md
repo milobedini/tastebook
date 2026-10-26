@@ -54,6 +54,7 @@ Tastebook is a recipe hub. One repo, two apps: `frontend/` (React 19, Vite, TanS
 frontend/
   src/api/          typed client (openapi-fetch), generated schema.d.ts, one hook module per resource
   src/app/          router, query client
+  src/components/   UI pieces shared by more than one page
   src/hooks/        shared hooks that aren't tied to an API resource
   src/pages/        one route component per file, with its *.test.tsx beside it
   src/test/         MSW server and default handlers, render helpers
