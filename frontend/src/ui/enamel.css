@@ -20,6 +20,7 @@
   --color-warning: light-dark(#7a5200, #ffd84d);
   --color-danger: light-dark(#c2321f, #ff8a75);
   --color-on-danger: light-dark(#ffffff, #0d1424);
+  --color-scrim: light-dark(rgb(13 20 36 / 0.45), rgb(0 0 0 / 0.6));
 
   --font-*: initial;
   --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
@@ -71,6 +72,7 @@
   --cuisine-mexican: #b8342c;
   --cuisine-french: #7c8f4e;
   --cuisine-other: #6a5acd;
+  --plate: light-dark(#ffffff, #e8edf7);
 }
 
 :root[data-theme="light"] {

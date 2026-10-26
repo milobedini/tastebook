@@ -25,8 +25,9 @@ Token names follow Tailwind's `--color-*` convention, so `--color-cobalt` is `bg
 | `--color-warning` | `#7a5200` | `#ffd84d` | Status: needs a look | 6.9 / 11.7 |
 | `--color-danger` | `#c2321f` | `#ff8a75` | Status: errors, destructive actions | 5.6 / 7.0 |
 | `--color-on-danger` | `#ffffff` | `#0d1424` | Text on danger | |
+| `--color-scrim` | `rgb(13 20 36 / 0.45)` | `rgb(0 0 0 / 0.6)` | The backdrop behind a dialog | |
 
-**Cuisine colours** fill the placeholder plate when a recipe has no photo. They're decorative, so they have no contrast requirement: `--cuisine-italian` `#e2583e`, `--cuisine-indian` `#e0a526`, `--cuisine-japanese` `#4e7a5a`, `--cuisine-mexican` `#b8342c`, `--cuisine-french` `#7c8f4e`, `--cuisine-other` `#6a5acd`. Add a cuisine's colour when it's added to the catalogue.
+**Cuisine colours** fill the placeholder plate when a recipe has no photo. They're decorative, so they have no contrast requirement: `--cuisine-italian` `#e2583e`, `--cuisine-indian` `#e0a526`, `--cuisine-japanese` `#4e7a5a`, `--cuisine-mexican` `#b8342c`, `--cuisine-french` `#7c8f4e`, `--cuisine-other` `#6a5acd`. A cuisine without its own colour uses `--cuisine-other`; add a cuisine's colour when it's added to the catalogue. The plate drawn on them is `--plate`: `#ffffff` in light, `#e8edf7` in dark.
 
 Light and dark follow the phone's setting; a toggle overrides it by setting `data-theme="light"` or `data-theme="dark"` on the root element.
 
