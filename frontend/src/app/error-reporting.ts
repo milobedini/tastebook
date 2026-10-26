@@ -16,5 +16,13 @@ export const startErrorReporting = (): RootOptions => {
     // A request's body can hold a recipe's text; cookies and user details are a person's.
     dataCollection: { userInfo: false, cookies: false, httpBodies: [] }
   });
-  return { onUncaughtError: reactErrorHandler(), onCaughtError: reactErrorHandler() };
+  const reportToSentry = reactErrorHandler();
+  // Logged here rather than in reactErrorHandler's callback: passing one marks every error as handled in Sentry, uncaught
+  // ones included.
+  const reportAndLog: typeof reportToSentry = (error, errorInfo) => {
+    reportToSentry(error, errorInfo);
+    // biome-ignore lint/suspicious/noConsole: previews' checks read render errors from the console, as React's defaults print them
+    console.error(error);
+  };
+  return { onUncaughtError: reportAndLog, onCaughtError: reportAndLog };
 };
