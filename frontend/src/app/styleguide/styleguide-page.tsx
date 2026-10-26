@@ -1,3 +1,11 @@
+import { ConfirmSection, EmptyStateSection, FeedbackSection, RecipeCardsSection } from './content-sections';
+import {
+  ButtonsSection,
+  FieldsSection,
+  FiltersSection,
+  ServingsSection,
+  ShoppingListSection
+} from './control-sections';
 import { ThemeSwitcher } from './theme-switcher';
 import { ColourSection, ShapeSection, TypeSection } from './token-sections';
 
@@ -9,5 +17,14 @@ export const StyleguidePage = () => (
     <ColourSection />
     <TypeSection />
     <ShapeSection />
+    <ButtonsSection />
+    <FieldsSection />
+    <FiltersSection />
+    <ServingsSection />
+    <ShoppingListSection />
+    <RecipeCardsSection />
+    <FeedbackSection />
+    <ConfirmSection />
+    <EmptyStateSection />
   </main>
 );
