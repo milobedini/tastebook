@@ -7,6 +7,7 @@ import type { components } from '../api/schema';
 import { renderRoute } from '../test/render-route';
 import { server } from '../test/server';
 
+type Cuisine = components['schemas']['Cuisine'];
 type Recipe = components['schemas']['Recipe'];
 
 const failRecipes = () => server.use(http.get('/api/recipes/', () => new HttpResponse(null, { status: 503 })));
@@ -15,9 +16,10 @@ const appleTart: Recipe = {
   id: 1,
   slug: 'apple-tart',
   title: 'Apple tart',
-  description: 'Sharp apples on buttery pastry.'
+  description: 'Sharp apples on buttery pastry.',
+  cuisines: [{ slug: 'french', name: 'French' }]
 };
-const bananaBread: Recipe = { id: 2, slug: 'banana-bread', title: 'Banana bread', description: '' };
+const bananaBread: Recipe = { id: 2, slug: 'banana-bread', title: 'Banana bread', description: '', cuisines: [] };
 
 // Holds the next recipes response until released, so the test can see the page while the request is in flight.
 const holdRecipes = (respond: () => Response) => {
@@ -51,6 +53,46 @@ const answerSearches = (results: Record<string, Recipe[]>) => {
   return searches;
 };
 
+const failCuisines = () => server.use(http.get('/api/cuisines/', () => new HttpResponse(null, { status: 503 })));
+
+// Holds the next cuisines response until released, so the test can see the picker while the request is in flight.
+const holdCuisines = (respond: () => Response) => {
+  const gate = { arrive: () => {}, release: () => {} };
+  const requested = new Promise<void>((resolve) => {
+    gate.arrive = resolve;
+  });
+  const released = new Promise<void>((resolve) => {
+    gate.release = resolve;
+  });
+  server.use(
+    http.get('/api/cuisines/', async () => {
+      gate.arrive();
+      await released;
+      return respond();
+    })
+  );
+  return { requested, release: () => gate.release() };
+};
+
+// Answers each list request from `results` by its sorted query string ('' for none) and records the ones it was asked for.
+const answerFilters = (results: Record<string, Recipe[]>) => {
+  const queries: string[] = [];
+  server.use(
+    http.get('/api/recipes/', ({ request }) => {
+      const params = new URL(request.url).searchParams;
+      params.sort();
+      const query = params.toString();
+      queries.push(query);
+      return HttpResponse.json<Recipe[]>(results[query] ?? []);
+    })
+  );
+  return queries;
+};
+
+const cuisinePicker = () => screen.getByRole('combobox', { name: 'Cuisine' });
+
+const optionNames = () => screen.getAllByRole('option').map((option) => option.textContent);
+
 const headings = () => screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent);
 
 const searchBox = () => screen.getByRole('searchbox', { name: 'Search recipes' });
@@ -67,8 +109,8 @@ describe('RecipesPage', () => {
   it('shows a loading message, then the recipes in the order the API sends', async () => {
     const { release } = holdRecipes(() =>
       HttpResponse.json<Recipe[]>([
-        { id: 7, slug: 'shakshuka', title: 'Shakshuka', description: 'Eggs in spiced tomatoes.' },
-        { id: 3, slug: 'apple-tart', title: 'Apple tart', description: '' }
+        { id: 7, slug: 'shakshuka', title: 'Shakshuka', description: 'Eggs in spiced tomatoes.', cuisines: [] },
+        { id: 3, slug: 'apple-tart', title: 'Apple tart', description: '', cuisines: [] }
       ])
     );
 
@@ -88,6 +130,35 @@ describe('RecipesPage', () => {
     expect(screen.getByRole('heading', { name: 'Apple tart' }).closest('li')).toHaveTextContent(/^Apple tart$/);
     expect(screen.queryByText('Loading recipes…')).not.toBeInTheDocument();
     expect(screen.queryByText('No recipes yet.')).not.toBeInTheDocument();
+  });
+
+  it("shows each recipe's cuisines in the list", async () => {
+    server.use(
+      http.get('/api/recipes/', () =>
+        HttpResponse.json<Recipe[]>([
+          appleTart,
+          {
+            id: 4,
+            slug: 'ramen-tacos',
+            title: 'Ramen tacos',
+            description: '',
+            cuisines: [
+              { slug: 'japanese', name: 'Japanese' },
+              { slug: 'mexican', name: 'Mexican' }
+            ]
+          }
+        ])
+      )
+    );
+
+    renderRoute('/recipes');
+
+    expect((await screen.findByRole('heading', { name: 'Apple tart' })).closest('li')).toHaveTextContent(
+      'Cuisine: French'
+    );
+    expect(screen.getByRole('heading', { name: 'Ramen tacos' }).closest('li')).toHaveTextContent(
+      'Cuisines: Japanese, Mexican'
+    );
   });
 
   it.each([
@@ -219,7 +290,7 @@ describe('RecipesPage', () => {
 
     const { release } = holdRecipes(() =>
       HttpResponse.json<Recipe[]>([
-        { id: 7, slug: 'shakshuka', title: 'Shakshuka', description: 'Eggs in spiced tomatoes.' }
+        { id: 7, slug: 'shakshuka', title: 'Shakshuka', description: 'Eggs in spiced tomatoes.', cuisines: [] }
       ])
     );
     await userEvent.click(tryAgain);
@@ -269,5 +340,124 @@ describe('RecipesPage', () => {
 
     expect(await screen.findByRole('heading', { name: 'Tastebook' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Recipes' })).not.toBeInTheDocument();
+  });
+
+  it('offers every cuisine after "All cuisines"', async () => {
+    renderRoute('/recipes');
+
+    await waitFor(() => expect(cuisinePicker()).toBeEnabled());
+    expect(optionNames()).toEqual(['All cuisines', 'French', 'Italian', 'Japanese']);
+    expect(cuisinePicker()).toHaveValue('');
+  });
+
+  it('disables the picker while the cuisines load', async () => {
+    const { requested, release } = holdCuisines(() =>
+      HttpResponse.json<Cuisine[]>([
+        { slug: 'french', name: 'French' },
+        { slug: 'italian', name: 'Italian' },
+        { slug: 'japanese', name: 'Japanese' }
+      ])
+    );
+
+    renderRoute('/recipes');
+    await requested;
+
+    expect(cuisinePicker()).toBeDisabled();
+    expect(optionNames()).toEqual(['Loading cuisines…']);
+
+    release();
+
+    await waitFor(() => expect(cuisinePicker()).toBeEnabled());
+    expect(optionNames()).toHaveLength(4);
+  });
+
+  it('narrows the list to the cuisine picked', async () => {
+    const queries = answerFilters({ '': [appleTart, bananaBread], 'cuisine=french': [appleTart] });
+    const { router } = renderRoute('/recipes');
+    await screen.findByText('Banana bread');
+    await waitFor(() => expect(cuisinePicker()).toBeEnabled());
+
+    await userEvent.selectOptions(cuisinePicker(), 'French');
+
+    await waitFor(() => expect(headings()).toEqual(['Apple tart']));
+    expect(recipeCount()).toBe('1 recipe');
+    expect(router.state.location.search).toBe('?cuisine=french');
+    expect(queries).toEqual(['', 'cuisine=french']);
+  });
+
+  it('combines the cuisine with the search, and "All cuisines" removes only the cuisine', async () => {
+    const queries = answerFilters({ 'q=tart': [appleTart], 'cuisine=french&q=tart': [appleTart] });
+    const { router } = renderRoute('/recipes?q=tart');
+    await waitFor(() => expect(cuisinePicker()).toBeEnabled());
+
+    await userEvent.selectOptions(cuisinePicker(), 'French');
+
+    expect(router.state.location.search).toBe('?q=tart&cuisine=french');
+    await waitFor(() => expect(queries.at(-1)).toBe('cuisine=french&q=tart'));
+
+    await userEvent.selectOptions(cuisinePicker(), 'All cuisines');
+
+    expect(router.state.location.search).toBe('?q=tart');
+    expect(searchBox()).toHaveValue('tart');
+    await waitFor(() => expect(queries.at(-1)).toBe('q=tart'));
+  });
+
+  it('keeps the cuisine while typing a search', async () => {
+    const queries = answerFilters({ 'cuisine=french': [appleTart], 'cuisine=french&q=tart': [appleTart] });
+    const { router } = renderRoute('/recipes?cuisine=french');
+    await screen.findByText('Apple tart');
+
+    await userEvent.type(searchBox(), 'tart');
+
+    expect(router.state.location.search).toBe('?cuisine=french&q=tart');
+    await waitFor(() => expect(queries.at(-1)).toBe('cuisine=french&q=tart'));
+  });
+
+  it('opens the search and the cuisine from the address', async () => {
+    const queries = answerFilters({ 'cuisine=french&q=tart': [appleTart] });
+
+    renderRoute('/recipes?q=tart&cuisine=french');
+
+    await waitFor(() => expect(cuisinePicker()).toHaveValue('french'));
+    expect(searchBox()).toHaveValue('tart');
+    await waitFor(() => expect(headings()).toEqual(['Apple tart']));
+    expect(queries).toEqual(['cuisine=french&q=tart']);
+  });
+
+  it('shows "All cuisines" for an unknown cuisine', async () => {
+    renderRoute('/recipes?cuisine=klingon');
+
+    await waitFor(() => expect(cuisinePicker()).toBeEnabled());
+    expect(cuisinePicker()).toHaveValue('');
+    await waitFor(() => expect(headings()).toEqual(['Apple tart', 'Banana bread']));
+  });
+
+  it.each([
+    ['/recipes?cuisine=italian', 'No Italian recipes yet.'],
+    ['/recipes?cuisine=italian&q=xyzzy', 'No Italian recipes match “xyzzy”.']
+  ])('at %s, says %s when nothing matches', async (path, shown) => {
+    server.use(http.get('/api/recipes/', () => HttpResponse.json<Recipe[]>([])));
+
+    renderRoute(path);
+
+    expect(await screen.findByText(shown)).toBeInTheDocument();
+    expect(screen.queryByText('No recipes yet.')).not.toBeInTheDocument();
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+  });
+
+  it('keeps the list when the cuisines fail, and loads them again on request', async () => {
+    failCuisines();
+    renderRoute('/recipes');
+
+    expect(await screen.findByRole('alert')).toHaveTextContent("The cuisines couldn't be loaded.");
+    await waitFor(() => expect(headings()).toEqual(['Apple tart', 'Banana bread']));
+    expect(screen.queryByRole('combobox', { name: 'Cuisine' })).not.toBeInTheDocument();
+
+    server.resetHandlers();
+    await userEvent.click(screen.getByRole('button', { name: 'Load cuisines again' }));
+
+    await waitFor(() => expect(cuisinePicker()).toBeEnabled());
+    expect(optionNames()).toHaveLength(4);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

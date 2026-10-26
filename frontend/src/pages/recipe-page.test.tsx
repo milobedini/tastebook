@@ -9,7 +9,13 @@ import { server } from '../test/server';
 
 type Recipe = components['schemas']['Recipe'];
 
-const shakshuka: Recipe = { id: 7, slug: 'shakshuka', title: 'Shakshuka', description: 'Eggs in spiced tomatoes.' };
+const shakshuka: Recipe = {
+  id: 7,
+  slug: 'shakshuka',
+  title: 'Shakshuka',
+  description: 'Eggs in spiced tomatoes.',
+  cuisines: []
+};
 
 const failRecipe = () => server.use(http.get('/api/recipes/:slug/', () => new HttpResponse(null, { status: 503 })));
 
@@ -50,6 +56,26 @@ describe('RecipePage', () => {
 
     expect(await screen.findByRole('heading', { name: 'Banana bread' })).toBeInTheDocument();
     expect(screen.getByRole('main')).toHaveTextContent(/^Banana breadAll recipesBack to Tastebook$/);
+  });
+
+  it.each([
+    ['Cuisine: French', [{ slug: 'french', name: 'French' }]],
+    [
+      'Cuisines: Japanese, Mexican',
+      [
+        { slug: 'japanese', name: 'Japanese' },
+        { slug: 'mexican', name: 'Mexican' }
+      ]
+    ]
+  ])('shows the recipe\'s cuisines as "%s"', async (text, cuisines) => {
+    server.use(http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>({ ...shakshuka, cuisines })));
+
+    renderRoute('/recipes/shakshuka');
+
+    const shown = await screen.findByText(text);
+    expect(shown.compareDocumentPosition(screen.getByText('Eggs in spiced tomatoes.'))).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
   });
 
   it("says the recipe isn't found for an unknown address", async () => {

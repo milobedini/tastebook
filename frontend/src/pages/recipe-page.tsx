@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router';
 
 import { useRecipe } from '../api/recipes';
 import type { components } from '../api/schema';
+import { RecipeCuisines } from '../components/recipe-cuisines';
 
 type Recipe = components['schemas']['Recipe'];
 
@@ -12,6 +13,7 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => (
     {/* React 19 needs <title> to have a single string child. */}
     <title>{`${recipe.title} · Tastebook`}</title>
     <h1>{recipe.title}</h1>
+    <RecipeCuisines cuisines={recipe.cuisines} />
     {recipe.description !== '' && <p>{recipe.description}</p>}
   </>
 );
