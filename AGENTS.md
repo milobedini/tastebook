@@ -2,7 +2,7 @@
 
 Tastebook is a household recipe hub. One repo, two apps: `frontend/` (React 19, Vite, TanStack Query, react-router) and `backend/` (Django, Django REST framework, Postgres). People and the mb-factory agents both work here, and the rules below apply to both.
 
-What the product does and won't do is in the Linear team's Vision document; each project's PRD is a document on its Linear project. The platform, environments and the reasons behind them are in [`docs/architecture.md`](docs/architecture.md). The domain's words are in [`GLOSSARY.md`](GLOSSARY.md).
+What the product does and won't do is in the Linear team's Vision document; each project's PRD is a document on its Linear project. The platform, environments and the reasons behind them are in [`docs/architecture.md`](docs/architecture.md). The look (Enamel: tokens, type, components and their rules) is in [`docs/design.md`](docs/design.md). The domain's words are in [`GLOSSARY.md`](GLOSSARY.md).
 
 ## Directive key
 
@@ -31,6 +31,7 @@ What the product does and won't do is in the Linear team's Vision document; each
 - [a] prefer `const` with `map`, `filter` and `reduce`; [n] use `let` or `forEach`.
 - [n] `import React from 'react'`; import what you need by name.
 - [n] reach for `useEffect` to derive state or respond to events. Derive during render or handle it in the event handler.
+- [a] build UI from the design system's tokens and components and follow [`docs/design.md`](docs/design.md); [n] use a literal colour, font or radius.
 - [a] give every request a loading and an error state, using a TanStack Query hook in `src/api/`.
 - [n] edit `src/api/schema.d.ts` by hand. It's generated from `backend/schema.yml` (see [API contract](#api-contract)).
 - [a] mock HTTP in tests with MSW (`src/test/handlers.ts` for defaults, `server.use(...)` per test). [n] mock `fetch` or the API client directly.

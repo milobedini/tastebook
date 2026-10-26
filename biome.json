@@ -17,7 +17,8 @@
       "!!frontend/src/api/schema.d.ts",
       "!pnpm-lock.yaml",
       "!**/.claude/settings.local.json",
-      "!!backend/schema.yml"
+      "!!backend/schema.yml",
+      "!docs/design/*.html"
     ]
   },
   "formatter": {
