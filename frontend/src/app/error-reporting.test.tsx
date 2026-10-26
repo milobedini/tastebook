@@ -15,7 +15,7 @@ const RELEASE = '4ca3bae7c06fdf9c4d95dd193eb4d6f0e2b651ab';
 type SentryEvent = {
   environment: string;
   release: string;
-  exception: { values: { value: string }[] };
+  exception: { values: { value: string; mechanism: { handled: boolean } }[] };
 };
 
 const receiveEnvelopes = () => {
@@ -51,14 +51,16 @@ describe('startErrorReporting', () => {
   afterEach(async () => {
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
     await close();
   });
 
   it.each([
     ['an error the router catches', caughtByTheRouter],
     ['an error nothing catches', uncaught]
-  ])('reports %s to Sentry with the environment and release', async (_, tree) => {
+  ])('reports %s to Sentry with the environment and release, and logs it to the console', async (_, tree) => {
     const envelopes = receiveEnvelopes();
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     vi.stubEnv('VITE_SENTRY_DSN', 'https://publickey@o1.ingest.sentry.io/2');
     vi.stubEnv('VITE_SENTRY_ENVIRONMENT', 'preview');
     vi.stubEnv('VITE_SENTRY_RELEASE', RELEASE);
@@ -73,6 +75,9 @@ describe('startErrorReporting', () => {
     expect(event?.environment).toBe('preview');
     expect(event?.release).toBe(RELEASE);
     expect(event?.exception.values.at(-1)?.value).toBe('The oven caught fire');
+    expect(event?.exception.values.at(-1)?.mechanism.handled).toBe(false);
+    // React's own default logs the error alone; the router's development logging adds a message before it.
+    expect(consoleError.mock.calls).toContainEqual([expect.objectContaining({ message: 'The oven caught fire' })]);
     root.unmount();
   });
 
