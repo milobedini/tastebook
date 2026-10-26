@@ -76,7 +76,7 @@ _planned: Real recipes._
 
 `.github/workflows/backup.yml` runs at 02:17 UTC every night (and on demand from the Actions tab). It dumps production with `pg_dump` 18 over Neon's direct connection, checks the dump holds table data, uploads it to the private Blob store `tastebook-backups` as `tastebook-<time taken>.dump`, then deletes dumps older than 30 days. The code is in `tools/backup/`.
 
-- **Secrets:** the workflow reads the Actions secrets `PRODUCTION_DATABASE_URL` (direct, unpooled) and `BACKUP_BLOB_READ_WRITE_TOKEN`. The store isn't connected to the Vercel project, so the app's own token can't read or delete backups; photos are in a different store.
+- **Secrets:** the workflow reads `PRODUCTION_DATABASE_URL` (direct, unpooled) and `BACKUP_BLOB_READ_WRITE_TOKEN` from the GitHub environment `backups`, not the repository's secrets. Only `main` can deploy to that environment, so a workflow on any other branch can't read them. The store isn't connected to the Vercel project, so the app's own token can't read or delete backups; photos are in a different store.
 - **A failed night:** the run fails and shows red in Actions, GitHub emails whoever last changed the workflow's schedule, and nothing is deleted, because pruning only follows a successful upload.
 - **Keeping it running:** GitHub turns scheduled workflows off after 60 days without activity in the repo. If that happens, turn it back on from the workflow's page in Actions.
 
