@@ -306,7 +306,7 @@ flowchart LR
   - PR 2. Filter chip: click `button` "Under 30 min", asserts: it has `aria-pressed="true"` (it starts `false`).
   - PR 2. Checkbox row: click `checkbox` "2 courgettes", asserts: it is checked (it starts unchecked).
   - PR 2. Field error: `textbox` "Servings" has `aria-invalid="true"` and accessible description "Enter a number, like 4."; `textbox` "Recipe title" has accessible description "Shown on cards and at the top of the recipe." and no `aria-invalid`.
-  - PR 2. Icon buttons have names: `button` "Add to Favourites", "Share" and "More actions" are present; click "Favourite", asserts: it has `aria-pressed="true"` and is still named "Favourite".
+  - PR 2. Icon buttons have names: `button` "Favourite", "Share" and "More actions" are present; click "Favourite", asserts: it has `aria-pressed="true"` and is still named "Favourite".
   - PR 2. Toast: click "Show a toast", asserts: text "Saved to Favourites" and `button` "Undo" appear.
   - PR 2. Dialog: click "Delete account", asserts: `alertdialog` "Delete your account?" is present; click "Cancel", asserts: no `alertdialog` and focus is on the "Delete account" trigger.
   - PR 2. Recipe card: `link` "Courgette and lemon orzo" has `href` `/recipes/courgette-and-lemon-orzo`.
