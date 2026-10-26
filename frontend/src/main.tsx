@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { createBrowserRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 
+import { startErrorReporting } from './app/error-reporting';
 import { createQueryClient } from './app/query-client';
 import { routes } from './app/routes';
 
@@ -12,10 +13,11 @@ if (!root) {
   throw new Error('Missing #root element');
 }
 
+const rootOptions = startErrorReporting();
 const router = createBrowserRouter(routes);
 const queryClient = createQueryClient();
 
-createRoot(root).render(
+createRoot(root, rootOptions).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
