@@ -64,6 +64,10 @@ const NoRecipes = ({ searchTerm }: NoRecipesProps) => {
   return <p>{`No recipes match “${searchTerm}”.`}</p>;
 };
 
+type RecipeCountProps = { count: number };
+
+const RecipeCount = ({ count }: RecipeCountProps) => <p>{`${count} ${count === 1 ? 'recipe' : 'recipes'}`}</p>;
+
 type RecipesProps = { recipes: Recipe[]; searchTerm: string };
 
 const Recipes = ({ recipes, searchTerm }: RecipesProps) => {
@@ -71,11 +75,14 @@ const Recipes = ({ recipes, searchTerm }: RecipesProps) => {
     return <NoRecipes searchTerm={searchTerm} />;
   }
   return (
-    <ul>
-      {recipes.map((recipe) => (
-        <RecipeItem key={recipe.id} recipe={recipe} />
-      ))}
-    </ul>
+    <>
+      <RecipeCount count={recipes.length} />
+      <ul>
+        {recipes.map((recipe) => (
+          <RecipeItem key={recipe.id} recipe={recipe} />
+        ))}
+      </ul>
+    </>
   );
 };
 
