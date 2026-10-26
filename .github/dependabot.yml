@@ -1,0 +1,52 @@
+# Routine dependency updates. Patch and minor updates arrive as one grouped PR per ecosystem each week; majors as
+# their own PRs, since they usually need changes. Security updates skip the cooldown and the schedule.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:30"
+      timezone: Europe/London
+    cooldown:
+      default-days: 7
+    groups:
+      npm-minor-and-patch:
+        update-types: [minor, patch]
+    labels: [dependencies, npm]
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: uv
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:30"
+      timezone: Europe/London
+    cooldown:
+      default-days: 7
+    groups:
+      python-minor-and-patch:
+        update-types: [minor, patch]
+    labels: [dependencies, python]
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /.github/actions/*
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:30"
+      timezone: Europe/London
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
+    ignore:
+      # The factory's own reusable workflow follows its main branch on purpose.
+      - dependency-name: milobedini/mb-factory
+    labels: [dependencies, github-actions]
