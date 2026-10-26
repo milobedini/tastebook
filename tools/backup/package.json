@@ -1,0 +1,19 @@
+{
+  "name": "@tastebook/backup",
+  "private": true,
+  "type": "module",
+  "description": "Backs up the production database to the private Blob store tastebook-backups, and restores a backup. Runs nightly from .github/workflows/backup.yml.",
+  "scripts": {
+    "backup": "node scripts/backup.ts",
+    "restore": "node scripts/restore.ts",
+    "test": "node --test dumps.test.ts",
+    "type-check": "tsc"
+  },
+  "dependencies": {
+    "@vercel/blob": "2.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "7.0.2"
+  }
+}
