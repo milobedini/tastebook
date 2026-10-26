@@ -49,13 +49,14 @@ jobs:
         continue-on-error: true
         run: pnpm exec playwright test
 
+      # Lighthouse fetches robots.txt without the extra headers, so the bypass cookie gets that request past sign-in.
       - name: Run Lighthouse on the main pages
         id: lighthouse
         continue-on-error: true
         run: |
           base="${PREVIEW_URL%/}"
           headers=$(jq -nc --arg secret "$VERCEL_AUTOMATION_BYPASS_SECRET" \
-            '{"x-vercel-protection-bypass": $secret, "x-vercel-skip-toolbar": "1"}')
+            '{"x-vercel-protection-bypass": $secret, "x-vercel-set-bypass-cookie": "true", "x-vercel-skip-toolbar": "1"}')
           pnpm exec lhci autorun \
             --collect.url="$base/" \
             --collect.url="$base/recipes" \
