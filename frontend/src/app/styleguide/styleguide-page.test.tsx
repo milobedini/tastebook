@@ -91,16 +91,17 @@ describe('StyleguidePage', () => {
     expect(title).not.toHaveAttribute('aria-invalid');
   });
 
-  it('names every icon button, and says what the pressed one does next', async () => {
+  it("names every icon button, and keeps the toggle's name as its pressed state changes", async () => {
     renderRoute('/styleguide');
-    const favourite = await screen.findByRole('button', { name: 'Add to Favourites' });
+    const favourite = await screen.findByRole('button', { name: 'Favourite' });
+    expect(favourite).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getByRole('button', { name: 'Share' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'More actions' })).toBeInTheDocument();
 
     await userEvent.click(favourite);
 
     expect(favourite).toHaveAttribute('aria-pressed', 'true');
-    expect(favourite).toHaveAccessibleName('Remove from Favourites');
+    expect(favourite).toHaveAccessibleName('Favourite');
   });
 
   it('shows a toast with its action', async () => {

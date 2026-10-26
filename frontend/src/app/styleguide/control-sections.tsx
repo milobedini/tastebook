@@ -40,12 +40,7 @@ export const ButtonsSection = () => {
         <Button disabled>Save recipe</Button>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <IconButton
-          icon={Heart}
-          label={isFavourite ? 'Remove from Favourites' : 'Add to Favourites'}
-          pressed={isFavourite}
-          onClick={() => setIsFavourite(!isFavourite)}
-        />
+        <IconButton icon={Heart} label="Favourite" pressed={isFavourite} onClick={() => setIsFavourite(!isFavourite)} />
         <IconButton icon={Share2} label="Share" />
         <IconButton icon={Ellipsis} label="More actions" />
       </div>
