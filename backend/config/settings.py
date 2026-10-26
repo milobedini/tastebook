@@ -3,6 +3,8 @@ from pathlib import Path
 
 import dj_database_url
 
+from config.sentry import init_sentry
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'false').lower() == 'true'
@@ -12,6 +14,8 @@ if not SECRET_KEY:
     if not DEBUG:
         raise RuntimeError('DJANGO_SECRET_KEY must be set unless DJANGO_DEBUG is true')
     SECRET_KEY = 'insecure-local-only-key'
+
+init_sentry()
 
 # On Vercel, the hosts this deployment answers on: its own URL, its branch's and production's. Vercel sets these, so
 # nothing has to list them, and no other *.vercel.app host is trusted.
