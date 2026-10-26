@@ -55,6 +55,8 @@ const headings = () => screen.getAllByRole('heading', { level: 2 }).map((heading
 
 const searchBox = () => screen.getByRole('searchbox', { name: 'Search recipes' });
 
+const recipeCount = () => screen.queryByText(/^\d+ recipes?$/)?.textContent;
+
 describe('RecipesPage', () => {
   it('titles the tab "Recipes · Tastebook"', async () => {
     renderRoute('/recipes');
@@ -73,10 +75,12 @@ describe('RecipesPage', () => {
     renderRoute('/recipes');
 
     expect(await screen.findByText('Loading recipes…')).toBeInTheDocument();
+    expect(recipeCount()).toBeUndefined();
 
     release();
 
     expect(await screen.findByText('Eggs in spiced tomatoes.')).toBeInTheDocument();
+    expect(recipeCount()).toBe('2 recipes');
     expect(screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent)).toEqual([
       'Shakshuka',
       'Apple tart'
@@ -97,6 +101,19 @@ describe('RecipesPage', () => {
     expect(await screen.findByText(shown)).toBeInTheDocument();
     expect(screen.queryByText(absent)).not.toBeInTheDocument();
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    expect(recipeCount()).toBeUndefined();
+  });
+
+  it.each([
+    ['1 recipe', [appleTart]],
+    ['2 recipes', [appleTart, bananaBread]]
+  ])('says "%s" above the list', async (count, recipes) => {
+    server.use(http.get('/api/recipes/', () => HttpResponse.json<Recipe[]>(recipes)));
+
+    renderRoute('/recipes');
+
+    const shown = await screen.findByText(count);
+    expect(shown.compareDocumentPosition(screen.getByRole('list'))).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
   it.each(['/recipes', '/recipes?q=tart'])('at %s, shows an alert and a retry when the request fails', async (path) => {
@@ -107,16 +124,19 @@ describe('RecipesPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent("The recipes couldn't be loaded.");
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
     expect(screen.queryByText('No recipes yet.')).not.toBeInTheDocument();
+    expect(recipeCount()).toBeUndefined();
   });
 
   it('searches once typing pauses', async () => {
     const searches = answerSearches({ '': [appleTart, bananaBread], tart: [appleTart] });
     const { router } = renderRoute('/recipes');
     await screen.findByText('Banana bread');
+    expect(recipeCount()).toBe('2 recipes');
 
     await userEvent.type(searchBox(), 'tart');
 
     await waitFor(() => expect(headings()).toEqual(['Apple tart']));
+    expect(recipeCount()).toBe('1 recipe');
     expect(router.state.location.search).toBe('?q=tart');
     expect(searches).toEqual([null, 'tart']);
   });
