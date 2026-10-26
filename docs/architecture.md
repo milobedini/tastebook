@@ -21,7 +21,7 @@ Everything on Vercel, in one project with two [services](https://vercel.com/docs
 | API | Django as a Python function under `/api`, on the same domain as the frontend | One platform, same-origin cookies for sign-in, no CORS. Cold starts after idle time are acceptable at this scale. |
 | Database | Neon Postgres, through the Neon-managed integration from the Vercel Marketplace | Free plan covers a household app; a database branch per preview. Neon-managed rather than Vercel-managed because it deletes a preview's branch once its Git branch is gone (merged branches are deleted), which keeps within the free plan's 10 branches. |
 | Photos | Vercel Blob | Native, no extra account. |
-| Domain | `tastebook.vercel.app` (or the nearest free name) until a custom domain is added | A domain can be added later without code changes. |
+| Domain | <https://tastebook-milobedinis-projects.vercel.app> (`tastebook.vercel.app` was taken) until a custom domain is added | A domain can be added later without code changes; it goes in `DJANGO_ALLOWED_HOSTS`. |
 
 ## Environments
 
