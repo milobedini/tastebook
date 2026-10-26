@@ -1,7 +1,8 @@
 name: Preview checks
 
 # Checks each Vercel preview against the standards in AGENTS.md: the end-to-end specs with axe, then Lighthouse.
-# Vercel only builds a fork's PR once a member authorises it, so the code run here has been looked at.
+# deployment_status runs this file as it is at the deployed commit, a fork's included, with the repository's secrets.
+# So the only secret here is the bypass one; the factory's are in the factory environment, which only main can use.
 on:
   deployment_status:
   workflow_dispatch:
