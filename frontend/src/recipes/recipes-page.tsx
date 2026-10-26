@@ -1,8 +1,10 @@
+import { CookingPot } from 'lucide-react';
 import type { ChangeEvent } from 'react';
 import { useCallback, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
 import type { components } from '../api/schema';
+import { Banner, Button, EmptyState, Field, NativeSelect, Page, RecipeCard, SearchInput } from '../ui';
 import { useCuisines } from './cuisines-api';
 import { RecipeCuisines } from './recipe-cuisines';
 import type { RecipeFilters } from './recipes-api';
@@ -38,9 +40,7 @@ type RecipeSearchProps = {
 };
 
 const RecipeSearch = ({ value, onChange }: RecipeSearchProps) => (
-  <label>
-    Search recipes <input type="search" value={value} onChange={onChange} />
-  </label>
+  <Field label="Search recipes">{(control) => <SearchInput {...control} value={value} onChange={onChange} />}</Field>
 );
 
 type CuisineSelectProps = {
@@ -53,27 +53,29 @@ const CuisineSelect = ({ cuisines, value, onChange }: CuisineSelectProps) => {
   // A select can't show a value it has no option for, and the API ignores an unknown slug, so both say "All cuisines".
   const known = cuisines.some(({ slug }) => slug === value);
   return (
-    <label>
-      Cuisine{' '}
-      <select value={known ? value : ''} onChange={onChange}>
-        <option value="">All cuisines</option>
-        {cuisines.map(({ slug, name }) => (
-          <option key={slug} value={slug}>
-            {name}
-          </option>
-        ))}
-      </select>
-    </label>
+    <Field label="Cuisine">
+      {(control) => (
+        <NativeSelect {...control} value={known ? value : ''} onChange={onChange}>
+          <option value="">All cuisines</option>
+          {cuisines.map(({ slug, name }) => (
+            <option key={slug} value={slug}>
+              {name}
+            </option>
+          ))}
+        </NativeSelect>
+      )}
+    </Field>
   );
 };
 
 const CuisinesLoading = () => (
-  <label>
-    Cuisine{' '}
-    <select disabled>
-      <option>Loading cuisines…</option>
-    </select>
-  </label>
+  <Field label="Cuisine">
+    {(control) => (
+      <NativeSelect {...control} disabled>
+        <option>Loading cuisines…</option>
+      </NativeSelect>
+    )}
+  </Field>
 );
 
 type CuisinesUnavailableProps = {
@@ -82,10 +84,10 @@ type CuisinesUnavailableProps = {
 
 const CuisinesUnavailable = ({ onRetry }: CuisinesUnavailableProps) => (
   <>
-    <p role="alert">The cuisines couldn't be loaded.</p>
-    <button type="button" onClick={onRetry}>
+    <Banner tone="danger" title="The cuisines couldn't be loaded." />
+    <Button variant="secondary" className="self-start" onClick={onRetry}>
       Load cuisines again
-    </button>
+    </Button>
   </>
 );
 
@@ -112,10 +114,10 @@ type RecipesUnavailableProps = {
 
 const RecipesUnavailable = ({ onRetry }: RecipesUnavailableProps) => (
   <>
-    <p role="alert">The recipes couldn't be loaded.</p>
-    <button type="button" onClick={onRetry}>
+    <Banner tone="danger" title="The recipes couldn't be loaded." />
+    <Button variant="secondary" className="self-start" onClick={onRetry}>
       Try again
-    </button>
+    </Button>
   </>
 );
 
@@ -123,11 +125,10 @@ type RecipeItemProps = { recipe: Recipe };
 
 const RecipeItem = ({ recipe }: RecipeItemProps) => (
   <li>
-    <h2>
-      <Link to={`/recipes/${recipe.slug}`}>{recipe.title}</Link>
-    </h2>
-    <RecipeCuisines cuisines={recipe.cuisines} />
-    {recipe.description !== '' && <p>{recipe.description}</p>}
+    <RecipeCard title={recipe.title} to={`/recipes/${recipe.slug}`} cuisineSlug={recipe.cuisines[0]?.slug}>
+      <RecipeCuisines cuisines={recipe.cuisines} />
+      {recipe.description !== '' && <p>{recipe.description}</p>}
+    </RecipeCard>
   </li>
 );
 
@@ -136,14 +137,16 @@ type NoRecipesProps = { searchTerm: string; cuisineName: string | undefined };
 const NoRecipes = ({ searchTerm, cuisineName }: NoRecipesProps) => {
   const subject = cuisineName === undefined ? 'recipes' : `${cuisineName} recipes`;
   if (searchTerm === '') {
-    return <p>{`No ${subject} yet.`}</p>;
+    return <EmptyState icon={CookingPot} title={`No ${subject} yet.`} />;
   }
-  return <p>{`No ${subject} match “${searchTerm}”.`}</p>;
+  return <EmptyState icon={CookingPot} title={`No ${subject} match “${searchTerm}”.`} />;
 };
 
 type RecipeCountProps = { count: number };
 
-const RecipeCount = ({ count }: RecipeCountProps) => <p>{`${count} ${count === 1 ? 'recipe' : 'recipes'}`}</p>;
+const RecipeCount = ({ count }: RecipeCountProps) => (
+  <p className="text-muted text-small">{`${count} ${count === 1 ? 'recipe' : 'recipes'}`}</p>
+);
 
 type RecipesProps = { recipes: Recipe[]; searchTerm: string; cuisineName: string | undefined };
 
@@ -154,7 +157,7 @@ const Recipes = ({ recipes, searchTerm, cuisineName }: RecipesProps) => {
   return (
     <>
       <RecipeCount count={recipes.length} />
-      <ul>
+      <ul className="grid gap-4">
         {recipes.map((recipe) => (
           <RecipeItem key={recipe.id} recipe={recipe} />
         ))}
@@ -210,16 +213,18 @@ export const RecipesPage = () => {
   );
 
   return (
-    <main>
+    <Page>
       <title>Recipes · Tastebook</title>
       <h1>Recipes</h1>
       {/* No form: results follow the typing and the dropdown, so Enter has nothing to submit. */}
-      <search>
+      <search className="flex flex-col gap-4">
         <RecipeSearch value={searchText} onChange={handleSearchChange} />
         <CuisinePicker value={cuisine} onChange={handleCuisineChange} />
       </search>
       <RecipeList filters={{ searchTerm, cuisine }} />
-      <Link to="/">Back to Tastebook</Link>
-    </main>
+      <Button asChild variant="ghost" className="self-start">
+        <Link to="/">Back to Tastebook</Link>
+      </Button>
+    </Page>
   );
 };
