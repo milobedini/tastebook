@@ -101,6 +101,7 @@ backend/
   tests/            pytest suites
   schema.yml        generated OpenAPI schema (committed)
 tools/openapi/      generates frontend/src/api/schema.d.ts
+tools/backup/       nightly production backup and restore (docs/architecture.md, Backups)
 specs/              one spec per issue, plus lessons/
 ```
 
