@@ -2,7 +2,7 @@
 
 Tastebook's look, agreed in the design system session on 2026-10-26. Cheerful and sturdy, like an enamel pie dish: a blue-white ground, cobalt for anything you act on, round shapes, and a typeface built for legibility.
 
-[`design/enamel.html`](design/enamel.html) is the reference page from the session: open it in a browser to see every token and component in light and dark. Once TAS-29 lands, the app's `/styleguide` page (local and previews only) is the reference, and this file stays the rules. This is a starting point: change it through PRs like the code.
+The app's `/styleguide` page (local and previews only, never production) is the reference: it shows every token and component in light and dark. [`design/enamel.html`](design/enamel.html) is the design session's original. This file stays the rules. This is a starting point: change it through PRs like the code.
 
 ## Colour
 
@@ -56,7 +56,7 @@ Both faces are under the SIL Open Font License and are **bundled with the app**:
 
 ## Components
 
-The set lives in `frontend/src/ui/` (shadcn/ui, restyled to Enamel; TAS-29). Build pages from these; add a component to `src/ui/` on its third use (`AGENTS.md`, rule of three).
+The set lives in `frontend/src/ui/` (shadcn/ui, restyled to Enamel) and is exported from its `index.ts`; the tokens are in `frontend/src/ui/enamel.css`. Build pages from these; add a component to `src/ui/` on its third use (`AGENTS.md`, rule of three). To add one from shadcn/ui, run `pnpm --filter frontend ui:add <name>`, restyle the new file to Enamel's tokens, export it from `index.ts` and show it on `/styleguide`.
 
 | Component | Notes |
 | --- | --- |
