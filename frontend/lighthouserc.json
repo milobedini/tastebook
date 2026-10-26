@@ -2,8 +2,8 @@
   "ci": {
     "collect": {
       "numberOfRuns": 3,
+      "puppeteerScript": "scripts/lighthouse-bypass.cts",
       "settings": {
-        "chromeFlags": "--headless=new",
         "skipAudits": ["is-crawlable"]
       }
     },

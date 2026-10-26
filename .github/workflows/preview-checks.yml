@@ -51,7 +51,7 @@ jobs:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: pnpm exec playwright test
 
-      # Lighthouse fetches robots.txt without the extra headers, so the bypass cookie gets that request past sign-in.
+      # scripts/lighthouse-bypass.cts reads the secret and sets the bypass cookie before each page.
       - name: Run Lighthouse on the main pages
         id: lighthouse
         continue-on-error: true
@@ -59,14 +59,9 @@ jobs:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           base="${PREVIEW_URL%/}"
-          headers=$(jq -nc --arg secret "$VERCEL_AUTOMATION_BYPASS_SECRET" \
-            '{"x-vercel-protection-bypass": $secret, "x-vercel-set-bypass-cookie": "true", "x-vercel-skip-toolbar": "1"}')
-          pnpm exec lhci autorun \
-            --collect.url="$base/" \
-            --collect.url="$base/recipes" \
-            --collect.settings.extraHeaders="$headers"
+          pnpm exec lhci autorun --collect.url="$base/" --collect.url="$base/recipes"
 
-      # Playwright's JSON results and every Lighthouse report record the request headers, bypass secret included.
+      # Playwright's JSON results record the request headers, bypass secret included; Lighthouse's reports are checked too.
       - name: Redact the bypass secret from the reports
         if: ${{ !cancelled() }}
         env:
