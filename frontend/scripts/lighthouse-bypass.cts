@@ -12,7 +12,8 @@ const setBypassCookie = async (browser: Browser, { url }: { url: string }): Prom
   // robots.txt is static, so this request loads none of the app and nothing cross-origin.
   const response = await page.goto(new URL('/robots.txt', url).href);
   await page.close();
-  if (!response?.ok()) {
+  // The second page's request can come back 304 from the cache, which got past sign-in just the same.
+  if (!response || response.status() >= 400) {
     throw new Error(`The bypass request got ${response?.status() ?? 'no response'}, so the cookie isn't set.`);
   }
 };
