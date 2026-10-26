@@ -46,6 +46,10 @@ What the product does and won't do is in the Linear team's Vision document; each
 - [a] keep settings fail-closed: `DEBUG` is off unless `DJANGO_DEBUG=true`, and production needs `DJANGO_SECRET_KEY`. Local commands load `backend/.env` with `uv run --env-file .env`.
 - [n] mock the database in tests. Use the test database through `pytest-django`.
 
+**Workflows (`.github/workflows/`)**
+
+- [a] give a secret only to the steps that use it, in their own `env`, never the job's or the workflow's.
+
 **Tests**
 
 Tests are black box: they go through a public interface and assert what a user or caller can observe.

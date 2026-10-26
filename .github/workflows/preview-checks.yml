@@ -28,7 +28,6 @@ jobs:
     timeout-minutes: 20
     env:
       PREVIEW_URL: ${{ inputs.preview_url || github.event.deployment_status.environment_url }}
-      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     defaults:
       run:
         working-directory: frontend
@@ -47,12 +46,16 @@ jobs:
       - name: Run the end-to-end specs with axe
         id: playwright
         continue-on-error: true
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: pnpm exec playwright test
 
       # Lighthouse fetches robots.txt without the extra headers, so the bypass cookie gets that request past sign-in.
       - name: Run Lighthouse on the main pages
         id: lighthouse
         continue-on-error: true
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           base="${PREVIEW_URL%/}"
           headers=$(jq -nc --arg secret "$VERCEL_AUTOMATION_BYPASS_SECRET" \
@@ -65,6 +68,8 @@ jobs:
       # Playwright's JSON results and every Lighthouse report record the request headers, bypass secret included.
       - name: Redact the bypass secret from the reports
         if: ${{ !cancelled() }}
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           [ -n "$VERCEL_AUTOMATION_BYPASS_SECRET" ] || exit 0
           { grep -rlsF -- "$VERCEL_AUTOMATION_BYPASS_SECRET" playwright-report test-results lighthouse-report || true; } |
