@@ -21,7 +21,7 @@ Open <http://localhost:5173>. The API is at <http://localhost:8000/api/>, with i
 
 ## Previews and production
 
-Every PR gets a preview on Vercel with its own database; the Vercel bot comments its URL on the PR. Merging to `main` deploys production. How it's hosted is in [docs/architecture.md](docs/architecture.md#where-it-runs).
+Every PR gets a preview on Vercel with its own database; the Vercel bot comments its URL on the PR. Merging to `main` deploys production at <https://tastebook-app.vercel.app>. How it's hosted is in [docs/architecture.md](docs/architecture.md#where-it-runs).
 
 ## Working here
 
