@@ -9,5 +9,6 @@ beforeAll(() => server.listen({ onUnhandledFrame: 'error' }));
 afterEach(() => {
   cleanup();
   server.resetHandlers();
+  delete document.documentElement.dataset.theme;
 });
 afterAll(() => server.close());

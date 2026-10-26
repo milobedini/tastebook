@@ -36,6 +36,11 @@
       "arrowParentheses": "always"
     }
   },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
   "markdown": {
     "formatter": {
       "enabled": false
