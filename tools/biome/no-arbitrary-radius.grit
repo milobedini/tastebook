@@ -1,0 +1,10 @@
+language js
+
+or {
+  JsStringLiteralExpression(),
+  JsxString(),
+  JsTemplateChunkElement()
+} as $s where {
+  $s <: r".*rounded[-a-z]*-\[.*",
+  register_diagnostic(span=$s, message="Use one of Enamel's corner tokens (rounded-pill, -card, -photo, -field, -check), not an arbitrary radius.")
+}

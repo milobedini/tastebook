@@ -6,7 +6,7 @@ const twMerge = extendTailwindMerge({
   extend: {
     theme: {
       text: ['display-xl', 'display-l', 'display-m', 'title', 'step', 'body', 'small', 'label'],
-      radius: ['pill', 'card', 'photo', 'field']
+      radius: ['pill', 'card', 'photo', 'field', 'check']
     }
   }
 });

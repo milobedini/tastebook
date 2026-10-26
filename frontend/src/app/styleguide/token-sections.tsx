@@ -99,7 +99,8 @@ const corners = [
   { label: 'Pill · controls', className: 'rounded-pill' },
   { label: '18 · cards', className: 'rounded-card' },
   { label: '14 · photos', className: 'rounded-photo' },
-  { label: '12 · fields', className: 'rounded-field' }
+  { label: '12 · fields', className: 'rounded-field' },
+  { label: '8 · checkboxes', className: 'rounded-check' }
 ];
 
 export const ColourSection = () => (

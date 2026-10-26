@@ -58,6 +58,7 @@
   --radius-card: 18px;
   --radius-photo: 14px;
   --radius-field: 12px;
+  --radius-check: 8px;
 
   --default-transition-duration: 150ms;
   --default-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);

@@ -49,7 +49,7 @@ Both faces are under the SIL Open Font License and are **bundled with the app**:
 ## Space and shape
 
 - **Spacing:** a 4 px base: 4, 8, 12, 16, 24, 32, 48. Space siblings with `gap`, not margins.
-- **Corners:** pill (999 px) for controls (buttons, chips, fields used for search, steppers), 18 px for cards and dialogs, 14 px for photos, 12 px for fields and banners.
+- **Corners:** pill (999 px) for controls (buttons, chips, fields used for search, steppers), 18 px for cards and dialogs, 14 px for photos, 12 px for fields and banners, 8 px for checkboxes (the field corner would make a 24 px box a circle).
 - **Edges:** the **cobalt rim** (3 px, `--color-cobalt`) is the recipe card's alone. Everything else uses a **hairline** (1 px, `--color-line`). Fields, chips and checkboxes use `--color-field` so they're visible as controls.
 - **Photos:** 4:3 on cards, 16:10 at the top of a recipe. No photo: the placeholder plate in the recipe's first cuisine's colour, never a grey box.
 - **Motion:** 150 ms ease-out fades and slides for sheets, dialogs and toasts; never over 200 ms. Nothing moves on its own except a running timer. `prefers-reduced-motion` turns it all off.
@@ -90,7 +90,7 @@ Review checks new UI against these.
 **Shape**
 
 - The cobalt rim belongs to recipe cards alone.
-- Pills for controls, 18 px for cards, 14 px for photos, 12 px for fields.
+- Pills for controls, 18 px for cards, 14 px for photos, 12 px for fields, 8 px for checkboxes.
 - No photo means the cuisine plate.
 
 **Type and icons**
