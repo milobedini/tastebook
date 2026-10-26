@@ -13,13 +13,13 @@ How Tastebook is built and run, and why. Decided in the engineering session on 2
 
 ## Where it runs
 
-Everything on Vercel. _planned: TAS-24._
+Everything on Vercel, in one project with two [services](https://vercel.com/docs/services) (`vercel.json`): `frontend` and `backend` build separately and deploy together, so a preview's two halves always match. `/api/*` reaches Django; everything else gets the frontend. Functions run in London (`lhr1`), next to the database.
 
 | Part | How | Why |
 | --- | --- | --- |
 | Frontend | Static files | Nothing to run; fast from the edge. |
 | API | Django as a Python function under `/api`, on the same domain as the frontend | One platform, same-origin cookies for sign-in, no CORS. Cold starts after idle time are acceptable at this scale. |
-| Database | Neon Postgres, installed through the Vercel Marketplace | Free plan covers a household app; a database branch per preview. |
+| Database | Neon Postgres, through the Neon-managed integration from the Vercel Marketplace | Free plan covers a household app; a database branch per preview. Neon-managed rather than Vercel-managed because it deletes a preview's branch once its Git branch is gone (merged branches are deleted), which keeps within the free plan's 10 branches. |
 | Photos | Vercel Blob | Native, no extra account. |
 | Domain | `tastebook.vercel.app` (or the nearest free name) until a custom domain is added | A domain can be added later without code changes. |
 
@@ -31,7 +31,12 @@ Everything on Vercel. _planned: TAS-24._
 | Preview | Its own Neon branch | Every push to a PR |
 | Production | Neon's main branch | Every merge to `main` |
 
-Each build runs Django's migrations, then loads the catalogue from the repo (a no-op when nothing changed), so every deployment's schema matches its code and the catalogue changes through PRs like code. _planned: TAS-24._
+Each build runs Django's migrations against its own database (`backend/build.py`, over Neon's direct connection; requests use the pooled one), so every deployment's schema matches its code. Loading the catalogue from the repo the same way comes with Real recipes, which decides its format, so the catalogue changes through PRs like code.
+
+- **Hosts:** Django trusts the hosts Vercel gives the deployment (`VERCEL_URL`, `VERCEL_BRANCH_URL`, `VERCEL_PROJECT_PRODUCTION_URL`) and nothing else under `vercel.app`; a custom domain goes in `DJANGO_ALLOWED_HOSTS`.
+- **Secrets:** `DJANGO_SECRET_KEY` is set per environment in Vercel, one value for production and another for previews. Neon sets `DATABASE_URL` and `DATABASE_URL_UNPOOLED`.
+- **Previews** are behind Vercel's sign-in (Deployment Protection). The checks on previews (TAS-26) get a bypass secret for automation.
+- **The admin** isn't reachable on Vercel yet: only `/api` reaches Django until staff sign in with two factors (Accounts and households).
 
 ## Accounts
 

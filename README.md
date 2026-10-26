@@ -19,6 +19,10 @@ This starts Postgres in Docker, installs dependencies, creates `backend/.env` if
 
 Open <http://localhost:5173>. The API is at <http://localhost:8000/api/>, with its docs at `/api/schema/docs/`.
 
+## Previews and production
+
+Every PR gets a preview on Vercel with its own database; the Vercel bot comments its URL on the PR. Merging to `main` deploys production. How it's hosted is in [docs/architecture.md](docs/architecture.md#where-it-runs).
+
 ## Working here
 
 Read [AGENTS.md](AGENTS.md): it covers conventions, commands, the API contract, specs and PRs, for people and agents alike.

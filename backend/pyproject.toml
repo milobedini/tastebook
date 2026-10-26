@@ -24,6 +24,10 @@ testpaths = ["tests"]
 addopts = "--strict-markers"
 env = ["D:DJANGO_SECRET_KEY=test-only-secret-key"]
 
+[tool.vercel.scripts]
+# Runs after the dependencies install and before the deployment goes live: each deployment migrates its own database.
+build = "python build.py"
+
 [tool.uv]
 # Ignore releases less than a day old, as pnpm does by default: most compromised releases are pulled within hours.
 exclude-newer = "1 day"

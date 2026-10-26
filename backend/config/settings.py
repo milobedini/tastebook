@@ -13,7 +13,26 @@ if not SECRET_KEY:
         raise RuntimeError('DJANGO_SECRET_KEY must be set unless DJANGO_DEBUG is true')
     SECRET_KEY = 'insecure-local-only-key'
 
-ALLOWED_HOSTS = [host for host in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host]
+# On Vercel, the hosts this deployment answers on: its own URL, its branch's and production's. Vercel sets these, so
+# nothing has to list them, and no other *.vercel.app host is trusted.
+VERCEL_HOSTS = [
+    os.environ[name]
+    for name in ('VERCEL_URL', 'VERCEL_BRANCH_URL', 'VERCEL_PROJECT_PRODUCTION_URL')
+    if os.environ.get(name)
+]
+
+ALLOWED_HOSTS = [
+    *(host for host in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host),
+    *VERCEL_HOSTS,
+]
+
+CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in VERCEL_HOSTS]
+
+if not DEBUG:
+    # Vercel ends TLS and forwards the scheme; cookies only travel over HTTPS.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -62,8 +81,11 @@ DATABASES = {
     'default': dj_database_url.config(
         default='postgres://tastebook:tastebook@localhost:5432/tastebook',
         conn_max_age=600,
+        conn_health_checks=True,
     )
 }
+# Neon's pooled connection runs PgBouncer in transaction mode, which can't hold a server-side cursor open.
+DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -77,7 +99,9 @@ TIME_ZONE = 'Europe/London'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+# Under /api, the only path that reaches Django on Vercel; Vercel collects the files into STATIC_ROOT and serves them.
+STATIC_URL = '/api/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

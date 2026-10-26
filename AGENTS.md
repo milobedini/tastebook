@@ -118,6 +118,8 @@ From the repo root unless noted.
 
 [a] run the linters and the tests for every area you changed before you commit.
 
+**Previews.** Every push to a PR deploys a preview on Vercel with its own Neon database branch, migrated by the build. The Vercel bot comments the preview's URL on the PR, and `gh pr checks` lists the Vercel deployment. Previews are behind Vercel's sign-in. How it's hosted: [`docs/architecture.md`](docs/architecture.md#where-it-runs).
+
 ## API contract
 
 The backend owns the contract. When an endpoint changes:
