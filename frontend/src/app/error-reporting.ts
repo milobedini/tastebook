@@ -1,8 +1,8 @@
 import { init, reactErrorHandler } from '@sentry/react';
 import type { RootOptions } from 'react-dom/client';
 
-// Returns the root's error handlers: errors an error boundary catches, the router's included, never reach the window,
-// so Sentry's own global handlers would miss them.
+// Returns the root's error handlers, because an error an error boundary catches (the router's included) never reaches
+// the window, where Sentry's own handlers listen.
 export const startErrorReporting = (): RootOptions => {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
   // Vercel sets the DSN for previews and production only: locally, in CI and in tests nothing is sent.
