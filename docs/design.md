@@ -2,7 +2,7 @@
 
 Tastebook's look, agreed in the design system session on 2026-10-26. Cheerful and sturdy, like an enamel pie dish: a blue-white ground, cobalt for anything you act on, round shapes, and a typeface built for legibility.
 
-[`design/enamel.html`](design/enamel.html) is the reference page from the session: open it in a browser to see every token and component in light and dark. Once TAS-29 lands, the app's `/styleguide` page (local and previews only) is the reference, and this file stays the rules. This is a starting point: change it through PRs like the code.
+The app's `/styleguide` page (local and previews only, never production) is the reference: it shows every token and component in light and dark. [`design/enamel.html`](design/enamel.html) is the design session's original. This file stays the rules. This is a starting point: change it through PRs like the code.
 
 ## Colour
 
@@ -25,8 +25,9 @@ Token names follow Tailwind's `--color-*` convention, so `--color-cobalt` is `bg
 | `--color-warning` | `#7a5200` | `#ffd84d` | Status: needs a look | 6.9 / 11.7 |
 | `--color-danger` | `#c2321f` | `#ff8a75` | Status: errors, destructive actions | 5.6 / 7.0 |
 | `--color-on-danger` | `#ffffff` | `#0d1424` | Text on danger | |
+| `--color-scrim` | `rgb(13 20 36 / 0.45)` | `rgb(0 0 0 / 0.6)` | The backdrop behind a dialog | |
 
-**Cuisine colours** fill the placeholder plate when a recipe has no photo. They're decorative, so they have no contrast requirement: `--cuisine-italian` `#e2583e`, `--cuisine-indian` `#e0a526`, `--cuisine-japanese` `#4e7a5a`, `--cuisine-mexican` `#b8342c`, `--cuisine-french` `#7c8f4e`, `--cuisine-other` `#6a5acd`. Add a cuisine's colour when it's added to the catalogue.
+**Cuisine colours** fill the placeholder plate when a recipe has no photo. They're decorative, so they have no contrast requirement: `--cuisine-italian` `#e2583e`, `--cuisine-indian` `#e0a526`, `--cuisine-japanese` `#4e7a5a`, `--cuisine-mexican` `#b8342c`, `--cuisine-french` `#7c8f4e`, `--cuisine-other` `#6a5acd`. A cuisine without its own colour uses `--cuisine-other`; add a cuisine's colour when it's added to the catalogue. The plate drawn on them is `--plate`: `#ffffff` in light, `#e8edf7` in dark.
 
 Light and dark follow the phone's setting; a toggle overrides it by setting `data-theme="light"` or `data-theme="dark"` on the root element.
 
@@ -48,19 +49,19 @@ Both faces are under the SIL Open Font License and are **bundled with the app**:
 ## Space and shape
 
 - **Spacing:** a 4 px base: 4, 8, 12, 16, 24, 32, 48. Space siblings with `gap`, not margins.
-- **Corners:** pill (999 px) for controls (buttons, chips, fields used for search, steppers), 18 px for cards and dialogs, 14 px for photos, 12 px for fields and banners.
+- **Corners:** pill (999 px) for controls (buttons, chips, fields used for search, steppers), 18 px for cards and dialogs, 14 px for photos, 12 px for fields and banners, 8 px for checkboxes (the field corner would make a 24 px box a circle).
 - **Edges:** the **cobalt rim** (3 px, `--color-cobalt`) is the recipe card's alone. Everything else uses a **hairline** (1 px, `--color-line`). Fields, chips and checkboxes use `--color-field` so they're visible as controls.
 - **Photos:** 4:3 on cards, 16:10 at the top of a recipe. No photo: the placeholder plate in the recipe's first cuisine's colour, never a grey box.
 - **Motion:** 150 ms ease-out fades and slides for sheets, dialogs and toasts; never over 200 ms. Nothing moves on its own except a running timer. `prefers-reduced-motion` turns it all off.
 
 ## Components
 
-The set lives in `frontend/src/ui/` (shadcn/ui, restyled to Enamel; TAS-29). Build pages from these; add a component to `src/ui/` on its third use (`AGENTS.md`, rule of three).
+The set lives in `frontend/src/ui/` (shadcn/ui, restyled to Enamel) and is exported from its `index.ts`; the tokens are in `frontend/src/ui/enamel.css`. Build pages from these; add a component to `src/ui/` on its third use (`AGENTS.md`, rule of three). To add one from shadcn/ui, run `pnpm --filter frontend ui:add <name>`, restyle the new file to Enamel's tokens, export it from `index.ts` and show it on `/styleguide`.
 
 | Component | Notes |
 | --- | --- |
 | Button | Primary (cobalt fill), secondary (cobalt outline), ghost, danger (danger fill), disabled (chip fill, muted text). One primary per screen. 44 px tall; 52 px (`lg`) in cooking mode. |
-| Icon button | 44 × 44 px, field border; pressed state fills with cobalt. Always has an accessible name (`aria-label`), and a pressed toggle says what it does next ("Remove from Favourites"). |
+| Icon button | 44 × 44 px, field border; pressed state fills with cobalt. Always has an accessible name (`aria-label`), and a toggle keeps one name ("Favourite") while `aria-pressed` says whether it's on, so its name never changes under a screen reader. |
 | Field | Visible label above, help text below, error replaces help in danger with an icon and says how to fix it ("Enter a number, like 4."). Search fields are pill-shaped with a search icon. |
 | Filter chip | A toggle (`aria-pressed`), pill, field border; on is cobalt fill. A removable chip names what it removes in its label. |
 | Tag | Yolk, not interactive: describes a recipe (Vegetarian, One-pot, Easy) or marks something to check. |
@@ -89,7 +90,7 @@ Review checks new UI against these.
 **Shape**
 
 - The cobalt rim belongs to recipe cards alone.
-- Pills for controls, 18 px for cards, 14 px for photos, 12 px for fields.
+- Pills for controls, 18 px for cards, 14 px for photos, 12 px for fields, 8 px for checkboxes.
 - No photo means the cuisine plate.
 
 **Type and icons**

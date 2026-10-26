@@ -49,3 +49,36 @@ test('has no WCAG 2.2 A or AA violations in either theme', async ({ page, access
     await accessibility.check();
   }
 });
+
+test('has no WCAG 2.2 A or AA violations with the dialog open', async ({ page, accessibility }) => {
+  await page.goto('/styleguide');
+
+  await page
+    .getByRole('region', { name: "Confirming something you can't undo" })
+    .getByRole('button', { name: 'Delete account' })
+    .click();
+  await expect(page.getByRole('alertdialog', { name: 'Delete your account?' })).toBeVisible();
+
+  await accessibility.check();
+});
+
+test('makes every control at least 44 px tall', async ({ page }) => {
+  await page.goto('/styleguide');
+  await expect(page.getByRole('heading', { level: 1, name: 'Style guide' })).toBeVisible();
+
+  const shortControls = await page.evaluate(() =>
+    [...document.querySelectorAll<HTMLElement>('button, a[href], input, select, [role="checkbox"]')]
+      .filter((control) => control.checkVisibility())
+      .map((control) => {
+        // A checkbox's target is its whole row, the label around it.
+        const target = control.getAttribute('role') === 'checkbox' ? (control.closest('label') ?? control) : control;
+        return {
+          name: control.getAttribute('aria-label') ?? control.textContent ?? control.outerHTML,
+          height: target.getBoundingClientRect().height
+        };
+      })
+      .filter((control) => control.height < 44)
+  );
+
+  expect(shortControls).toEqual([]);
+});

@@ -36,7 +36,14 @@ const colourGroups = [
         dark: '#ffd84d',
         use: 'Tags describing a recipe; things to check'
       },
-      { token: 'on-yolk', name: 'On yolk', light: '#14213a', dark: '#14213a', use: 'Text on yolk' }
+      { token: 'on-yolk', name: 'On yolk', light: '#14213a', dark: '#14213a', use: 'Text on yolk' },
+      {
+        token: 'scrim',
+        name: 'Scrim',
+        light: 'rgb(13 20 36 / 0.45)',
+        dark: 'rgb(0 0 0 / 0.6)',
+        use: 'The backdrop behind a dialog'
+      }
     ]
   },
   {
@@ -92,7 +99,8 @@ const corners = [
   { label: 'Pill · controls', className: 'rounded-pill' },
   { label: '18 · cards', className: 'rounded-card' },
   { label: '14 · photos', className: 'rounded-photo' },
-  { label: '12 · fields', className: 'rounded-field' }
+  { label: '12 · fields', className: 'rounded-field' },
+  { label: '8 · checkboxes', className: 'rounded-check' }
 ];
 
 export const ColourSection = () => (
