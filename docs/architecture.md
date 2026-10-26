@@ -68,9 +68,25 @@ _planned: Real recipes._
 | --- | --- | --- |
 | Errors | Sentry for the frontend and Django, free plan, through the Marketplace. _planned: TAS-25._ | Problems are found without someone reporting them. |
 | Success measures | Events in Tastebook's own database (a plan used, cooking mode opened, an import saved without fixes), shown on a staff page. _planned._ | Measures exactly what the Vision asks, sends nobody's data elsewhere, costs nothing. |
-| Backups | A nightly GitHub Action dumps production into a private Blob store, kept 30 days. _planned: TAS-27._ | Neon's free plan only restores a few hours back, and losing the household's recipes is the worst thing that could happen. |
+| Backups | A nightly GitHub Action dumps production into a private Blob store, kept 30 days; see [Backups](#backups). | Neon's free plan only restores a few hours back, and losing the household's recipes is the worst thing that could happen. |
 | Checks on previews | Playwright end to end, axe for WCAG 2.2 AA, Lighthouse on mobile. _planned: TAS-26._ | Work is checked as it ships, before review. Thresholds are in `AGENTS.md`, Standards. |
 | Dependencies | Dependabot weekly with a 7-day cooldown; pnpm and uv ignore releases under a day old. | Routine updates without supply-chain surprises. |
+
+## Backups
+
+`.github/workflows/backup.yml` runs at 02:17 UTC every night (and on demand from the Actions tab). It dumps production with `pg_dump` 18 over Neon's direct connection, checks the dump holds table data, uploads it to the private Blob store `tastebook-backups` as `tastebook-<time taken>.dump`, then deletes dumps older than 30 days. The code is in `tools/backup/`.
+
+- **Secrets:** the workflow reads the Actions secrets `PRODUCTION_DATABASE_URL` (direct, unpooled) and `BACKUP_BLOB_READ_WRITE_TOKEN`. The store isn't connected to the Vercel project, so the app's own token can't read or delete backups; photos are in a different store.
+- **A failed night:** the run fails and shows red in Actions, GitHub emails whoever last changed the workflow's schedule, and nothing is deleted, because pruning only follows a successful upload.
+- **Keeping it running:** GitHub turns scheduled workflows off after 60 days without activity in the repo. If that happens, turn it back on from the workflow's page in Actions.
+
+To restore, with the Postgres 18 client tools (`pg_restore`) on your `PATH`, from the repo root after `pnpm install`:
+
+```sh
+BACKUP_BLOB_READ_WRITE_TOKEN=<token> TARGET_DATABASE_URL=<direct connection string> pnpm --filter @tastebook/backup restore [tastebook-2026-10-26T021705Z.dump]
+```
+
+Leave out the dump's name to restore the latest. It drops and recreates the dump's tables in the target in one transaction, so a failed restore changes nothing. Try it on a preview's Neon branch (its direct connection string is in the Neon console), never production unless production is what you're recovering.
 
 ## Code
 
