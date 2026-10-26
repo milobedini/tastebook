@@ -1,8 +1,30 @@
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
+// Vercel sets these for previews and production builds. Vite only exposes VITE_* variables to the browser, so the
+// three the browser needs are passed in by name; nothing else under SENTRY_ reaches it.
+const { SENTRY_AUTH_TOKEN, SENTRY_DSN = '', VERCEL_ENV = '', VERCEL_GIT_COMMIT_SHA = '' } = process.env;
+
 export default defineConfig({
-  plugins: [react()],
+  define: {
+    'import.meta.env.VITE_SENTRY_DSN': JSON.stringify(SENTRY_DSN),
+    'import.meta.env.VITE_SENTRY_ENVIRONMENT': JSON.stringify(VERCEL_ENV),
+    'import.meta.env.VITE_SENTRY_RELEASE': JSON.stringify(VERCEL_GIT_COMMIT_SHA)
+  },
+  plugins: [
+    react(),
+    sentryVitePlugin({
+      disable: !SENTRY_AUTH_TOKEN,
+      telemetry: false,
+      release: { name: VERCEL_GIT_COMMIT_SHA },
+      // Uploaded to Sentry, then deleted, so the deployment doesn't serve the source.
+      sourcemaps: { filesToDeleteAfterUpload: ['./dist/**/*.map'] }
+    })
+  ],
+  build: {
+    sourcemap: SENTRY_AUTH_TOKEN ? 'hidden' : false
+  },
   server: {
     port: 5173,
     strictPort: true,

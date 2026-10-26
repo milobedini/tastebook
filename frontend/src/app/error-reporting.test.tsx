@@ -1,0 +1,101 @@
+import { close } from '@sentry/react';
+import { waitFor } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
+import type { ReactNode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { createMemoryRouter } from 'react-router';
+import { RouterProvider } from 'react-router/dom';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+import { server } from '../test/server';
+import { startErrorReporting } from './error-reporting';
+
+const RELEASE = '4ca3bae7c06fdf9c4d95dd193eb4d6f0e2b651ab';
+
+type SentryEvent = {
+  environment: string;
+  release: string;
+  exception: { values: { value: string }[] };
+};
+
+const receiveEnvelopes = () => {
+  const envelopes: string[] = [];
+  server.use(
+    http.post('https://o1.ingest.sentry.io/api/2/envelope/', async ({ request }) => {
+      envelopes.push(await request.text());
+      return HttpResponse.json({});
+    })
+  );
+  return envelopes;
+};
+
+// An envelope is a header line, then an item header line and its payload line for each item.
+const eventsIn = (envelopes: string[]): SentryEvent[] =>
+  envelopes.flatMap((envelope) => {
+    const items = envelope.split('\n').slice(1);
+    return items.flatMap((line, index) =>
+      index % 2 === 0 && JSON.parse(line).type === 'event' ? [JSON.parse(items[index + 1] ?? '') as SentryEvent] : []
+    );
+  });
+
+const Oven = (): ReactNode => {
+  throw new Error('The oven caught fire');
+};
+
+const caughtByTheRouter = () => (
+  <RouterProvider router={createMemoryRouter([{ path: '/', Component: Oven }], { initialEntries: ['/'] })} />
+);
+const uncaught = () => <Oven />;
+
+describe('startErrorReporting', () => {
+  afterEach(async () => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    await close();
+  });
+
+  it.each([
+    ['an error the router catches', caughtByTheRouter],
+    ['an error nothing catches', uncaught]
+  ])('reports %s to Sentry with the environment and release', async (_, tree) => {
+    const envelopes = receiveEnvelopes();
+    vi.stubEnv('VITE_SENTRY_DSN', 'https://publickey@o1.ingest.sentry.io/2');
+    vi.stubEnv('VITE_SENTRY_ENVIRONMENT', 'preview');
+    vi.stubEnv('VITE_SENTRY_RELEASE', RELEASE);
+    // Rendered as the browser does: under act(), React rethrows uncaught errors instead of passing them to the root.
+    vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', false);
+
+    const root = createRoot(document.body.appendChild(document.createElement('div')), startErrorReporting());
+    root.render(tree());
+
+    await waitFor(() => expect(eventsIn(envelopes)).toHaveLength(1));
+    const [event] = eventsIn(envelopes);
+    expect(event?.environment).toBe('preview');
+    expect(event?.release).toBe(RELEASE);
+    expect(event?.exception.values.at(-1)?.value).toBe('The oven caught fire');
+    root.unmount();
+  });
+
+  it('sends no request body with the report', async () => {
+    const envelopes = receiveEnvelopes();
+    server.use(http.post('/api/recipes/', () => HttpResponse.json({ id: 3 }, { status: 201 })));
+    vi.stubEnv('VITE_SENTRY_DSN', 'https://publickey@o1.ingest.sentry.io/2');
+    vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', false);
+
+    const root = createRoot(document.body.appendChild(document.createElement('div')), startErrorReporting());
+    await fetch('/api/recipes/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Grandma secret tart' })
+    });
+    root.render(caughtByTheRouter());
+
+    await waitFor(() => expect(eventsIn(envelopes)).toHaveLength(1));
+    const [envelope = ''] = envelopes;
+    expect(envelope).toContain('The oven caught fire');
+    // The request shows in the report's trail; its body must not.
+    expect(envelope).toContain('/api/recipes/');
+    expect(envelope).not.toContain('Grandma secret tart');
+    root.unmount();
+  });
+});
