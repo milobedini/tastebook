@@ -1,32 +1,51 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const isCi = Boolean(process.env.CI);
+// Set by the preview checks workflow: the specs run against a Vercel preview instead of a local stack.
+const previewUrl = process.env.PREVIEW_URL;
+const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+
+// Gets past the preview's Vercel sign-in without turning protection off, and keeps the Vercel toolbar out of the page.
+const previewHeaders = bypassSecret
+  ? {
+      'x-vercel-protection-bypass': bypassSecret,
+      'x-vercel-set-bypass-cookie': 'true',
+      'x-vercel-skip-toolbar': '1'
+    }
+  : undefined;
 
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: isCi,
   retries: isCi ? 1 : 0,
-  reporter: isCi ? [['list'], ['html', { open: 'never' }]] : 'list',
+  // The JSON results feed the preview checks' comment on the PR.
+  reporter: isCi
+    ? [['list'], ['html', { open: 'never' }], ['json', { outputFile: 'test-results/results.json' }]]
+    : 'list',
   use: {
-    baseURL: 'http://localhost:5173',
-    trace: 'retain-on-failure',
+    baseURL: previewUrl ?? 'http://localhost:5173',
+    extraHTTPHeaders: previewHeaders,
+    // A trace records request headers, so on a preview it would carry the bypass secret into the uploaded report.
+    trace: previewUrl ? 'off' : 'retain-on-failure',
     video: 'retain-on-failure',
     screenshot: 'only-on-failure'
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  webServer: [
-    {
-      command: 'uv run python manage.py runserver 8000',
-      cwd: '../backend',
-      env: { DJANGO_DEBUG: 'true' },
-      url: 'http://localhost:8000/api/health/',
-      reuseExistingServer: !isCi
-    },
-    {
-      command: 'pnpm dev',
-      url: 'http://localhost:5173',
-      reuseExistingServer: !isCi
-    }
-  ]
+  webServer: previewUrl
+    ? undefined
+    : [
+        {
+          command: 'uv run python manage.py runserver 8000',
+          cwd: '../backend',
+          env: { DJANGO_DEBUG: 'true' },
+          url: 'http://localhost:8000/api/health/',
+          reuseExistingServer: !isCi
+        },
+        {
+          command: 'pnpm dev',
+          url: 'http://localhost:5173',
+          reuseExistingServer: !isCi
+        }
+      ]
 });
