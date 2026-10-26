@@ -59,7 +59,8 @@ jobs:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           base="${PREVIEW_URL%/}"
-          pnpm exec lhci autorun --collect.url="$base/" --collect.url="$base/recipes"
+          # With a puppeteer script, Lighthouse CI only looks for Chrome where puppeteer-core can't say, so name the runner's.
+          CHROME_PATH="$(command -v google-chrome)" pnpm exec lhci autorun --collect.url="$base/" --collect.url="$base/recipes"
 
       # Playwright's JSON results record the request headers, bypass secret included; Lighthouse's reports are checked too.
       - name: Redact the bypass secret from the reports
