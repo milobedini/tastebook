@@ -2,11 +2,14 @@ import type { ChangeEvent } from 'react';
 import { useCallback, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
+import { useCuisines } from '../api/cuisines';
+import type { RecipeFilters } from '../api/recipes';
 import { useRecipes } from '../api/recipes';
 import type { components } from '../api/schema';
 import { RecipeCuisines } from '../components/recipe-cuisines';
 import { useDebouncedValue } from '../hooks/use-debounced-value';
 
+type Cuisine = components['schemas']['Cuisine'];
 type Recipe = components['schemas']['Recipe'];
 
 const SEARCH_DELAY_MS = 300;
@@ -18,19 +21,90 @@ const toSearchTerm = (text: string) => {
   return term.length >= MIN_SEARCH_LENGTH ? term : '';
 };
 
+// Each control writes its own parameter and keeps the others, so the search and the cuisine combine.
+const withParam = (params: URLSearchParams, name: string, value: string) => {
+  const next = new URLSearchParams(params);
+  if (value === '') {
+    next.delete(name);
+  } else {
+    next.set(name, value);
+  }
+  return next;
+};
+
 type RecipeSearchProps = {
   value: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 };
 
-// No form: results follow the typing, so Enter has nothing to submit.
 const RecipeSearch = ({ value, onChange }: RecipeSearchProps) => (
-  <search>
-    <label>
-      Search recipes <input type="search" value={value} onChange={onChange} />
-    </label>
-  </search>
+  <label>
+    Search recipes <input type="search" value={value} onChange={onChange} />
+  </label>
 );
+
+type CuisineSelectProps = {
+  cuisines: Cuisine[];
+  value: string;
+  onChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+};
+
+const CuisineSelect = ({ cuisines, value, onChange }: CuisineSelectProps) => {
+  // A select can't show a value it has no option for, and the API ignores an unknown slug, so both say "All cuisines".
+  const known = cuisines.some(({ slug }) => slug === value);
+  return (
+    <label>
+      Cuisine{' '}
+      <select value={known ? value : ''} onChange={onChange}>
+        <option value="">All cuisines</option>
+        {cuisines.map(({ slug, name }) => (
+          <option key={slug} value={slug}>
+            {name}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+};
+
+const CuisinesLoading = () => (
+  <label>
+    Cuisine{' '}
+    <select disabled>
+      <option>Loading cuisines…</option>
+    </select>
+  </label>
+);
+
+type CuisinesUnavailableProps = {
+  onRetry: () => void;
+};
+
+const CuisinesUnavailable = ({ onRetry }: CuisinesUnavailableProps) => (
+  <>
+    <p role="alert">The cuisines couldn't be loaded.</p>
+    <button type="button" onClick={onRetry}>
+      Load cuisines again
+    </button>
+  </>
+);
+
+type CuisinePickerProps = {
+  value: string;
+  onChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+};
+
+const CuisinePicker = ({ value, onChange }: CuisinePickerProps) => {
+  const { data: cuisines, isPending, refetch } = useCuisines();
+  if (cuisines !== undefined) {
+    return <CuisineSelect cuisines={cuisines} value={value} onChange={onChange} />;
+  }
+  // Refetching a query that has never succeeded resets it to pending, so "Load cuisines again" shows this too.
+  if (isPending) {
+    return <CuisinesLoading />;
+  }
+  return <CuisinesUnavailable onRetry={() => void refetch()} />;
+};
 
 type RecipesUnavailableProps = {
   onRetry: () => void;
@@ -57,24 +131,25 @@ const RecipeItem = ({ recipe }: RecipeItemProps) => (
   </li>
 );
 
-type NoRecipesProps = { searchTerm: string };
+type NoRecipesProps = { searchTerm: string; cuisineName: string | undefined };
 
-const NoRecipes = ({ searchTerm }: NoRecipesProps) => {
+const NoRecipes = ({ searchTerm, cuisineName }: NoRecipesProps) => {
+  const subject = cuisineName === undefined ? 'recipes' : `${cuisineName} recipes`;
   if (searchTerm === '') {
-    return <p>No recipes yet.</p>;
+    return <p>{`No ${subject} yet.`}</p>;
   }
-  return <p>{`No recipes match “${searchTerm}”.`}</p>;
+  return <p>{`No ${subject} match “${searchTerm}”.`}</p>;
 };
 
 type RecipeCountProps = { count: number };
 
 const RecipeCount = ({ count }: RecipeCountProps) => <p>{`${count} ${count === 1 ? 'recipe' : 'recipes'}`}</p>;
 
-type RecipesProps = { recipes: Recipe[]; searchTerm: string };
+type RecipesProps = { recipes: Recipe[]; searchTerm: string; cuisineName: string | undefined };
 
-const Recipes = ({ recipes, searchTerm }: RecipesProps) => {
+const Recipes = ({ recipes, searchTerm, cuisineName }: RecipesProps) => {
   if (recipes.length === 0) {
-    return <NoRecipes searchTerm={searchTerm} />;
+    return <NoRecipes searchTerm={searchTerm} cuisineName={cuisineName} />;
   }
   return (
     <>
@@ -88,13 +163,20 @@ const Recipes = ({ recipes, searchTerm }: RecipesProps) => {
   );
 };
 
-type RecipeListProps = { searchTerm: string };
+type RecipeListProps = { filters: RecipeFilters };
 
-const RecipeList = ({ searchTerm }: RecipeListProps) => {
-  const { data, isPending, refetch } = useRecipes(searchTerm);
+const RecipeList = ({ filters }: RecipeListProps) => {
+  const { data, isPending, refetch } = useRecipes(filters);
+  const { data: cuisines } = useCuisines();
   // A list already shown stays up if a background refetch fails.
   if (data !== undefined) {
-    return <Recipes recipes={data.recipes} searchTerm={data.searchTerm} />;
+    return (
+      <Recipes
+        recipes={data.recipes}
+        searchTerm={data.filters.searchTerm}
+        cuisineName={cuisines?.find(({ slug }) => slug === data.filters.cuisine)?.name}
+      />
+    );
   }
   // Refetching a query that has never succeeded resets it to pending, so "Try again" shows this too.
   if (isPending) {
@@ -113,7 +195,16 @@ export const RecipesPage = () => {
     (event: ChangeEvent<HTMLInputElement>) => {
       const text = event.target.value;
       setSearchText(text);
-      setSearchParams(text === '' ? {} : { q: text }, { replace: true });
+      setSearchParams((params) => withParam(params, 'q', text), { replace: true });
+    },
+    [setSearchParams]
+  );
+
+  // The dropdown changes the address at once, so the address is its only state.
+  const cuisine = searchParams.get('cuisine') ?? '';
+  const handleCuisineChange = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      setSearchParams((params) => withParam(params, 'cuisine', event.target.value), { replace: true });
     },
     [setSearchParams]
   );
@@ -122,8 +213,12 @@ export const RecipesPage = () => {
     <main>
       <title>Recipes · Tastebook</title>
       <h1>Recipes</h1>
-      <RecipeSearch value={searchText} onChange={handleSearchChange} />
-      <RecipeList searchTerm={searchTerm} />
+      {/* No form: results follow the typing and the dropdown, so Enter has nothing to submit. */}
+      <search>
+        <RecipeSearch value={searchText} onChange={handleSearchChange} />
+        <CuisinePicker value={cuisine} onChange={handleCuisineChange} />
+      </search>
+      <RecipeList filters={{ searchTerm, cuisine }} />
       <Link to="/">Back to Tastebook</Link>
     </main>
   );
