@@ -2,12 +2,12 @@ import type { ChangeEvent } from 'react';
 import { useCallback, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
-import { useCuisines } from '../api/cuisines';
-import type { RecipeFilters } from '../api/recipes';
-import { useRecipes } from '../api/recipes';
 import type { components } from '../api/schema';
-import { RecipeCuisines } from '../components/recipe-cuisines';
-import { useDebouncedValue } from '../hooks/use-debounced-value';
+import { useCuisines } from './cuisines-api';
+import { RecipeCuisines } from './recipe-cuisines';
+import type { RecipeFilters } from './recipes-api';
+import { useRecipes } from './recipes-api';
+import { useDebouncedValue } from './use-debounced-value';
 
 type Cuisine = components['schemas']['Cuisine'];
 type Recipe = components['schemas']['Recipe'];

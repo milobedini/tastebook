@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Link } from 'react-router';
 
-import { useHealth } from '../api/health';
+import { useHealth } from './health-api';
 
 type ApiUnreachableProps = {
   onRetry: () => void;
