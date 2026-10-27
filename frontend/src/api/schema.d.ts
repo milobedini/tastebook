@@ -105,6 +105,18 @@ export interface components {
          */
         DatabaseEnum: "ok" | "unavailable";
         /**
+         * @description * `vegetarian` - Vegetarian
+         *     * `vegan` - Vegan
+         *     * `gluten_free` - Gluten-free
+         *     * `dairy_free` - Dairy-free
+         * @enum {string}
+         */
+        DietTag: "vegetarian" | "vegan" | "gluten_free" | "dairy_free";
+        DietTagConflict: {
+            readonly ingredient: components["schemas"]["Ingredient"];
+            readonly diet_tags: components["schemas"]["DietTag"][];
+        };
+        /**
          * @description * `easy` - Easy
          *     * `medium` - Medium
          *     * `hard` - Hard
@@ -177,6 +189,7 @@ export interface components {
             difficulty: components["schemas"]["DifficultyEnum"];
             readonly total_minutes: number;
             readonly photo: components["schemas"]["RecipePhoto"] | null;
+            readonly diet_tags: components["schemas"]["DietTag"][];
             readonly courses: components["schemas"]["Course"][];
             prep_minutes: number;
             cook_minutes: number;
@@ -200,6 +213,7 @@ export interface components {
             readonly ingredient_lines: components["schemas"]["IngredientLine"][];
             readonly ingredient_groups: components["schemas"]["IngredientGroup"][];
             readonly steps: components["schemas"]["Step"][];
+            readonly diet_tag_conflicts: components["schemas"]["DietTagConflict"][];
         };
         RecipePhoto: {
             readonly thumbnails: components["schemas"]["PhotoThumbnail"][];
@@ -217,6 +231,7 @@ export interface components {
             difficulty: components["schemas"]["DifficultyEnum"];
             readonly total_minutes: number;
             readonly photo: components["schemas"]["RecipePhoto"] | null;
+            readonly diet_tags: components["schemas"]["DietTag"][];
         };
         /**
          * @description * `ok` - ok

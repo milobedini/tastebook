@@ -18,9 +18,14 @@ class EquipmentAdmin(admin.ModelAdmin):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug')
+    list_display = ('name', 'slug', *Ingredient.CONTAINS)
+    list_filter = Ingredient.CONTAINS
     search_fields = ('name',)
     prepopulated_fields = {'slug': ('name',)}
+    fieldsets = (
+        (None, {'fields': ('name', 'slug')}),
+        ('Contains', {'fields': Ingredient.CONTAINS, 'description': "A recipe's diet tags are worked out from these."}),
+    )
 
 
 class IngredientGroupInline(admin.TabularInline):

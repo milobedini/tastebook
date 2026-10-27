@@ -4,8 +4,9 @@ import { useCallback, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
 import type { components } from '../api/schema';
-import { Banner, Button, EmptyState, Field, NativeSelect, Page, RecipeCard, SearchInput } from '../ui';
+import { Banner, Button, EmptyState, Field, NativeSelect, Page, RecipeCard, SearchInput, Tag } from '../ui';
 import { useCuisines } from './cuisines-api';
+import { dietTagLabels } from './diet-tags';
 import { difficultyLabels } from './difficulty';
 import { formatMinutes } from './format-minutes';
 import type { RecipeFilters } from './recipes-api';
@@ -142,6 +143,15 @@ const RecipeItem = ({ recipe }: RecipeItemProps) => (
     >
       <RecipeMeta recipe={recipe} />
       {recipe.description !== '' && <p>{recipe.description}</p>}
+      {recipe.diet_tags.length > 0 && (
+        <ul className="flex flex-wrap gap-1">
+          {recipe.diet_tags.map((tag) => (
+            <li key={tag}>
+              <Tag>{dietTagLabels[tag]}</Tag>
+            </li>
+          ))}
+        </ul>
+      )}
     </RecipeCard>
   </li>
 );

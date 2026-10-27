@@ -35,6 +35,7 @@ class RecipeListView(ListAPIView):
             .taking_at_most(prep=given.get('max_prep'), cook=given.get('max_cook'), total=given.get('max_total'))
             .only_one_pot(given['one_pot'])
             .prefetch_related('cuisines')
+            .with_diet_tags()
             .alphabetical()
         )
 

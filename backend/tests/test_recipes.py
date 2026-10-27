@@ -111,6 +111,7 @@ def test_returns_a_summary_of_each_recipe_with_its_total_time_and_difficulty() -
             'difficulty': 'medium',
             'total_minutes': 40,
             'photo': None,
+            'diet_tags': [],
         }
     ]
 
@@ -257,6 +258,7 @@ def test_returns_the_whole_recipe_with_its_details() -> None:
         'difficulty': 'medium',
         'total_minutes': 40,
         'photo': None,
+        'diet_tags': [],
         'courses': [{'slug': 'breakfast', 'name': 'Breakfast'}, {'slug': 'main', 'name': 'Main'}],
         'prep_minutes': 10,
         'cook_minutes': 25,
@@ -271,6 +273,7 @@ def test_returns_the_whole_recipe_with_its_details() -> None:
         'ingredient_lines': [],
         'ingredient_groups': [],
         'steps': [],
+        'diet_tag_conflicts': [],
     }
 
 
@@ -381,16 +384,20 @@ def test_filters_by_cuisine_and_combines_with_the_search(params: dict[str, str],
 
 
 @pytest.mark.django_db
-def test_lists_recipes_with_their_cuisines_in_two_queries(django_assert_num_queries: DjangoAssertNumQueries) -> None:
+def test_lists_recipes_with_their_cuisines_and_diet_tags_in_three_queries(
+    django_assert_num_queries: DjangoAssertNumQueries,
+) -> None:
     for title in ['Apple tart', 'Ramen tacos', 'Sushi']:
-        make_recipe(title=title).cuisines.set(Cuisine.objects.filter(slug__in=['french', 'japanese']))
+        recipe = make_recipe(title=title)
+        recipe.cuisines.set(Cuisine.objects.filter(slug__in=['french', 'japanese']))
+        add_line(recipe, 'rice')
+        add_line(recipe, 'butter', optional=True)
 
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(3):
         response = APIClient().get(reverse('recipe-list'))
 
     assert response.status_code == 200
-    assert len(response.json()) == 3
-    assert [len(recipe['cuisines']) for recipe in response.json()] == [2, 2, 2]
+    assert [(len(recipe['cuisines']), len(recipe['diet_tags'])) for recipe in response.json()] == [(2, 4)] * 3
 
 
 ALL_FIVE = ['Apple tart', 'Greek salad', 'Pad thai', 'Ramen tacos', 'Risotto']
@@ -462,7 +469,7 @@ def test_refuses_a_malformed_filter(params: str, parameter: str) -> None:
 
 
 @pytest.mark.django_db
-def test_filters_with_cuisines_and_courses_in_four_queries(django_assert_num_queries: DjangoAssertNumQueries) -> None:
+def test_filters_with_cuisines_and_courses_in_five_queries(django_assert_num_queries: DjangoAssertNumQueries) -> None:
     for title, cuisine, course in [
         ('Apple tart', 'french', 'dessert'),
         ('Coq au vin', 'french', 'main'),
@@ -472,8 +479,8 @@ def test_filters_with_cuisines_and_courses_in_four_queries(django_assert_num_que
         recipe.cuisines.set(Cuisine.objects.filter(slug=cuisine))
         recipe.courses.set(Course.objects.filter(slug=course))
 
-    # One existence check each for the cuisines and the courses, the list, then the cuisines prefetch.
-    with django_assert_num_queries(4):
+    # One existence check each for the cuisines and the courses, the list, then the cuisines and diet tags prefetches.
+    with django_assert_num_queries(5):
         response = APIClient().get(reverse('recipe-list'), {'cuisine': 'french', 'course': 'main'})
 
     assert response.status_code == 200
@@ -545,7 +552,7 @@ def test_total_time_is_prep_plus_cook_plus_extra(
 
 
 @pytest.mark.django_db
-def test_returns_a_recipe_with_its_details_ingredients_and_method_in_eight_queries(
+def test_returns_a_recipe_with_its_details_ingredients_method_and_diet_tags_in_eight_queries(
     django_assert_num_queries: DjangoAssertNumQueries,
 ) -> None:
     recipe = make_recipe(title='Shakshuka')
@@ -615,9 +622,11 @@ def test_a_staff_user_adds_a_recipe_with_all_its_details_in_the_admin(admin_clie
         'one_pot': True,
         'source': 'Grandma Rose',
         'photo': None,
+        'diet_tags': [],
         'ingredient_lines': [],
         'ingredient_groups': [],
         'steps': [],
+        'diet_tag_conflicts': [],
     }
 
 
@@ -1033,3 +1042,99 @@ def test_the_admin_refuses_a_photo_that_doesnt_fit(admin_client: Client, fields:
     assert message in response.content.decode()
     recipe.refresh_from_db()
     assert recipe.photo_url == ''
+
+
+def flagged(name: str, *flags: str) -> Ingredient:
+    return Ingredient.objects.create(name=name, slug=name.replace(' ', '-'), **dict.fromkeys(flags, True))
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('flags', 'diet_tags'),
+    [
+        ((), ['vegetarian', 'vegan', 'gluten_free', 'dairy_free']),
+        (('contains_meat',), ['gluten_free', 'dairy_free']),
+        (('contains_fish',), ['gluten_free', 'dairy_free']),
+        (('contains_dairy',), ['vegetarian', 'gluten_free']),
+        (('contains_egg',), ['vegetarian', 'gluten_free', 'dairy_free']),
+        (('contains_other_animal_product',), ['vegetarian', 'gluten_free', 'dairy_free']),
+        (('contains_gluten',), ['vegetarian', 'vegan', 'dairy_free']),
+        (('contains_dairy', 'contains_gluten'), ['vegetarian']),
+    ],
+)
+def test_works_out_the_diet_tags_from_what_every_ingredient_contains(
+    flags: tuple[str, ...], diet_tags: list[str]
+) -> None:
+    recipe = make_recipe(title='Risotto')
+    add_line(recipe, 'rice')
+    sauce = IngredientGroup.objects.create(recipe=recipe, name='For the sauce')
+    IngredientLine.objects.create(recipe=recipe, group=sauce, ingredient=flagged('stock', *flags))
+
+    listed = APIClient().get(reverse('recipe-list')).json()[0]
+    detail = APIClient().get(reverse('recipe-detail', args=['risotto'])).json()
+
+    assert (listed['diet_tags'], detail['diet_tags']) == (diet_tags, diet_tags)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('lines', 'diet_tags'),
+    [
+        ([], []),
+        ([('rice', True)], []),
+        ([('rice', False)], ['vegetarian', 'vegan', 'gluten_free', 'dairy_free']),
+    ],
+)
+def test_claims_no_diet_until_the_recipe_has_a_required_ingredient(
+    lines: list[tuple[str, bool]], diet_tags: list[str]
+) -> None:
+    recipe = make_recipe(title='Risotto')
+    for name, optional in lines:
+        add_line(recipe, name, optional=optional)
+
+    detail = APIClient().get(reverse('recipe-detail', args=['risotto'])).json()
+
+    assert detail['diet_tags'] == diet_tags
+
+
+@pytest.mark.django_db
+def test_optional_lines_keep_the_diet_tags_and_name_the_ones_they_would_take_away() -> None:
+    recipe = make_recipe(title='Spaghetti aglio e olio')
+    IngredientLine.objects.create(recipe=recipe, ingredient=flagged('spaghetti', 'contains_gluten'))
+    add_line(recipe, 'garlic')
+    bacon = flagged('bacon', 'contains_meat')
+    IngredientLine.objects.create(recipe=recipe, ingredient=bacon, optional=True)
+    to_serve = IngredientGroup.objects.create(recipe=recipe, name='To serve')
+    parmesan = flagged('parmesan', 'contains_dairy')
+    IngredientLine.objects.create(recipe=recipe, group=to_serve, ingredient=parmesan, optional=True)
+    IngredientLine.objects.create(recipe=recipe, group=to_serve, ingredient=parmesan, optional=True, note='to grate')
+    # Gluten-free isn't one of the recipe's tags, so an optional crouton takes nothing away.
+    IngredientLine.objects.create(
+        recipe=recipe, group=to_serve, ingredient=flagged('croutons', 'contains_gluten'), optional=True
+    )
+    add_line(recipe, 'parsley', optional=True)
+
+    listed = APIClient().get(reverse('recipe-list')).json()[0]
+    detail = APIClient().get(reverse('recipe-detail', args=['spaghetti-aglio-e-olio'])).json()
+
+    assert listed['diet_tags'] == ['vegetarian', 'vegan', 'dairy_free']
+    assert detail['diet_tags'] == ['vegetarian', 'vegan', 'dairy_free']
+    assert detail['diet_tag_conflicts'] == [
+        {'ingredient': {'slug': 'bacon', 'name': 'bacon'}, 'diet_tags': ['vegetarian', 'vegan']},
+        {'ingredient': {'slug': 'parmesan', 'name': 'parmesan'}, 'diet_tags': ['vegan', 'dairy_free']},
+    ]
+
+
+@pytest.mark.django_db
+def test_a_staff_user_records_what_an_ingredient_contains_in_the_admin(admin_client: Client) -> None:
+    recipe = make_recipe(title='Noodle soup')
+    add_line(recipe, 'egg noodles')
+
+    response = admin_client.post(
+        reverse('admin:recipes_ingredient_change', args=[Ingredient.objects.get().id]),
+        {'name': 'egg noodles', 'slug': 'egg-noodles', 'contains_gluten': 'on', 'contains_egg': 'on'},
+    )
+
+    assert response.status_code == 302
+    detail = APIClient().get(reverse('recipe-detail', args=['noodle-soup'])).json()
+    assert detail['diet_tags'] == ['vegetarian', 'dairy_free']

@@ -28,6 +28,7 @@ const recipes: Recipe[] = [
     extra_label: 'chilling',
     total_minutes: 100,
     photo: null,
+    diet_tags: [],
     servings: 8,
     yield_amount: null,
     yield_unit: '',
@@ -36,7 +37,8 @@ const recipes: Recipe[] = [
     source: 'Tastebook',
     ingredient_lines: [],
     ingredient_groups: [],
-    steps: []
+    steps: [],
+    diet_tag_conflicts: []
   },
   {
     id: 2,
@@ -52,6 +54,7 @@ const recipes: Recipe[] = [
     extra_label: '',
     total_minutes: 75,
     photo: null,
+    diet_tags: [],
     servings: null,
     yield_amount: 1,
     yield_unit: 'loaf',
@@ -60,7 +63,8 @@ const recipes: Recipe[] = [
     source: '',
     ingredient_lines: [],
     ingredient_groups: [],
-    steps: []
+    steps: [],
+    diet_tag_conflicts: []
   }
 ];
 
@@ -72,7 +76,8 @@ const toSummary = ({
   cuisines,
   difficulty,
   total_minutes,
-  photo
+  photo,
+  diet_tags
 }: Recipe): RecipeSummary => ({
   id,
   slug,
@@ -81,7 +86,8 @@ const toSummary = ({
   cuisines,
   difficulty,
   total_minutes,
-  photo
+  photo,
+  diet_tags
 });
 
 export const handlers = [
