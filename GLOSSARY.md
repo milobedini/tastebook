@@ -32,6 +32,9 @@ Names marked _planned_ don't exist in the code yet; use them when you build the 
 | Yield | How much a recipe makes, with a unit ("makes 12 cookies"), instead of servings. | `Recipe.yield_amount`, `yield_unit` |
 | Scaling | Changing servings or yield, which changes every amount, rounded to what you can measure. | `scale()` _planned_ |
 | Source credit | Where a recipe came from: an author, a website, or "Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)". | `Recipe.source` |
+| Photo | A recipe's one picture, an image on Wikimedia Commons: 16:10 on its page, 4:3 on its card. | `Recipe.photo_url`, `Recipe.photo` |
+| Photo credit | A photo's author, its licence and a link to its page on Wikimedia Commons, shown under it on the recipe's page. | `photo_author`, `photo_licence`, `photo_source_url` |
+| Cuisine plate | The drawing of a plate in a recipe's first cuisine's colour, shown where the recipe has no photo. | `CuisinePlate` |
 | Catalogue | The public recipes Tastebook seeds itself with, loaded from a file in the repo. | `catalogue` _planned_ |
 | Report | A signed-in person flagging a public recipe, which hides it until staff review it. | `Report` _planned_ |
 | Slug | The recipe's address in a URL, set once from its title. | `Recipe.slug` |
