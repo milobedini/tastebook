@@ -20,7 +20,8 @@ const appleTart: Recipe = {
   cuisines: [{ slug: 'french', name: 'French' }],
   difficulty: 'medium',
   total_minutes: 100,
-  photo: null
+  photo: null,
+  diet_tags: []
 };
 const bananaBread: Recipe = {
   id: 2,
@@ -30,7 +31,8 @@ const bananaBread: Recipe = {
   cuisines: [],
   difficulty: 'easy',
   total_minutes: 75,
-  photo: null
+  photo: null,
+  diet_tags: []
 };
 
 // Holds the next recipes response until released, so the test can see the page while the request is in flight.
@@ -129,7 +131,8 @@ describe('RecipesPage', () => {
           cuisines: [],
           difficulty: 'easy',
           total_minutes: 35,
-          photo: null
+          photo: null,
+          diet_tags: []
         },
         {
           id: 3,
@@ -139,7 +142,8 @@ describe('RecipesPage', () => {
           cuisines: [],
           difficulty: 'hard',
           total_minutes: 90,
-          photo: null
+          photo: null,
+          diet_tags: []
         }
       ])
     );
@@ -180,7 +184,8 @@ describe('RecipesPage', () => {
             ],
             difficulty: 'easy',
             total_minutes: 25,
-            photo: null
+            photo: null,
+            diet_tags: []
           }
         ])
       )
@@ -381,7 +386,8 @@ describe('RecipesPage', () => {
           cuisines: [],
           difficulty: 'easy',
           total_minutes: 35,
-          photo: null
+          photo: null,
+          diet_tags: []
         }
       ])
     );

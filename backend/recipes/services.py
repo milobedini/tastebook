@@ -11,7 +11,17 @@ from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils.text import slugify
 
-from recipes.models import Course, Cuisine, Equipment, Ingredient, IngredientGroup, IngredientLine, Recipe, Step
+from recipes.models import (
+    Course,
+    Cuisine,
+    DietTag,
+    Equipment,
+    Ingredient,
+    IngredientGroup,
+    IngredientLine,
+    Recipe,
+    Step,
+)
 
 CATALOGUE_PATH = settings.BASE_DIR / 'recipes' / 'catalogue.json'
 
@@ -44,7 +54,7 @@ def load_catalogue(path: Path = CATALOGUE_PATH) -> LoadedCatalogue:
         names = _Names(
             cuisines=_by_name(Cuisine.objects.all()),
             courses=_by_name(Course.objects.all()),
-            equipment=_load_named(Equipment, catalogue['equipment'], 'Equipment'),
+            equipment=_load_named(Equipment, [{'name': name} for name in catalogue['equipment']], 'Equipment'),
             ingredients=_load_named(Ingredient, catalogue['ingredients'], 'Ingredient'),
         )
         recipes = [_load_recipe(record, names) for record in catalogue['recipes']]
@@ -81,14 +91,22 @@ def _by_name[M: Cuisine | Course](rows: Iterable[M]) -> dict[str, M]:
     return {row.name: row for row in rows}
 
 
-def _load_named[M: Equipment | Ingredient](model: type[M], names: list[str], kind: str) -> dict[str, M]:
+def _load_named[M: Equipment | Ingredient](model: type[M], records: list[Record], kind: str) -> dict[str, M]:
+    unshaped = [record for record in records if not isinstance(record, dict)]
+    if unshaped:
+        raise CatalogueError(f'Each {kind.lower()} must be an object with its name, but these are not: {unshaped}')
+    names = [record.get('name', '') for record in records]
     # The slug is the row's identity, so two names that slugify alike would be one row.
     _refuse_repeats((slugify(name) for name in names), f'{kind} slugs')
-    existing = {row.slug: row for row in model.objects.all()}
-    rows = {name: existing.get(slugify(name)) or model(slug=slugify(name)) for name in names}
-    for name, row in rows.items():
-        row.name = name
-        _save(row, f'{kind} "{name}"')
+    existing = dict(model.objects.values_list('slug', 'pk'))
+    rows: dict[str, M] = {}
+    for name, record in zip(names, records, strict=True):
+        where = f'{kind} "{name}"'
+        # Made afresh, so a field the file leaves out goes back to its default.
+        row = model(slug=slugify(name), **_plain_fields(model, record, where, set()))
+        _take_place(row, existing.get(row.slug))
+        _save(row, where)
+        rows[name] = row
     return rows
 
 
@@ -139,7 +157,7 @@ def _plain_fields(model: type[models.Model], record: Record, where: str, referen
     allowed = {
         field.name
         for field in model._meta.concrete_fields
-        if field.editable and not field.primary_key and not field.is_relation and field.name != 'position'
+        if field.editable and not field.primary_key and not field.is_relation and field.name not in {'position', 'slug'}
     }
     unknown = record.keys() - allowed - references
     if unknown:
@@ -177,3 +195,52 @@ def _save(row: models.Model, where: str) -> None:
     except ValidationError as error:
         raise CatalogueError(f'{where}: {" ".join(error.messages)}') from error
     row.save()
+
+
+# The ingredient flags that rule each diet tag out.
+_RULED_OUT_BY: dict[DietTag, tuple[str, ...]] = {
+    DietTag.VEGETARIAN: ('contains_meat', 'contains_fish'),
+    DietTag.VEGAN: (
+        'contains_meat',
+        'contains_fish',
+        'contains_dairy',
+        'contains_egg',
+        'contains_other_animal_product',
+    ),
+    DietTag.GLUTEN_FREE: ('contains_gluten',),
+    DietTag.DAIRY_FREE: ('contains_dairy',),
+}
+
+
+@dataclass(frozen=True)
+class DietTagConflict:
+    """An optional ingredient that would take diet tags away from its recipe, if it were used."""
+
+    ingredient: Ingredient
+    diet_tags: list[DietTag]
+
+
+def _allows(ingredient: Ingredient, tag: DietTag) -> bool:
+    return not any(getattr(ingredient, flag) for flag in _RULED_OUT_BY[tag])
+
+
+def diet_tags(lines: Iterable[IngredientLine]) -> list[DietTag]:
+    """The diet tags every required line allows. Optional lines never take one away."""
+    required = [line.ingredient for line in lines if not line.optional]
+    # A recipe whose ingredients aren't filled in yet would otherwise claim every diet.
+    if not required:
+        return []
+    return [tag for tag in DietTag if all(_allows(ingredient, tag) for ingredient in required)]
+
+
+def diet_tag_conflicts(lines: Iterable[IngredientLine]) -> list[DietTagConflict]:
+    """Each optional ingredient that the recipe's diet tags don't allow, with the tags it would take away."""
+    lines = list(lines)
+    tags = diet_tags(lines)
+    # Keyed by id, so an ingredient on two optional lines is named once.
+    optional = {line.ingredient.pk: line.ingredient for line in lines if line.optional}
+    conflicts = [
+        DietTagConflict(ingredient, [tag for tag in tags if not _allows(ingredient, tag)])
+        for ingredient in optional.values()
+    ]
+    return [conflict for conflict in conflicts if conflict.diet_tags]

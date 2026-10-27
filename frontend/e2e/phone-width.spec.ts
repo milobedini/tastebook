@@ -36,6 +36,7 @@ const recipe: Recipe = {
     licence: 'CC BY-SA 4.0',
     source_url: 'https://commons.wikimedia.org/wiki/File:Roast_pork.jpg'
   },
+  diet_tags: ['dairy_free'],
   servings: null,
   yield_amount: 12,
   yield_unit: 'generous portions with leftovers',
@@ -87,7 +88,8 @@ const recipe: Recipe = {
   steps: [
     { id: 1, text: 'The night before, rub the skin with salt and leave the pork uncovered in the fridge.' },
     { id: 2, text: 'Roast at 220°C for 30 minutes, then turn the oven down to 160°C for five and a half hours.' }
-  ]
+  ],
+  diet_tag_conflicts: []
 };
 
 const summary: RecipeSummary = {
@@ -98,7 +100,8 @@ const summary: RecipeSummary = {
   cuisines: recipe.cuisines,
   difficulty: recipe.difficulty,
   total_minutes: recipe.total_minutes,
-  photo: recipe.photo
+  photo: recipe.photo,
+  diet_tags: recipe.diet_tags
 };
 
 // One transparent pixel stands in for every Commons thumbnail, so the specs never reach Wikimedia.

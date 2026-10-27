@@ -118,4 +118,6 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Recipe hub API',
     'VERSION': '0.1.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    # Named for the glossary's term rather than the field it first appears on.
+    'ENUM_NAME_OVERRIDES': {'DietTag': 'recipes.models.DietTag'},
 }

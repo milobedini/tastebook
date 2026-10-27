@@ -36,6 +36,7 @@ class RecipeListView(ListAPIView):
             Recipe.objects.matching_title(params.get('q', ''))
             .with_cuisine(params.get('cuisine', ''))
             .prefetch_related('cuisines')
+            .with_diet_tags()
             .alphabetical()
         )
 
@@ -45,7 +46,11 @@ class RecipeDetailView(RetrieveAPIView):
     authentication_classes = []
     permission_classes = []
     serializer_class = RecipeSerializer
-    queryset = Recipe.objects.prefetch_related('cuisines', 'courses', 'equipment').with_ingredients_and_method()
+    queryset = (
+        Recipe.objects.prefetch_related('cuisines', 'courses', 'equipment')
+        .with_ingredients_and_method()
+        .with_diet_tags()
+    )
     lookup_field = 'slug'
 
 

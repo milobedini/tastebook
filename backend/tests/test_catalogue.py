@@ -53,12 +53,17 @@ FLAPJACKS: dict[str, Any] = {
 }
 
 
-def catalogue(*recipes: dict[str, Any], ingredients: list[str] | None = None) -> dict[str, Any]:
-    return {
-        'equipment': ['Hob', 'Oven'],
-        'ingredients': ingredients or ['chopped tomatoes', 'eggs', 'olive oil', 'paprika', 'porridge oats'],
-        'recipes': list(recipes),
-    }
+INGREDIENTS: list[dict[str, Any]] = [
+    {'name': 'chopped tomatoes'},
+    {'name': 'eggs', 'contains_egg': True},
+    {'name': 'olive oil'},
+    {'name': 'paprika'},
+    {'name': 'porridge oats', 'contains_gluten': True},
+]
+
+
+def catalogue(*recipes: dict[str, Any], ingredients: list[Any] | None = None) -> dict[str, Any]:
+    return {'equipment': ['Hob', 'Oven'], 'ingredients': ingredients or INGREDIENTS, 'recipes': list(recipes)}
 
 
 def write(path: Path, contents: dict[str, Any]) -> Path:
@@ -164,6 +169,29 @@ def test_the_repos_recipes_cover_groups_ranges_optional_lines_a_yield_and_extra_
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('slug', 'diet_tags', 'conflicts'),
+    [
+        ('chicken-tikka-masala', ['gluten_free'], []),
+        ('oat-and-raisin-cookies', ['vegetarian'], []),
+        ('spaghetti-aglio-e-olio', ['vegetarian', 'vegan', 'dairy_free'], [('parmesan', ['vegan', 'dairy_free'])]),
+        ('greek-salad', ['vegetarian', 'gluten_free'], []),
+        ('spanish-tortilla', ['vegetarian', 'gluten_free', 'dairy_free'], []),
+    ],
+)
+def test_the_repos_recipes_get_their_diet_tags_from_what_their_ingredients_contain(
+    slug: str, diet_tags: list[str], conflicts: list[tuple[str, list[str]]]
+) -> None:
+    call_command('load_catalogue')
+
+    recipe = recipe_json(slug)
+    assert recipe['diet_tags'] == diet_tags
+    assert [
+        (conflict['ingredient']['name'], conflict['diet_tags']) for conflict in recipe['diet_tag_conflicts']
+    ] == conflicts
+
+
+@pytest.mark.django_db
 def test_loads_a_recipe_with_its_details_ingredients_and_method(tmp_path: Path) -> None:
     call_command('load_catalogue', write(tmp_path / 'catalogue.json', catalogue(SHAKSHUKA)))
 
@@ -176,6 +204,7 @@ def test_loads_a_recipe_with_its_details_ingredients_and_method(tmp_path: Path) 
         'difficulty': 'easy',
         'total_minutes': 30,
         'photo': None,
+        'diet_tags': ['vegetarian', 'vegan', 'gluten_free', 'dairy_free'],
         'courses': [{'slug': 'breakfast', 'name': 'Breakfast'}, {'slug': 'main', 'name': 'Main'}],
         'prep_minutes': 10,
         'cook_minutes': 20,
@@ -198,6 +227,7 @@ def test_loads_a_recipe_with_its_details_ingredients_and_method(tmp_path: Path) 
                 'optional': False,
             }
         ],
+        'diet_tag_conflicts': [{'ingredient': {'slug': 'eggs', 'name': 'eggs'}, 'diet_tags': ['vegan']}],
     }
     assert [
         (group['name'], [(line['amount'], line['amount_max'], line['ingredient']['name']) for line in group['lines']])
@@ -244,7 +274,7 @@ def test_loading_an_edited_file_overwrites_the_catalogue_with_it(tmp_path: Path)
 
     call_command(
         'load_catalogue',
-        write(tmp_path / 'second.json', catalogue(edited, ingredients=['eggs'])),
+        write(tmp_path / 'second.json', catalogue(edited, ingredients=[{'name': 'eggs'}])),
     )
 
     recipe = recipe_json('shakshuka')
@@ -263,6 +293,20 @@ def test_loading_an_edited_file_overwrites_the_catalogue_with_it(tmp_path: Path)
     assert [step['text'] for step in recipe['steps']] == ['Wilt the greens.']
     assert titles() == ['Green shakshuka']
     assert list(Ingredient.objects.values_list('name', flat=True)) == ['eggs']
+
+
+@pytest.mark.django_db
+def test_loading_records_what_each_ingredient_contains_and_clears_what_the_file_leaves_out(tmp_path: Path) -> None:
+    call_command('load_catalogue', write(tmp_path / 'first.json', catalogue(FLAPJACKS)))
+    first = recipe_json('flapjacks')['diet_tags']
+
+    oats = {'name': 'porridge oats', 'contains_dairy': True}
+    call_command('load_catalogue', write(tmp_path / 'second.json', catalogue(FLAPJACKS, ingredients=[oats])))
+
+    assert (first, recipe_json('flapjacks')['diet_tags']) == (
+        ['vegetarian', 'vegan', 'dairy_free'],
+        ['vegetarian', 'gluten_free'],
+    )
 
 
 def with_line(**line: Any) -> dict[str, Any]:
@@ -310,7 +354,19 @@ def with_line(**line: Any) -> dict[str, Any]:
             'Recipe slugs must be unique, but these repeat: flapjacks',
         ),
         (
-            catalogue(FLAPJACKS, ingredients=['porridge oats', 'Porridge oats']),
+            catalogue(FLAPJACKS, ingredients=['porridge oats']),
+            "Each ingredient must be an object with its name, but these are not: ['porridge oats']",
+        ),
+        (
+            catalogue(FLAPJACKS, ingredients=[{'name': 'porridge oats', 'contains_nuts': True}]),
+            'Ingredient "porridge oats" has fields the catalogue does not know: contains_nuts',
+        ),
+        (
+            catalogue(FLAPJACKS, ingredients=[{'name': 'porridge oats', 'slug': 'oats'}]),
+            'Ingredient "porridge oats" has fields the catalogue does not know: slug',
+        ),
+        (
+            catalogue(FLAPJACKS, ingredients=[{'name': 'porridge oats'}, {'name': 'Porridge oats'}]),
             'Ingredient slugs must be unique, but these repeat: porridge-oats',
         ),
     ],

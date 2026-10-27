@@ -76,6 +76,11 @@ class RecipeQuerySet(models.QuerySet['Recipe']):
             'steps',
         )
 
+    def with_diet_tags(self) -> RecipeQuerySet:
+        # Every line with its ingredient, grouped or not, as the diet tags are worked out from them all.
+        lines = IngredientLine.objects.select_related('ingredient')
+        return self.prefetch_related(models.Prefetch('ingredient_lines', queryset=lines))
+
     def unique_slug_for(self, title: str) -> str:
         base = base_slug(title)
         taken = set(self.filter(slug__startswith=base).values_list('slug', flat=True))
@@ -200,12 +205,40 @@ class Recipe(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(max_length=100, unique=True, help_text='The UK name: courgette, coriander, plain flour.')
     slug = models.SlugField(max_length=100, unique=True)
+    # What it contains, from which a recipe's diet tags are worked out.
+    contains_meat = models.BooleanField('meat', default=False, help_text='Including gelatine, lard and meat stock.')
+    contains_fish = models.BooleanField(
+        'fish', default=False, help_text='Including shellfish, anchovies and fish sauce.'
+    )
+    contains_dairy = models.BooleanField('dairy', default=False, help_text='Milk, cream, butter, cheese, yoghurt.')
+    contains_egg = models.BooleanField('egg', default=False)
+    contains_other_animal_product = models.BooleanField(
+        'other animal product', default=False, help_text='Such as honey: vegetarian, but not vegan.'
+    )
+    contains_gluten = models.BooleanField(
+        'gluten', default=False, help_text='Wheat, barley and rye, and oats not labelled gluten-free.'
+    )
+    CONTAINS = (
+        'contains_meat',
+        'contains_fish',
+        'contains_dairy',
+        'contains_egg',
+        'contains_other_animal_product',
+        'contains_gluten',
+    )
 
     class Meta:
         ordering = ['name']
 
     def __str__(self) -> str:
         return self.name
+
+
+class DietTag(models.TextChoices):
+    VEGETARIAN = 'vegetarian', 'Vegetarian'
+    VEGAN = 'vegan', 'Vegan'
+    GLUTEN_FREE = 'gluten_free', 'Gluten-free'
+    DAIRY_FREE = 'dairy_free', 'Dairy-free'
 
 
 class Unit(models.TextChoices):

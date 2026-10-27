@@ -25,6 +25,7 @@ const shakshuka: Recipe = {
   extra_label: '',
   total_minutes: 35,
   photo: null,
+  diet_tags: [],
   servings: 2,
   yield_amount: null,
   yield_unit: '',
@@ -33,7 +34,8 @@ const shakshuka: Recipe = {
   source: 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)',
   ingredient_lines: [],
   ingredient_groups: [],
-  steps: []
+  steps: [],
+  diet_tag_conflicts: []
 };
 
 const photo: RecipePhoto = {

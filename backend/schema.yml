@@ -116,6 +116,33 @@ components:
       description: |-
         * `ok` - ok
         * `unavailable` - unavailable
+    DietTag:
+      enum:
+      - vegetarian
+      - vegan
+      - gluten_free
+      - dairy_free
+      type: string
+      description: |-
+        * `vegetarian` - Vegetarian
+        * `vegan` - Vegan
+        * `gluten_free` - Gluten-free
+        * `dairy_free` - Dairy-free
+    DietTagConflict:
+      type: object
+      properties:
+        ingredient:
+          allOf:
+          - $ref: '#/components/schemas/Ingredient'
+          readOnly: true
+        diet_tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/DietTag'
+          readOnly: true
+      required:
+      - diet_tags
+      - ingredient
     DifficultyEnum:
       enum:
       - easy
@@ -292,6 +319,11 @@ components:
           - $ref: '#/components/schemas/RecipePhoto'
           readOnly: true
           nullable: true
+        diet_tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/DietTag'
+          readOnly: true
         courses:
           type: array
           items:
@@ -358,11 +390,18 @@ components:
           items:
             $ref: '#/components/schemas/Step'
           readOnly: true
+        diet_tag_conflicts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DietTagConflict'
+          readOnly: true
       required:
       - cook_minutes
       - courses
       - cuisines
       - description
+      - diet_tag_conflicts
+      - diet_tags
       - difficulty
       - equipment
       - extra_label
@@ -435,9 +474,15 @@ components:
           - $ref: '#/components/schemas/RecipePhoto'
           readOnly: true
           nullable: true
+        diet_tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/DietTag'
+          readOnly: true
       required:
       - cuisines
       - description
+      - diet_tags
       - difficulty
       - id
       - photo
