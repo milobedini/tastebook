@@ -9,7 +9,7 @@ test('the home page links to the recipes page, which loads from the real API', a
 
   await expect(page.getByRole('heading', { name: 'Recipes' })).toBeVisible();
   // Accepts either state, so a local database that already has recipes doesn't break the check.
-  await expect(page.getByText('No recipes yet.').or(page.getByRole('list'))).toBeVisible();
+  await expect(page.getByText('No recipes yet.').or(page.getByRole('list').first())).toBeVisible();
   await expect(page.getByRole('alert')).toHaveCount(0);
 });
 
@@ -30,6 +30,6 @@ test('filters by cuisine through the real API', async ({ page }) => {
 
   await expect(page).toHaveURL(/\/recipes\?cuisine=italian$/);
   // Accepts either state, so a local database that already has Italian recipes doesn't break the check.
-  await expect(page.getByText('No Italian recipes yet.').or(page.getByRole('list'))).toBeVisible();
+  await expect(page.getByText('No Italian recipes yet.').or(page.getByRole('list').first())).toBeVisible();
   await expect(page.getByRole('alert')).toHaveCount(0);
 });
