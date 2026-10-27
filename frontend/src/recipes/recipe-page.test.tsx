@@ -31,7 +31,12 @@ const shakshuka: Recipe = {
 };
 
 // Each term of the recipe's details with its definition, in the order the page shows them.
-const facts = () => screen.getAllByRole('term').map((term) => [term.textContent, term.nextElementSibling?.textContent]);
+const facts = () => {
+  const definitions = screen.getAllByRole('definition');
+  return screen.getAllByRole('term').map((term, index) => [term.textContent, definitions[index]?.textContent]);
+};
+
+const paragraphs = () => screen.queryAllByRole('paragraph').map((paragraph) => paragraph.textContent);
 
 const tags = () => screen.getAllByRole('listitem').map((item) => item.textContent);
 
@@ -69,11 +74,14 @@ describe('RecipePage', () => {
     expect(screen.queryByText('Loading recipe…')).not.toBeInTheDocument();
   });
 
-  it('shows no description line when the description is empty', async () => {
-    renderRoute('/recipes/banana-bread');
+  it.each([
+    ['apple-tart', 'Apple tart', ['Sharp apples on buttery pastry.']],
+    ['banana-bread', 'Banana bread', []]
+  ])('shows a description line only when the recipe has one (%s)', async (slug, title, descriptions) => {
+    renderRoute(`/recipes/${slug}`);
 
-    const heading = await screen.findByRole('heading', { name: 'Banana bread' });
-    expect(heading.nextElementSibling).toHaveTextContent(/^Easy$/);
+    expect(await screen.findByRole('heading', { name: title })).toBeInTheDocument();
+    expect(paragraphs()).toEqual(descriptions);
   });
 
   it("shows the recipe's difficulty, one-pot, times, servings, equipment and source credit", async () => {
