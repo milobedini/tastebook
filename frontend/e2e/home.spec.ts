@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures.ts';
 
 test('the home page shows a healthy API and database, and the API version', async ({ page }) => {
   await page.goto('/');

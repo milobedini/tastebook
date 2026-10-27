@@ -1,0 +1,118 @@
+name: Preview checks
+
+# Checks each Vercel preview against the standards in AGENTS.md: the end-to-end specs with axe, then Lighthouse.
+# deployment_status runs this file as it is at the deployed commit, a fork's included, with the repository's secrets.
+# So the only secret here is the bypass one; the factory's are in the factory environment, which only main can use.
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: The preview's address, such as https://tastebook-git-my-branch-milobedinis-projects.vercel.app
+        required: true
+
+concurrency:
+  group: preview-checks-${{ github.event.deployment.ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check:
+    name: Preview checks
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Preview')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PREVIEW_URL: ${{ inputs.preview_url || github.event.deployment_status.environment_url }}
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run the end-to-end specs with axe
+        id: playwright
+        continue-on-error: true
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: pnpm exec playwright test
+
+      # scripts/lighthouse-bypass.cts reads the secret and sets the bypass cookie before each page.
+      - name: Run Lighthouse on the main pages
+        id: lighthouse
+        continue-on-error: true
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          base="${PREVIEW_URL%/}"
+          # With a puppeteer script, Lighthouse CI only looks for Chrome where puppeteer-core can't say, so name the runner's.
+          CHROME_PATH="$(command -v google-chrome)" pnpm exec lhci autorun --collect.url="$base/" --collect.url="$base/recipes"
+
+      # Playwright's JSON results record the request headers, bypass secret included; Lighthouse's reports are checked too.
+      - name: Redact the bypass secret from the reports
+        if: ${{ !cancelled() }}
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          [ -n "$VERCEL_AUTOMATION_BYPASS_SECRET" ] || exit 0
+          { grep -rlsF -- "$VERCEL_AUTOMATION_BYPASS_SECRET" playwright-report test-results lighthouse-report || true; } |
+            xargs -r perl -pi -e 's/\Q$ENV{VERCEL_AUTOMATION_BYPASS_SECRET}\E/[redacted]/g'
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() }}
+        with:
+          name: preview-checks
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+            frontend/lighthouse-report
+          retention-days: 14
+
+      - name: Report on the PR
+        if: ${{ !cancelled() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          report="$RUNNER_TEMP/preview-checks.md"
+          {
+            echo '<!-- preview-checks -->'
+            node scripts/preview-checks-report.ts "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo "Checked \`${GITHUB_SHA:0:7}\` on $PREVIEW_URL."
+          } > "$report"
+          cat "$report" >> "$GITHUB_STEP_SUMMARY"
+
+          pr=$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" \
+            --jq '[.[] | select(.state == "open")][0].number // empty')
+          if [ -z "$pr" ]; then
+            echo "No open PR has $GITHUB_SHA, so the report is only in the run's summary."
+            exit 0
+          fi
+          comments=$(gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$pr/comments" \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- preview-checks -->"))) | .id')
+          comment="${comments%%$'\n'*}"
+          if [ -n "$comment" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$comment" -F body=@"$report" > /dev/null
+          else
+            gh api "repos/$GITHUB_REPOSITORY/issues/$pr/comments" -F body=@"$report" > /dev/null
+          fi
+
+      - name: Fail if a check failed
+        if: steps.playwright.outcome != 'success' || steps.lighthouse.outcome != 'success'
+        run: |
+          echo "::error::End to end and axe: ${{ steps.playwright.outcome }}. Lighthouse: ${{ steps.lighthouse.outcome }}."
+          exit 1

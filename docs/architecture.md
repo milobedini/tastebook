@@ -35,7 +35,8 @@ Each build runs Django's migrations against its own database (`backend/build.py`
 
 - **Hosts:** Django trusts the hosts Vercel gives the deployment (`VERCEL_URL`, `VERCEL_BRANCH_URL`, `VERCEL_PROJECT_PRODUCTION_URL`) and nothing else under `vercel.app`; a custom domain goes in `DJANGO_ALLOWED_HOSTS`.
 - **Secrets:** `DJANGO_SECRET_KEY` is set per environment in Vercel, one value for production and another for previews. Neon sets `DATABASE_URL` and `DATABASE_URL_UNPOOLED`. Sentry sets `SENTRY_DSN`, plus `SENTRY_AUTH_TOKEN`, `SENTRY_ORG` and `SENTRY_PROJECT` for uploading source maps; none are set locally or in CI, so Sentry stays off there. The frontend's build passes the DSN, environment and commit to the browser by name (`frontend/vite.config.ts`), because Vite only exposes `VITE_*` variables.
-- **Previews** are behind Vercel's sign-in (Deployment Protection). The checks on previews (TAS-26) get a bypass secret for automation.
+- **Previews** are behind Vercel's sign-in (Deployment Protection). The checks on previews (TAS-26) get a bypass secret for automation. The Vercel toolbar, Comments included, is off for previews (project Settings › General › Vercel Toolbar), because Lighthouse would score its injected scripts, and in October 2026 its feedback script started setting a third-party cookie that failed Best Practices.
+- **GitHub Actions secrets:** the checks on previews run from the deployed commit's own workflow file, a fork's PR included, so any repository secret is open to whoever opens a PR. The only one there is `VERCEL_AUTOMATION_BYPASS_SECRET`, which gets past previews' sign-in and nothing else. The factory's secrets (`CLAUDE_CODE_OAUTH_TOKEN`, `FACTORY_APP_CLIENT_ID`, `FACTORY_APP_PRIVATE_KEY`) are in the `factory` environment, whose deployments are limited to `main`; the factory's stage runs come from `repository_dispatch`, which runs on `main`.
 - **The admin** isn't reachable on Vercel yet: only `/api` reaches Django until staff sign in with two factors (Accounts and households).
 
 ## Accounts
@@ -69,7 +70,7 @@ _planned: Real recipes._
 | Errors | Sentry for the frontend and Django, free plan, through the Marketplace. Each error is tagged with its environment (`VERCEL_ENV`) and commit (`VERCEL_GIT_COMMIT_SHA`); no request bodies, cookies, user details or local variables are sent. The frontend's source maps are uploaded at build time and not deployed. | Problems are found without someone reporting them. |
 | Success measures | Events in Tastebook's own database (a plan used, cooking mode opened, an import saved without fixes), shown on a staff page. _planned._ | Measures exactly what the Vision asks, sends nobody's data elsewhere, costs nothing. |
 | Backups | A nightly GitHub Action dumps production into a private Blob store, kept 30 days; see [Backups](#backups). | Neon's free plan only restores a few hours back, and losing the household's recipes is the worst thing that could happen. |
-| Checks on previews | Playwright end to end, axe for WCAG 2.2 AA, Lighthouse on mobile. _planned: TAS-26._ | Work is checked as it ships, before review. Thresholds are in `AGENTS.md`, Standards. |
+| Checks on previews | Playwright end to end, axe for WCAG 2.2 AA, Lighthouse on mobile, run by `.github/workflows/preview-checks.yml` when Vercel reports a preview deployed; results are a comment on the PR. | Work is checked as it ships, before review. Thresholds are in `AGENTS.md`, Standards. |
 | Dependencies | Dependabot weekly with a 7-day cooldown; pnpm and uv ignore releases under a day old. | Routine updates without supply-chain surprises. |
 
 ## Backups

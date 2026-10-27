@@ -1,17 +1,18 @@
-import AxeBuilder from '@axe-core/playwright';
-import { expect, type Page, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
-const wcagTags = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
+import { expect, test } from './fixtures.ts';
 
 const themeButton = (page: Page, name: string) =>
   page.getByRole('group', { name: 'Theme' }).getByRole('button', { name });
 
-test('bundles both typefaces and loads nothing from Google', async ({ context, page }) => {
+test('bundles both typefaces and loads nothing from Google', async ({ baseURL, context, page }) => {
+  // The specs also run against a preview, so the app's own host is the base URL's, not always localhost.
+  const appHost = new URL(baseURL ?? 'http://localhost').hostname;
   const requested: string[] = [];
   await context.route('**/*', (route) => {
     const url = route.request().url();
     requested.push(url);
-    return new URL(url).hostname === 'localhost' ? route.continue() : route.abort();
+    return new URL(url).hostname === appHost ? route.continue() : route.abort();
   });
 
   await page.goto('/styleguide');
@@ -39,20 +40,17 @@ test('follows the phone in dark mode, and the theme control overrides it', async
   await expect(body).toHaveCSS('background-color', 'rgb(243, 245, 248)');
 });
 
-test('has no WCAG 2.2 A or AA violations in either theme', async ({ page }) => {
+test('has no WCAG 2.2 A or AA violations in either theme', async ({ page, accessibility }) => {
   await page.goto('/styleguide');
 
   for (const theme of ['Light', 'Dark']) {
     await themeButton(page, theme).click();
     await expect(themeButton(page, theme)).toHaveAttribute('aria-pressed', 'true');
-
-    const { violations } = await new AxeBuilder({ page }).withTags(wcagTags).analyze();
-
-    expect(violations).toEqual([]);
+    await accessibility.check();
   }
 });
 
-test('has no WCAG 2.2 A or AA violations with the dialog open', async ({ page }) => {
+test('has no WCAG 2.2 A or AA violations with the dialog open', async ({ page, accessibility }) => {
   await page.goto('/styleguide');
 
   await page
@@ -61,9 +59,7 @@ test('has no WCAG 2.2 A or AA violations with the dialog open', async ({ page })
     .click();
   await expect(page.getByRole('alertdialog', { name: 'Delete your account?' })).toBeVisible();
 
-  const { violations } = await new AxeBuilder({ page }).withTags(wcagTags).analyze();
-
-  expect(violations).toEqual([]);
+  await accessibility.check();
 });
 
 test('makes every control at least 44 px tall', async ({ page }) => {
