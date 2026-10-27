@@ -422,7 +422,7 @@ An ingredient chip shows the ingredient's name from `useIngredients`. While that
 ## Decisions
 
 - **Diets combine with AND: a recipe must have every diet picked**, because someone picking vegan and gluten-free needs both; with OR, "vegan or gluten-free" would show recipes unsafe for them. This departs from the issue's criterion 2 ("choices within one filter combine with OR") for diet only. Asked: two diets, both or either? → Both (AND).
-- **Included ingredients combine with OR: a recipe needs any one of them**, as the issue says, so picking chicken and halloumi finds recipes using either. Asked: two ingredients to include, both or either? → Either (OR, as the issue says).
+- **Included ingredients combine with OR: a recipe needs any one of them**, as the issue says, so picking chicken and halloumi finds recipes using either. Letting people choose all or any is a follow-up issue; it would add an optional parameter (such as `include_match=all`) beside `include_ingredient`, so nothing here needs to change for it. Asked: two ingredients to include, both or either? → Either (OR, as the issue says). Asked at spec review: let people choose AND or OR? → File it as a follow-up.
 - **Ingredients are picked with a combobox drop-down**: a button per filter opens a searchable list; typing narrows it by name or synonym, and picking adds a chip. Asked: how should someone find an ingredient? → Combobox drop-down.
 - **Ingredients are excluded one at a time; no "all nuts" shortcut in this issue**, because the ingredient list has no allergen groups, and adding one is a model change of its own. Asked: is one at a time enough for a nut allergy? → One at a time, follow-up.
 - **Two PRs: the API, then the page**, because the page extends TAS-60's panel, which isn't built; the API can merge now. Asked: two PRs? → Two PRs: API, then page.
@@ -448,6 +448,7 @@ An ingredient chip shows the ingredient's name from `useIngredients`. While that
 ## Out of scope
 
 - Allergen groups or an "all nuts" exclusion: a follow-up (see Decisions).
+- A choice between "all" and "any" for included ingredients: a follow-up (see Decisions). Diets stay AND and excluded ingredients stay "any of them hides the recipe".
 - Moving the picker or a combobox into `src/ui/` and `/styleguide`.
 - Counts beside each option, sorting and pagination.
 - Storing diet tags in the database.
