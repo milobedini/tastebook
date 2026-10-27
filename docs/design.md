@@ -65,7 +65,7 @@ The set lives in `frontend/src/ui/` (shadcn/ui, restyled to Enamel) and is expor
 | Field | Visible label above, help text below, error replaces help in danger with an icon and says how to fix it ("Enter a number, like 4."). Search fields are pill-shaped with a search icon. |
 | Filter chip | A toggle (`aria-pressed`), pill, field border; on is cobalt fill. A removable chip names what it removes in its label. |
 | Tag | Yolk, not interactive: describes a recipe (Vegetarian, One-pot, Easy) or marks something to check. |
-| Stepper | Servings: minus, "Serves 4", plus; the count is announced (`aria-live="polite"`). |
+| Stepper | Servings: minus, "Serves 4", plus, or a yield: "Makes 16 cookies"; the count is announced (`aria-live="polite"`). |
 | Segmented control | Two to four options, one pressed (Metric / US; System / Light / Dark). |
 | Checkbox row | Shopping list rows: 48 px tall, a 24 px box, ticked rows struck through in muted. |
 | Recipe card | Surface with the cobalt rim, photo or plate, title in Title type, meta (time, difficulty, cuisine) in Small muted. |

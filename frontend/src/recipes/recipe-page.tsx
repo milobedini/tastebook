@@ -5,7 +5,7 @@ import { Banner, Button, Page, RecipePhoto, Tag } from '../ui';
 import { describeDietTagConflict, dietTagLabels } from './diet-tags';
 import { difficultyLabels } from './difficulty';
 import { RecipeFacts } from './recipe-facts';
-import { RecipeIngredients } from './recipe-ingredients';
+import { hasIngredients, RecipeIngredients } from './recipe-ingredients';
 import { RecipeMethod } from './recipe-method';
 import { RecipePhotoCredit } from './recipe-photo-credit';
 import { useRecipe } from './recipes-api';
@@ -45,8 +45,9 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => (
     {recipe.diet_tag_conflicts.map((conflict) => (
       <p key={conflict.ingredient.slug}>{describeDietTagConflict(conflict)}</p>
     ))}
-    <RecipeFacts recipe={recipe} />
-    <RecipeIngredients recipe={recipe} />
+    <RecipeFacts recipe={recipe} withServings={!hasIngredients(recipe)} />
+    {/* Keyed so another recipe starts at its own servings. */}
+    <RecipeIngredients key={recipe.id} recipe={recipe} />
     <RecipeMethod recipe={recipe} />
   </>
 );

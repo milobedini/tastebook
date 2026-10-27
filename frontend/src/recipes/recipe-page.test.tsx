@@ -351,6 +351,78 @@ describe('RecipePage', () => {
     ]);
   });
 
+  it('scales every ingredient amount as the servings change, rounded to what can be measured', async () => {
+    server.use(http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>(withIngredientsAndMethod)));
+
+    renderRoute('/recipes/shakshuka');
+
+    const ingredients = await screen.findByRole('region', { name: 'Ingredients' });
+    const amounts = () => within(ingredients).getAllByRole('list').map(itemsOf);
+    // The stepper shows the servings, so the details leave them out.
+    expect(screen.getAllByRole('term').map((term) => term.textContent)).toEqual([
+      'Course',
+      'Prep',
+      'Cook',
+      'Total',
+      'Equipment',
+      'Source'
+    ]);
+    expect(within(ingredients).getByRole('status')).toHaveTextContent('Serves 2');
+
+    await userEvent.click(within(ingredients).getByRole('button', { name: 'More servings' }));
+
+    expect(within(ingredients).getByRole('status')).toHaveTextContent('Serves 3');
+    expect(amounts()).toEqual([
+      ['2.25 tbsp olive oil', '3–5 eggs', 'salt, to taste'],
+      ['1–2 onion, finely chopped', '3 cloves garlic, crushed', '1–2 tins chopped tomatoes'],
+      ['handful coriander (optional)']
+    ]);
+
+    await userEvent.click(within(ingredients).getByRole('button', { name: 'Fewer servings' }));
+    await userEvent.click(within(ingredients).getByRole('button', { name: 'Fewer servings' }));
+
+    expect(within(ingredients).getByRole('status')).toHaveTextContent('Serves 1');
+    expect(within(ingredients).getByRole('button', { name: 'Fewer servings' })).toBeDisabled();
+    expect(amounts()).toEqual([
+      ['0.75 tbsp olive oil', '1–2 eggs', 'salt, to taste'],
+      ['1 onion, finely chopped', '1 clove garlic, crushed', '1 tin chopped tomatoes'],
+      ['handful coriander (optional)']
+    ]);
+  });
+
+  it('scales the amounts by the yield for a recipe that makes a number of something', async () => {
+    server.use(
+      http.get('/api/recipes/:slug/', () =>
+        HttpResponse.json<Recipe>({
+          ...shakshuka,
+          servings: null,
+          yield_amount: 16,
+          yield_unit: 'cookies',
+          ingredient_lines: [
+            line(1, 'butter', { amount: 125, unit: 'g' }),
+            line(2, 'bicarbonate of soda', { amount: 0.5, unit: 'tsp' }),
+            line(3, 'salt', { amount: 1, unit: 'pinch' })
+          ]
+        })
+      )
+    );
+
+    renderRoute('/recipes/shakshuka');
+
+    const ingredients = await screen.findByRole('region', { name: 'Ingredients' });
+    expect(screen.getAllByRole('term').map((term) => term.textContent)).not.toContain('Makes');
+    expect(within(ingredients).getByRole('status')).toHaveTextContent('Makes 16 cookies');
+
+    await userEvent.click(within(ingredients).getByRole('button', { name: 'Make more' }));
+
+    expect(within(ingredients).getByRole('status')).toHaveTextContent('Makes 17 cookies');
+    expect(itemsOf(within(ingredients).getByRole('list'))).toEqual([
+      '135 g butter',
+      '0.5 tsp bicarbonate of soda',
+      '1 pinch salt'
+    ]);
+  });
+
   it.each([
     ['shakshuka', ['Ingredients', 'Method']],
     ['banana-bread', []]
