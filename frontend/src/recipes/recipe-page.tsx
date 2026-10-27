@@ -4,6 +4,8 @@ import type { components } from '../api/schema';
 import { Banner, Button, CuisinePlate, Page, Tag } from '../ui';
 import { difficultyLabels } from './difficulty';
 import { RecipeFacts } from './recipe-facts';
+import { RecipeIngredients } from './recipe-ingredients';
+import { RecipeMethod } from './recipe-method';
 import { useRecipe } from './recipes-api';
 
 type Recipe = components['schemas']['Recipe'];
@@ -28,6 +30,8 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => (
       )}
     </ul>
     <RecipeFacts recipe={recipe} />
+    <RecipeIngredients recipe={recipe} />
+    <RecipeMethod recipe={recipe} />
   </>
 );
 
