@@ -44,6 +44,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/Health'
           description: ''
+  /api/ingredients/:
+    get:
+      operationId: ingredients_list
+      tags:
+      - ingredients
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IngredientOption'
+          description: ''
   /api/recipes/:
     get:
       operationId: recipes_list
@@ -65,6 +79,24 @@ paths:
         description: Recipes with any of these cuisines, by slug. Unknown slugs are
           dropped; with none left, nothing is filtered.
       - in: query
+        name: diet
+        schema:
+          type: array
+          items:
+            enum:
+            - vegetarian
+            - vegan
+            - gluten_free
+            - dairy_free
+            type: string
+            description: |-
+              * `vegetarian` - Vegetarian
+              * `vegan` - Vegan
+              * `gluten_free` - Gluten-free
+              * `dairy_free` - Dairy-free
+        description: Recipes with every one of these diet tags, worked out as each
+          recipe's diet_tags are. Any other value is a 400.
+      - in: query
         name: difficulty
         schema:
           type: array
@@ -80,6 +112,22 @@ paths:
               * `hard` - Hard
         description: Recipes with any of these difficulties. Any other value is a
           400.
+      - in: query
+        name: exclude_ingredient
+        schema:
+          type: array
+          items:
+            type: string
+        description: Recipes with no line, optional or not, using any of these ingredients,
+          by slug. Unknown slugs exclude nothing.
+      - in: query
+        name: include_ingredient
+        schema:
+          type: array
+          items:
+            type: string
+        description: Recipes with a line, optional or not, using any of these ingredients,
+          by slug. Unknown slugs are dropped; with none left, nothing is filtered.
       - in: query
         name: max_cook
         schema:
@@ -128,7 +176,7 @@ paths:
                   $ref: '#/components/schemas/RecipeSummary'
           description: ''
         '400':
-          description: A difficulty or a time limit is not one the list accepts.
+          description: A difficulty, a diet or a time limit is not one the list accepts.
   /api/recipes/{slug}/:
     get:
       operationId: recipes_retrieve
@@ -347,6 +395,29 @@ components:
       - note
       - optional
       - unit
+    IngredientOption:
+      type: object
+      description: An ingredient as the filters offer it, with the synonyms it can
+        be found by.
+      properties:
+        slug:
+          type: string
+          maxLength: 100
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          description: 'The UK name: courgette, coriander, plain flour.'
+          maxLength: 100
+        synonyms:
+          type: array
+          items:
+            type: string
+            description: 'Another name, such as the US one: zucchini.'
+          readOnly: true
+      required:
+      - name
+      - slug
+      - synonyms
     PhotoThumbnail:
       type: object
       properties:

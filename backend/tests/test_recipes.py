@@ -647,6 +647,36 @@ def test_filters_by_diet_and_ingredients_in_four_queries(django_assert_num_queri
 
 
 @pytest.mark.django_db
+def test_lists_every_ingredient_alphabetically_with_its_synonyms() -> None:
+    ingredient('butter')
+    aubergine = ingredient('aubergine')
+    for name in ['eggplant', 'brinjal']:
+        IngredientSynonym.objects.create(ingredient=aubergine, name=name)
+
+    response = APIClient().get(reverse('ingredient-list'))
+
+    assert response.status_code == 200
+    assert response.json() == [
+        {'slug': 'aubergine', 'name': 'aubergine', 'synonyms': ['brinjal', 'eggplant']},
+        {'slug': 'butter', 'name': 'butter', 'synonyms': []},
+    ]
+
+
+@pytest.mark.django_db
+def test_lists_ingredients_in_two_queries(django_assert_num_queries: DjangoAssertNumQueries) -> None:
+    for name in ['aubergine', 'coriander', 'courgette']:
+        used = ingredient(name)
+        for synonym in ['one', 'two']:
+            IngredientSynonym.objects.create(ingredient=used, name=f'{name} {synonym}')
+
+    with django_assert_num_queries(2):
+        response = APIClient().get(reverse('ingredient-list'))
+
+    assert response.status_code == 200
+    assert len(response.json()) == 3
+
+
+@pytest.mark.django_db
 def test_a_staff_user_adds_a_recipe_with_cuisines_in_the_admin(admin_client: Client) -> None:
     japanese = Cuisine.objects.get(slug='japanese')
     mexican = Cuisine.objects.get(slug='mexican')

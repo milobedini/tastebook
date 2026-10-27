@@ -52,6 +52,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ingredients/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ingredients_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/recipes/": {
         parameters: {
             query?: never;
@@ -174,6 +190,13 @@ export interface components {
             /** @description "finely chopped". */
             note: string;
             optional: boolean;
+        };
+        /** @description An ingredient as the filters offer it, with the synonyms it can be found by. */
+        IngredientOption: {
+            slug: string;
+            /** @description The UK name: courgette, coriander, plain flour. */
+            name: string;
+            readonly synonyms: string[];
         };
         PhotoThumbnail: {
             readonly width: number;
@@ -328,6 +351,25 @@ export interface operations {
             };
         };
     };
+    ingredients_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngredientOption"][];
+                };
+            };
+        };
+    };
     recipes_list: {
         parameters: {
             query?: {
@@ -335,8 +377,14 @@ export interface operations {
                 course?: string[];
                 /** @description Recipes with any of these cuisines, by slug. Unknown slugs are dropped; with none left, nothing is filtered. */
                 cuisine?: string[];
+                /** @description Recipes with every one of these diet tags, worked out as each recipe's diet_tags are. Any other value is a 400. */
+                diet?: ("vegetarian" | "vegan" | "gluten_free" | "dairy_free")[];
                 /** @description Recipes with any of these difficulties. Any other value is a 400. */
                 difficulty?: ("easy" | "medium" | "hard")[];
+                /** @description Recipes with no line, optional or not, using any of these ingredients, by slug. Unknown slugs exclude nothing. */
+                exclude_ingredient?: string[];
+                /** @description Recipes with a line, optional or not, using any of these ingredients, by slug. Unknown slugs are dropped; with none left, nothing is filtered. */
+                include_ingredient?: string[];
                 /** @description Cook time is this many minutes or fewer. A value that is not a whole number of at least 1 is a 400. */
                 max_cook?: number;
                 /** @description Prep time is this many minutes or fewer. A value that is not a whole number of at least 1 is a 400. */
@@ -362,7 +410,7 @@ export interface operations {
                     "application/json": components["schemas"]["RecipeSummary"][];
                 };
             };
-            /** @description A difficulty or a time limit is not one the list accepts. */
+            /** @description A difficulty, a diet or a time limit is not one the list accepts. */
             400: {
                 headers: {
                     [name: string]: unknown;

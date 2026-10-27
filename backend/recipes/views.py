@@ -1,10 +1,11 @@
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
-from recipes.models import Course, Cuisine, Recipe, RecipeQuerySet
+from recipes.models import Course, Cuisine, Ingredient, Recipe, RecipeQuerySet
 from recipes.serializers import (
     CourseSerializer,
     CuisineSerializer,
+    IngredientOptionSerializer,
     RecipeFiltersSerializer,
     RecipeSerializer,
     RecipeSummarySerializer,
@@ -63,3 +64,10 @@ class CourseListView(ListAPIView):
     permission_classes = []
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
+
+
+class IngredientListView(ListAPIView):
+    authentication_classes = []
+    permission_classes = []
+    serializer_class = IngredientOptionSerializer
+    queryset = Ingredient.objects.prefetch_related('synonyms')

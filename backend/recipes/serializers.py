@@ -40,6 +40,16 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ['slug', 'name']
 
 
+class IngredientOptionSerializer(serializers.ModelSerializer):
+    """An ingredient as the filters offer it, with the synonyms it can be found by."""
+
+    synonyms = serializers.SlugRelatedField(many=True, read_only=True, slug_field='name')
+
+    class Meta:
+        model = Ingredient
+        fields = ['slug', 'name', 'synonyms']
+
+
 class IngredientLineSerializer(serializers.ModelSerializer):
     ingredient = IngredientSerializer(read_only=True)
     # Numbers, not strings, so the page can format and later scale them.
