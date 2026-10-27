@@ -175,6 +175,7 @@ def test_loads_a_recipe_with_its_details_ingredients_and_method(tmp_path: Path) 
         'cuisines': [{'slug': 'spanish', 'name': 'Spanish'}],
         'difficulty': 'easy',
         'total_minutes': 30,
+        'photo': None,
         'courses': [{'slug': 'breakfast', 'name': 'Breakfast'}, {'slug': 'main', 'name': 'Main'}],
         'prep_minutes': 10,
         'cook_minutes': 20,

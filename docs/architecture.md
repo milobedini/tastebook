@@ -52,7 +52,9 @@ _planned: Accounts and households._
 
 ## Photos
 
-_planned: Real recipes._
+- Until uploads arrive, a photo is an image on Wikimedia Commons: the recipe stores its address and credit, and pages load Commons' thumbnails straight from `upload.wikimedia.org`.
+
+Uploads are _planned: Accounts and households._
 
 - Resized in the browser before upload (longest side 1,600 px), stored in Vercel Blob.
 - Every photo has an unguessable address. A private recipe's photo is only reachable by someone who has its address; there's no access check per image, which would need a server in front of every request.

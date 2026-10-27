@@ -110,6 +110,7 @@ def test_returns_a_summary_of_each_recipe_with_its_total_time_and_difficulty() -
             'cuisines': [],
             'difficulty': 'medium',
             'total_minutes': 40,
+            'photo': None,
         }
     ]
 
@@ -255,6 +256,7 @@ def test_returns_the_whole_recipe_with_its_details() -> None:
         'cuisines': [{'slug': 'italian', 'name': 'Italian'}],
         'difficulty': 'medium',
         'total_minutes': 40,
+        'photo': None,
         'courses': [{'slug': 'breakfast', 'name': 'Breakfast'}, {'slug': 'main', 'name': 'Main'}],
         'prep_minutes': 10,
         'cook_minutes': 25,
@@ -516,6 +518,7 @@ def test_a_staff_user_adds_a_recipe_with_all_its_details_in_the_admin(admin_clie
         'equipment': [{'slug': 'oven', 'name': 'Oven'}, {'slug': 'stand-mixer', 'name': 'Stand mixer'}],
         'one_pot': True,
         'source': 'Grandma Rose',
+        'photo': None,
         'ingredient_lines': [],
         'ingredient_groups': [],
         'steps': [],
@@ -837,3 +840,100 @@ def test_deleting_a_group_in_the_admin_keeps_its_lines_above_the_groups(admin_cl
         ['onion'],
         [],
     )
+
+
+PHOTO = {
+    'photo_url': 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Shakshuka_%28Tel_Aviv%29.jpg',
+    'photo_author': 'Jane Doe',
+    'photo_licence': 'CC BY-SA 4.0',
+    'photo_source_url': 'https://commons.wikimedia.org/wiki/File:Shakshuka_(Tel_Aviv).jpg',
+}
+
+PHOTO_IN_THE_API = {
+    'thumbnails': [
+        {
+            'width': width,
+            'url': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Shakshuka_%28Tel_Aviv%29.jpg/'
+            f'{width}px-Shakshuka_%28Tel_Aviv%29.jpg',
+        }
+        for width in [330, 500, 960, 1280]
+    ],
+    'author': 'Jane Doe',
+    'licence': 'CC BY-SA 4.0',
+    'source_url': 'https://commons.wikimedia.org/wiki/File:Shakshuka_(Tel_Aviv).jpg',
+}
+
+
+@pytest.mark.django_db
+def test_lists_and_returns_a_recipes_photo_with_its_thumbnails_and_credit_or_null_without_one() -> None:
+    make_recipe(title='Shakshuka', **PHOTO)
+    make_recipe(title='Apple tart')
+
+    listed = APIClient().get(reverse('recipe-list')).json()
+    details = [APIClient().get(reverse('recipe-detail', args=[slug])).json() for slug in ['apple-tart', 'shakshuka']]
+
+    assert [(recipe['title'], recipe['photo']) for recipe in listed] == [
+        ('Apple tart', None),
+        ('Shakshuka', PHOTO_IN_THE_API),
+    ]
+    assert [(recipe['title'], recipe['photo']) for recipe in details] == [
+        ('Apple tart', None),
+        ('Shakshuka', PHOTO_IN_THE_API),
+    ]
+
+
+@pytest.mark.django_db
+def test_a_staff_user_gives_a_recipe_a_credited_photo_in_the_admin(admin_client: Client) -> None:
+    recipe = make_recipe(title='Shakshuka')
+    italian = Cuisine.objects.get(slug='italian')
+
+    response = admin_client.post(
+        reverse('admin:recipes_recipe_change', args=[recipe.id]),
+        {**admin_details(), 'title': 'Shakshuka', 'description': '', 'cuisines': [italian.id], **PHOTO},
+    )
+
+    assert response.status_code == 302
+    detail = APIClient().get(reverse('recipe-detail', args=['shakshuka'])).json()
+    assert detail['photo'] == PHOTO_IN_THE_API
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('fields', 'message'),
+    [
+        ({**PHOTO, 'photo_author': ''}, 'Give a photo with its author, licence and source, or none of them.'),
+        ({**PHOTO, 'photo_licence': ''}, 'Give a photo with its author, licence and source, or none of them.'),
+        ({**PHOTO, 'photo_source_url': ''}, 'Give a photo with its author, licence and source, or none of them.'),
+        ({'photo_author': 'Jane Doe'}, 'Give a photo with its author, licence and source, or none of them.'),
+        (
+            {**PHOTO, 'photo_url': 'https://example.com/shakshuka.jpg'},
+            'Give the address of a JPEG, PNG or WebP file on Wikimedia Commons',
+        ),
+        (
+            {**PHOTO, 'photo_url': 'https://commons.wikimedia.org/wiki/File:Shakshuka_(Tel_Aviv).jpg'},
+            'Give the address of a JPEG, PNG or WebP file on Wikimedia Commons',
+        ),
+        (
+            {**PHOTO, 'photo_url': 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Shakshuka.svg'},
+            'Give the address of a JPEG, PNG or WebP file on Wikimedia Commons',
+        ),
+        ({**PHOTO, 'photo_source_url': 'Wikimedia Commons'}, 'Enter a valid URL.'),
+        (
+            {**PHOTO, 'photo_source_url': 'https://example.com/shakshuka'},
+            'Give the photo&#x27;s page on Wikimedia Commons',
+        ),
+    ],
+)
+def test_the_admin_refuses_a_photo_that_doesnt_fit(admin_client: Client, fields: dict[str, Any], message: str) -> None:
+    recipe = make_recipe(title='Shakshuka')
+    italian = Cuisine.objects.get(slug='italian')
+
+    response = admin_client.post(
+        reverse('admin:recipes_recipe_change', args=[recipe.id]),
+        {**admin_details(), 'title': 'Shakshuka', 'description': '', 'cuisines': [italian.id], **fields},
+    )
+
+    assert response.status_code == 200
+    assert message in response.content.decode()
+    recipe.refresh_from_db()
+    assert recipe.photo_url == ''
