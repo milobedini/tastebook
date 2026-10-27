@@ -72,6 +72,10 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        Course: {
+            slug: string;
+            name: string;
+        };
         Cuisine: {
             slug: string;
             name: string;
@@ -82,6 +86,17 @@ export interface components {
          * @enum {string}
          */
         DatabaseEnum: "ok" | "unavailable";
+        /**
+         * @description * `easy` - Easy
+         *     * `medium` - Medium
+         *     * `hard` - Hard
+         * @enum {string}
+         */
+        DifficultyEnum: "easy" | "medium" | "hard";
+        Equipment: {
+            slug: string;
+            name: string;
+        };
         Health: {
             status: components["schemas"]["StatusEnum"];
             database: components["schemas"]["DatabaseEnum"];
@@ -93,6 +108,37 @@ export interface components {
             title: string;
             description: string;
             readonly cuisines: components["schemas"]["Cuisine"][];
+            difficulty: components["schemas"]["DifficultyEnum"];
+            readonly total_minutes: number;
+            readonly courses: components["schemas"]["Course"][];
+            prep_minutes: number;
+            cook_minutes: number;
+            /** @description Waiting time, such as marinating or proving. */
+            extra_minutes: number;
+            /** @description What the extra time is for, such as marinating, resting or proving. */
+            extra_label: string;
+            /** @description Leave empty when giving a yield. */
+            servings: number | null;
+            /** @description "12" in "makes 12 cookies". */
+            yield_amount: number | null;
+            /** @description "cookies" in "makes 12 cookies". */
+            yield_unit: string;
+            readonly equipment: components["schemas"]["Equipment"][];
+            one_pot: boolean;
+            /**
+             * Source credit
+             * @description Where the recipe came from: an author, a website or a book.
+             */
+            source: string;
+        };
+        RecipeSummary: {
+            readonly id: number;
+            readonly slug: string;
+            title: string;
+            description: string;
+            readonly cuisines: components["schemas"]["Cuisine"][];
+            difficulty: components["schemas"]["DifficultyEnum"];
+            readonly total_minutes: number;
         };
         /**
          * @description * `ok` - ok
@@ -165,7 +211,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Recipe"][];
+                    "application/json": components["schemas"]["RecipeSummary"][];
                 };
             };
         };

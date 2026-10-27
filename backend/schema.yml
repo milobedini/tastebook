@@ -55,7 +55,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Recipe'
+                  $ref: '#/components/schemas/RecipeSummary'
           description: ''
   /api/recipes/{slug}/:
     get:
@@ -79,6 +79,19 @@ paths:
           description: No recipe has this slug.
 components:
   schemas:
+    Course:
+      type: object
+      properties:
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          maxLength: 50
+      required:
+      - name
+      - slug
     Cuisine:
       type: object
       properties:
@@ -100,6 +113,29 @@ components:
       description: |-
         * `ok` - ok
         * `unavailable` - unavailable
+    DifficultyEnum:
+      enum:
+      - easy
+      - medium
+      - hard
+      type: string
+      description: |-
+        * `easy` - Easy
+        * `medium` - Medium
+        * `hard` - Hard
+    Equipment:
+      type: object
+      properties:
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          maxLength: 50
+      required:
+      - name
+      - slug
     Health:
       type: object
       properties:
@@ -134,12 +170,115 @@ components:
           items:
             $ref: '#/components/schemas/Cuisine'
           readOnly: true
+        difficulty:
+          $ref: '#/components/schemas/DifficultyEnum'
+        total_minutes:
+          type: integer
+          readOnly: true
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Course'
+          readOnly: true
+        prep_minutes:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        cook_minutes:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        extra_minutes:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          description: Waiting time, such as marinating or proving.
+        extra_label:
+          type: string
+          description: What the extra time is for, such as marinating, resting or
+            proving.
+          maxLength: 50
+        servings:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+          description: Leave empty when giving a yield.
+        yield_amount:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+          description: '"12" in "makes 12 cookies".'
+        yield_unit:
+          type: string
+          description: '"cookies" in "makes 12 cookies".'
+          maxLength: 50
+        equipment:
+          type: array
+          items:
+            $ref: '#/components/schemas/Equipment'
+          readOnly: true
+        one_pot:
+          type: boolean
+        source:
+          type: string
+          title: Source credit
+          description: 'Where the recipe came from: an author, a website or a book.'
+          maxLength: 300
+      required:
+      - cook_minutes
+      - courses
+      - cuisines
+      - description
+      - difficulty
+      - equipment
+      - extra_label
+      - extra_minutes
+      - id
+      - one_pot
+      - prep_minutes
+      - servings
+      - slug
+      - source
+      - title
+      - total_minutes
+      - yield_amount
+      - yield_unit
+    RecipeSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 300
+        cuisines:
+          type: array
+          items:
+            $ref: '#/components/schemas/Cuisine'
+          readOnly: true
+        difficulty:
+          $ref: '#/components/schemas/DifficultyEnum'
+        total_minutes:
+          type: integer
+          readOnly: true
       required:
       - cuisines
       - description
+      - difficulty
       - id
       - slug
       - title
+      - total_minutes
     StatusEnum:
       enum:
       - ok
