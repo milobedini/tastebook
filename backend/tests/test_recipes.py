@@ -456,7 +456,7 @@ def test_total_time_is_prep_plus_cook_plus_extra(
 
 
 @pytest.mark.django_db
-def test_returns_a_recipe_with_its_details_ingredients_method_and_diet_tags_in_nine_queries(
+def test_returns_a_recipe_with_its_details_ingredients_method_and_diet_tags_in_eight_queries(
     django_assert_num_queries: DjangoAssertNumQueries,
 ) -> None:
     recipe = make_recipe(title='Shakshuka')
@@ -470,7 +470,7 @@ def test_returns_a_recipe_with_its_details_ingredients_method_and_diet_tags_in_n
     for text in ['Fry the onion.', 'Add the tomatoes.', 'Crack in the eggs.']:
         Step.objects.create(recipe=recipe, text=text)
 
-    with django_assert_num_queries(9):
+    with django_assert_num_queries(8):
         response = APIClient().get(reverse('recipe-detail', args=['shakshuka']))
 
     body = response.json()

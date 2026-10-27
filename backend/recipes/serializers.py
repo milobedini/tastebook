@@ -148,6 +148,17 @@ class RecipeSerializer(RecipeSummarySerializer):
             'one_pot': {'required': True},
         }
 
+    # Reuses the lines with_ingredients_and_method() prefetched, rather than fetching every line again.
+    def _all_lines(self, recipe: Recipe) -> list[IngredientLine]:
+        return [
+            *recipe.ungrouped_lines,
+            *(line for group in recipe.ingredient_groups.all() for line in group.lines.all()),
+        ]
+
+    @extend_schema_field(DietTagsField(read_only=True))
+    def get_diet_tags(self, recipe: Recipe) -> list[DietTag]:
+        return services.diet_tags(self._all_lines(recipe))
+
     @extend_schema_field(DietTagConflictSerializer(many=True))
     def get_diet_tag_conflicts(self, recipe: Recipe) -> list[dict[str, object]]:
-        return DietTagConflictSerializer(services.diet_tag_conflicts(recipe.ingredient_lines.all()), many=True).data
+        return DietTagConflictSerializer(services.diet_tag_conflicts(self._all_lines(recipe)), many=True).data

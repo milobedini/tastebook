@@ -46,11 +46,7 @@ class RecipeDetailView(RetrieveAPIView):
     authentication_classes = []
     permission_classes = []
     serializer_class = RecipeSerializer
-    queryset = (
-        Recipe.objects.prefetch_related('cuisines', 'courses', 'equipment')
-        .with_ingredients_and_method()
-        .with_diet_tags()
-    )
+    queryset = Recipe.objects.prefetch_related('cuisines', 'courses', 'equipment').with_ingredients_and_method()
     lookup_field = 'slug'
 
 
