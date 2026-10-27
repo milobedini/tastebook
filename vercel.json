@@ -4,10 +4,12 @@
   "services": {
     "frontend": {
       "root": "frontend",
+      "ignoreCommand": "bash \"$(git rev-parse --show-toplevel)/tools/vercel/ignored-build-step.sh\"",
       "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
     },
     "backend": {
       "root": "backend",
+      "ignoreCommand": "bash \"$(git rev-parse --show-toplevel)/tools/vercel/ignored-build-step.sh\"",
       "entrypoint": "config.wsgi:application"
     }
   },
