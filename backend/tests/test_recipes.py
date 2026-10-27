@@ -524,6 +524,7 @@ def test_filters_the_list_and_combines_the_filters(params: str, titles: list[str
         ('max_total=abc', 'max_total'),
         ('max_prep=0', 'max_prep'),
         ('difficulty=eazy', 'difficulty'),
+        ('diet=halal', 'diet'),
     ],
 )
 def test_refuses_a_malformed_filter(params: str, parameter: str) -> None:
@@ -550,6 +551,99 @@ def test_filters_with_cuisines_and_courses_in_five_queries(django_assert_num_que
 
     assert response.status_code == 200
     assert [recipe['title'] for recipe in response.json()] == ['Coq au vin']
+
+
+ALL_SIX = ['Bread pudding', 'Chana masala', 'Cheese on toast', 'Herb salad', 'Pad thai', 'Satay tofu']
+
+
+# Six recipes whose diet tags and ingredients the diet and ingredient filter tests pick between.
+def make_diet_recipes() -> None:
+    bread = flagged('bread', 'contains_gluten')
+    butter = flagged('butter', 'contains_dairy')
+    eggs = flagged('eggs', 'contains_egg')
+    yoghurt = flagged('yoghurt', 'contains_dairy')
+    cheddar = flagged('cheddar', 'contains_dairy')
+    fish_sauce = flagged('fish sauce', 'contains_fish')
+    soy_sauce = flagged('soy sauce', 'contains_gluten')
+    chickpeas, onion, peanuts = ingredient('chickpeas'), ingredient('onion'), ingredient('peanuts')
+    rice_noodles, tofu = ingredient('rice noodles'), ingredient('tofu')
+    for title, required, optional in [
+        ('Bread pudding', [bread, butter, eggs], []),
+        ('Chana masala', [chickpeas, onion], [yoghurt]),
+        ('Cheese on toast', [bread, cheddar], []),
+        ('Herb salad', [], [peanuts]),
+        ('Pad thai', [rice_noodles, peanuts, fish_sauce], []),
+        ('Satay tofu', [tofu, peanuts, soy_sauce], []),
+    ]:
+        recipe = make_recipe(title=title)
+        for used in required:
+            IngredientLine.objects.create(recipe=recipe, ingredient=used)
+        for used in optional:
+            IngredientLine.objects.create(recipe=recipe, ingredient=used, optional=True)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('params', 'titles'),
+    [
+        ('diet=vegan', ['Chana masala', 'Satay tofu']),
+        ('diet=vegetarian', ['Bread pudding', 'Chana masala', 'Cheese on toast', 'Satay tofu']),
+        ('diet=gluten_free', ['Chana masala', 'Pad thai']),
+        ('diet=dairy_free', ['Chana masala', 'Pad thai', 'Satay tofu']),
+        ('diet=vegetarian&diet=dairy_free', ['Chana masala', 'Satay tofu']),
+        ('diet=vegan&diet=gluten_free', ['Chana masala']),
+        ('include_ingredient=peanuts', ['Herb salad', 'Pad thai', 'Satay tofu']),
+        (
+            'include_ingredient=peanuts&include_ingredient=cheddar',
+            ['Cheese on toast', 'Herb salad', 'Pad thai', 'Satay tofu'],
+        ),
+        ('include_ingredient=peanuts&include_ingredient=klingon', ['Herb salad', 'Pad thai', 'Satay tofu']),
+        ('include_ingredient=klingon', ALL_SIX),
+        ('exclude_ingredient=peanuts', ['Bread pudding', 'Chana masala', 'Cheese on toast']),
+        ('exclude_ingredient=yoghurt', ['Bread pudding', 'Cheese on toast', 'Herb salad', 'Pad thai', 'Satay tofu']),
+        ('exclude_ingredient=peanuts&exclude_ingredient=bread', ['Chana masala']),
+        ('exclude_ingredient=klingon', ALL_SIX),
+        ('include_ingredient=peanuts&exclude_ingredient=fish-sauce', ['Herb salad', 'Satay tofu']),
+        ('diet=vegan&exclude_ingredient=peanuts', ['Chana masala']),
+        ('diet=vegetarian&include_ingredient=bread', ['Bread pudding', 'Cheese on toast']),
+        ('q=tofu&diet=vegan', ['Satay tofu']),
+    ],
+)
+def test_filters_by_diet_and_ingredients(params: str, titles: list[str]) -> None:
+    make_diet_recipes()
+
+    response = APIClient().get(f'{reverse("recipe-list")}?{params}')
+
+    assert response.status_code == 200
+    assert [recipe['title'] for recipe in response.json()] == titles
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('diet', ['vegetarian', 'vegan', 'gluten_free', 'dairy_free'])
+def test_the_diet_filter_agrees_with_each_recipes_diet_tags(diet: str) -> None:
+    make_diet_recipes()
+
+    every_recipe = APIClient().get(reverse('recipe-list')).json()
+    filtered = APIClient().get(reverse('recipe-list'), {'diet': diet}).json()
+
+    tagged = [recipe['title'] for recipe in every_recipe if diet in recipe['diet_tags']]
+    assert tagged != []
+    assert [recipe['title'] for recipe in filtered] == tagged
+
+
+@pytest.mark.django_db
+def test_filters_by_diet_and_ingredients_in_four_queries(django_assert_num_queries: DjangoAssertNumQueries) -> None:
+    make_diet_recipes()
+
+    # The included ingredients' existence check, the list, then the cuisines and diet tags prefetches.
+    with django_assert_num_queries(4):
+        response = APIClient().get(
+            reverse('recipe-list'),
+            {'diet': 'vegan', 'include_ingredient': 'peanuts', 'exclude_ingredient': 'bread'},
+        )
+
+    assert response.status_code == 200
+    assert [recipe['title'] for recipe in response.json()] == ['Satay tofu']
 
 
 @pytest.mark.django_db

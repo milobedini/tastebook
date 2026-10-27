@@ -15,7 +15,7 @@ from recipes.serializers import (
     parameters=[RecipeFiltersSerializer],
     responses={
         200: RecipeSummarySerializer(many=True),
-        400: OpenApiResponse(description='A difficulty or a time limit is not one the list accepts.'),
+        400: OpenApiResponse(description='A difficulty, a diet or a time limit is not one the list accepts.'),
     },
 )
 class RecipeListView(ListAPIView):
@@ -34,6 +34,9 @@ class RecipeListView(ListAPIView):
             .with_difficulties(given['difficulty'])
             .taking_at_most(prep=given.get('max_prep'), cook=given.get('max_cook'), total=given.get('max_total'))
             .only_one_pot(given['one_pot'])
+            .suiting(given['diet'])
+            .using_any_of(given['include_ingredient'])
+            .using_none_of(given['exclude_ingredient'])
             .prefetch_related('cuisines')
             .with_diet_tags()
         )
