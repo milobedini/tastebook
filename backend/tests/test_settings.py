@@ -38,7 +38,7 @@ def test_a_vercel_deployment_trusts_its_own_hosts_and_no_others() -> None:
             'DJANGO_SECRET_KEY': 'test-only',
             'VERCEL_URL': 'tastebook-abc123-milobedinis-projects.vercel.app',
             'VERCEL_BRANCH_URL': 'tastebook-git-tas-24-milobedinis-projects.vercel.app',
-            'VERCEL_PROJECT_PRODUCTION_URL': 'tastebook.vercel.app',
+            'VERCEL_PROJECT_PRODUCTION_URL': 'tastebook.dev',
         }
     )
 
@@ -47,12 +47,12 @@ def test_a_vercel_deployment_trusts_its_own_hosts_and_no_others() -> None:
         '127.0.0.1',
         'tastebook-abc123-milobedinis-projects.vercel.app',
         'tastebook-git-tas-24-milobedinis-projects.vercel.app',
-        'tastebook.vercel.app',
+        'tastebook.dev',
     ]
     assert settings['CSRF_TRUSTED_ORIGINS'] == [
         'https://tastebook-abc123-milobedinis-projects.vercel.app',
         'https://tastebook-git-tas-24-milobedinis-projects.vercel.app',
-        'https://tastebook.vercel.app',
+        'https://tastebook.dev',
     ]
 
 
