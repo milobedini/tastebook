@@ -21,3 +21,5 @@ jobs:
       # The factory's own GitHub App, which can push workflow files.
       FACTORY_APP_CLIENT_ID: ${{ secrets.FACTORY_APP_CLIENT_ID }}
       FACTORY_APP_PRIVATE_KEY: ${{ secrets.FACTORY_APP_PRIVATE_KEY }}
+      # The verify evidence store's token. Only named here does the factory environment's value reach the stage workflow.
+      EVIDENCE_BLOB_READ_WRITE_TOKEN: ${{ secrets.EVIDENCE_BLOB_READ_WRITE_TOKEN }}
