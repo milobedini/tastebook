@@ -177,15 +177,27 @@ describe('RecipePage', () => {
   });
 
   it("shows the cuisine plate without a credit when the photo can't load", async () => {
-    server.use(http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>({ ...shakshuka, photo })));
+    server.use(
+      http.get('/api/recipes/:slug/', () =>
+        HttpResponse.json<Recipe>({ ...shakshuka, cuisines: [{ slug: 'french', name: 'French' }], photo })
+      )
+    );
 
     renderRoute('/recipes/shakshuka');
 
-    fireEvent.error(await screen.findByRole('img', { name: 'Shakshuka' }));
+    const heading = await screen.findByRole('heading', { level: 1, name: 'Shakshuka' });
+    expect(heading.previousElementSibling).toHaveRole('figure');
+
+    fireEvent.error(screen.getByRole('img', { name: 'Shakshuka' }));
 
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
     expect(screen.queryByText(/Photo by/)).not.toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1, name: 'Shakshuka' })).toBeInTheDocument();
+    // The plate is decorative, so it has no role: it's found by where the photo was and the cuisine's colour it takes.
+    expect(heading.previousElementSibling).toHaveAttribute('aria-hidden', 'true');
+    expect(heading.previousElementSibling).toHaveAttribute(
+      'style',
+      expect.stringContaining('background-color: var(--cuisine-french')
+    );
   });
 
   it("shows the recipe's difficulty, one-pot, times, servings, equipment and source credit", async () => {
