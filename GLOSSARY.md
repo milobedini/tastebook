@@ -11,16 +11,16 @@ Names marked _planned_ don't exist in the code yet; use them when you build the 
 | Recipe | A dish with its ingredients, method and details. Public or private. | `Recipe` |
 | Public recipe | A recipe anyone can find and save. Only recipes written by their author (or by Claude for them) can be public. | `Recipe.visibility` _planned_ |
 | Private recipe | A recipe only its household can see. Imported recipes are always private. | `Recipe.visibility` _planned_ |
-| Ingredient | A food in the shared ingredient list, under its UK name (courgette, coriander, plain flour). Records whether it contains meat, fish, dairy, egg, another animal product or gluten. | `Ingredient` _planned_ |
+| Ingredient | A food in the shared ingredient list, under its UK name (courgette, coriander, plain flour). Records whether it contains meat, fish, dairy, egg, another animal product or gluten. | `Ingredient` |
 | Synonym | Another name for an ingredient, including US names (zucchini for courgette). Search finds the ingredient by any of them. | `IngredientSynonym` _planned_ |
-| Ingredient line | One line of a recipe's ingredients: amount, unit, ingredient, note, and whether it's optional. | `IngredientLine` _planned_ |
-| Ingredient group | A named group of ingredient lines ("For the sauce", "To serve"). | `IngredientGroup` _planned_ |
-| Optional ingredient | An ingredient line the recipe works without. It doesn't count against a match or change diet tags. | `IngredientLine.optional` _planned_ |
-| Amount | How much of an ingredient: a number, a range (2–3) or none ("to taste"). | `IngredientLine.amount` _planned_ |
-| Unit | A unit from Tastebook's fixed list (g, ml, tsp, cup…), or none ("2 eggs"). | `Unit` _planned_ |
+| Ingredient line | One line of a recipe's ingredients: amount, unit, ingredient, note, and whether it's optional. | `IngredientLine` |
+| Ingredient group | A named group of ingredient lines ("For the sauce", "To serve"). | `IngredientGroup` |
+| Optional ingredient | An ingredient line the recipe works without. It doesn't count against a match or change diet tags. | `IngredientLine.optional` |
+| Amount | How much of an ingredient: a number, a range (2–3) or none ("to taste"). | `IngredientLine.amount`, `amount_max` |
+| Unit | A unit from Tastebook's fixed list (g, ml, tsp, cup…), or none ("2 eggs"). | `Unit` |
 | Unit system | Metric (the default) or US customary, for reading amounts. | `UnitSystem` _planned_ |
-| Step | One step of a recipe's method, in order. | `Step` _planned_ |
-| Method | A recipe's steps, in order. | `Recipe.steps` _planned_ |
+| Step | One step of a recipe's method, in order. | `Step` |
+| Method | A recipe's steps, in order. | `Recipe.steps` |
 | Equipment | A tool from the shared equipment list (oven, hob, stand mixer…) that a recipe needs. | `Equipment` |
 | Cuisine | A cooking tradition a recipe belongs to (Italian, Thai). | `Cuisine` |
 | Course | Where a recipe sits in a meal: main, side, dessert, breakfast, baking. | `Course` |
