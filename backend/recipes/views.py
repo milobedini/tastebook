@@ -1,29 +1,22 @@
-from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
-from recipes.models import Cuisine, Recipe, RecipeQuerySet
-from recipes.serializers import CuisineSerializer, RecipeSerializer, RecipeSummarySerializer
+from recipes.models import Course, Cuisine, Recipe, RecipeQuerySet
+from recipes.serializers import (
+    CourseSerializer,
+    CuisineSerializer,
+    RecipeFiltersSerializer,
+    RecipeSerializer,
+    RecipeSummarySerializer,
+)
 
 
 @extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='q',
-            type=str,
-            location=OpenApiParameter.QUERY,
-            required=False,
-            description='Only recipes whose title contains this text, ignoring case and accents.',
-        ),
-        OpenApiParameter(
-            name='cuisine',
-            type=str,
-            location=OpenApiParameter.QUERY,
-            required=False,
-            description=(
-                'Only recipes with the cuisine that has this slug. A blank or unknown slug means every cuisine.'
-            ),
-        ),
-    ]
+    parameters=[RecipeFiltersSerializer],
+    responses={
+        200: RecipeSummarySerializer(many=True),
+        400: OpenApiResponse(description='A difficulty or a time limit is not one the list accepts.'),
+    },
 )
 class RecipeListView(ListAPIView):
     authentication_classes = []
@@ -31,10 +24,16 @@ class RecipeListView(ListAPIView):
     serializer_class = RecipeSummarySerializer
 
     def get_queryset(self) -> RecipeQuerySet:
-        params = self.request.query_params
+        filters = RecipeFiltersSerializer(data=self.request.query_params)
+        filters.is_valid(raise_exception=True)
+        given = filters.validated_data
         return (
-            Recipe.objects.matching_title(params.get('q', ''))
-            .with_cuisine(params.get('cuisine', ''))
+            Recipe.objects.matching_title(given['q'])
+            .with_cuisines(given['cuisine'])
+            .with_courses(given['course'])
+            .with_difficulties(given['difficulty'])
+            .taking_at_most(prep=given.get('max_prep'), cook=given.get('max_cook'), total=given.get('max_total'))
+            .only_one_pot(given['one_pot'])
             .prefetch_related('cuisines')
             .alphabetical()
         )
@@ -54,3 +53,10 @@ class CuisineListView(ListAPIView):
     permission_classes = []
     serializer_class = CuisineSerializer
     queryset = Cuisine.objects.all()
+
+
+class CourseListView(ListAPIView):
+    authentication_classes = []
+    permission_classes = []
+    serializer_class = CourseSerializer
+    queryset = Course.objects.all()
