@@ -1,8 +1,8 @@
 ---
 issue: TAS-42
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tastebook/tas-42-filter-by-time-difficulty-cuisine-course-and-one-pot
-pr:
+pr: 43
 ---
 
 # Filter by time, difficulty, cuisine, course and one-pot
