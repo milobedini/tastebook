@@ -48,11 +48,12 @@ class IngredientLineSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngredientLine
-        fields = ['id', 'amount', 'amount_max', 'unit', 'ingredient', 'note', 'optional']
+        fields = ['id', 'amount', 'amount_max', 'unit', 'ingredient', 'note', 'optional', 'original_text']
         extra_kwargs = {
             'unit': {'required': True, 'allow_blank': True},
             'note': {'required': True, 'allow_blank': True},
             'optional': {'required': True},
+            'original_text': {'required': True, 'allow_blank': True},
         }
 
 

@@ -66,6 +66,7 @@ const line = (id: number, name: string, fields: Partial<IngredientLine> = {}): I
   ingredient: { slug: name.replaceAll(' ', '-'), name },
   note: '',
   optional: false,
+  original_text: '',
   ...fields
 });
 

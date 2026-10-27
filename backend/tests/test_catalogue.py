@@ -225,6 +225,7 @@ def test_loads_a_recipe_with_its_details_ingredients_and_method(tmp_path: Path) 
                 'ingredient': {'slug': 'olive-oil', 'name': 'olive oil'},
                 'note': '',
                 'optional': False,
+                'original_text': '',
             }
         ],
         'diet_tag_conflicts': [{'ingredient': {'slug': 'eggs', 'name': 'eggs'}, 'diet_tags': ['vegan']}],

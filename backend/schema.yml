@@ -339,6 +339,11 @@ components:
           maxLength: 200
         optional:
           type: boolean
+        original_text:
+          type: string
+          title: Original wording
+          description: The line as the recipe was written.
+          maxLength: 300
       required:
       - amount
       - amount_max
@@ -346,6 +351,7 @@ components:
       - ingredient
       - note
       - optional
+      - original_text
       - unit
     PhotoThumbnail:
       type: object

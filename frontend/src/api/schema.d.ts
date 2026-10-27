@@ -174,6 +174,11 @@ export interface components {
             /** @description "finely chopped". */
             note: string;
             optional: boolean;
+            /**
+             * Original wording
+             * @description The line as the recipe was written.
+             */
+            original_text: string;
         };
         PhotoThumbnail: {
             readonly width: number;

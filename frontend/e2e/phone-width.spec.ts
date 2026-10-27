@@ -56,7 +56,8 @@ const recipe: Recipe = {
       unit: 'kg',
       ingredient: { slug: 'pork-shoulder', name: 'bone-in pork shoulder' },
       note: 'skin scored at 1 cm intervals, ask the butcher to do it if your knife is not sharp enough',
-      optional: false
+      optional: false,
+      original_text: ''
     }
   ],
   ingredient_groups: [
@@ -71,7 +72,8 @@ const recipe: Recipe = {
           unit: 'g',
           ingredient: { slug: 'plain-flour', name: 'plain flour' },
           note: 'sifted',
-          optional: false
+          optional: false,
+          original_text: ''
         },
         {
           id: 3,
@@ -80,7 +82,8 @@ const recipe: Recipe = {
           unit: 'handful',
           ingredient: { slug: 'thyme', name: 'thyme' },
           note: 'leaves picked, from https://en.wikibooks.org/wiki/Cookbook:Thyme',
-          optional: true
+          optional: true,
+          original_text: ''
         }
       ]
     }
