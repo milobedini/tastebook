@@ -116,14 +116,10 @@ describe('ignored build step', () => {
     ]
   ];
 
-  const serviceRoots = ['frontend', 'backend'];
-
   for (const [label, commits, previous, expected] of cases) {
-    for (const root of serviceRoots) {
-      it(`${expected === 'builds' ? 'builds' : 'skips the build'} when ${label}, run from ${root}/`, () => {
-        const { repo, deployed } = repoWith(commits);
-        assert.equal(runFrom(join(repo, root), previousSha(previous, deployed)), expected);
-      });
-    }
+    it(`${expected === 'builds' ? 'builds' : 'skips the build'} when ${label}`, () => {
+      const { repo, deployed } = repoWith(commits);
+      assert.equal(runFrom(repo, previousSha(previous, deployed)), expected);
+    });
   }
 });

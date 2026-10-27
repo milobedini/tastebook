@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Vercel's Ignored Build Step for both services (vercel.json): exit 0 skips the build, exit 1 builds.
+# Vercel's Ignored Build Step, the top-level ignoreCommand in vercel.json: exit 0 skips the build, exit 1 builds.
 # Builds unless it can show that nothing Vercel serves changed since the branch's last successful deployment.
-# Both services run the same check so a preview's two halves build, or skip, together.
+# One check covers the whole deployment, so a preview's two services build, or skip, together.
 
 set -u
 
@@ -10,7 +10,7 @@ if [ -z "${VERCEL_GIT_PREVIOUS_SHA:-}" ]; then
   exit 1
 fi
 
-# Vercel runs the command in the service's root directory; the paths below are from the repo's root.
+# The paths below are from the repo's root, wherever Vercel runs the command from.
 cd "$(git rev-parse --show-toplevel)" || exit 1
 
 git diff --quiet "$VERCEL_GIT_PREVIOUS_SHA" HEAD -- \
