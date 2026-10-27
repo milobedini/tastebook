@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
@@ -8,6 +8,7 @@ import { renderRoute } from '../test/render-route';
 import { server } from '../test/server';
 
 type Recipe = components['schemas']['Recipe'];
+type IngredientLine = components['schemas']['IngredientLine'];
 
 const shakshuka: Recipe = {
   id: 7,
@@ -27,7 +28,10 @@ const shakshuka: Recipe = {
   yield_unit: '',
   equipment: [{ slug: 'hob', name: 'Hob' }],
   one_pot: true,
-  source: 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)'
+  source: 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)',
+  ingredient_lines: [],
+  ingredient_groups: [],
+  steps: []
 };
 
 // Each term of the recipe's details with its definition, in the order the page shows them.
@@ -39,6 +43,49 @@ const facts = () => {
 const paragraphs = () => screen.queryAllByRole('paragraph').map((paragraph) => paragraph.textContent);
 
 const tags = () => screen.getAllByRole('listitem').map((item) => item.textContent);
+
+const line = (id: number, name: string, fields: Partial<IngredientLine> = {}): IngredientLine => ({
+  id,
+  amount: null,
+  amount_max: null,
+  unit: '',
+  ingredient: { slug: name.replaceAll(' ', '-'), name },
+  note: '',
+  optional: false,
+  ...fields
+});
+
+const withIngredientsAndMethod: Recipe = {
+  ...shakshuka,
+  ingredient_lines: [
+    line(1, 'olive oil', { amount: 1.5, unit: 'tbsp' }),
+    line(2, 'eggs', { amount: 2, amount_max: 3 }),
+    line(3, 'salt', { note: 'to taste' })
+  ],
+  ingredient_groups: [
+    {
+      id: 1,
+      name: 'For the sauce',
+      lines: [
+        line(4, 'onion', { amount: 1, note: 'finely chopped' }),
+        line(5, 'garlic', { amount: 2, unit: 'clove', note: 'crushed' }),
+        line(6, 'chopped tomatoes', { amount: 1, unit: 'tin' })
+      ]
+    },
+    { id: 2, name: 'To serve', lines: [line(7, 'coriander', { unit: 'handful', optional: true })] },
+    { id: 3, name: 'Not filled in yet', lines: [] }
+  ],
+  steps: [
+    { id: 1, text: 'Fry the onion in the oil until soft.' },
+    { id: 2, text: 'Add the garlic and tomatoes and simmer for 10 minutes.' },
+    { id: 3, text: 'Crack in the eggs, cover and cook until set.' }
+  ]
+};
+
+const itemsOf = (list: HTMLElement) =>
+  within(list)
+    .getAllByRole('listitem')
+    .map((item) => item.textContent);
 
 const failRecipe = () => server.use(http.get('/api/recipes/:slug/', () => new HttpResponse(null, { status: 503 })));
 
@@ -165,6 +212,44 @@ describe('RecipePage', () => {
       ['Total', '1 hr 15 min'],
       ['Makes', '1 loaf']
     ]);
+  });
+
+  it('shows the ingredients, ungrouped lines first and then each group under its name, and the method as numbered steps', async () => {
+    server.use(http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>(withIngredientsAndMethod)));
+
+    renderRoute('/recipes/shakshuka');
+
+    const ingredients = await screen.findByRole('region', { name: 'Ingredients' });
+    expect(
+      within(ingredients)
+        .getAllByRole('heading', { level: 3 })
+        .map((heading) => heading.textContent)
+    ).toEqual(['For the sauce', 'To serve']);
+    expect(within(ingredients).getAllByRole('list').map(itemsOf)).toEqual([
+      ['1.5 tbsp olive oil', '2–3 eggs', 'salt, to taste'],
+      ['1 onion, finely chopped', '2 cloves garlic, crushed', '1 tin chopped tomatoes'],
+      ['handful coriander (optional)']
+    ]);
+    const method = screen.getByRole('region', { name: 'Method' });
+    const steps = within(method).getByRole('list');
+    expect(steps.tagName).toBe('OL');
+    expect(itemsOf(steps)).toEqual([
+      'Fry the onion in the oil until soft.',
+      'Add the garlic and tomatoes and simmer for 10 minutes.',
+      'Crack in the eggs, cover and cook until set.'
+    ]);
+  });
+
+  it.each([
+    ['shakshuka', ['Ingredients', 'Method']],
+    ['banana-bread', []]
+  ])('shows the ingredients and method sections only when the recipe has them (%s)', async (slug, headings) => {
+    server.use(http.get('/api/recipes/shakshuka/', () => HttpResponse.json<Recipe>(withIngredientsAndMethod)));
+
+    renderRoute(`/recipes/${slug}`);
+
+    expect(await screen.findByRole('heading', { level: 1 })).toBeInTheDocument();
+    expect(screen.queryAllByRole('heading', { level: 2 }).map((heading) => heading.textContent)).toEqual(headings);
   });
 
   it("says the recipe isn't found for an unknown address", async () => {

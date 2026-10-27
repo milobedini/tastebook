@@ -37,7 +37,48 @@ const recipe: Recipe = {
     { slug: 'stand-mixer', name: 'Stand mixer' }
   ],
   one_pot: true,
-  source: 'Adapted from https://en.wikibooks.org/wiki/Cookbook:Roast_Pork_Shoulder_with_Crackling (CC BY-SA 4.0)'
+  source: 'Adapted from https://en.wikibooks.org/wiki/Cookbook:Roast_Pork_Shoulder_with_Crackling (CC BY-SA 4.0)',
+  ingredient_lines: [
+    {
+      id: 1,
+      amount: 2.5,
+      amount_max: 3,
+      unit: 'kg',
+      ingredient: { slug: 'pork-shoulder', name: 'bone-in pork shoulder' },
+      note: 'skin scored at 1 cm intervals, ask the butcher to do it if your knife is not sharp enough',
+      optional: false
+    }
+  ],
+  ingredient_groups: [
+    {
+      id: 1,
+      name: 'For the Yorkshire puddings, made while the pork rests under its foil',
+      lines: [
+        {
+          id: 2,
+          amount: 150,
+          amount_max: null,
+          unit: 'g',
+          ingredient: { slug: 'plain-flour', name: 'plain flour' },
+          note: 'sifted',
+          optional: false
+        },
+        {
+          id: 3,
+          amount: null,
+          amount_max: null,
+          unit: 'handful',
+          ingredient: { slug: 'thyme', name: 'thyme' },
+          note: 'leaves picked, from https://en.wikibooks.org/wiki/Cookbook:Thyme',
+          optional: true
+        }
+      ]
+    }
+  ],
+  steps: [
+    { id: 1, text: 'The night before, rub the skin with salt and leave the pork uncovered in the fridge.' },
+    { id: 2, text: 'Roast at 220°C for 30 minutes, then turn the oven down to 160°C for five and a half hours.' }
+  ]
 };
 
 const summary: RecipeSummary = {
@@ -70,5 +111,9 @@ test('a recipe page fits a 375 px phone screen without scrolling sideways', asyn
   await page.goto(`/recipes/${recipe.slug}`);
 
   await expect(page.getByText('generous portions with leftovers')).toBeVisible();
+  await expect(
+    page.getByText('leaves picked, from https://en.wikibooks.org/wiki/Cookbook:Thyme', { exact: false })
+  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Method' })).toBeVisible();
   expect(await sidewaysScroll(page)).toBe(0);
 });

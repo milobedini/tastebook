@@ -79,6 +79,9 @@ paths:
           description: No recipe has this slug.
 components:
   schemas:
+    BlankEnum:
+      enum:
+      - ''
     Course:
       type: object
       properties:
@@ -149,6 +152,102 @@ components:
       - database
       - status
       - version
+    Ingredient:
+      type: object
+      properties:
+        slug:
+          type: string
+          maxLength: 100
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          description: 'The UK name: courgette, coriander, plain flour.'
+          maxLength: 100
+      required:
+      - name
+      - slug
+    IngredientGroup:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: '"For the sauce", "To serve".'
+          maxLength: 100
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngredientLine'
+          readOnly: true
+      required:
+      - id
+      - lines
+      - name
+    IngredientLine:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        amount:
+          type: number
+          format: double
+          maximum: 100000
+          minimum: -100000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          nullable: true
+        amount_max:
+          type: number
+          format: double
+          maximum: 100000
+          minimum: -100000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          nullable: true
+        unit:
+          description: |-
+            Leave empty for "2 eggs".
+
+            * `g` - g
+            * `kg` - kg
+            * `ml` - ml
+            * `l` - l
+            * `tsp` - tsp
+            * `tbsp` - tbsp
+            * `cup` - cup
+            * `oz` - oz
+            * `lb` - lb
+            * `fl_oz` - fl oz
+            * `pinch` - pinch
+            * `clove` - clove
+            * `tin` - tin
+            * `slice` - slice
+            * `bunch` - bunch
+            * `handful` - handful
+          oneOf:
+          - $ref: '#/components/schemas/UnitEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        ingredient:
+          allOf:
+          - $ref: '#/components/schemas/Ingredient'
+          readOnly: true
+        note:
+          type: string
+          description: '"finely chopped".'
+          maxLength: 200
+        optional:
+          type: boolean
+      required:
+      - amount
+      - amount_max
+      - id
+      - ingredient
+      - note
+      - optional
+      - unit
     Recipe:
       type: object
       properties:
@@ -226,6 +325,21 @@ components:
           title: Source credit
           description: 'Where the recipe came from: an author, a website or a book.'
           maxLength: 300
+        ingredient_lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngredientLine'
+          readOnly: true
+        ingredient_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngredientGroup'
+          readOnly: true
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/Step'
+          readOnly: true
       required:
       - cook_minutes
       - courses
@@ -236,11 +350,14 @@ components:
       - extra_label
       - extra_minutes
       - id
+      - ingredient_groups
+      - ingredient_lines
       - one_pot
       - prep_minutes
       - servings
       - slug
       - source
+      - steps
       - title
       - total_minutes
       - yield_amount
@@ -284,3 +401,50 @@ components:
       - ok
       type: string
       description: '* `ok` - ok'
+    Step:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+      required:
+      - id
+      - text
+    UnitEnum:
+      enum:
+      - g
+      - kg
+      - ml
+      - l
+      - tsp
+      - tbsp
+      - cup
+      - oz
+      - lb
+      - fl_oz
+      - pinch
+      - clove
+      - tin
+      - slice
+      - bunch
+      - handful
+      type: string
+      description: |-
+        * `g` - g
+        * `kg` - kg
+        * `ml` - ml
+        * `l` - l
+        * `tsp` - tsp
+        * `tbsp` - tbsp
+        * `cup` - cup
+        * `oz` - oz
+        * `lb` - lb
+        * `fl_oz` - fl oz
+        * `pinch` - pinch
+        * `clove` - clove
+        * `tin` - tin
+        * `slice` - slice
+        * `bunch` - bunch
+        * `handful` - handful
