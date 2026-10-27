@@ -2,7 +2,7 @@ from typing import Any
 
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-from django.db.models import F
+from django.db.models import Case, F, Q, Value, When
 from django.db.models.functions import Lower
 
 from recipes.photos import COMMONS_FILE, COMMONS_FILE_PAGE, Photo
@@ -55,12 +55,22 @@ class RecipeQuerySet(models.QuerySet['Recipe']):
         # id breaks ties, so the recipe added first comes first when two titles match.
         return self.order_by(Lower('title'), 'id')
 
-    def matching_title(self, text: str) -> RecipeQuerySet:
+    def search(self, text: str) -> RecipeQuerySet:
+        """Recipes whose title, description, ingredients or cuisines contain the text, title matches first."""
         term = text.strip()
         if term == '':
-            return self
+            return self.alphabetical()
         # unaccent is bilateral, so the term loses its accents too: 'crème' and 'creme' both find 'Crème brûlée'.
-        return self.filter(title__unaccent__icontains=term)
+        in_title = Q(title__unaccent__icontains=term)
+        lines = IngredientLine.objects.filter(ingredient__in=Ingredient.objects.named(term))
+        cuisines = Cuisine.objects.filter(name__unaccent__icontains=term)
+        # Subqueries, not joins, so a recipe matching through several lines or cuisines is listed once.
+        return self.filter(
+            in_title
+            | Q(description__unaccent__icontains=term)
+            | Q(pk__in=lines.values('recipe'))
+            | Q(pk__in=cuisines.values('recipes'))
+        ).order_by(Case(When(in_title, then=Value(0)), default=Value(1)), Lower('title'), 'id')
 
     def with_cuisines(self, slugs: list[str]) -> RecipeQuerySet:
         # Unknown slugs (a removed cuisine, a mistyped link) are dropped; with none left, nothing is filtered.
@@ -226,6 +236,14 @@ class Recipe(models.Model):
         return Photo(self.photo_url, self.photo_author, self.photo_licence, self.photo_source_url)
 
 
+class IngredientQuerySet(models.QuerySet['Ingredient']):
+    def named(self, text: str) -> IngredientQuerySet:
+        """Ingredients whose name or any synonym contains the text, ignoring case and accents."""
+        # A subquery, not a join, so an ingredient with two matching synonyms is listed once.
+        synonyms = IngredientSynonym.objects.filter(name__unaccent__icontains=text)
+        return self.filter(Q(name__unaccent__icontains=text) | Q(pk__in=synonyms.values('ingredient')))
+
+
 class Ingredient(models.Model):
     name = models.CharField(max_length=100, unique=True, help_text='The UK name: courgette, coriander, plain flour.')
     slug = models.SlugField(max_length=100, unique=True)
@@ -250,6 +268,20 @@ class Ingredient(models.Model):
         'contains_other_animal_product',
         'contains_gluten',
     )
+
+    objects = IngredientQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class IngredientSynonym(models.Model):
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE, related_name='synonyms')
+    # Unique across every ingredient, so a name means one ingredient wherever it's looked up.
+    name = models.CharField(max_length=100, unique=True, help_text='Another name, such as the US one: zucchini.')
 
     class Meta:
         ordering = ['name']

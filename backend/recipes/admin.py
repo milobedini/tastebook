@@ -1,7 +1,16 @@
 from django.contrib import admin
 from django.forms import BaseInlineFormSet, ModelForm
 
-from recipes.models import Cuisine, Equipment, Ingredient, IngredientGroup, IngredientLine, Recipe, Step
+from recipes.models import (
+    Cuisine,
+    Equipment,
+    Ingredient,
+    IngredientGroup,
+    IngredientLine,
+    IngredientSynonym,
+    Recipe,
+    Step,
+)
 
 
 @admin.register(Cuisine)
@@ -16,16 +25,24 @@ class EquipmentAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 
+class IngredientSynonymInline(admin.TabularInline):
+    model = IngredientSynonym
+    fields = ('name',)
+    extra = 0
+
+
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', *Ingredient.CONTAINS)
     list_filter = Ingredient.CONTAINS
-    search_fields = ('name',)
+    # Synonyms too, so the ingredient picker on a recipe line finds courgette by "zucchini".
+    search_fields = ('name', 'synonyms__name')
     prepopulated_fields = {'slug': ('name',)}
     fieldsets = (
         (None, {'fields': ('name', 'slug')}),
         ('Contains', {'fields': Ingredient.CONTAINS, 'description': "A recipe's diet tags are worked out from these."}),
     )
+    inlines = (IngredientSynonymInline,)
 
 
 class IngredientGroupInline(admin.TabularInline):

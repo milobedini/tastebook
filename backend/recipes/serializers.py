@@ -98,7 +98,10 @@ class RecipeFiltersSerializer(serializers.Serializer):
         required=False,
         default='',
         allow_blank=True,
-        help_text='Title contains this text, ignoring case and accents.',
+        help_text=(
+            "Title, description, an ingredient's name or synonym, or a cuisine contains this text, "
+            'ignoring case and accents. Title matches come first, then the others, alphabetically within each.'
+        ),
     )
     # Blank slugs are allowed so ?cuisine= still means every cuisine, as it did before the list took several.
     cuisine = serializers.ListField(

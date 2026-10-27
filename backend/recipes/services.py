@@ -19,6 +19,7 @@ from recipes.models import (
     Ingredient,
     IngredientGroup,
     IngredientLine,
+    IngredientSynonym,
     Recipe,
     Step,
 )
@@ -54,9 +55,10 @@ def load_catalogue(path: Path = CATALOGUE_PATH) -> LoadedCatalogue:
         names = _Names(
             cuisines=_by_name(Cuisine.objects.all()),
             courses=_by_name(Course.objects.all()),
-            equipment=_load_named(Equipment, [{'name': name} for name in catalogue['equipment']], 'Equipment'),
-            ingredients=_load_named(Ingredient, catalogue['ingredients'], 'Ingredient'),
+            equipment=_load_named(Equipment, [{'name': name} for name in catalogue['equipment']], 'Equipment', set()),
+            ingredients=_load_named(Ingredient, catalogue['ingredients'], 'Ingredient', {'synonyms'}),
         )
+        _load_synonyms(names.ingredients, catalogue['ingredients'])
         recipes = [_load_recipe(record, names) for record in catalogue['recipes']]
         # Every recipe is in the catalogue until households have private recipes, so the file's are the only ones.
         Recipe.objects.exclude(pk__in=[recipe.pk for recipe in recipes]).delete()
@@ -91,7 +93,9 @@ def _by_name[M: Cuisine | Course](rows: Iterable[M]) -> dict[str, M]:
     return {row.name: row for row in rows}
 
 
-def _load_named[M: Equipment | Ingredient](model: type[M], records: list[Record], kind: str) -> dict[str, M]:
+def _load_named[M: Equipment | Ingredient](
+    model: type[M], records: list[Record], kind: str, references: set[str]
+) -> dict[str, M]:
     unshaped = [record for record in records if not isinstance(record, dict)]
     if unshaped:
         raise CatalogueError(f'Each {kind.lower()} must be an object with its name, but these are not: {unshaped}')
@@ -103,11 +107,29 @@ def _load_named[M: Equipment | Ingredient](model: type[M], records: list[Record]
     for name, record in zip(names, records, strict=True):
         where = f'{kind} "{name}"'
         # Made afresh, so a field the file leaves out goes back to its default.
-        row = model(slug=slugify(name), **_plain_fields(model, record, where, set()))
+        row = model(slug=slugify(name), **_plain_fields(model, record, where, references))
         _take_place(row, existing.get(row.slug))
         _save(row, where)
         rows[name] = row
     return rows
+
+
+def _load_synonyms(ingredients: dict[str, Ingredient], records: list[Record]) -> None:
+    wanted: list[tuple[int, str, str]] = []
+    for record in records:
+        where = f'Ingredient "{record["name"]}"'
+        synonyms = record.get('synonyms', [])
+        if not isinstance(synonyms, list) or not all(isinstance(synonym, str) for synonym in synonyms):
+            raise CatalogueError(f'{where} must give its synonyms as a list of names')
+        wanted += [(ingredients[record['name']].pk, synonym, where) for synonym in synonyms]
+    keep = {(pk, synonym) for pk, synonym, _ in wanted}
+    # Every stale synonym goes before any is added, so a name can move from one ingredient to another.
+    stale = [row.pk for row in IngredientSynonym.objects.all() if (row.ingredient_id, row.name) not in keep]
+    IngredientSynonym.objects.filter(pk__in=stale).delete()
+    existing = set(IngredientSynonym.objects.values_list('ingredient_id', 'name'))
+    for pk, synonym, where in wanted:
+        if (pk, synonym) not in existing:
+            _save(IngredientSynonym(ingredient_id=pk, name=synonym), where)
 
 
 def _load_recipe(record: Record, names: _Names) -> Recipe:

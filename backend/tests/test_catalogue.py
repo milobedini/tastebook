@@ -77,8 +77,8 @@ def recipe_json(slug: str) -> dict[str, Any]:
     return response.json()
 
 
-def titles() -> list[str]:
-    return [recipe['title'] for recipe in APIClient().get(reverse('recipe-list')).json()]
+def titles(q: str = '') -> list[str]:
+    return [recipe['title'] for recipe in APIClient().get(reverse('recipe-list'), {'q': q}).json()]
 
 
 # What a reader of the recipe page sees of each feature the seed has to cover.
@@ -309,6 +309,40 @@ def test_loading_records_what_each_ingredient_contains_and_clears_what_the_file_
     )
 
 
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('q', 'expected'),
+    [
+        ('cilantro', ['Chicken tikka masala']),
+        ('heavy cream', ['Chicken tikka masala']),
+        ('all-purpose flour', ['Oat and raisin cookies']),
+        ('red pepper flakes', ['Spaghetti aglio e olio']),
+        ('green bell pepper', ['Greek salad']),
+    ],
+)
+def test_the_repos_recipes_are_found_by_their_ingredients_us_names(q: str, expected: list[str]) -> None:
+    call_command('load_catalogue')
+
+    assert titles(q) == expected
+
+
+def with_synonyms(synonyms: dict[str, list[str]]) -> list[dict[str, Any]]:
+    return [{**record, 'synonyms': synonyms.get(record['name'], [])} for record in INGREDIENTS]
+
+
+@pytest.mark.django_db
+def test_loading_an_edited_file_moves_and_removes_synonyms(tmp_path: Path) -> None:
+    first = with_synonyms({'porridge oats': ['pimentón'], 'paprika': ['red powder']})
+    call_command('load_catalogue', write(tmp_path / 'first.json', catalogue(SHAKSHUKA, FLAPJACKS, ingredients=first)))
+    before = (titles('pimenton'), titles('red powder'))
+
+    second = with_synonyms({'paprika': ['pimentón']})
+    call_command('load_catalogue', write(tmp_path / 'second.json', catalogue(SHAKSHUKA, FLAPJACKS, ingredients=second)))
+
+    assert before == (['Flapjacks'], ['Shakshuka'])
+    assert (titles('pimenton'), titles('red powder')) == (['Shakshuka'], [])
+
+
 def with_line(**line: Any) -> dict[str, Any]:
     return catalogue({**FLAPJACKS, 'ingredient_lines': [{'ingredient': 'porridge oats', **line}]})
 
@@ -368,6 +402,20 @@ def with_line(**line: Any) -> dict[str, Any]:
         (
             catalogue(FLAPJACKS, ingredients=[{'name': 'porridge oats'}, {'name': 'Porridge oats'}]),
             'Ingredient slugs must be unique, but these repeat: porridge-oats',
+        ),
+        (
+            catalogue(FLAPJACKS, ingredients=[{'name': 'porridge oats', 'synonyms': 'rolled oats'}]),
+            'Ingredient "porridge oats" must give its synonyms as a list of names',
+        ),
+        (
+            catalogue(
+                FLAPJACKS,
+                ingredients=[
+                    {'name': 'porridge oats', 'synonyms': ['oats']},
+                    {'name': 'paprika', 'synonyms': ['oats']},
+                ],
+            ),
+            'Ingredient "paprika": Ingredient synonym with this Name already exists.',
         ),
     ],
 )

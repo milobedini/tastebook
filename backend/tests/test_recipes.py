@@ -7,7 +7,17 @@ from django.urls import reverse
 from pytest_django import DjangoAssertNumQueries
 from rest_framework.test import APIClient
 
-from recipes.models import Course, Cuisine, Equipment, Ingredient, IngredientGroup, IngredientLine, Recipe, Step
+from recipes.models import (
+    Course,
+    Cuisine,
+    Equipment,
+    Ingredient,
+    IngredientGroup,
+    IngredientLine,
+    IngredientSynonym,
+    Recipe,
+    Step,
+)
 
 # A valid recipe's details, for tests about something else.
 DETAILS: dict[str, Any] = {
@@ -301,6 +311,61 @@ def test_searches_titles_anywhere_ignoring_case_accents_and_surrounding_spaces(q
 
     assert response.status_code == 200
     assert [recipe['title'] for recipe in response.json()] == titles
+
+
+def make_searchable_recipes() -> None:
+    IngredientSynonym.objects.create(ingredient=ingredient('aubergine'), name='eggplant')
+    IngredientSynonym.objects.create(ingredient=ingredient('courgette'), name='zucchini')
+    make_recipe(title='Stuffed aubergines')
+    make_recipe(title='Baba ganoush', description='A smoky aubergine dip.')
+    moussaka = make_recipe(title='Moussaka', description='Baked layers of aubergine and lamb.')
+    add_line(moussaka, 'aubergine', note='sliced')
+    add_line(moussaka, 'aubergine', note='diced', optional=True)
+    add_line(moussaka, 'crème fraîche')
+    ratatouille = make_recipe(title='Ratatouille')
+    add_line(ratatouille, 'courgette')
+    ratatouille.cuisines.set(Cuisine.objects.filter(slug='french'))
+    make_recipe(title='Pad thai').cuisines.set(Cuisine.objects.filter(slug='thai'))
+    make_recipe(title='Green curry').cuisines.set(Cuisine.objects.filter(slug='thai'))
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('q', 'titles'),
+    [
+        ('eggplant', ['Moussaka']),
+        ('EGGPLANT', ['Moussaka']),
+        ('courgette', ['Ratatouille']),
+        (' Zucchini ', ['Ratatouille']),
+        ('smoky', ['Baba ganoush']),
+        ('creme fraiche', ['Moussaka']),
+        ('french', ['Ratatouille']),
+        ('aubergine', ['Stuffed aubergines', 'Baba ganoush', 'Moussaka']),
+        ('thai', ['Pad thai', 'Green curry']),
+        ('kale', []),
+    ],
+)
+def test_searches_descriptions_ingredients_their_synonyms_and_cuisines_with_title_matches_first(
+    q: str, titles: list[str]
+) -> None:
+    make_searchable_recipes()
+
+    response = APIClient().get(reverse('recipe-list'), {'q': q})
+
+    assert response.status_code == 200
+    assert [recipe['title'] for recipe in response.json()] == titles
+
+
+@pytest.mark.django_db
+def test_searches_in_three_queries(django_assert_num_queries: DjangoAssertNumQueries) -> None:
+    make_searchable_recipes()
+
+    # The matching ingredients, synonyms and cuisines are subqueries of the list's one query.
+    with django_assert_num_queries(3):
+        response = APIClient().get(reverse('recipe-list'), {'q': 'aubergine'})
+
+    assert response.status_code == 200
+    assert [recipe['title'] for recipe in response.json()] == ['Stuffed aubergines', 'Baba ganoush', 'Moussaka']
 
 
 @pytest.mark.django_db
@@ -762,7 +827,10 @@ def test_returns_the_ingredients_with_ungrouped_lines_first_then_each_group_and_
 
 @pytest.mark.django_db
 def test_a_staff_user_adds_an_ingredient_under_its_uk_name_in_the_admin(admin_client: Client) -> None:
-    response = admin_client.post(reverse('admin:recipes_ingredient_add'), {'name': 'courgette', 'slug': 'courgette'})
+    response = admin_client.post(
+        reverse('admin:recipes_ingredient_add'),
+        {'name': 'courgette', 'slug': 'courgette', **inline_forms('synonyms', [])},
+    )
 
     assert response.status_code == 302
     assert list(Ingredient.objects.values_list('name', 'slug')) == [('courgette', 'courgette')]
@@ -1132,9 +1200,53 @@ def test_a_staff_user_records_what_an_ingredient_contains_in_the_admin(admin_cli
 
     response = admin_client.post(
         reverse('admin:recipes_ingredient_change', args=[Ingredient.objects.get().id]),
-        {'name': 'egg noodles', 'slug': 'egg-noodles', 'contains_gluten': 'on', 'contains_egg': 'on'},
+        {
+            'name': 'egg noodles',
+            'slug': 'egg-noodles',
+            'contains_gluten': 'on',
+            'contains_egg': 'on',
+            **inline_forms('synonyms', []),
+        },
     )
 
     assert response.status_code == 302
     detail = APIClient().get(reverse('recipe-detail', args=['noodle-soup'])).json()
     assert detail['diet_tags'] == ['vegetarian', 'dairy_free']
+
+
+@pytest.mark.django_db
+def test_a_staff_user_gives_an_ingredient_synonyms_in_the_admin_and_search_finds_it_by_them(
+    admin_client: Client,
+) -> None:
+    add_line(make_recipe(title='Ratatouille'), 'courgette')
+
+    response = admin_client.post(
+        reverse('admin:recipes_ingredient_change', args=[Ingredient.objects.get().id]),
+        {
+            'name': 'courgette',
+            'slug': 'courgette',
+            **inline_forms('synonyms', [{'name': 'zucchini'}, {'name': 'baby marrow'}]),
+        },
+    )
+
+    assert response.status_code == 302
+    found = {
+        q: [recipe['title'] for recipe in APIClient().get(reverse('recipe-list'), {'q': q}).json()]
+        for q in ['zucchini', 'baby marrow']
+    }
+    assert found == {'zucchini': ['Ratatouille'], 'baby marrow': ['Ratatouille']}
+
+
+@pytest.mark.django_db
+def test_the_admin_refuses_a_synonym_another_ingredient_already_has(admin_client: Client) -> None:
+    IngredientSynonym.objects.create(ingredient=ingredient('coriander'), name='cilantro')
+    parsley = ingredient('flat-leaf parsley')
+
+    response = admin_client.post(
+        reverse('admin:recipes_ingredient_change', args=[parsley.id]),
+        {'name': 'flat-leaf parsley', 'slug': 'flat-leaf-parsley', **inline_forms('synonyms', [{'name': 'cilantro'}])},
+    )
+
+    assert response.status_code == 200
+    assert 'Ingredient synonym with this Name already exists.' in response.content.decode()
+    assert list(IngredientSynonym.objects.values_list('ingredient__name', 'name')) == [('coriander', 'cilantro')]
