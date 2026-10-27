@@ -6,6 +6,7 @@ from recipes.models import (
     Course,
     Cuisine,
     DietTag,
+    Difficulty,
     Equipment,
     Ingredient,
     IngredientGroup,
@@ -88,6 +89,65 @@ class DietTagsField(serializers.ListField):
 class DietTagConflictSerializer(serializers.Serializer):
     ingredient = IngredientSerializer(read_only=True)
     diet_tags = DietTagsField(read_only=True)
+
+
+class RecipeFiltersSerializer(serializers.Serializer):
+    """The list's query parameters. Validates them only; it never serialises a recipe."""
+
+    q = serializers.CharField(
+        required=False,
+        default='',
+        allow_blank=True,
+        help_text='Title contains this text, ignoring case and accents.',
+    )
+    # Blank slugs are allowed so ?cuisine= still means every cuisine, as it did before the list took several.
+    cuisine = serializers.ListField(
+        child=serializers.CharField(allow_blank=True),
+        required=False,
+        default=list,
+        help_text=(
+            'Recipes with any of these cuisines, by slug. Unknown slugs are dropped; '
+            'with none left, nothing is filtered.'
+        ),
+    )
+    course = serializers.ListField(
+        child=serializers.CharField(allow_blank=True),
+        required=False,
+        default=list,
+        help_text=(
+            'Recipes with any of these courses, by slug. Unknown slugs are dropped; '
+            'with none left, nothing is filtered.'
+        ),
+    )
+    difficulty = serializers.ListField(
+        child=serializers.ChoiceField(choices=Difficulty.choices),
+        required=False,
+        default=list,
+        help_text='Recipes with any of these difficulties. Any other value is a 400.',
+    )
+    max_prep = serializers.IntegerField(
+        required=False,
+        min_value=1,
+        help_text='Prep time is this many minutes or fewer. A value that is not a whole number of at least 1 is a 400.',
+    )
+    max_cook = serializers.IntegerField(
+        required=False,
+        min_value=1,
+        help_text='Cook time is this many minutes or fewer. A value that is not a whole number of at least 1 is a 400.',
+    )
+    max_total = serializers.IntegerField(
+        required=False,
+        min_value=1,
+        help_text=(
+            'Prep plus cook plus extra time is this many minutes or fewer. '
+            'A value that is not a whole number of at least 1 is a 400.'
+        ),
+    )
+    one_pot = serializers.BooleanField(
+        required=False,
+        default=False,
+        help_text='true means only one-pot recipes; false or missing means every recipe.',
+    )
 
 
 class RecipeSummarySerializer(serializers.ModelSerializer):

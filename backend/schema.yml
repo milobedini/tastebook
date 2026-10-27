@@ -4,6 +4,20 @@ info:
   version: 0.1.0
   description: Recipe hub API
 paths:
+  /api/courses/:
+    get:
+      operationId: courses_list
+      tags:
+      - courses
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+          description: ''
   /api/cuisines/:
     get:
       operationId: cuisines_list
@@ -35,17 +49,71 @@ paths:
       operationId: recipes_list
       parameters:
       - in: query
+        name: course
+        schema:
+          type: array
+          items:
+            type: string
+        description: Recipes with any of these courses, by slug. Unknown slugs are
+          dropped; with none left, nothing is filtered.
+      - in: query
         name: cuisine
         schema:
-          type: string
-        description: Only recipes with the cuisine that has this slug. A blank or
-          unknown slug means every cuisine.
+          type: array
+          items:
+            type: string
+        description: Recipes with any of these cuisines, by slug. Unknown slugs are
+          dropped; with none left, nothing is filtered.
+      - in: query
+        name: difficulty
+        schema:
+          type: array
+          items:
+            enum:
+            - easy
+            - medium
+            - hard
+            type: string
+            description: |-
+              * `easy` - Easy
+              * `medium` - Medium
+              * `hard` - Hard
+        description: Recipes with any of these difficulties. Any other value is a
+          400.
+      - in: query
+        name: max_cook
+        schema:
+          type: integer
+          minimum: 1
+        description: Cook time is this many minutes or fewer. A value that is not
+          a whole number of at least 1 is a 400.
+      - in: query
+        name: max_prep
+        schema:
+          type: integer
+          minimum: 1
+        description: Prep time is this many minutes or fewer. A value that is not
+          a whole number of at least 1 is a 400.
+      - in: query
+        name: max_total
+        schema:
+          type: integer
+          minimum: 1
+        description: Prep plus cook plus extra time is this many minutes or fewer.
+          A value that is not a whole number of at least 1 is a 400.
+      - in: query
+        name: one_pot
+        schema:
+          type: boolean
+          default: false
+        description: true means only one-pot recipes; false or missing means every
+          recipe.
       - in: query
         name: q
         schema:
           type: string
-        description: Only recipes whose title contains this text, ignoring case and
-          accents.
+          default: ''
+        description: Title contains this text, ignoring case and accents.
       tags:
       - recipes
       responses:
@@ -57,6 +125,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/RecipeSummary'
           description: ''
+        '400':
+          description: A difficulty or a time limit is not one the list accepts.
   /api/recipes/{slug}/:
     get:
       operationId: recipes_retrieve

@@ -6,7 +6,7 @@ export type RecipeFilters = { searchTerm: string; cuisine: string };
 
 const toQuery = ({ searchTerm, cuisine }: RecipeFilters) => ({
   ...(searchTerm === '' ? {} : { q: searchTerm }),
-  ...(cuisine === '' ? {} : { cuisine })
+  ...(cuisine === '' ? {} : { cuisine: [cuisine] })
 });
 
 export const useRecipes = (filters: RecipeFilters) =>

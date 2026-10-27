@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/api/courses/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["courses_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/cuisines/": {
         parameters: {
             query?: never;
@@ -255,6 +271,25 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    courses_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Course"][];
+                };
+            };
+        };
+    };
     cuisines_list: {
         parameters: {
             query?: never;
@@ -296,9 +331,21 @@ export interface operations {
     recipes_list: {
         parameters: {
             query?: {
-                /** @description Only recipes with the cuisine that has this slug. A blank or unknown slug means every cuisine. */
-                cuisine?: string;
-                /** @description Only recipes whose title contains this text, ignoring case and accents. */
+                /** @description Recipes with any of these courses, by slug. Unknown slugs are dropped; with none left, nothing is filtered. */
+                course?: string[];
+                /** @description Recipes with any of these cuisines, by slug. Unknown slugs are dropped; with none left, nothing is filtered. */
+                cuisine?: string[];
+                /** @description Recipes with any of these difficulties. Any other value is a 400. */
+                difficulty?: ("easy" | "medium" | "hard")[];
+                /** @description Cook time is this many minutes or fewer. A value that is not a whole number of at least 1 is a 400. */
+                max_cook?: number;
+                /** @description Prep time is this many minutes or fewer. A value that is not a whole number of at least 1 is a 400. */
+                max_prep?: number;
+                /** @description Prep plus cook plus extra time is this many minutes or fewer. A value that is not a whole number of at least 1 is a 400. */
+                max_total?: number;
+                /** @description true means only one-pot recipes; false or missing means every recipe. */
+                one_pot?: boolean;
+                /** @description Title contains this text, ignoring case and accents. */
                 q?: string;
             };
             header?: never;
@@ -314,6 +361,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["RecipeSummary"][];
                 };
+            };
+            /** @description A difficulty or a time limit is not one the list accepts. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

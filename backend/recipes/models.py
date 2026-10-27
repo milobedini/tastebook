@@ -2,6 +2,7 @@ from typing import Any
 
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
+from django.db.models import F
 from django.db.models.functions import Lower
 
 from recipes.photos import COMMONS_FILE, COMMONS_FILE_PAGE, Photo
@@ -61,11 +62,34 @@ class RecipeQuerySet(models.QuerySet['Recipe']):
         # unaccent is bilateral, so the term loses its accents too: 'crème' and 'creme' both find 'Crème brûlée'.
         return self.filter(title__unaccent__icontains=term)
 
-    def with_cuisine(self, slug: str) -> RecipeQuerySet:
-        # An unknown slug (a removed cuisine, a mistyped link) filters nothing, like a blank one.
-        if slug == '' or not Cuisine.objects.filter(slug=slug).exists():
+    def with_cuisines(self, slugs: list[str]) -> RecipeQuerySet:
+        # Unknown slugs (a removed cuisine, a mistyped link) are dropped; with none left, nothing is filtered.
+        known = Cuisine.objects.filter(slug__in=slugs)
+        if not known.exists():
             return self
-        return self.filter(cuisines__slug=slug)
+        # A subquery, not a join, so a recipe with two of the cuisines is listed once.
+        return self.filter(pk__in=known.values('recipes'))
+
+    def with_courses(self, slugs: list[str]) -> RecipeQuerySet:
+        # Unknown slugs are dropped; with none left, nothing is filtered.
+        known = Course.objects.filter(slug__in=slugs)
+        if not known.exists():
+            return self
+        # A subquery, not a join, so a recipe with two of the courses is listed once.
+        return self.filter(pk__in=known.values('recipes'))
+
+    def with_difficulties(self, difficulties: list[str]) -> RecipeQuerySet:
+        return self.filter(difficulty__in=difficulties) if difficulties else self
+
+    def taking_at_most(self, *, prep: int | None, cook: int | None, total: int | None) -> RecipeQuerySet:
+        limits = {'prep_minutes__lte': prep, 'cook_minutes__lte': cook, 'minutes_in_all__lte': total}
+        # The same sum as Recipe.total_minutes, in SQL so the database can filter on it.
+        return self.alias(minutes_in_all=F('prep_minutes') + F('cook_minutes') + F('extra_minutes')).filter(
+            **{lookup: minutes for lookup, minutes in limits.items() if minutes is not None}
+        )
+
+    def only_one_pot(self, only: bool) -> RecipeQuerySet:
+        return self.filter(one_pot=True) if only else self
 
     def with_ingredients_and_method(self) -> RecipeQuerySet:
         lines = IngredientLine.objects.select_related('ingredient')

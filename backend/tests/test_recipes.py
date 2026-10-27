@@ -304,6 +304,15 @@ def test_searches_titles_anywhere_ignoring_case_accents_and_surrounding_spaces(q
 
 
 @pytest.mark.django_db
+def test_lists_the_seeded_courses_alphabetically() -> None:
+    response = APIClient().get(reverse('course-list'))
+
+    assert response.status_code == 200
+    assert [course['name'] for course in response.json()] == ['Baking', 'Breakfast', 'Dessert', 'Main', 'Side']
+    assert response.json()[0] == {'slug': 'baking', 'name': 'Baking'}
+
+
+@pytest.mark.django_db
 def test_lists_the_seeded_cuisines_alphabetically() -> None:
     response = APIClient().get(reverse('cuisine-list'))
 
@@ -389,6 +398,93 @@ def test_lists_recipes_with_their_cuisines_and_diet_tags_in_three_queries(
 
     assert response.status_code == 200
     assert [(len(recipe['cuisines']), len(recipe['diet_tags'])) for recipe in response.json()] == [(2, 4)] * 3
+
+
+ALL_FIVE = ['Apple tart', 'Greek salad', 'Pad thai', 'Ramen tacos', 'Risotto']
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('params', 'titles'),
+    [
+        ('cuisine=italian&cuisine=thai', ['Pad thai', 'Risotto']),
+        ('cuisine=japanese&cuisine=mexican', ['Ramen tacos']),
+        ('cuisine=italian&cuisine=klingon', ['Risotto']),
+        ('course=side', ['Greek salad', 'Ramen tacos']),
+        ('course=main&course=side', ['Greek salad', 'Pad thai', 'Ramen tacos', 'Risotto']),
+        ('course=brunch', ALL_FIVE),
+        ('difficulty=easy&difficulty=hard', ['Greek salad', 'Pad thai', 'Ramen tacos']),
+        ('max_total=15', ['Greek salad']),
+        ('max_total=40', ['Greek salad', 'Pad thai']),
+        ('max_total=45', ['Greek salad', 'Pad thai', 'Risotto']),
+        ('max_prep=15', ['Greek salad', 'Pad thai', 'Risotto']),
+        ('max_cook=15', ['Greek salad', 'Pad thai']),
+        ('one_pot=true', ['Pad thai', 'Risotto']),
+        ('one_pot=false', ALL_FIVE),
+        ('cuisine=italian&cuisine=thai&max_total=30', ['Pad thai']),
+        ('course=main&difficulty=medium', ['Risotto']),
+        ('q=pad&one_pot=true', ['Pad thai']),
+    ],
+)
+def test_filters_the_list_and_combines_the_filters(params: str, titles: list[str]) -> None:
+    for title, cuisines, courses, difficulty, prep, cook, extra, extra_label, one_pot in [
+        ('Apple tart', ['french'], ['dessert'], 'medium', 30, 40, 30, 'chilling', False),
+        ('Greek salad', ['greek'], ['side'], 'easy', 15, 0, 0, '', False),
+        ('Pad thai', ['thai'], ['main'], 'easy', 15, 15, 0, '', True),
+        ('Ramen tacos', ['japanese', 'mexican'], ['main', 'side'], 'hard', 30, 30, 0, '', False),
+        ('Risotto', ['italian'], ['main'], 'medium', 10, 30, 5, 'resting', True),
+    ]:
+        recipe = make_recipe(
+            title=title,
+            difficulty=difficulty,
+            prep_minutes=prep,
+            cook_minutes=cook,
+            extra_minutes=extra,
+            extra_label=extra_label,
+            one_pot=one_pot,
+        )
+        recipe.cuisines.set(Cuisine.objects.filter(slug__in=cuisines))
+        recipe.courses.set(Course.objects.filter(slug__in=courses))
+
+    response = APIClient().get(f'{reverse("recipe-list")}?{params}')
+
+    assert response.status_code == 200
+    assert [recipe['title'] for recipe in response.json()] == titles
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('params', 'parameter'),
+    [
+        ('max_total=abc', 'max_total'),
+        ('max_prep=0', 'max_prep'),
+        ('difficulty=eazy', 'difficulty'),
+    ],
+)
+def test_refuses_a_malformed_filter(params: str, parameter: str) -> None:
+    response = APIClient().get(f'{reverse("recipe-list")}?{params}')
+
+    assert response.status_code == 400
+    assert list(response.json()) == [parameter]
+
+
+@pytest.mark.django_db
+def test_filters_with_cuisines_and_courses_in_five_queries(django_assert_num_queries: DjangoAssertNumQueries) -> None:
+    for title, cuisine, course in [
+        ('Apple tart', 'french', 'dessert'),
+        ('Coq au vin', 'french', 'main'),
+        ('Risotto', 'italian', 'main'),
+    ]:
+        recipe = make_recipe(title=title)
+        recipe.cuisines.set(Cuisine.objects.filter(slug=cuisine))
+        recipe.courses.set(Course.objects.filter(slug=course))
+
+    # One existence check each for the cuisines and the courses, the list, then the cuisines and diet tags prefetches.
+    with django_assert_num_queries(5):
+        response = APIClient().get(reverse('recipe-list'), {'cuisine': 'french', 'course': 'main'})
+
+    assert response.status_code == 200
+    assert [recipe['title'] for recipe in response.json()] == ['Coq au vin']
 
 
 @pytest.mark.django_db
