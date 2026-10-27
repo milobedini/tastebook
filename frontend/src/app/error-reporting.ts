@@ -15,6 +15,8 @@ export const startErrorReporting = (): RootOptions => {
     release: import.meta.env.VITE_SENTRY_RELEASE,
     // Ad blockers drop requests to sentry.io; vercel.json forwards this same-origin path to the project's ingest URL.
     tunnel: '/monitoring',
+    // The tunnel is same-origin, so fetch would attach Tastebook's cookies and Vercel would forward them to Sentry.
+    transportOptions: { fetchOptions: { credentials: 'omit' } },
     // A request's body can hold a recipe's text; cookies and user details are a person's.
     dataCollection: { userInfo: false, cookies: false, httpBodies: [] }
   });
