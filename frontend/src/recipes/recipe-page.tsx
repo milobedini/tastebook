@@ -1,8 +1,9 @@
 import { Link, useParams } from 'react-router';
 
 import type { components } from '../api/schema';
-import { Banner, Button, CuisinePlate, Page } from '../ui';
-import { RecipeCuisines } from './recipe-cuisines';
+import { Banner, Button, CuisinePlate, Page, Tag } from '../ui';
+import { difficultyLabels } from './difficulty';
+import { RecipeFacts } from './recipe-facts';
 import { useRecipe } from './recipes-api';
 
 type Recipe = components['schemas']['Recipe'];
@@ -15,8 +16,18 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => (
     <title>{`${recipe.title} · Tastebook`}</title>
     <CuisinePlate shape="hero" cuisineSlug={recipe.cuisines[0]?.slug} />
     <h1>{recipe.title}</h1>
-    <RecipeCuisines cuisines={recipe.cuisines} />
     {recipe.description !== '' && <p>{recipe.description}</p>}
+    <ul className="flex flex-wrap gap-2">
+      <li>
+        <Tag>{difficultyLabels[recipe.difficulty]}</Tag>
+      </li>
+      {recipe.one_pot && (
+        <li>
+          <Tag>One-pot</Tag>
+        </li>
+      )}
+    </ul>
+    <RecipeFacts recipe={recipe} />
   </>
 );
 

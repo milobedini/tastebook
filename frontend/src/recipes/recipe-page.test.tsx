@@ -14,8 +14,31 @@ const shakshuka: Recipe = {
   slug: 'shakshuka',
   title: 'Shakshuka',
   description: 'Eggs in spiced tomatoes.',
-  cuisines: []
+  cuisines: [],
+  courses: [{ slug: 'main', name: 'Main' }],
+  difficulty: 'easy',
+  prep_minutes: 10,
+  cook_minutes: 25,
+  extra_minutes: 0,
+  extra_label: '',
+  total_minutes: 35,
+  servings: 2,
+  yield_amount: null,
+  yield_unit: '',
+  equipment: [{ slug: 'hob', name: 'Hob' }],
+  one_pot: true,
+  source: 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)'
 };
+
+// Each term of the recipe's details with its definition, in the order the page shows them.
+const facts = () => {
+  const definitions = screen.getAllByRole('definition');
+  return screen.getAllByRole('term').map((term, index) => [term.textContent, definitions[index]?.textContent]);
+};
+
+const paragraphs = () => screen.queryAllByRole('paragraph').map((paragraph) => paragraph.textContent);
+
+const tags = () => screen.getAllByRole('listitem').map((item) => item.textContent);
 
 const failRecipe = () => server.use(http.get('/api/recipes/:slug/', () => new HttpResponse(null, { status: 503 })));
 
@@ -51,31 +74,97 @@ describe('RecipePage', () => {
     expect(screen.queryByText('Loading recipe…')).not.toBeInTheDocument();
   });
 
-  it('shows no description line when the description is empty', async () => {
-    renderRoute('/recipes/banana-bread');
+  it.each([
+    ['apple-tart', 'Apple tart', ['Sharp apples on buttery pastry.']],
+    ['banana-bread', 'Banana bread', []]
+  ])('shows a description line only when the recipe has one (%s)', async (slug, title, descriptions) => {
+    renderRoute(`/recipes/${slug}`);
 
-    expect(await screen.findByRole('heading', { name: 'Banana bread' })).toBeInTheDocument();
-    expect(screen.getByRole('main')).toHaveTextContent(/^Banana breadAll recipesBack to Tastebook$/);
+    expect(await screen.findByRole('heading', { name: title })).toBeInTheDocument();
+    expect(paragraphs()).toEqual(descriptions);
   });
 
-  it.each([
-    ['Cuisine: French', [{ slug: 'french', name: 'French' }]],
-    [
-      'Cuisines: Japanese, Mexican',
-      [
-        { slug: 'japanese', name: 'Japanese' },
-        { slug: 'mexican', name: 'Mexican' }
-      ]
-    ]
-  ])('shows the recipe\'s cuisines as "%s"', async (text, cuisines) => {
-    server.use(http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>({ ...shakshuka, cuisines })));
+  it("shows the recipe's difficulty, one-pot, times, servings, equipment and source credit", async () => {
+    server.use(
+      http.get('/api/recipes/:slug/', () =>
+        HttpResponse.json<Recipe>({ ...shakshuka, cuisines: [{ slug: 'french', name: 'French' }] })
+      )
+    );
 
     renderRoute('/recipes/shakshuka');
 
-    const shown = await screen.findByText(text);
-    expect(shown.compareDocumentPosition(screen.getByText('Eggs in spiced tomatoes.'))).toBe(
-      Node.DOCUMENT_POSITION_FOLLOWING
+    expect(await screen.findByRole('heading', { name: 'Shakshuka' })).toBeInTheDocument();
+    expect(tags()).toEqual(['Easy', 'One-pot']);
+    expect(facts()).toEqual([
+      ['Cuisine', 'French'],
+      ['Course', 'Main'],
+      ['Prep', '10 min'],
+      ['Cook', '25 min'],
+      ['Total', '35 min'],
+      ['Serves', '2'],
+      ['Equipment', 'Hob'],
+      ['Source', 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)']
+    ]);
+  });
+
+  it('shows extra time with its label, a yield, and several cuisines, courses and pieces of equipment', async () => {
+    server.use(
+      http.get('/api/recipes/:slug/', () =>
+        HttpResponse.json<Recipe>({
+          ...shakshuka,
+          cuisines: [
+            { slug: 'japanese', name: 'Japanese' },
+            { slug: 'mexican', name: 'Mexican' }
+          ],
+          courses: [
+            { slug: 'baking', name: 'Baking' },
+            { slug: 'dessert', name: 'Dessert' }
+          ],
+          difficulty: 'hard',
+          prep_minutes: 20,
+          cook_minutes: 45,
+          extra_minutes: 120,
+          extra_label: 'proving',
+          total_minutes: 185,
+          servings: null,
+          yield_amount: 12,
+          yield_unit: 'buns',
+          equipment: [
+            { slug: 'oven', name: 'Oven' },
+            { slug: 'stand-mixer', name: 'Stand mixer' }
+          ],
+          one_pot: false
+        })
+      )
     );
+
+    renderRoute('/recipes/shakshuka');
+
+    expect(await screen.findByRole('heading', { name: 'Shakshuka' })).toBeInTheDocument();
+    expect(tags()).toEqual(['Hard']);
+    expect(facts()).toEqual([
+      ['Cuisines', 'Japanese, Mexican'],
+      ['Courses', 'Baking, Dessert'],
+      ['Prep', '20 min'],
+      ['Cook', '45 min'],
+      ['Proving', '2 hr'],
+      ['Total', '3 hr 5 min'],
+      ['Makes', '12 buns'],
+      ['Equipment', 'Oven, Stand mixer'],
+      ['Source', 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)']
+    ]);
+  });
+
+  it('leaves out the cuisine, course, equipment and source rows a recipe has none of', async () => {
+    renderRoute('/recipes/banana-bread');
+
+    expect(await screen.findByRole('heading', { name: 'Banana bread' })).toBeInTheDocument();
+    expect(facts()).toEqual([
+      ['Prep', '15 min'],
+      ['Cook', '1 hr'],
+      ['Total', '1 hr 15 min'],
+      ['Makes', '1 loaf']
+    ]);
   });
 
   it("says the recipe isn't found for an unknown address", async () => {

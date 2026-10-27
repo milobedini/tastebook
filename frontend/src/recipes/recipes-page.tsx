@@ -6,13 +6,14 @@ import { Link, useSearchParams } from 'react-router';
 import type { components } from '../api/schema';
 import { Banner, Button, EmptyState, Field, NativeSelect, Page, RecipeCard, SearchInput } from '../ui';
 import { useCuisines } from './cuisines-api';
-import { RecipeCuisines } from './recipe-cuisines';
+import { difficultyLabels } from './difficulty';
+import { formatMinutes } from './format-minutes';
 import type { RecipeFilters } from './recipes-api';
 import { useRecipes } from './recipes-api';
 import { useDebouncedValue } from './use-debounced-value';
 
 type Cuisine = components['schemas']['Cuisine'];
-type Recipe = components['schemas']['Recipe'];
+type RecipeSummary = components['schemas']['RecipeSummary'];
 
 const SEARCH_DELAY_MS = 300;
 const MIN_SEARCH_LENGTH = 3;
@@ -121,12 +122,20 @@ const RecipesUnavailable = ({ onRetry }: RecipesUnavailableProps) => (
   </>
 );
 
-type RecipeItemProps = { recipe: Recipe };
+type RecipeMetaProps = { recipe: RecipeSummary };
+
+const RecipeMeta = ({ recipe }: RecipeMetaProps) => {
+  const cuisineNames = recipe.cuisines.map(({ name }) => name).join(', ');
+  const parts = [formatMinutes(recipe.total_minutes), difficultyLabels[recipe.difficulty], cuisineNames];
+  return <p className="tabular-nums">{parts.filter((part) => part !== '').join(' · ')}</p>;
+};
+
+type RecipeItemProps = { recipe: RecipeSummary };
 
 const RecipeItem = ({ recipe }: RecipeItemProps) => (
   <li>
     <RecipeCard title={recipe.title} to={`/recipes/${recipe.slug}`} cuisineSlug={recipe.cuisines[0]?.slug}>
-      <RecipeCuisines cuisines={recipe.cuisines} />
+      <RecipeMeta recipe={recipe} />
       {recipe.description !== '' && <p>{recipe.description}</p>}
     </RecipeCard>
   </li>
@@ -148,7 +157,7 @@ const RecipeCount = ({ count }: RecipeCountProps) => (
   <p className="text-muted text-small">{`${count} ${count === 1 ? 'recipe' : 'recipes'}`}</p>
 );
 
-type RecipesProps = { recipes: Recipe[]; searchTerm: string; cuisineName: string | undefined };
+type RecipesProps = { recipes: RecipeSummary[]; searchTerm: string; cuisineName: string | undefined };
 
 const Recipes = ({ recipes, searchTerm, cuisineName }: RecipesProps) => {
   if (recipes.length === 0) {

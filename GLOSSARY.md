@@ -21,17 +21,17 @@ Names marked _planned_ don't exist in the code yet; use them when you build the 
 | Unit system | Metric (the default) or US customary, for reading amounts. | `UnitSystem` _planned_ |
 | Step | One step of a recipe's method, in order. | `Step` _planned_ |
 | Method | A recipe's steps, in order. | `Recipe.steps` _planned_ |
-| Equipment | A tool from the shared equipment list (oven, hob, stand mixer…) that a recipe needs. | `Equipment` _planned_ |
+| Equipment | A tool from the shared equipment list (oven, hob, stand mixer…) that a recipe needs. | `Equipment` |
 | Cuisine | A cooking tradition a recipe belongs to (Italian, Thai). | `Cuisine` |
-| Course | Where a recipe sits in a meal: main, side, dessert, breakfast, baking. | `Course` _planned_ |
-| Difficulty | Easy, medium or hard. | `Difficulty` _planned_ |
+| Course | Where a recipe sits in a meal: main, side, dessert, breakfast, baking. | `Course` |
+| Difficulty | Easy, medium or hard. | `Difficulty` |
 | Diet tag | Vegetarian, vegan, gluten-free or dairy-free. Computed from the ingredients, never typed in. | `diet_tags` _planned_ |
-| One-pot | A recipe cooked in a single vessel. | `Recipe.one_pot` _planned_ |
-| Prep time, cook time, extra time, total time | Minutes of preparation, of cooking, and of waiting (marinating, resting, proving, with a label). Total time is all three. | `prep_minutes`, `cook_minutes`, `extra_minutes`, `extra_label` _planned_ |
-| Servings | How many people a recipe feeds ("serves 4"). | `Recipe.servings` _planned_ |
-| Yield | How much a recipe makes, with a unit ("makes 12 cookies"), instead of servings. | `Recipe.yield_amount`, `yield_unit` _planned_ |
+| One-pot | A recipe cooked in a single vessel. | `Recipe.one_pot` |
+| Prep time, cook time, extra time, total time | Minutes of preparation, of cooking, and of waiting (marinating, resting, proving, with a label). Total time is all three. | `prep_minutes`, `cook_minutes`, `extra_minutes`, `extra_label`, `total_minutes` |
+| Servings | How many people a recipe feeds ("serves 4"). | `Recipe.servings` |
+| Yield | How much a recipe makes, with a unit ("makes 12 cookies"), instead of servings. | `Recipe.yield_amount`, `yield_unit` |
 | Scaling | Changing servings or yield, which changes every amount, rounded to what you can measure. | `scale()` _planned_ |
-| Source credit | Where a recipe came from: an author, a website, or "Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)". | `Recipe.source` _planned_ |
+| Source credit | Where a recipe came from: an author, a website, or "Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)". | `Recipe.source` |
 | Catalogue | The public recipes Tastebook seeds itself with, loaded from a file in the repo. | `catalogue` _planned_ |
 | Report | A signed-in person flagging a public recipe, which hides it until staff review it. | `Report` _planned_ |
 | Slug | The recipe's address in a URL, set once from its title. | `Recipe.slug` |

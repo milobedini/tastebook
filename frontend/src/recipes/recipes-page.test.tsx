@@ -8,7 +8,7 @@ import { renderRoute } from '../test/render-route';
 import { server } from '../test/server';
 
 type Cuisine = components['schemas']['Cuisine'];
-type Recipe = components['schemas']['Recipe'];
+type Recipe = components['schemas']['RecipeSummary'];
 
 const failRecipes = () => server.use(http.get('/api/recipes/', () => new HttpResponse(null, { status: 503 })));
 
@@ -17,9 +17,19 @@ const appleTart: Recipe = {
   slug: 'apple-tart',
   title: 'Apple tart',
   description: 'Sharp apples on buttery pastry.',
-  cuisines: [{ slug: 'french', name: 'French' }]
+  cuisines: [{ slug: 'french', name: 'French' }],
+  difficulty: 'medium',
+  total_minutes: 100
 };
-const bananaBread: Recipe = { id: 2, slug: 'banana-bread', title: 'Banana bread', description: '', cuisines: [] };
+const bananaBread: Recipe = {
+  id: 2,
+  slug: 'banana-bread',
+  title: 'Banana bread',
+  description: '',
+  cuisines: [],
+  difficulty: 'easy',
+  total_minutes: 75
+};
 
 // Holds the next recipes response until released, so the test can see the page while the request is in flight.
 const holdRecipes = (respond: () => Response) => {
@@ -109,8 +119,24 @@ describe('RecipesPage', () => {
   it('shows a loading message, then the recipes in the order the API sends', async () => {
     const { release } = holdRecipes(() =>
       HttpResponse.json<Recipe[]>([
-        { id: 7, slug: 'shakshuka', title: 'Shakshuka', description: 'Eggs in spiced tomatoes.', cuisines: [] },
-        { id: 3, slug: 'apple-tart', title: 'Apple tart', description: '', cuisines: [] }
+        {
+          id: 7,
+          slug: 'shakshuka',
+          title: 'Shakshuka',
+          description: 'Eggs in spiced tomatoes.',
+          cuisines: [],
+          difficulty: 'easy',
+          total_minutes: 35
+        },
+        {
+          id: 3,
+          slug: 'apple-tart',
+          title: 'Apple tart',
+          description: '',
+          cuisines: [],
+          difficulty: 'hard',
+          total_minutes: 90
+        }
       ])
     );
 
@@ -127,12 +153,14 @@ describe('RecipesPage', () => {
       'Shakshuka',
       'Apple tart'
     ]);
-    expect(screen.getByRole('heading', { name: 'Apple tart' }).closest('li')).toHaveTextContent(/^Apple tart$/);
+    expect(screen.getByRole('heading', { name: 'Apple tart' }).closest('li')).toHaveTextContent(
+      /^Apple tart1 hr 30 min · Hard$/
+    );
     expect(screen.queryByText('Loading recipes…')).not.toBeInTheDocument();
     expect(screen.queryByText('No recipes yet.')).not.toBeInTheDocument();
   });
 
-  it("shows each recipe's cuisines in the list", async () => {
+  it("shows each recipe's total time, difficulty and cuisines on its card", async () => {
     server.use(
       http.get('/api/recipes/', () =>
         HttpResponse.json<Recipe[]>([
@@ -145,7 +173,9 @@ describe('RecipesPage', () => {
             cuisines: [
               { slug: 'japanese', name: 'Japanese' },
               { slug: 'mexican', name: 'Mexican' }
-            ]
+            ],
+            difficulty: 'easy',
+            total_minutes: 25
           }
         ])
       )
@@ -154,10 +184,10 @@ describe('RecipesPage', () => {
     renderRoute('/recipes');
 
     expect((await screen.findByRole('heading', { name: 'Apple tart' })).closest('li')).toHaveTextContent(
-      'Cuisine: French'
+      /^Apple tart1 hr 40 min · Medium · FrenchSharp apples on buttery pastry\.$/
     );
     expect(screen.getByRole('heading', { name: 'Ramen tacos' }).closest('li')).toHaveTextContent(
-      'Cuisines: Japanese, Mexican'
+      /^Ramen tacos25 min · Easy · Japanese, Mexican$/
     );
   });
 
@@ -290,7 +320,15 @@ describe('RecipesPage', () => {
 
     const { release } = holdRecipes(() =>
       HttpResponse.json<Recipe[]>([
-        { id: 7, slug: 'shakshuka', title: 'Shakshuka', description: 'Eggs in spiced tomatoes.', cuisines: [] }
+        {
+          id: 7,
+          slug: 'shakshuka',
+          title: 'Shakshuka',
+          description: 'Eggs in spiced tomatoes.',
+          cuisines: [],
+          difficulty: 'easy',
+          total_minutes: 35
+        }
       ])
     );
     await userEvent.click(tryAgain);

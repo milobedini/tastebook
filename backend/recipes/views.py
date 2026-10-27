@@ -2,7 +2,7 @@ from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_sche
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
 from recipes.models import Cuisine, Recipe, RecipeQuerySet
-from recipes.serializers import CuisineSerializer, RecipeSerializer
+from recipes.serializers import CuisineSerializer, RecipeSerializer, RecipeSummarySerializer
 
 
 @extend_schema(
@@ -28,7 +28,7 @@ from recipes.serializers import CuisineSerializer, RecipeSerializer
 class RecipeListView(ListAPIView):
     authentication_classes = []
     permission_classes = []
-    serializer_class = RecipeSerializer
+    serializer_class = RecipeSummarySerializer
 
     def get_queryset(self) -> RecipeQuerySet:
         params = self.request.query_params
@@ -45,7 +45,7 @@ class RecipeDetailView(RetrieveAPIView):
     authentication_classes = []
     permission_classes = []
     serializer_class = RecipeSerializer
-    queryset = Recipe.objects.prefetch_related('cuisines')
+    queryset = Recipe.objects.prefetch_related('cuisines', 'courses', 'equipment')
     lookup_field = 'slug'
 
 
