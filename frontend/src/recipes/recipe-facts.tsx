@@ -16,7 +16,7 @@ const Fact = ({ term, children }: FactProps) => (
 
 type NamesFactProps = { one: string; many: string; names: { name: string }[] };
 
-// A recipe saved before it had these may have none, so the row is left out rather than shown blank.
+// Equipment is optional and older recipes may have no cuisine or course, so an empty row is left out rather than shown blank.
 const NamesFact = ({ one, many, names }: NamesFactProps) => {
   if (names.length === 0) {
     return null;
