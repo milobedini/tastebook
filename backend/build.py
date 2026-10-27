@@ -1,4 +1,4 @@
-"""Vercel's build step for the API: brings this deployment's database up to date before the deployment goes live."""
+"""Vercel's build step for the API: brings this deployment's database and catalogue up to date before it goes live."""
 
 import os
 
@@ -14,6 +14,8 @@ def main() -> None:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     django.setup()
     call_command('migrate', interactive=False)
+    # A catalogue file the database can't hold fails the build, so the deployment never goes live without it.
+    call_command('load_catalogue')
 
 
 if __name__ == '__main__':

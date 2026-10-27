@@ -35,7 +35,7 @@ Names marked _planned_ don't exist in the code yet; use them when you build the 
 | Photo | A recipe's one picture, an image on Wikimedia Commons: 16:10 on its page, 4:3 on its card. | `Recipe.photo_url`, `Recipe.photo` |
 | Photo credit | A photo's author, its licence and a link to its page on Wikimedia Commons, shown under it on the recipe's page. | `photo_author`, `photo_licence`, `photo_source_url` |
 | Cuisine plate | The drawing of a plate in a recipe's first cuisine's colour, shown where the recipe has no photo. | `CuisinePlate` |
-| Catalogue | The public recipes Tastebook seeds itself with, loaded from a file in the repo. | `catalogue` _planned_ |
+| Catalogue | The public recipes Tastebook seeds itself with, loaded from a file in the repo with the shared ingredient and equipment lists. | `catalogue.json`, `load_catalogue` |
 | Report | A signed-in person flagging a public recipe, which hides it until staff review it. | `Report` _planned_ |
 | Slug | The recipe's address in a URL, set once from its title. | `Recipe.slug` |
 

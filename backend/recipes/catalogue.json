@@ -1,0 +1,259 @@
+{
+  "equipment": [
+    "Air fryer",
+    "Blender",
+    "Food processor",
+    "Grill",
+    "Hand mixer",
+    "Hob",
+    "Microwave",
+    "Oven",
+    "Pressure cooker",
+    "Slow cooker",
+    "Stand mixer"
+  ],
+  "ingredients": [
+    "bicarbonate of soda",
+    "black pepper",
+    "chicken thigh",
+    "chilli powder",
+    "chopped tomatoes",
+    "coriander",
+    "cucumber",
+    "dried chilli flakes",
+    "dried oregano",
+    "double cream",
+    "eggs",
+    "extra virgin olive oil",
+    "feta",
+    "flat-leaf parsley",
+    "fresh ginger",
+    "garam masala",
+    "garlic",
+    "golden syrup",
+    "green chilli",
+    "green pepper",
+    "ground cinnamon",
+    "ground cumin",
+    "ground turmeric",
+    "kalamata olives",
+    "lemon juice",
+    "light brown soft sugar",
+    "natural yoghurt",
+    "olive oil",
+    "onion",
+    "paprika",
+    "parmesan",
+    "plain flour",
+    "porridge oats",
+    "potatoes",
+    "raisins",
+    "red onion",
+    "red wine vinegar",
+    "salt",
+    "spaghetti",
+    "tomatoes",
+    "unsalted butter",
+    "vegetable oil"
+  ],
+  "recipes": [
+    {
+      "slug": "chicken-tikka-masala",
+      "title": "Chicken tikka masala",
+      "description": "Yoghurt-marinated chicken, charred under the grill and simmered in a creamy spiced tomato sauce.",
+      "cuisines": ["Indian"],
+      "courses": ["Main"],
+      "difficulty": "medium",
+      "prep_minutes": 20,
+      "cook_minutes": 35,
+      "extra_minutes": 60,
+      "extra_label": "marinating",
+      "servings": 4,
+      "equipment": ["Grill", "Hob"],
+      "source": "Tastebook",
+      "ingredient_groups": [
+        {
+          "name": "For the marinade",
+          "lines": [
+            {
+              "amount": 600,
+              "unit": "g",
+              "ingredient": "chicken thigh",
+              "note": "boneless and skinless, cut into bite-sized pieces"
+            },
+            { "amount": 150, "unit": "g", "ingredient": "natural yoghurt" },
+            { "amount": 2, "unit": "tsp", "ingredient": "garam masala" },
+            { "amount": 1, "unit": "tsp", "ingredient": "ground turmeric" },
+            { "amount": 2, "unit": "clove", "ingredient": "garlic", "note": "crushed" },
+            { "amount": 1, "unit": "tbsp", "ingredient": "lemon juice" },
+            { "ingredient": "salt", "note": "to taste" }
+          ]
+        },
+        {
+          "name": "For the sauce",
+          "lines": [
+            { "amount": 2, "unit": "tbsp", "ingredient": "vegetable oil" },
+            { "amount": 1, "ingredient": "onion", "note": "finely chopped" },
+            { "amount": 1, "ingredient": "green chilli", "note": "finely chopped" },
+            { "amount": 1, "unit": "tbsp", "ingredient": "fresh ginger", "note": "grated" },
+            { "amount": 2, "unit": "tsp", "ingredient": "garam masala" },
+            { "amount": 1, "unit": "tsp", "ingredient": "ground cumin" },
+            { "amount": 1, "unit": "tsp", "ingredient": "paprika" },
+            {
+              "amount": 1,
+              "amount_max": 2,
+              "unit": "tsp",
+              "ingredient": "chilli powder",
+              "note": "depending on how hot you like it"
+            },
+            { "amount": 1, "unit": "tin", "ingredient": "chopped tomatoes", "note": "400 g" },
+            { "amount": 150, "unit": "ml", "ingredient": "double cream" }
+          ]
+        },
+        {
+          "name": "To serve",
+          "lines": [{ "amount": 1, "unit": "handful", "ingredient": "coriander", "note": "chopped", "optional": true }]
+        }
+      ],
+      "steps": [
+        "Mix the yoghurt, garam masala, turmeric, garlic, lemon juice and a good pinch of salt in a bowl. Stir in the chicken, cover and leave in the fridge for at least an hour.",
+        "Heat the grill to high. Spread the chicken on a lined tray, shaking off any extra marinade, and grill for 10 to 12 minutes, turning once, until charred at the edges and cooked through.",
+        "Meanwhile, heat the oil in a large pan over a medium heat. Fry the onion for 8 to 10 minutes until soft and golden, then add the green chilli and ginger and cook for a minute more.",
+        "Stir in the garam masala, cumin, paprika and chilli powder and cook for 30 seconds, then add the tomatoes. Simmer for 10 minutes, stirring now and then, until thick.",
+        "Stir in the cream and the grilled chicken and simmer for 5 minutes. Season to taste and scatter over the coriander to serve."
+      ]
+    },
+    {
+      "slug": "oat-and-raisin-cookies",
+      "title": "Oat and raisin cookies",
+      "description": "Chewy cookies with crisp edges, made with porridge oats and plenty of raisins.",
+      "cuisines": ["British"],
+      "courses": ["Baking"],
+      "difficulty": "easy",
+      "prep_minutes": 15,
+      "cook_minutes": 12,
+      "extra_minutes": 30,
+      "extra_label": "chilling",
+      "yield_amount": 16,
+      "yield_unit": "cookies",
+      "equipment": ["Hand mixer", "Oven"],
+      "source": "Tastebook",
+      "ingredient_lines": [
+        { "amount": 125, "unit": "g", "ingredient": "unsalted butter", "note": "softened" },
+        { "amount": 150, "unit": "g", "ingredient": "light brown soft sugar" },
+        { "amount": 2, "unit": "tbsp", "ingredient": "golden syrup" },
+        { "amount": 125, "unit": "g", "ingredient": "plain flour" },
+        { "amount": 0.5, "unit": "tsp", "ingredient": "bicarbonate of soda" },
+        { "amount": 1, "unit": "tsp", "ingredient": "ground cinnamon", "optional": true },
+        { "amount": 1, "unit": "pinch", "ingredient": "salt" },
+        { "amount": 150, "unit": "g", "ingredient": "porridge oats" },
+        { "amount": 100, "unit": "g", "ingredient": "raisins" }
+      ],
+      "steps": [
+        "Beat the butter and sugar with a hand mixer until pale and fluffy, then beat in the golden syrup.",
+        "Stir in the flour, bicarbonate of soda, cinnamon (if using) and salt, then the oats and raisins, until the dough comes together.",
+        "Cover the bowl and chill the dough for 30 minutes, so the cookies hold their shape in the oven.",
+        "Heat the oven to 180°C (160°C fan) and line two baking trays. Roll the dough into 16 balls and space them well apart on the trays, flattening each one slightly.",
+        "Bake for 10 to 12 minutes, until golden at the edges but still soft in the middle. Leave on the trays for 5 minutes, then move to a rack to cool."
+      ]
+    },
+    {
+      "slug": "spaghetti-aglio-e-olio",
+      "title": "Spaghetti aglio e olio",
+      "description": "Spaghetti tossed in olive oil with gently fried garlic and chilli: dinner from the store cupboard in 20 minutes.",
+      "cuisines": ["Italian"],
+      "courses": ["Main"],
+      "difficulty": "easy",
+      "prep_minutes": 5,
+      "cook_minutes": 15,
+      "servings": 2,
+      "equipment": ["Hob"],
+      "source": "Tastebook",
+      "ingredient_lines": [
+        { "amount": 200, "unit": "g", "ingredient": "spaghetti" },
+        { "amount": 3, "amount_max": 4, "unit": "tbsp", "ingredient": "extra virgin olive oil" },
+        { "amount": 4, "unit": "clove", "ingredient": "garlic", "note": "thinly sliced" },
+        { "amount": 0.5, "amount_max": 1, "unit": "tsp", "ingredient": "dried chilli flakes" },
+        { "amount": 1, "unit": "handful", "ingredient": "flat-leaf parsley", "note": "chopped" },
+        { "ingredient": "salt", "note": "to taste" },
+        { "amount": 25, "unit": "g", "ingredient": "parmesan", "note": "finely grated", "optional": true }
+      ],
+      "steps": [
+        "Cook the spaghetti in a large pan of well-salted boiling water for a minute less than the packet says. Keep a mugful of the cooking water before you drain it.",
+        "While the pasta cooks, warm the oil in a large frying pan over a low heat. Add the garlic and chilli flakes and cook gently for 3 to 4 minutes, until the garlic is pale gold. Don't let it brown, or it turns bitter.",
+        "Tip the drained spaghetti into the frying pan with a splash of the cooking water and toss for a minute until every strand is glossy, adding more water if it looks dry.",
+        "Toss through the parsley, season with salt and serve with the parmesan, if using."
+      ]
+    },
+    {
+      "slug": "greek-salad",
+      "title": "Greek salad",
+      "description": "Tomatoes, cucumber, olives and a whole slab of feta, dressed with olive oil and oregano.",
+      "cuisines": ["Greek"],
+      "courses": ["Side"],
+      "difficulty": "easy",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "servings": 4,
+      "source": "Tastebook",
+      "ingredient_groups": [
+        {
+          "name": "For the salad",
+          "lines": [
+            { "amount": 4, "ingredient": "tomatoes", "note": "cut into wedges" },
+            { "amount": 1, "ingredient": "cucumber", "note": "halved and thickly sliced" },
+            { "amount": 1, "ingredient": "red onion", "note": "thinly sliced" },
+            { "amount": 1, "ingredient": "green pepper", "note": "sliced into rings" },
+            { "amount": 100, "unit": "g", "ingredient": "kalamata olives" },
+            { "amount": 200, "unit": "g", "ingredient": "feta", "note": "in one piece" }
+          ]
+        },
+        {
+          "name": "For the dressing",
+          "lines": [
+            { "amount": 4, "unit": "tbsp", "ingredient": "extra virgin olive oil" },
+            { "amount": 1, "unit": "tbsp", "ingredient": "red wine vinegar" },
+            { "amount": 1, "unit": "tsp", "ingredient": "dried oregano" },
+            { "ingredient": "salt", "note": "to taste" },
+            { "ingredient": "black pepper", "note": "to taste" }
+          ]
+        }
+      ],
+      "steps": [
+        "Put the tomatoes, cucumber, onion, pepper and olives in a wide bowl.",
+        "Whisk the oil, vinegar and half the oregano with a little salt and pepper, then pour it over the vegetables and toss gently.",
+        "Lay the feta on top in one piece, sprinkle over the rest of the oregano and serve straight away."
+      ]
+    },
+    {
+      "slug": "spanish-tortilla",
+      "title": "Spanish tortilla",
+      "description": "A thick potato and onion omelette, cooked slowly in olive oil and good warm or cold.",
+      "cuisines": ["Spanish"],
+      "courses": ["Main"],
+      "difficulty": "medium",
+      "prep_minutes": 15,
+      "cook_minutes": 40,
+      "extra_minutes": 10,
+      "extra_label": "resting",
+      "servings": 6,
+      "equipment": ["Hob"],
+      "one_pot": true,
+      "source": "Tastebook",
+      "ingredient_lines": [
+        { "amount": 150, "unit": "ml", "ingredient": "olive oil" },
+        { "amount": 600, "unit": "g", "ingredient": "potatoes", "note": "floury, peeled and thinly sliced" },
+        { "amount": 1, "ingredient": "onion", "note": "thinly sliced" },
+        { "amount": 6, "ingredient": "eggs" },
+        { "amount": 1, "unit": "tsp", "ingredient": "salt" }
+      ],
+      "steps": [
+        "Heat the oil in a 24 cm non-stick frying pan over a medium-low heat. Add the potatoes and onion and cook gently for 25 to 30 minutes, turning now and then, until soft but not browned.",
+        "Beat the eggs with the salt in a large bowl. Lift the potatoes and onion out of the pan with a slotted spoon, leaving the oil behind, and stir them into the eggs. Leave for 5 minutes.",
+        "Pour all but a tablespoon of the oil out of the pan (keep it for another day) and put the pan back over a medium heat. Tip in the egg mixture and cook for 6 to 8 minutes, until set underneath but still a little loose on top.",
+        "Put a large plate over the pan and turn it over in one confident movement, then slide the tortilla back into the pan, cooked side up. Cook for 3 minutes more.",
+        "Slide the tortilla onto a board and leave it to rest for 10 minutes before cutting it into wedges."
+      ]
+    }
+  ]
+}
