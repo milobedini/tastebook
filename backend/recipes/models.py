@@ -190,7 +190,8 @@ class IngredientLine(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='ingredient_lines')
     group = models.ForeignKey(
         IngredientGroup,
-        on_delete=models.CASCADE,
+        # Deleting a group moves its lines above the groups rather than losing them.
+        on_delete=models.SET_NULL,
         related_name='lines',
         null=True,
         blank=True,

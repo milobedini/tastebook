@@ -807,3 +807,33 @@ def test_the_admin_refuses_a_line_in_another_recipes_group(admin_client: Client)
     assert response.status_code == 200
     assert 'Select a valid choice.' in response.content.decode()
     assert IngredientLine.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_deleting_a_group_in_the_admin_keeps_its_lines_above_the_groups(admin_client: Client) -> None:
+    recipe = make_recipe(title='Shakshuka')
+    recipe.cuisines.add(Cuisine.objects.get(slug='italian'))
+    sauce = IngredientGroup.objects.create(recipe=recipe, name='For the sauce')
+    add_line(recipe, 'onion', group=sauce)
+
+    response = admin_client.post(
+        reverse('admin:recipes_recipe_change', args=[recipe.id]),
+        {
+            **admin_details(),
+            'title': 'Shakshuka',
+            'description': '',
+            'cuisines': [Cuisine.objects.get(slug='italian').id],
+            **inline_forms(
+                'ingredient_groups',
+                [{'id': sauce.id, 'recipe': recipe.id, 'position': 0, 'name': 'For the sauce', 'DELETE': 'on'}],
+                initial=1,
+            ),
+        },
+    )
+
+    assert response.status_code == 302
+    detail = APIClient().get(reverse('recipe-detail', args=['shakshuka'])).json()
+    assert ([line['ingredient']['name'] for line in detail['ingredient_lines']], detail['ingredient_groups']) == (
+        ['onion'],
+        [],
+    )
