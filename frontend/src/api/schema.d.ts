@@ -72,6 +72,8 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @enum {unknown} */
+        BlankEnum: "";
         Course: {
             slug: string;
             name: string;
@@ -102,6 +104,49 @@ export interface components {
             database: components["schemas"]["DatabaseEnum"];
             version: string;
         };
+        Ingredient: {
+            slug: string;
+            /** @description The UK name: courgette, coriander, plain flour. */
+            name: string;
+        };
+        IngredientGroup: {
+            readonly id: number;
+            /** @description "For the sauce", "To serve". */
+            name: string;
+            readonly lines: components["schemas"]["IngredientLine"][];
+        };
+        IngredientLine: {
+            readonly id: number;
+            /** Format: double */
+            amount: number | null;
+            /** Format: double */
+            amount_max: number | null;
+            /**
+             * @description Leave empty for "2 eggs".
+             *
+             *     * `g` - g
+             *     * `kg` - kg
+             *     * `ml` - ml
+             *     * `l` - l
+             *     * `tsp` - tsp
+             *     * `tbsp` - tbsp
+             *     * `cup` - cup
+             *     * `oz` - oz
+             *     * `lb` - lb
+             *     * `fl_oz` - fl oz
+             *     * `pinch` - pinch
+             *     * `clove` - clove
+             *     * `tin` - tin
+             *     * `slice` - slice
+             *     * `bunch` - bunch
+             *     * `handful` - handful
+             */
+            unit: components["schemas"]["UnitEnum"] | components["schemas"]["BlankEnum"];
+            readonly ingredient: components["schemas"]["Ingredient"];
+            /** @description "finely chopped". */
+            note: string;
+            optional: boolean;
+        };
         Recipe: {
             readonly id: number;
             readonly slug: string;
@@ -130,6 +175,9 @@ export interface components {
              * @description Where the recipe came from: an author, a website or a book.
              */
             source: string;
+            readonly ingredient_lines: components["schemas"]["IngredientLine"][];
+            readonly ingredient_groups: components["schemas"]["IngredientGroup"][];
+            readonly steps: components["schemas"]["Step"][];
         };
         RecipeSummary: {
             readonly id: number;
@@ -145,6 +193,30 @@ export interface components {
          * @enum {string}
          */
         StatusEnum: "ok";
+        Step: {
+            readonly id: number;
+            text: string;
+        };
+        /**
+         * @description * `g` - g
+         *     * `kg` - kg
+         *     * `ml` - ml
+         *     * `l` - l
+         *     * `tsp` - tsp
+         *     * `tbsp` - tbsp
+         *     * `cup` - cup
+         *     * `oz` - oz
+         *     * `lb` - lb
+         *     * `fl_oz` - fl oz
+         *     * `pinch` - pinch
+         *     * `clove` - clove
+         *     * `tin` - tin
+         *     * `slice` - slice
+         *     * `bunch` - bunch
+         *     * `handful` - handful
+         * @enum {string}
+         */
+        UnitEnum: "g" | "kg" | "ml" | "l" | "tsp" | "tbsp" | "cup" | "oz" | "lb" | "fl_oz" | "pinch" | "clove" | "tin" | "slice" | "bunch" | "handful";
     };
     responses: never;
     parameters: never;

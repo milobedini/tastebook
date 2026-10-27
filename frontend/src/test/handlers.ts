@@ -32,7 +32,10 @@ const recipes: Recipe[] = [
     yield_unit: '',
     equipment: [{ slug: 'oven', name: 'Oven' }],
     one_pot: false,
-    source: 'Tastebook'
+    source: 'Tastebook',
+    ingredient_lines: [],
+    ingredient_groups: [],
+    steps: []
   },
   {
     id: 2,
@@ -52,7 +55,10 @@ const recipes: Recipe[] = [
     yield_unit: 'loaf',
     equipment: [],
     one_pot: false,
-    source: ''
+    source: '',
+    ingredient_lines: [],
+    ingredient_groups: [],
+    steps: []
   }
 ];
 

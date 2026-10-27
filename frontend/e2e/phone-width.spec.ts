@@ -37,7 +37,10 @@ const recipe: Recipe = {
     { slug: 'stand-mixer', name: 'Stand mixer' }
   ],
   one_pot: true,
-  source: 'Adapted from https://en.wikibooks.org/wiki/Cookbook:Roast_Pork_Shoulder_with_Crackling (CC BY-SA 4.0)'
+  source: 'Adapted from https://en.wikibooks.org/wiki/Cookbook:Roast_Pork_Shoulder_with_Crackling (CC BY-SA 4.0)',
+  ingredient_lines: [],
+  ingredient_groups: [],
+  steps: []
 };
 
 const summary: RecipeSummary = {

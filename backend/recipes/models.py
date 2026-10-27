@@ -66,6 +66,15 @@ class RecipeQuerySet(models.QuerySet['Recipe']):
             return self
         return self.filter(cuisines__slug=slug)
 
+    def with_ingredients_and_method(self) -> RecipeQuerySet:
+        lines = IngredientLine.objects.select_related('ingredient')
+        # Lines in no group land in ungrouped_lines, so a group's lines aren't listed twice.
+        return self.prefetch_related(
+            models.Prefetch('ingredient_lines', queryset=lines.filter(group=None), to_attr='ungrouped_lines'),
+            models.Prefetch('ingredient_groups__lines', queryset=lines),
+            'steps',
+        )
+
     def unique_slug_for(self, title: str) -> str:
         base = base_slug(title)
         taken = set(self.filter(slug__startswith=base).values_list('slug', flat=True))
@@ -133,3 +142,102 @@ class Recipe(models.Model):
     @property
     def total_minutes(self) -> int:
         return self.prep_minutes + self.cook_minutes + self.extra_minutes
+
+
+class Ingredient(models.Model):
+    name = models.CharField(max_length=100, unique=True, help_text='The UK name: courgette, coriander, plain flour.')
+    slug = models.SlugField(max_length=100, unique=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Unit(models.TextChoices):
+    GRAM = 'g', 'g'
+    KILOGRAM = 'kg', 'kg'
+    MILLILITRE = 'ml', 'ml'
+    LITRE = 'l', 'l'
+    TEASPOON = 'tsp', 'tsp'
+    TABLESPOON = 'tbsp', 'tbsp'
+    CUP = 'cup', 'cup'
+    OUNCE = 'oz', 'oz'
+    POUND = 'lb', 'lb'
+    FLUID_OUNCE = 'fl_oz', 'fl oz'
+    PINCH = 'pinch', 'pinch'
+    CLOVE = 'clove', 'clove'
+    TIN = 'tin', 'tin'
+    SLICE = 'slice', 'slice'
+    BUNCH = 'bunch', 'bunch'
+    HANDFUL = 'handful', 'handful'
+
+
+class IngredientGroup(models.Model):
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='ingredient_groups')
+    name = models.CharField(max_length=100, help_text='"For the sauce", "To serve".')
+    position = models.PositiveSmallIntegerField(default=0, help_text='Lower numbers come first.')
+
+    class Meta:
+        ordering = ['position', 'id']
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class IngredientLine(models.Model):
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='ingredient_lines')
+    group = models.ForeignKey(
+        IngredientGroup,
+        on_delete=models.CASCADE,
+        related_name='lines',
+        null=True,
+        blank=True,
+        help_text='Leave empty for a line above every group. Save a new group before choosing it.',
+    )
+    position = models.PositiveSmallIntegerField(default=0, help_text='Lower numbers come first.')
+    amount = models.DecimalField(
+        max_digits=8, decimal_places=3, null=True, blank=True, help_text='Leave empty for "to taste".'
+    )
+    amount_max = models.DecimalField(
+        'up to', max_digits=8, decimal_places=3, null=True, blank=True, help_text='"3" in a range of 2 to 3.'
+    )
+    unit = models.CharField(max_length=10, choices=Unit.choices, blank=True, help_text='Leave empty for "2 eggs".')
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.PROTECT, related_name='lines')
+    note = models.CharField(max_length=200, blank=True, help_text='"finely chopped".')
+    optional = models.BooleanField(default=False)
+    original_text = models.CharField(
+        'original wording', max_length=300, blank=True, help_text='The line as the recipe was written.'
+    )
+
+    class Meta:
+        ordering = ['position', 'id']
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(amount__isnull=True) | models.Q(amount__gt=0),
+                name='ingredientline_amount_positive',
+                violation_error_message='Give an amount above 0, or leave it empty.',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(amount_max__isnull=True)
+                | models.Q(amount__isnull=False, amount_max__gt=models.F('amount')),
+                name='ingredientline_range_rises',
+                violation_error_message='Give a range with its lower amount first, such as 2 up to 3.',
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.original_text or self.ingredient.name
+
+
+class Step(models.Model):
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='steps')
+    position = models.PositiveSmallIntegerField(default=0, help_text='Lower numbers come first.')
+    text = models.TextField()
+
+    class Meta:
+        ordering = ['position', 'id']
+
+    def __str__(self) -> str:
+        return self.text[:50]

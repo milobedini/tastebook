@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Any
 
 import pytest
@@ -6,7 +7,7 @@ from django.urls import reverse
 from pytest_django import DjangoAssertNumQueries
 from rest_framework.test import APIClient
 
-from recipes.models import Course, Cuisine, Equipment, Recipe
+from recipes.models import Course, Cuisine, Equipment, Ingredient, IngredientGroup, IngredientLine, Recipe, Step
 
 # A valid recipe's details, for tests about something else.
 DETAILS: dict[str, Any] = {
@@ -22,10 +23,38 @@ def make_recipe(**fields: Any) -> Recipe:
     return Recipe.objects.create(**{**DETAILS, **fields})
 
 
-# The admin form's version of DETAILS: every field it posts, with one course.
+INLINES = ['ingredient_groups', 'ingredient_lines', 'steps']
+
+
+# The management form of each inline on the recipe admin page, with the rows it posts and the rows it already had.
+def inline_forms(prefix: str, rows: list[dict[str, Any]], initial: int = 0) -> dict[str, Any]:
+    fields = {f'{prefix}-{index}-{name}': value for index, row in enumerate(rows) for name, value in row.items()}
+    return {
+        f'{prefix}-TOTAL_FORMS': len(rows),
+        f'{prefix}-INITIAL_FORMS': initial,
+        f'{prefix}-MIN_NUM_FORMS': 0,
+        f'{prefix}-MAX_NUM_FORMS': 1000,
+        **fields,
+    }
+
+
+def no_inlines() -> dict[str, Any]:
+    return {key: value for prefix in INLINES for key, value in inline_forms(prefix, []).items()}
+
+
+def ingredient(name: str) -> Ingredient:
+    return Ingredient.objects.get_or_create(name=name, defaults={'slug': name.replace(' ', '-')})[0]
+
+
+def add_line(recipe: Recipe, name: str, **fields: Any) -> IngredientLine:
+    return IngredientLine.objects.create(recipe=recipe, ingredient=ingredient(name), **fields)
+
+
+# The admin form's version of DETAILS: every field it posts, with one course and no ingredients or steps.
 def admin_details() -> dict[str, Any]:
     return {
         **DETAILS,
+        **no_inlines(),
         'extra_minutes': 0,
         'extra_label': '',
         'yield_amount': '',
@@ -237,6 +266,9 @@ def test_returns_the_whole_recipe_with_its_details() -> None:
         'equipment': [{'slug': 'hob', 'name': 'Hob'}, {'slug': 'oven', 'name': 'Oven'}],
         'one_pot': True,
         'source': 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)',
+        'ingredient_lines': [],
+        'ingredient_groups': [],
+        'steps': [],
     }
 
 
@@ -415,18 +447,32 @@ def test_total_time_is_prep_plus_cook_plus_extra(
 
 
 @pytest.mark.django_db
-def test_returns_a_recipe_with_its_cuisines_courses_and_equipment_in_four_queries(
+def test_returns_a_recipe_with_its_details_ingredients_and_method_in_eight_queries(
     django_assert_num_queries: DjangoAssertNumQueries,
 ) -> None:
     recipe = make_recipe(title='Shakshuka')
     recipe.cuisines.set(Cuisine.objects.filter(slug__in=['french', 'japanese']))
     recipe.courses.set(Course.objects.filter(slug__in=['main', 'side']))
     recipe.equipment.set(Equipment.objects.filter(slug__in=['oven', 'hob']))
+    sauce = IngredientGroup.objects.create(recipe=recipe, name='For the sauce')
+    to_serve = IngredientGroup.objects.create(recipe=recipe, name='To serve')
+    for group, name in [(None, 'egg'), (None, 'salt'), (sauce, 'tomato'), (sauce, 'onion'), (to_serve, 'feta')]:
+        add_line(recipe, name, group=group)
+    for text in ['Fry the onion.', 'Add the tomatoes.', 'Crack in the eggs.']:
+        Step.objects.create(recipe=recipe, text=text)
 
-    with django_assert_num_queries(4):
+    with django_assert_num_queries(8):
         response = APIClient().get(reverse('recipe-detail', args=['shakshuka']))
 
-    assert [len(response.json()[key]) for key in ['cuisines', 'courses', 'equipment']] == [2, 2, 2]
+    body = response.json()
+    assert [len(body[key]) for key in ['cuisines', 'courses', 'equipment', 'ingredient_lines', 'steps']] == [
+        2,
+        2,
+        2,
+        2,
+        3,
+    ]
+    assert [len(group['lines']) for group in body['ingredient_groups']] == [2, 1]
 
 
 @pytest.mark.django_db
@@ -449,6 +495,7 @@ def test_a_staff_user_adds_a_recipe_with_all_its_details_in_the_admin(admin_clie
             'equipment': list(Equipment.objects.filter(slug__in=['oven', 'stand-mixer']).values_list('id', flat=True)),
             'one_pot': 'on',
             'source': 'Grandma Rose',
+            **no_inlines(),
         },
     )
 
@@ -469,6 +516,9 @@ def test_a_staff_user_adds_a_recipe_with_all_its_details_in_the_admin(admin_clie
         'equipment': [{'slug': 'oven', 'name': 'Oven'}, {'slug': 'stand-mixer', 'name': 'Stand mixer'}],
         'one_pot': True,
         'source': 'Grandma Rose',
+        'ingredient_lines': [],
+        'ingredient_groups': [],
+        'steps': [],
     }
 
 
@@ -530,3 +580,230 @@ def test_a_staff_user_adds_equipment_in_the_admin_and_gives_it_to_a_recipe(admin
     assert (response.status_code, edit.status_code) == (302, 302)
     detail = APIClient().get(reverse('recipe-detail', args=['egg-fried-rice'])).json()
     assert detail['equipment'] == [{'slug': 'wok', 'name': 'Wok'}]
+
+
+@pytest.mark.django_db
+def test_returns_the_ingredients_with_ungrouped_lines_first_then_each_group_and_the_method_in_order() -> None:
+    recipe = make_recipe(title='Shakshuka')
+    # Created out of order, so only position can put them right.
+    to_serve = IngredientGroup.objects.create(recipe=recipe, name='To serve', position=2)
+    sauce = IngredientGroup.objects.create(recipe=recipe, name='For the sauce', position=1)
+    feta = add_line(recipe, 'feta', group=to_serve, amount=Decimal(50), unit='g', note='crumbled')
+    chilli = add_line(recipe, 'chilli flakes', group=to_serve, position=1, optional=True)
+    tomatoes = add_line(
+        recipe,
+        'chopped tomatoes',
+        group=sauce,
+        position=1,
+        amount=Decimal(1),
+        unit='tin',
+        original_text='1 tin of chopped tomatoes',
+    )
+    onion = add_line(recipe, 'onion', group=sauce, amount=Decimal(1), note='finely chopped')
+    salt = add_line(recipe, 'salt', position=2, note='to taste')
+    eggs = add_line(recipe, 'egg', position=1, amount=Decimal(2), amount_max=Decimal(3))
+    oil = add_line(recipe, 'olive oil', amount=Decimal('1.5'), unit='tbsp')
+    crack = Step.objects.create(recipe=recipe, position=3, text='Crack in the eggs and cover.')
+    fry = Step.objects.create(recipe=recipe, position=1, text='Fry the onion in the oil until soft.')
+    simmer = Step.objects.create(recipe=recipe, position=2, text='Add the tomatoes and simmer for 10 minutes.')
+
+    response = APIClient().get(reverse('recipe-detail', args=['shakshuka']))
+
+    def line(row: IngredientLine, slug: str, name: str, **fields: Any) -> dict[str, Any]:
+        return {
+            'id': row.id,
+            'amount': None,
+            'amount_max': None,
+            'unit': '',
+            'ingredient': {'slug': slug, 'name': name},
+            'note': '',
+            'optional': False,
+            **fields,
+        }
+
+    body = response.json()
+    assert body['ingredient_lines'] == [
+        line(oil, 'olive-oil', 'olive oil', amount=1.5, unit='tbsp'),
+        line(eggs, 'egg', 'egg', amount=2.0, amount_max=3.0),
+        line(salt, 'salt', 'salt', note='to taste'),
+    ]
+    assert body['ingredient_groups'] == [
+        {
+            'id': sauce.id,
+            'name': 'For the sauce',
+            'lines': [
+                line(onion, 'onion', 'onion', amount=1.0, note='finely chopped'),
+                line(tomatoes, 'chopped-tomatoes', 'chopped tomatoes', amount=1.0, unit='tin'),
+            ],
+        },
+        {
+            'id': to_serve.id,
+            'name': 'To serve',
+            'lines': [
+                line(feta, 'feta', 'feta', amount=50.0, unit='g', note='crumbled'),
+                line(chilli, 'chilli-flakes', 'chilli flakes', optional=True),
+            ],
+        },
+    ]
+    assert body['steps'] == [
+        {'id': fry.id, 'text': 'Fry the onion in the oil until soft.'},
+        {'id': simmer.id, 'text': 'Add the tomatoes and simmer for 10 minutes.'},
+        {'id': crack.id, 'text': 'Crack in the eggs and cover.'},
+    ]
+
+
+@pytest.mark.django_db
+def test_a_staff_user_adds_an_ingredient_under_its_uk_name_in_the_admin(admin_client: Client) -> None:
+    response = admin_client.post(reverse('admin:recipes_ingredient_add'), {'name': 'courgette', 'slug': 'courgette'})
+
+    assert response.status_code == 302
+    assert list(Ingredient.objects.values_list('name', 'slug')) == [('courgette', 'courgette')]
+
+
+def line_row(name: str, **fields: Any) -> dict[str, Any]:
+    return {
+        'position': 0,
+        'group': '',
+        'amount': '',
+        'amount_max': '',
+        'unit': '',
+        'ingredient': ingredient(name).id,
+        'note': '',
+        'original_text': '',
+        **fields,
+    }
+
+
+@pytest.mark.django_db
+def test_a_staff_user_adds_a_recipe_with_ingredients_and_steps_in_the_admin(admin_client: Client) -> None:
+    response = admin_client.post(
+        reverse('admin:recipes_recipe_add'),
+        {
+            **admin_details(),
+            'title': 'Shakshuka',
+            'description': '',
+            'cuisines': [Cuisine.objects.get(slug='italian').id],
+            **inline_forms(
+                'ingredient_lines',
+                [
+                    line_row('egg', amount='2', amount_max='3', original_text='2-3 eggs'),
+                    line_row('salt', position=1, note='to taste', optional='on'),
+                ],
+            ),
+            **inline_forms('steps', [{'position': 2, 'text': 'Crack in the eggs.'}, {'position': 1, 'text': 'Fry.'}]),
+        },
+    )
+
+    assert response.status_code == 302
+    detail = APIClient().get(reverse('recipe-detail', args=['shakshuka'])).json()
+    assert [
+        (line['ingredient']['name'], line['amount'], line['amount_max'], line['note'], line['optional'])
+        for line in detail['ingredient_lines']
+    ] == [('egg', 2.0, 3.0, '', False), ('salt', None, None, 'to taste', True)]
+    assert [step['text'] for step in detail['steps']] == ['Fry.', 'Crack in the eggs.']
+    assert list(IngredientLine.objects.values_list('original_text', flat=True)) == ['2-3 eggs', '']
+
+
+@pytest.mark.django_db
+def test_a_staff_user_adds_groups_to_a_recipe_and_puts_lines_in_them_in_the_admin(admin_client: Client) -> None:
+    recipe = make_recipe(title='Shakshuka')
+    recipe.cuisines.add(Cuisine.objects.get(slug='italian'))
+    edit = {
+        **admin_details(),
+        'title': 'Shakshuka',
+        'description': '',
+        'cuisines': [Cuisine.objects.get(slug='italian').id],
+    }
+
+    groups = admin_client.post(
+        reverse('admin:recipes_recipe_change', args=[recipe.id]),
+        {
+            **edit,
+            **inline_forms(
+                'ingredient_groups', [{'position': 2, 'name': 'To serve'}, {'position': 1, 'name': 'For the sauce'}]
+            ),
+        },
+    )
+    to_serve, sauce = (IngredientGroup.objects.get(name=name) for name in ['To serve', 'For the sauce'])
+    lines = admin_client.post(
+        reverse('admin:recipes_recipe_change', args=[recipe.id]),
+        {
+            **edit,
+            **inline_forms(
+                'ingredient_groups',
+                [
+                    {'id': to_serve.id, 'recipe': recipe.id, 'position': 2, 'name': 'To serve'},
+                    {'id': sauce.id, 'recipe': recipe.id, 'position': 1, 'name': 'For the sauce'},
+                ],
+                initial=2,
+            ),
+            **inline_forms(
+                'ingredient_lines',
+                [
+                    line_row('feta', group=to_serve.id, amount='50', unit='g'),
+                    line_row('chopped tomatoes', group=sauce.id, amount='1', unit='tin'),
+                    line_row('egg', amount='4'),
+                ],
+            ),
+        },
+    )
+
+    assert (groups.status_code, lines.status_code) == (302, 302)
+    detail = APIClient().get(reverse('recipe-detail', args=['shakshuka'])).json()
+    assert [line['ingredient']['name'] for line in detail['ingredient_lines']] == ['egg']
+    assert [
+        (group['name'], [(line['ingredient']['name'], line['unit']) for line in group['lines']])
+        for group in detail['ingredient_groups']
+    ] == [('For the sauce', [('chopped tomatoes', 'tin')]), ('To serve', [('feta', 'g')])]
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('fields', 'message'),
+    [
+        ({'amount': '3', 'amount_max': '2'}, 'Give a range with its lower amount first'),
+        ({'amount': '2', 'amount_max': '2'}, 'Give a range with its lower amount first'),
+        ({'amount': '', 'amount_max': '3'}, 'Give a range with its lower amount first'),
+        ({'amount': '0'}, 'Give an amount above 0'),
+        ({'unit': 'bucket'}, 'Select a valid choice.'),
+        ({'ingredient': '', 'note': 'to taste'}, 'This field is required.'),
+    ],
+)
+def test_the_admin_refuses_an_ingredient_line_that_doesnt_fit(
+    admin_client: Client, fields: dict[str, Any], message: str
+) -> None:
+    response = admin_client.post(
+        reverse('admin:recipes_recipe_add'),
+        {
+            **admin_details(),
+            'title': 'Shakshuka',
+            'description': '',
+            'cuisines': [Cuisine.objects.get(slug='italian').id],
+            **inline_forms('ingredient_lines', [line_row('egg', **fields)]),
+        },
+    )
+
+    assert response.status_code == 200
+    assert message in response.content.decode()
+    assert (Recipe.objects.count(), IngredientLine.objects.count()) == (0, 0)
+
+
+@pytest.mark.django_db
+def test_the_admin_refuses_a_line_in_another_recipes_group(admin_client: Client) -> None:
+    other = IngredientGroup.objects.create(recipe=make_recipe(title='Apple tart'), name='For the pastry')
+    recipe = make_recipe(title='Shakshuka')
+
+    response = admin_client.post(
+        reverse('admin:recipes_recipe_change', args=[recipe.id]),
+        {
+            **admin_details(),
+            'title': 'Shakshuka',
+            'description': '',
+            'cuisines': [Cuisine.objects.get(slug='italian').id],
+            **inline_forms('ingredient_lines', [line_row('egg', group=other.id)]),
+        },
+    )
+
+    assert response.status_code == 200
+    assert 'Select a valid choice.' in response.content.decode()
+    assert IngredientLine.objects.count() == 0

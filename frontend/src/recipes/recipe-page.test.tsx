@@ -27,7 +27,10 @@ const shakshuka: Recipe = {
   yield_unit: '',
   equipment: [{ slug: 'hob', name: 'Hob' }],
   one_pot: true,
-  source: 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)'
+  source: 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)',
+  ingredient_lines: [],
+  ingredient_groups: [],
+  steps: []
 };
 
 // Each term of the recipe's details with its definition, in the order the page shows them.

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from recipes.models import Course, Cuisine, Equipment, Recipe
+from recipes.models import Course, Cuisine, Equipment, Ingredient, IngredientGroup, IngredientLine, Recipe, Step
 
 
 class CuisineSerializer(serializers.ModelSerializer):
@@ -21,6 +21,42 @@ class EquipmentSerializer(serializers.ModelSerializer):
         fields = ['slug', 'name']
 
 
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = ['slug', 'name']
+
+
+class IngredientLineSerializer(serializers.ModelSerializer):
+    ingredient = IngredientSerializer(read_only=True)
+    # Numbers, not strings, so the page can format and later scale them.
+    amount = serializers.DecimalField(max_digits=8, decimal_places=3, coerce_to_string=False, allow_null=True)
+    amount_max = serializers.DecimalField(max_digits=8, decimal_places=3, coerce_to_string=False, allow_null=True)
+
+    class Meta:
+        model = IngredientLine
+        fields = ['id', 'amount', 'amount_max', 'unit', 'ingredient', 'note', 'optional']
+        extra_kwargs = {
+            'unit': {'required': True, 'allow_blank': True},
+            'note': {'required': True, 'allow_blank': True},
+            'optional': {'required': True},
+        }
+
+
+class IngredientGroupSerializer(serializers.ModelSerializer):
+    lines = IngredientLineSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = IngredientGroup
+        fields = ['id', 'name', 'lines']
+
+
+class StepSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Step
+        fields = ['id', 'text']
+
+
 class RecipeSummarySerializer(serializers.ModelSerializer):
     cuisines = CuisineSerializer(many=True, read_only=True)
     total_minutes = serializers.IntegerField(read_only=True)
@@ -35,6 +71,10 @@ class RecipeSummarySerializer(serializers.ModelSerializer):
 class RecipeSerializer(RecipeSummarySerializer):
     courses = CourseSerializer(many=True, read_only=True)
     equipment = EquipmentSerializer(many=True, read_only=True)
+    # Lines in no group; the page shows them before the groups.
+    ingredient_lines = IngredientLineSerializer(many=True, read_only=True, source='ungrouped_lines')
+    ingredient_groups = IngredientGroupSerializer(many=True, read_only=True)
+    steps = StepSerializer(many=True, read_only=True)
 
     class Meta(RecipeSummarySerializer.Meta):
         fields = [
@@ -50,6 +90,9 @@ class RecipeSerializer(RecipeSummarySerializer):
             'equipment',
             'one_pot',
             'source',
+            'ingredient_lines',
+            'ingredient_groups',
+            'steps',
         ]
         # The API always sends these, even when they're '', null or their default, so the schema marks them required.
         extra_kwargs = {
