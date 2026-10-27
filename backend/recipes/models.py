@@ -297,6 +297,21 @@ class DietTag(models.TextChoices):
     DAIRY_FREE = 'dairy_free', 'Dairy-free'
 
 
+# The ingredient flags that rule each diet tag out. services.diet_tags() and RecipeQuerySet.suiting() both read it.
+RULED_OUT_BY: dict[DietTag, tuple[str, ...]] = {
+    DietTag.VEGETARIAN: ('contains_meat', 'contains_fish'),
+    DietTag.VEGAN: (
+        'contains_meat',
+        'contains_fish',
+        'contains_dairy',
+        'contains_egg',
+        'contains_other_animal_product',
+    ),
+    DietTag.GLUTEN_FREE: ('contains_gluten',),
+    DietTag.DAIRY_FREE: ('contains_dairy',),
+}
+
+
 class Unit(models.TextChoices):
     GRAM = 'g', 'g'
     KILOGRAM = 'kg', 'kg'

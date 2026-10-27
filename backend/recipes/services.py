@@ -12,6 +12,7 @@ from django.db import models, transaction
 from django.utils.text import slugify
 
 from recipes.models import (
+    RULED_OUT_BY,
     Course,
     Cuisine,
     DietTag,
@@ -219,21 +220,6 @@ def _save(row: models.Model, where: str) -> None:
     row.save()
 
 
-# The ingredient flags that rule each diet tag out.
-_RULED_OUT_BY: dict[DietTag, tuple[str, ...]] = {
-    DietTag.VEGETARIAN: ('contains_meat', 'contains_fish'),
-    DietTag.VEGAN: (
-        'contains_meat',
-        'contains_fish',
-        'contains_dairy',
-        'contains_egg',
-        'contains_other_animal_product',
-    ),
-    DietTag.GLUTEN_FREE: ('contains_gluten',),
-    DietTag.DAIRY_FREE: ('contains_dairy',),
-}
-
-
 @dataclass(frozen=True)
 class DietTagConflict:
     """An optional ingredient that would take diet tags away from its recipe, if it were used."""
@@ -243,7 +229,7 @@ class DietTagConflict:
 
 
 def _allows(ingredient: Ingredient, tag: DietTag) -> bool:
-    return not any(getattr(ingredient, flag) for flag in _RULED_OUT_BY[tag])
+    return not any(getattr(ingredient, flag) for flag in RULED_OUT_BY[tag])
 
 
 def diet_tags(lines: Iterable[IngredientLine]) -> list[DietTag]:
