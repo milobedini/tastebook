@@ -489,6 +489,11 @@ def test_a_staff_user_adds_a_recipe_with_all_its_details_in_the_admin(admin_clie
         ({'source': ''}, 'This field is required.'),
         ({'difficulty': 'impossible'}, 'Select a valid choice.'),
         ({'prep_minutes': -5}, 'Ensure this value is greater than or equal to 0.'),
+        ({'servings': 0}, 'Ensure this value is greater than or equal to 1.'),
+        (
+            {'servings': '', 'yield_amount': 0, 'yield_unit': 'cookies'},
+            'Ensure this value is greater than or equal to 1.',
+        ),
     ],
 )
 def test_the_admin_refuses_a_recipe_with_details_that_dont_fit(

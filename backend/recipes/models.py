@@ -1,5 +1,6 @@
 from typing import Any
 
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.functions import Lower
 
@@ -84,8 +85,12 @@ class Recipe(models.Model):
     extra_label = models.CharField(
         max_length=50, blank=True, help_text='What the extra time is for, such as marinating, resting or proving.'
     )
-    servings = models.PositiveSmallIntegerField(null=True, blank=True, help_text='Leave empty when giving a yield.')
-    yield_amount = models.PositiveSmallIntegerField(null=True, blank=True, help_text='"12" in "makes 12 cookies".')
+    servings = models.PositiveSmallIntegerField(
+        null=True, blank=True, validators=[MinValueValidator(1)], help_text='Leave empty when giving a yield.'
+    )
+    yield_amount = models.PositiveSmallIntegerField(
+        null=True, blank=True, validators=[MinValueValidator(1)], help_text='"12" in "makes 12 cookies".'
+    )
     yield_unit = models.CharField(max_length=50, blank=True, help_text='"cookies" in "makes 12 cookies".')
     equipment = models.ManyToManyField(Equipment, related_name='recipes', blank=True)
     one_pot = models.BooleanField('one-pot', default=False)

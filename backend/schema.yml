@@ -201,13 +201,13 @@ components:
         servings:
           type: integer
           maximum: 32767
-          minimum: 0
+          minimum: 1
           nullable: true
           description: Leave empty when giving a yield.
         yield_amount:
           type: integer
           maximum: 32767
-          minimum: 0
+          minimum: 1
           nullable: true
           description: '"12" in "makes 12 cookies".'
         yield_unit:
