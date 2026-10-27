@@ -117,9 +117,12 @@ describe('startErrorReporting', () => {
     root.unmount();
   });
 
-  it('sends nothing without a DSN', async () => {
+  it.each([
+    ['set', DSN, 1],
+    ['unset', '', 0]
+  ])('with the DSN %s, sends %i reports', async (_, dsn, eventsSent) => {
     const received = receiveEnvelopes();
-    vi.stubEnv('VITE_SENTRY_DSN', '');
+    vi.stubEnv('VITE_SENTRY_DSN', dsn);
     vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', false);
 
     const root = createRoot(document.body.appendChild(document.createElement('div')), startErrorReporting());
@@ -127,7 +130,8 @@ describe('startErrorReporting', () => {
 
     expect(await screen.findByText('The oven caught fire')).toBeInTheDocument();
     await flush(2000);
-    expect(received).toEqual({ tunnelled: [], direct: [] });
+    expect(eventsIn(received.tunnelled)).toHaveLength(eventsSent);
+    expect(received.direct).toEqual([]);
     root.unmount();
   });
 });
