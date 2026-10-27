@@ -249,6 +249,27 @@ describe('RecipesPage', () => {
     ]);
   });
 
+  it("shows each recipe's diet tags on its card, and none on a card without", async () => {
+    server.use(
+      http.get('/api/recipes/', () =>
+        HttpResponse.json<Recipe[]>([{ ...appleTart, diet_tags: ['vegetarian', 'gluten_free'] }, bananaBread])
+      )
+    );
+
+    renderRoute('/recipes');
+
+    const cards = (await screen.findAllByRole('article')).map((card) => [
+      within(card).getByRole('heading').textContent,
+      within(card)
+        .queryAllByRole('listitem')
+        .map((item) => item.textContent)
+    ]);
+    expect(cards).toEqual([
+      ['Apple tart', ['Vegetarian', 'Gluten-free']],
+      ['Banana bread', []]
+    ]);
+  });
+
   it.each([
     ['/recipes', 'No recipes yet.', 'No recipes match “xyzzy”.'],
     ['/recipes?q=xyzzy', 'No recipes match “xyzzy”.', 'No recipes yet.']

@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router';
 
 import type { components } from '../api/schema';
 import { Banner, Button, Page, RecipePhoto, Tag } from '../ui';
+import { describeDietTagConflict, dietTagLabels } from './diet-tags';
 import { difficultyLabels } from './difficulty';
 import { RecipeFacts } from './recipe-facts';
 import { RecipeIngredients } from './recipe-ingredients';
@@ -35,7 +36,15 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => (
           <Tag>One-pot</Tag>
         </li>
       )}
+      {recipe.diet_tags.map((tag) => (
+        <li key={tag}>
+          <Tag>{dietTagLabels[tag]}</Tag>
+        </li>
+      ))}
     </ul>
+    {recipe.diet_tag_conflicts.map((conflict) => (
+      <p key={conflict.ingredient.slug}>{describeDietTagConflict(conflict)}</p>
+    ))}
     <RecipeFacts recipe={recipe} />
     <RecipeIngredients recipe={recipe} />
     <RecipeMethod recipe={recipe} />

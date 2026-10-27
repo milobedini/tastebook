@@ -225,6 +225,45 @@ describe('RecipePage', () => {
     ]);
   });
 
+  it.each<[Recipe['diet_tags'], Recipe['diet_tag_conflicts'], string[], string[]]>([
+    [[], [], ['Easy', 'One-pot'], []],
+    [
+      ['vegetarian', 'vegan', 'dairy_free'],
+      [{ ingredient: { slug: 'parmesan', name: 'parmesan' }, diet_tags: ['vegan', 'dairy_free'] }],
+      ['Easy', 'One-pot', 'Vegetarian', 'Vegan', 'Dairy-free'],
+      ['Leave out the parmesan to keep it vegan and dairy-free.']
+    ],
+    [
+      ['vegetarian', 'vegan', 'gluten_free', 'dairy_free'],
+      [
+        { ingredient: { slug: 'bacon', name: 'bacon' }, diet_tags: ['vegetarian', 'vegan'] },
+        { ingredient: { slug: 'eggs', name: 'eggs' }, diet_tags: ['vegan'] },
+        { ingredient: { slug: 'croutons', name: 'butter croutons' }, diet_tags: ['vegan', 'gluten_free', 'dairy_free'] }
+      ],
+      ['Easy', 'One-pot', 'Vegetarian', 'Vegan', 'Gluten-free', 'Dairy-free'],
+      [
+        'Leave out the bacon to keep it vegetarian and vegan.',
+        'Leave out the eggs to keep it vegan.',
+        'Leave out the butter croutons to keep it vegan, gluten-free and dairy-free.'
+      ]
+    ]
+  ])(
+    'shows the diet tags %j and says which optional ingredient would take one away',
+    async (dietTags, conflicts, shownTags, sentences) => {
+      server.use(
+        http.get('/api/recipes/:slug/', () =>
+          HttpResponse.json<Recipe>({ ...shakshuka, diet_tags: dietTags, diet_tag_conflicts: conflicts })
+        )
+      );
+
+      renderRoute('/recipes/shakshuka');
+
+      expect(await screen.findByRole('heading', { name: 'Shakshuka' })).toBeInTheDocument();
+      expect(tags()).toEqual(shownTags);
+      expect(paragraphs()).toEqual(['Eggs in spiced tomatoes.', ...sentences]);
+    }
+  );
+
   it('shows extra time with its label, a yield, and several cuisines, courses and pieces of equipment', async () => {
     server.use(
       http.get('/api/recipes/:slug/', () =>

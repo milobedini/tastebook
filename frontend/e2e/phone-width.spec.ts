@@ -127,6 +127,7 @@ test('the recipe list fits a 375 px phone screen without scrolling sideways', as
   await page.goto('/recipes');
 
   await expect(page.getByText('19 hr · Hard · British, French')).toBeVisible();
+  await expect(page.getByText('Dairy-free')).toBeVisible();
   expect(await sidewaysScroll(page)).toBe(0);
 });
 
@@ -136,6 +137,7 @@ test('a recipe page fits a 375 px phone screen without scrolling sideways', asyn
   await page.goto(`/recipes/${recipe.slug}`);
 
   await expect(page.getByText('generous portions with leftovers')).toBeVisible();
+  await expect(page.getByText('Dairy-free')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Wikimedia Commons' })).toBeVisible();
   await expect(
     page.getByText('leaves picked, from https://en.wikibooks.org/wiki/Cookbook:Thyme', { exact: false })
