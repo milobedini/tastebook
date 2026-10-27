@@ -1,8 +1,8 @@
 ---
 issue: TAS-47
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tastebook/tas-47-filter-by-diet-and-by-ingredients-to-include-or-exclude
-pr:
+pr: 48
 ---
 
 # Filter by diet and by ingredients to include or exclude
