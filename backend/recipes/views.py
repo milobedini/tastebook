@@ -28,7 +28,7 @@ class RecipeListView(ListAPIView):
         filters.is_valid(raise_exception=True)
         given = filters.validated_data
         return (
-            Recipe.objects.matching_title(given['q'])
+            Recipe.objects.search(given['q'])
             .with_cuisines(given['cuisine'])
             .with_courses(given['course'])
             .with_difficulties(given['difficulty'])
@@ -36,7 +36,6 @@ class RecipeListView(ListAPIView):
             .only_one_pot(given['one_pot'])
             .prefetch_related('cuisines')
             .with_diet_tags()
-            .alphabetical()
         )
 
 

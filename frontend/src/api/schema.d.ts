@@ -345,7 +345,7 @@ export interface operations {
                 max_total?: number;
                 /** @description true means only one-pot recipes; false or missing means every recipe. */
                 one_pot?: boolean;
-                /** @description Title contains this text, ignoring case and accents. */
+                /** @description Title, description, an ingredient's name or synonym, or a cuisine contains this text, ignoring case and accents. Title matches come first, then the others, alphabetically within each. */
                 q?: string;
             };
             header?: never;
