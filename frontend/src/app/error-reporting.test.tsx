@@ -15,7 +15,7 @@ const RELEASE = '4ca3bae7c06fdf9c4d95dd193eb4d6f0e2b651ab';
 type SentryEvent = {
   environment: string;
   release: string;
-  exception: { values: { value: string }[] };
+  exception: { values: { value: string; mechanism: { handled: boolean } }[] };
 };
 
 const DSN = 'https://publickey@o1.ingest.sentry.io/2';
@@ -58,33 +58,41 @@ describe('startErrorReporting', () => {
   afterEach(async () => {
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
     await close();
   });
 
   it.each([
     ['an error the router catches', caughtByTheRouter],
     ['an error nothing catches', uncaught]
-  ])('reports %s to Sentry through the tunnel with the environment and release', async (_, tree) => {
-    const received = receiveEnvelopes();
-    vi.stubEnv('VITE_SENTRY_DSN', DSN);
-    vi.stubEnv('VITE_SENTRY_ENVIRONMENT', 'preview');
-    vi.stubEnv('VITE_SENTRY_RELEASE', RELEASE);
-    // Rendered as the browser does: under act(), React rethrows uncaught errors instead of passing them to the root.
-    vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', false);
+  ])(
+    'reports %s to Sentry through the tunnel with the environment and release, and logs it to the console',
+    async (_, tree) => {
+      const received = receiveEnvelopes();
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      vi.stubEnv('VITE_SENTRY_DSN', DSN);
+      vi.stubEnv('VITE_SENTRY_ENVIRONMENT', 'preview');
+      vi.stubEnv('VITE_SENTRY_RELEASE', RELEASE);
+      // Rendered as the browser does: under act(), React rethrows uncaught errors instead of passing them to the root.
+      vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', false);
 
-    const root = createRoot(document.body.appendChild(document.createElement('div')), startErrorReporting());
-    root.render(tree());
+      const root = createRoot(document.body.appendChild(document.createElement('div')), startErrorReporting());
+      root.render(tree());
 
-    await waitFor(() => expect(eventsIn(received.tunnelled)).toHaveLength(1));
-    const [event] = eventsIn(received.tunnelled);
-    expect(received.direct).toEqual([]);
-    // The tunnel forwards the envelope as it is; Sentry finds the project from the DSN in its header.
-    expect(JSON.parse(received.tunnelled[0]?.split('\n')[0] ?? '').dsn).toBe(DSN);
-    expect(event?.environment).toBe('preview');
-    expect(event?.release).toBe(RELEASE);
-    expect(event?.exception.values.at(-1)?.value).toBe('The oven caught fire');
-    root.unmount();
-  });
+      await waitFor(() => expect(eventsIn(received.tunnelled)).toHaveLength(1));
+      const [event] = eventsIn(received.tunnelled);
+      expect(received.direct).toEqual([]);
+      // The tunnel forwards the envelope as it is; Sentry finds the project from the DSN in its header.
+      expect(JSON.parse(received.tunnelled[0]?.split('\n')[0] ?? '').dsn).toBe(DSN);
+      expect(event?.environment).toBe('preview');
+      expect(event?.release).toBe(RELEASE);
+      expect(event?.exception.values.at(-1)?.value).toBe('The oven caught fire');
+      expect(event?.exception.values.at(-1)?.mechanism.handled).toBe(false);
+      // React's own default logs the error alone; the router's development logging adds a message before it.
+      expect(consoleError.mock.calls).toContainEqual([expect.objectContaining({ message: 'The oven caught fire' })]);
+      root.unmount();
+    }
+  );
 
   it('sends no request body with the report', async () => {
     const { tunnelled: envelopes } = receiveEnvelopes();

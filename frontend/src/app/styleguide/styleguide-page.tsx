@@ -1,3 +1,4 @@
+import { Page } from '../../ui';
 import { ConfirmSection, EmptyStateSection, FeedbackSection, RecipeCardsSection } from './content-sections';
 import {
   ButtonsSection,
@@ -10,7 +11,7 @@ import { ThemeSwitcher } from './theme-switcher';
 import { ColourSection, ShapeSection, TypeSection } from './token-sections';
 
 export const StyleguidePage = () => (
-  <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
+  <Page>
     <title>Style guide · Tastebook</title>
     <h1>Style guide</h1>
     <ThemeSwitcher />
@@ -26,5 +27,5 @@ export const StyleguidePage = () => (
     <FeedbackSection />
     <ConfirmSection />
     <EmptyStateSection />
-  </main>
+  </Page>
 );

@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router';
 
 import type { components } from '../api/schema';
+import { Banner, Button, CuisinePlate, Page } from '../ui';
 import { RecipeCuisines } from './recipe-cuisines';
 import { useRecipe } from './recipes-api';
 
@@ -12,6 +13,7 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => (
   <>
     {/* React 19 needs <title> to have a single string child. */}
     <title>{`${recipe.title} · Tastebook`}</title>
+    <CuisinePlate shape="hero" cuisineSlug={recipe.cuisines[0]?.slug} />
     <h1>{recipe.title}</h1>
     <RecipeCuisines cuisines={recipe.cuisines} />
     {recipe.description !== '' && <p>{recipe.description}</p>}
@@ -40,10 +42,10 @@ type RecipeUnavailableProps = {
 const RecipeUnavailable = ({ onRetry }: RecipeUnavailableProps) => (
   <>
     <title>Recipe · Tastebook</title>
-    <p role="alert">The recipe couldn't be loaded.</p>
-    <button type="button" onClick={onRetry}>
+    <Banner tone="danger" title="The recipe couldn't be loaded." />
+    <Button variant="secondary" className="self-start" onClick={onRetry}>
       Try again
-    </button>
+    </Button>
   </>
 );
 
@@ -75,9 +77,15 @@ const RecipeContent = () => {
 };
 
 export const RecipePage = () => (
-  <main>
+  <Page>
     <RecipeContent />
-    <Link to="/recipes">All recipes</Link>
-    <Link to="/">Back to Tastebook</Link>
-  </main>
+    <div className="flex flex-wrap gap-2">
+      <Button asChild variant="ghost">
+        <Link to="/recipes">All recipes</Link>
+      </Button>
+      <Button asChild variant="ghost">
+        <Link to="/">Back to Tastebook</Link>
+      </Button>
+    </div>
+  </Page>
 );
