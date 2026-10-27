@@ -424,6 +424,117 @@ describe('RecipePage', () => {
     ]);
   });
 
+  it('opens in metric with small volumes in spoons, and switches to US customary for amounts and oven temperatures', async () => {
+    server.use(
+      http.get('/api/recipes/:slug/', () =>
+        HttpResponse.json<Recipe>({
+          ...shakshuka,
+          ingredient_lines: [
+            line(1, 'vanilla extract', { amount: 5, unit: 'ml' }),
+            line(2, 'plain flour', { amount: 1, unit: 'cup' }),
+            line(3, 'butter', { amount: 200, unit: 'g', note: 'softened' }),
+            line(4, 'garlic', { amount: 2, unit: 'clove' }),
+            line(5, 'salt', { amount: 1, unit: 'pinch' })
+          ],
+          steps: [
+            { id: 1, text: 'Heat the oven to 180°C (160°C fan).' },
+            { id: 2, text: 'Rub 200 g of the butter into the flour.' }
+          ]
+        })
+      )
+    );
+
+    renderRoute('/recipes/shakshuka');
+
+    const ingredients = await screen.findByRole('region', { name: 'Ingredients' });
+    const amounts = () => itemsOf(within(ingredients).getByRole('list'));
+    const steps = () => itemsOf(within(screen.getByRole('region', { name: 'Method' })).getByRole('list'));
+    const units = screen.getByRole('group', { name: 'Units' });
+    expect(within(units).getByRole('button', { name: 'Metric' })).toHaveAttribute('aria-pressed', 'true');
+    expect(amounts()).toEqual([
+      '1 tsp vanilla extract',
+      '240 ml plain flour',
+      '200 g butter, softened',
+      '2 cloves garlic',
+      '1 pinch salt'
+    ]);
+    expect(steps()).toEqual(['Heat the oven to 180°C (160°C fan).', 'Rub 200 g of the butter into the flour.']);
+    // Written by hand, so there's no original that differs.
+    expect(within(ingredients).queryByRole('button', { name: 'Show original' })).not.toBeInTheDocument();
+
+    await userEvent.click(within(units).getByRole('button', { name: 'US' }));
+
+    expect(within(units).getByRole('button', { name: 'US' })).toHaveAttribute('aria-pressed', 'true');
+    expect(amounts()).toEqual([
+      '1 tsp vanilla extract',
+      '1 cup plain flour',
+      '7 oz butter, softened',
+      '2 cloves garlic',
+      '1 pinch salt'
+    ]);
+    expect(steps()).toEqual(['Heat the oven to 355°F (320°F fan).', 'Rub 200 g of the butter into the flour.']);
+
+    await userEvent.click(within(ingredients).getByRole('button', { name: 'More servings' }));
+
+    expect(amounts()).toEqual([
+      '1.5 tsp vanilla extract',
+      '1.5 cups plain flour',
+      '10.5 oz butter, softened',
+      '3 cloves garlic',
+      '1–2 pinches salt'
+    ]);
+
+    await userEvent.click(within(units).getByRole('button', { name: 'Metric' }));
+
+    expect(amounts()).toEqual([
+      '1.5 tsp vanilla extract',
+      '360 ml plain flour',
+      '300 g butter, softened',
+      '3 cloves garlic',
+      '1–2 pinches salt'
+    ]);
+    expect(steps()).toEqual(['Heat the oven to 180°C (160°C fan).', 'Rub 200 g of the butter into the flour.']);
+  });
+
+  it('shows the amounts and method as the source wrote them, offered only while they differ from what is shown', async () => {
+    server.use(
+      http.get('/api/recipes/:slug/', () =>
+        HttpResponse.json<Recipe>({
+          ...shakshuka,
+          ingredient_lines: [
+            line(1, 'plain flour', { amount: 1, unit: 'cup', original_text: '1 cup plain flour' }),
+            line(2, 'eggs', { amount: 2, original_text: '2 eggs' }),
+            line(3, 'chives', { optional: true })
+          ],
+          steps: [{ id: 1, text: 'Heat the oven to 350°F.' }]
+        })
+      )
+    );
+
+    renderRoute('/recipes/shakshuka');
+
+    const ingredients = await screen.findByRole('region', { name: 'Ingredients' });
+    const amounts = () => itemsOf(within(ingredients).getByRole('list'));
+    const steps = () => itemsOf(within(screen.getByRole('region', { name: 'Method' })).getByRole('list'));
+    const showOriginal = () => within(ingredients).queryByRole('button', { name: 'Show original' });
+    expect(amounts()).toEqual(['240 ml plain flour', '2 eggs', 'chives (optional)']);
+    expect(steps()).toEqual(['Heat the oven to 175°C.']);
+    expect(showOriginal()).toHaveAttribute('aria-pressed', 'false');
+
+    await userEvent.click(within(ingredients).getByRole('button', { name: 'Show original' }));
+
+    expect(showOriginal()).toHaveAttribute('aria-pressed', 'true');
+    expect(amounts()).toEqual(['1 cup plain flour', '2 eggs', 'chives (optional)']);
+    expect(steps()).toEqual(['Heat the oven to 350°F.']);
+
+    // US customary reads the same as the original, so there's nothing different to show.
+    await userEvent.click(screen.getByRole('button', { name: 'US' }));
+
+    expect(amounts()).toEqual(['1 cup plain flour', '2 eggs', 'chives (optional)']);
+    expect(steps()).toEqual(['Heat the oven to 350°F.']);
+    expect(showOriginal()).not.toBeInTheDocument();
+  });
+
   it.each([
     ['shakshuka', ['Ingredients', 'Method']],
     ['banana-bread', []]

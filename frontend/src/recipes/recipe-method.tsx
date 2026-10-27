@@ -1,12 +1,13 @@
 import { useId } from 'react';
 
 import type { components } from '../api/schema';
+import { convertTemperatures, type UnitSystem } from './convert';
 
 type Recipe = components['schemas']['Recipe'];
 
-type RecipeMethodProps = { recipe: Recipe };
+type RecipeMethodProps = { recipe: Recipe; system: UnitSystem; showOriginal: boolean };
 
-export const RecipeMethod = ({ recipe }: RecipeMethodProps) => {
+export const RecipeMethod = ({ recipe, system, showOriginal }: RecipeMethodProps) => {
   const headingId = useId();
   if (recipe.steps.length === 0) {
     return null;
@@ -17,7 +18,7 @@ export const RecipeMethod = ({ recipe }: RecipeMethodProps) => {
       <ol className="flex list-decimal flex-col gap-4 pl-6 marker:font-bold marker:text-muted">
         {recipe.steps.map((step) => (
           <li key={step.id} className="min-w-0 break-words pl-1">
-            {step.text}
+            {showOriginal ? step.text : convertTemperatures(step.text, system)}
           </li>
         ))}
       </ol>

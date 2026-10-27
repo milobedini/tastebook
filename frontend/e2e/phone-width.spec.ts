@@ -57,7 +57,7 @@ const recipe: Recipe = {
       ingredient: { slug: 'pork-shoulder', name: 'bone-in pork shoulder' },
       note: 'skin scored at 1 cm intervals, ask the butcher to do it if your knife is not sharp enough',
       optional: false,
-      original_text: ''
+      original_text: '5½–6½ lb bone-in pork shoulder, skin scored at ½ in intervals by the butcher'
     }
   ],
   ingredient_groups: [
@@ -146,5 +146,6 @@ test('a recipe page fits a 375 px phone screen without scrolling sideways', asyn
     page.getByText('leaves picked, from https://en.wikibooks.org/wiki/Cookbook:Thyme', { exact: false })
   ).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Method' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Show original' })).toBeVisible();
   expect(await sidewaysScroll(page)).toBe(0);
 });

@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 
 import type { components } from '../api/schema';
-import { Banner, Button, Page, RecipePhoto, Tag } from '../ui';
+import { Banner, Button, Page, RecipePhoto, SegmentedControl, Tag } from '../ui';
+import type { UnitSystem } from './convert';
 import { describeDietTagConflict, dietTagLabels } from './diet-tags';
 import { difficultyLabels } from './difficulty';
 import { RecipeFacts } from './recipe-facts';
@@ -13,6 +15,38 @@ import { useRecipe } from './recipes-api';
 type Recipe = components['schemas']['Recipe'];
 
 type RecipeDetailsProps = { recipe: Recipe };
+
+const unitSystems: { value: UnitSystem; label: string }[] = [
+  { value: 'metric', label: 'Metric' },
+  { value: 'us', label: 'US' }
+];
+
+// The unit system isn't remembered, so every recipe opens in metric.
+const RecipeIngredientsAndMethod = ({ recipe }: RecipeDetailsProps) => {
+  const [system, setSystem] = useState<UnitSystem>('metric');
+  const [showOriginal, setShowOriginal] = useState(false);
+  // Choosing a unit system asks for the amounts in it, not the original.
+  const chooseSystem = (chosen: UnitSystem) => {
+    setSystem(chosen);
+    setShowOriginal(false);
+  };
+  return (
+    <>
+      {(hasIngredients(recipe) || recipe.steps.length > 0) && (
+        <div>
+          <SegmentedControl label="Units" options={unitSystems} value={system} onValueChange={chooseSystem} />
+        </div>
+      )}
+      <RecipeIngredients
+        recipe={recipe}
+        system={system}
+        showOriginal={showOriginal}
+        onShowOriginalChange={setShowOriginal}
+      />
+      <RecipeMethod recipe={recipe} system={system} showOriginal={showOriginal} />
+    </>
+  );
+};
 
 const RecipeDetails = ({ recipe }: RecipeDetailsProps) => (
   <>
@@ -46,9 +80,8 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => (
       <p key={conflict.ingredient.slug}>{describeDietTagConflict(conflict)}</p>
     ))}
     <RecipeFacts recipe={recipe} withServings={!hasIngredients(recipe)} />
-    {/* Keyed so another recipe starts at its own servings. */}
-    <RecipeIngredients key={recipe.id} recipe={recipe} />
-    <RecipeMethod recipe={recipe} />
+    {/* Keyed so another recipe starts at its own servings, in metric. */}
+    <RecipeIngredientsAndMethod key={recipe.id} recipe={recipe} />
   </>
 );
 
