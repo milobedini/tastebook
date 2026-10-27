@@ -1,4 +1,4 @@
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
@@ -19,7 +19,8 @@ const appleTart: Recipe = {
   description: 'Sharp apples on buttery pastry.',
   cuisines: [{ slug: 'french', name: 'French' }],
   difficulty: 'medium',
-  total_minutes: 100
+  total_minutes: 100,
+  photo: null
 };
 const bananaBread: Recipe = {
   id: 2,
@@ -28,7 +29,8 @@ const bananaBread: Recipe = {
   description: '',
   cuisines: [],
   difficulty: 'easy',
-  total_minutes: 75
+  total_minutes: 75,
+  photo: null
 };
 
 // Holds the next recipes response until released, so the test can see the page while the request is in flight.
@@ -126,7 +128,8 @@ describe('RecipesPage', () => {
           description: 'Eggs in spiced tomatoes.',
           cuisines: [],
           difficulty: 'easy',
-          total_minutes: 35
+          total_minutes: 35,
+          photo: null
         },
         {
           id: 3,
@@ -135,7 +138,8 @@ describe('RecipesPage', () => {
           description: '',
           cuisines: [],
           difficulty: 'hard',
-          total_minutes: 90
+          total_minutes: 90,
+          photo: null
         }
       ])
     );
@@ -175,7 +179,8 @@ describe('RecipesPage', () => {
               { slug: 'mexican', name: 'Mexican' }
             ],
             difficulty: 'easy',
-            total_minutes: 25
+            total_minutes: 25,
+            photo: null
           }
         ])
       )
@@ -189,6 +194,54 @@ describe('RecipesPage', () => {
     expect(screen.getByRole('heading', { name: 'Ramen tacos' }).closest('li')).toHaveTextContent(
       /^Ramen tacos25 min · Easy · Japanese, Mexican$/
     );
+  });
+
+  it("lazy-loads a card's photo at its card width, and shows none on a card without one", async () => {
+    server.use(
+      http.get('/api/recipes/', () =>
+        HttpResponse.json<Recipe[]>([
+          {
+            ...appleTart,
+            photo: {
+              thumbnails: [
+                {
+                  width: 330,
+                  url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Tart.jpg/330px-Tart.jpg'
+                },
+                { width: 500, url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Tart.jpg/500px-Tart.jpg' }
+              ],
+              author: 'Jane Doe',
+              licence: 'CC BY-SA 4.0',
+              source_url: 'https://commons.wikimedia.org/wiki/File:Tart.jpg'
+            }
+          },
+          bananaBread
+        ])
+      )
+    );
+
+    renderRoute('/recipes');
+
+    const cards = (await screen.findAllByRole('listitem')).map((card) => [
+      within(card).getByRole('heading').textContent,
+      within(card)
+        .queryAllByRole('presentation')
+        .map((image) => [image.getAttribute('srcset'), image.getAttribute('sizes'), image.getAttribute('loading')])
+    ]);
+    expect(cards).toEqual([
+      [
+        'Apple tart',
+        [
+          [
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Tart.jpg/330px-Tart.jpg 330w, ' +
+              'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Tart.jpg/500px-Tart.jpg 500w',
+            '5.75rem',
+            'lazy'
+          ]
+        ]
+      ],
+      ['Banana bread', []]
+    ]);
   });
 
   it.each([
@@ -327,7 +380,8 @@ describe('RecipesPage', () => {
           description: 'Eggs in spiced tomatoes.',
           cuisines: [],
           difficulty: 'easy',
-          total_minutes: 35
+          total_minutes: 35,
+          photo: null
         }
       ])
     );

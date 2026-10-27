@@ -27,6 +27,7 @@ const recipes: Recipe[] = [
     extra_minutes: 30,
     extra_label: 'chilling',
     total_minutes: 100,
+    photo: null,
     servings: 8,
     yield_amount: null,
     yield_unit: '',
@@ -50,6 +51,7 @@ const recipes: Recipe[] = [
     extra_minutes: 0,
     extra_label: '',
     total_minutes: 75,
+    photo: null,
     servings: null,
     yield_amount: 1,
     yield_unit: 'loaf',
@@ -62,14 +64,24 @@ const recipes: Recipe[] = [
   }
 ];
 
-const toSummary = ({ id, slug, title, description, cuisines, difficulty, total_minutes }: Recipe): RecipeSummary => ({
+const toSummary = ({
   id,
   slug,
   title,
   description,
   cuisines,
   difficulty,
-  total_minutes
+  total_minutes,
+  photo
+}: Recipe): RecipeSummary => ({
+  id,
+  slug,
+  title,
+  description,
+  cuisines,
+  difficulty,
+  total_minutes,
+  photo
 });
 
 export const handlers = [

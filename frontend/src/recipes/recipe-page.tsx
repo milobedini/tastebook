@@ -1,11 +1,12 @@
 import { Link, useParams } from 'react-router';
 
 import type { components } from '../api/schema';
-import { Banner, Button, CuisinePlate, Page, Tag } from '../ui';
+import { Banner, Button, Page, RecipePhoto, Tag } from '../ui';
 import { difficultyLabels } from './difficulty';
 import { RecipeFacts } from './recipe-facts';
 import { RecipeIngredients } from './recipe-ingredients';
 import { RecipeMethod } from './recipe-method';
+import { RecipePhotoCredit } from './recipe-photo-credit';
 import { useRecipe } from './recipes-api';
 
 type Recipe = components['schemas']['Recipe'];
@@ -16,7 +17,13 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => (
   <>
     {/* React 19 needs <title> to have a single string child. */}
     <title>{`${recipe.title} · Tastebook`}</title>
-    <CuisinePlate shape="hero" cuisineSlug={recipe.cuisines[0]?.slug} />
+    <RecipePhoto
+      shape="hero"
+      photo={recipe.photo}
+      cuisineSlug={recipe.cuisines[0]?.slug}
+      alt={recipe.title}
+      caption={recipe.photo && <RecipePhotoCredit photo={recipe.photo} />}
+    />
     <h1>{recipe.title}</h1>
     {recipe.description !== '' && <p>{recipe.description}</p>}
     <ul className="flex flex-wrap gap-2">

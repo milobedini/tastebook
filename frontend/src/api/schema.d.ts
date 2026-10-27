@@ -147,6 +147,11 @@ export interface components {
             note: string;
             optional: boolean;
         };
+        PhotoThumbnail: {
+            readonly width: number;
+            /** Format: uri */
+            readonly url: string;
+        };
         Recipe: {
             readonly id: number;
             readonly slug: string;
@@ -155,6 +160,7 @@ export interface components {
             readonly cuisines: components["schemas"]["Cuisine"][];
             difficulty: components["schemas"]["DifficultyEnum"];
             readonly total_minutes: number;
+            readonly photo: components["schemas"]["RecipePhoto"] | null;
             readonly courses: components["schemas"]["Course"][];
             prep_minutes: number;
             cook_minutes: number;
@@ -179,6 +185,13 @@ export interface components {
             readonly ingredient_groups: components["schemas"]["IngredientGroup"][];
             readonly steps: components["schemas"]["Step"][];
         };
+        RecipePhoto: {
+            readonly thumbnails: components["schemas"]["PhotoThumbnail"][];
+            readonly author: string;
+            readonly licence: string;
+            /** Format: uri */
+            readonly source_url: string;
+        };
         RecipeSummary: {
             readonly id: number;
             readonly slug: string;
@@ -187,6 +200,7 @@ export interface components {
             readonly cuisines: components["schemas"]["Cuisine"][];
             difficulty: components["schemas"]["DifficultyEnum"];
             readonly total_minutes: number;
+            readonly photo: components["schemas"]["RecipePhoto"] | null;
         };
         /**
          * @description * `ok` - ok

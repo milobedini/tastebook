@@ -57,13 +57,27 @@ class StepSerializer(serializers.ModelSerializer):
         fields = ['id', 'text']
 
 
+class PhotoThumbnailSerializer(serializers.Serializer):
+    width = serializers.IntegerField(read_only=True)
+    url = serializers.URLField(read_only=True)
+
+
+class RecipePhotoSerializer(serializers.Serializer):
+    thumbnails = PhotoThumbnailSerializer(many=True, read_only=True)
+    author = serializers.CharField(read_only=True)
+    licence = serializers.CharField(read_only=True)
+    source_url = serializers.URLField(read_only=True)
+
+
 class RecipeSummarySerializer(serializers.ModelSerializer):
     cuisines = CuisineSerializer(many=True, read_only=True)
     total_minutes = serializers.IntegerField(read_only=True)
+    # null when the recipe has no photo, so the card shows its cuisine plate.
+    photo = RecipePhotoSerializer(read_only=True, allow_null=True)
 
     class Meta:
         model = Recipe
-        fields = ['id', 'slug', 'title', 'description', 'cuisines', 'difficulty', 'total_minutes']
+        fields = ['id', 'slug', 'title', 'description', 'cuisines', 'difficulty', 'total_minutes', 'photo']
         # The API always sends description, as '' when there is none, so the schema marks it required.
         extra_kwargs = {'description': {'required': True, 'allow_blank': True}}
 

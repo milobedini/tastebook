@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
@@ -9,6 +9,7 @@ import { server } from '../test/server';
 
 type Recipe = components['schemas']['Recipe'];
 type IngredientLine = components['schemas']['IngredientLine'];
+type RecipePhoto = components['schemas']['RecipePhoto'];
 
 const shakshuka: Recipe = {
   id: 7,
@@ -23,6 +24,7 @@ const shakshuka: Recipe = {
   extra_minutes: 0,
   extra_label: '',
   total_minutes: 35,
+  photo: null,
   servings: 2,
   yield_amount: null,
   yield_unit: '',
@@ -32,6 +34,16 @@ const shakshuka: Recipe = {
   ingredient_lines: [],
   ingredient_groups: [],
   steps: []
+};
+
+const photo: RecipePhoto = {
+  thumbnails: [
+    { width: 330, url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Shakshuka.jpg/330px-Shakshuka.jpg' },
+    { width: 1280, url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Shakshuka.jpg/1280px-Shakshuka.jpg' }
+  ],
+  author: 'Jane Doe',
+  licence: 'CC BY-SA 4.0',
+  source_url: 'https://commons.wikimedia.org/wiki/File:Shakshuka.jpg'
 };
 
 // Each term of the recipe's details with its definition, in the order the page shows them.
@@ -131,6 +143,51 @@ describe('RecipePage', () => {
     expect(paragraphs()).toEqual(descriptions);
   });
 
+  it.each([
+    [photo, ['Shakshuka']],
+    [null, []]
+  ])('shows a photo above the title only when the recipe has one', async (recipePhoto, images) => {
+    server.use(http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>({ ...shakshuka, photo: recipePhoto })));
+
+    renderRoute('/recipes/shakshuka');
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Shakshuka' })).toBeInTheDocument();
+    expect(screen.queryAllByRole('img').map((image) => image.getAttribute('alt'))).toEqual(images);
+  });
+
+  it('loads the photo at once at the page width, credited with its author, licence and a link to its page', async () => {
+    server.use(http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>({ ...shakshuka, photo })));
+
+    renderRoute('/recipes/shakshuka');
+
+    const figure = await screen.findByRole('figure');
+    expect(figure).toHaveTextContent(/^Photo by Jane Doe, CC BY-SA 4\.0, via Wikimedia Commons$/);
+    const image = within(figure).getByRole('img', { name: 'Shakshuka' });
+    expect(image).toHaveAttribute(
+      'srcset',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Shakshuka.jpg/330px-Shakshuka.jpg 330w, ' +
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Shakshuka.jpg/1280px-Shakshuka.jpg 1280w'
+    );
+    expect(image).toHaveAttribute('sizes', '(min-width: 42rem) 40rem, calc(100vw - 2rem)');
+    expect(image).toHaveAttribute('loading', 'eager');
+    expect(within(figure).getByRole('link', { name: 'Wikimedia Commons' })).toHaveAttribute(
+      'href',
+      'https://commons.wikimedia.org/wiki/File:Shakshuka.jpg'
+    );
+  });
+
+  it("shows the cuisine plate without a credit when the photo can't load", async () => {
+    server.use(http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>({ ...shakshuka, photo })));
+
+    renderRoute('/recipes/shakshuka');
+
+    fireEvent.error(await screen.findByRole('img', { name: 'Shakshuka' }));
+
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Photo by/)).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Shakshuka' })).toBeInTheDocument();
+  });
+
   it("shows the recipe's difficulty, one-pot, times, servings, equipment and source credit", async () => {
     server.use(
       http.get('/api/recipes/:slug/', () =>
@@ -173,6 +230,7 @@ describe('RecipePage', () => {
           extra_minutes: 120,
           extra_label: 'proving',
           total_minutes: 185,
+          photo: null,
           servings: null,
           yield_amount: 12,
           yield_unit: 'buns',

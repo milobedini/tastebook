@@ -27,6 +27,15 @@ const recipe: Recipe = {
   extra_minutes: 720,
   extra_label: 'dry-brining overnight in the fridge',
   total_minutes: 1140,
+  photo: {
+    thumbnails: [330, 500, 960, 1280].map((width) => ({
+      width,
+      url: `https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Roast_pork.jpg/${width}px-Roast_pork.jpg`
+    })),
+    author: 'The Worshipful Company of Butchers of the City of London, photographed by its archivist',
+    licence: 'CC BY-SA 4.0',
+    source_url: 'https://commons.wikimedia.org/wiki/File:Roast_pork.jpg'
+  },
   servings: null,
   yield_amount: 12,
   yield_unit: 'generous portions with leftovers',
@@ -88,13 +97,26 @@ const summary: RecipeSummary = {
   description: recipe.description,
   cuisines: recipe.cuisines,
   difficulty: recipe.difficulty,
-  total_minutes: recipe.total_minutes
+  total_minutes: recipe.total_minutes,
+  photo: recipe.photo
 };
+
+// One transparent pixel stands in for every Commons thumbnail, so the specs never reach Wikimedia.
+const pixel = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+  'base64'
+);
 
 const sidewaysScroll = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 
 test.use({ viewport: { width: 375, height: 812 } });
+
+test.beforeEach(async ({ page }) => {
+  await page.route('https://upload.wikimedia.org/**', (route) =>
+    route.fulfill({ contentType: 'image/png', body: pixel })
+  );
+});
 
 test('the recipe list fits a 375 px phone screen without scrolling sideways', async ({ page }) => {
   await page.route('**/api/recipes/', (route) => route.fulfill({ json: [summary] }));
@@ -111,6 +133,7 @@ test('a recipe page fits a 375 px phone screen without scrolling sideways', asyn
   await page.goto(`/recipes/${recipe.slug}`);
 
   await expect(page.getByText('generous portions with leftovers')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Wikimedia Commons' })).toBeVisible();
   await expect(
     page.getByText('leaves picked, from https://en.wikibooks.org/wiki/Cookbook:Thyme', { exact: false })
   ).toBeVisible();

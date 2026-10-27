@@ -1,9 +1,10 @@
 from typing import Any
 
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from django.db.models.functions import Lower
 
+from recipes.photos import COMMONS_FILE, COMMONS_FILE_PAGE, Photo
 from recipes.slugs import base_slug, first_free_slug
 
 
@@ -106,6 +107,41 @@ class Recipe(models.Model):
     source = models.CharField(
         'source credit', max_length=300, help_text='Where the recipe came from: an author, a website or a book.'
     )
+    photo_url = models.URLField(
+        'photo address',
+        max_length=500,
+        blank=True,
+        validators=[
+            RegexValidator(
+                COMMONS_FILE,
+                'Give the address of a JPEG, PNG or WebP file on Wikimedia Commons, '
+                'starting https://upload.wikimedia.org/wikipedia/commons/.',
+                # A code of its own, as the admin form swaps the default 'invalid' for "Enter a valid URL."
+                code='not_commons_file',
+            )
+        ],
+        help_text=(
+            'On the photo\'s Wikimedia Commons page, copy the address of "Original file". '
+            'Leave the photo empty to show the cuisine plate.'
+        ),
+    )
+    photo_author = models.CharField('photo author', max_length=200, blank=True)
+    photo_licence = models.CharField(
+        'photo licence', max_length=50, blank=True, help_text='As Commons gives it, such as CC BY-SA 4.0.'
+    )
+    photo_source_url = models.URLField(
+        'photo source',
+        max_length=500,
+        blank=True,
+        validators=[
+            RegexValidator(
+                COMMONS_FILE_PAGE,
+                "Give the photo's page on Wikimedia Commons, starting https://commons.wikimedia.org/wiki/File:.",
+                code='not_commons_file_page',
+            )
+        ],
+        help_text="The photo's page on Wikimedia Commons, starting https://commons.wikimedia.org/wiki/File:.",
+    )
 
     objects = RecipeQuerySet.as_manager()
 
@@ -128,6 +164,17 @@ class Recipe(models.Model):
                 name='recipe_extra_time_has_label',
                 violation_error_message='Give extra time with its label (marinating, resting, proving), or neither.',
             ),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(photo_url='', photo_author='', photo_licence='', photo_source_url='')
+                    | ~models.Q(photo_url='')
+                    & ~models.Q(photo_author='')
+                    & ~models.Q(photo_licence='')
+                    & ~models.Q(photo_source_url='')
+                ),
+                name='recipe_photo_is_credited',
+                violation_error_message='Give a photo with its author, licence and source, or none of them.',
+            ),
         ]
 
     def __str__(self) -> str:
@@ -142,6 +189,12 @@ class Recipe(models.Model):
     @property
     def total_minutes(self) -> int:
         return self.prep_minutes + self.cook_minutes + self.extra_minutes
+
+    @property
+    def photo(self) -> Photo | None:
+        if self.photo_url == '':
+            return None
+        return Photo(self.photo_url, self.photo_author, self.photo_licence, self.photo_source_url)
 
 
 class Ingredient(models.Model):

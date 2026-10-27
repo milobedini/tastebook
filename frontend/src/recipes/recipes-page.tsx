@@ -134,7 +134,12 @@ type RecipeItemProps = { recipe: RecipeSummary };
 
 const RecipeItem = ({ recipe }: RecipeItemProps) => (
   <li>
-    <RecipeCard title={recipe.title} to={`/recipes/${recipe.slug}`} cuisineSlug={recipe.cuisines[0]?.slug}>
+    <RecipeCard
+      title={recipe.title}
+      to={`/recipes/${recipe.slug}`}
+      cuisineSlug={recipe.cuisines[0]?.slug}
+      photo={recipe.photo}
+    >
       <RecipeMeta recipe={recipe} />
       {recipe.description !== '' && <p>{recipe.description}</p>}
     </RecipeCard>

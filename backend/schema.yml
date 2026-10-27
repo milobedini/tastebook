@@ -248,6 +248,19 @@ components:
       - note
       - optional
       - unit
+    PhotoThumbnail:
+      type: object
+      properties:
+        width:
+          type: integer
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          readOnly: true
+      required:
+      - url
+      - width
     Recipe:
       type: object
       properties:
@@ -274,6 +287,11 @@ components:
         total_minutes:
           type: integer
           readOnly: true
+        photo:
+          allOf:
+          - $ref: '#/components/schemas/RecipePhoto'
+          readOnly: true
+          nullable: true
         courses:
           type: array
           items:
@@ -353,6 +371,7 @@ components:
       - ingredient_groups
       - ingredient_lines
       - one_pot
+      - photo
       - prep_minutes
       - servings
       - slug
@@ -362,6 +381,29 @@ components:
       - total_minutes
       - yield_amount
       - yield_unit
+    RecipePhoto:
+      type: object
+      properties:
+        thumbnails:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhotoThumbnail'
+          readOnly: true
+        author:
+          type: string
+          readOnly: true
+        licence:
+          type: string
+          readOnly: true
+        source_url:
+          type: string
+          format: uri
+          readOnly: true
+      required:
+      - author
+      - licence
+      - source_url
+      - thumbnails
     RecipeSummary:
       type: object
       properties:
@@ -388,11 +430,17 @@ components:
         total_minutes:
           type: integer
           readOnly: true
+        photo:
+          allOf:
+          - $ref: '#/components/schemas/RecipePhoto'
+          readOnly: true
+          nullable: true
       required:
       - cuisines
       - description
       - difficulty
       - id
+      - photo
       - slug
       - title
       - total_minutes
