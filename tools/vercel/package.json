@@ -1,0 +1,14 @@
+{
+  "name": "@tastebook/vercel",
+  "private": true,
+  "type": "module",
+  "description": "Vercel's Ignored Build Step: skips a deployment when nothing the app is built from changed. Run by both services' ignoreCommand in vercel.json.",
+  "scripts": {
+    "test": "node --test ignored-build-step.test.ts",
+    "type-check": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "7.0.2"
+  }
+}
