@@ -71,7 +71,7 @@ class RecipeSummarySerializer(serializers.ModelSerializer):
 class RecipeSerializer(RecipeSummarySerializer):
     courses = CourseSerializer(many=True, read_only=True)
     equipment = EquipmentSerializer(many=True, read_only=True)
-    # Lines in no group; the page shows them before the groups.
+    # Lines in no group, shown before the groups; ungrouped_lines exists only on with_ingredients_and_method().
     ingredient_lines = IngredientLineSerializer(many=True, read_only=True, source='ungrouped_lines')
     ingredient_groups = IngredientGroupSerializer(many=True, read_only=True)
     steps = StepSerializer(many=True, read_only=True)
