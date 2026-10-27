@@ -15,10 +15,11 @@ Names marked _planned_ don't exist in the code yet; use them when you build the 
 | Synonym | Another name for an ingredient, including US names (zucchini for courgette). Search finds the ingredient by any of them. | `IngredientSynonym` |
 | Ingredient line | One line of a recipe's ingredients: amount, unit, ingredient, note, and whether it's optional. | `IngredientLine` |
 | Ingredient group | A named group of ingredient lines ("For the sauce", "To serve"). | `IngredientGroup` |
+| Original wording | An ingredient line as its source wrote it ("1 cup plain flour, sifted"), shown by "Show original". A recipe written by hand has none. | `IngredientLine.original_text` |
 | Optional ingredient | An ingredient line the recipe works without. It doesn't count against a match or change diet tags. | `IngredientLine.optional` |
 | Amount | How much of an ingredient: a number, a range (2–3) or none ("to taste"). | `IngredientLine.amount`, `amount_max` |
 | Unit | A unit from Tastebook's fixed list (g, ml, tsp, cup…), or none ("2 eggs"). | `Unit` |
-| Unit system | Metric (the default) or US customary, for reading amounts. | `UnitSystem` _planned_ |
+| Unit system | Metric (the default) or US customary, for reading amounts. Amounts convert within a dimension (volume or weight); count units never convert. | `UnitSystem`, `convert()` |
 | Step | One step of a recipe's method, in order. | `Step` |
 | Method | A recipe's steps, in order. | `Recipe.steps` |
 | Equipment | A tool from the shared equipment list (oven, hob, stand mixer…) that a recipe needs. | `Equipment` |

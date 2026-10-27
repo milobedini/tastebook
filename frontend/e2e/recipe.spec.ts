@@ -33,3 +33,28 @@ test('changing the servings scales a catalogue recipe through the real API', asy
     '1.5 tsp salt'
   ]);
 });
+
+test('switching to US customary converts a catalogue recipe through the real API', async ({ page, accessibility }) => {
+  await page.goto('/recipes/oat-and-raisin-cookies');
+
+  const units = page.getByRole('group', { name: 'Units' });
+  await expect(units.getByRole('button', { name: 'Metric' })).toHaveAttribute('aria-pressed', 'true');
+
+  await units.getByRole('button', { name: 'US' }).click();
+
+  await expect(page.getByRole('region', { name: 'Ingredients' }).getByRole('listitem')).toHaveText([
+    '4.5 oz unsalted butter, softened',
+    '5.25 oz light brown soft sugar',
+    '2 tbsp golden syrup',
+    '4.5 oz plain flour',
+    '0.5 tsp bicarbonate of soda',
+    '1 tsp ground cinnamon (optional)',
+    '1 pinch salt',
+    '5.25 oz porridge oats',
+    '3.5 oz raisins'
+  ]);
+  await expect(page.getByRole('region', { name: 'Method' }).getByRole('listitem').nth(3)).toContainText(
+    'Heat the oven to 355°F (320°F fan)'
+  );
+  await accessibility.check();
+});

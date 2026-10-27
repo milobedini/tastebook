@@ -56,7 +56,8 @@ const recipe: Recipe = {
       unit: 'kg',
       ingredient: { slug: 'pork-shoulder', name: 'bone-in pork shoulder' },
       note: 'skin scored at 1 cm intervals, ask the butcher to do it if your knife is not sharp enough',
-      optional: false
+      optional: false,
+      original_text: '5½–6½ lb bone-in pork shoulder, skin scored at ½ in intervals by the butcher'
     }
   ],
   ingredient_groups: [
@@ -71,7 +72,8 @@ const recipe: Recipe = {
           unit: 'g',
           ingredient: { slug: 'plain-flour', name: 'plain flour' },
           note: 'sifted',
-          optional: false
+          optional: false,
+          original_text: ''
         },
         {
           id: 3,
@@ -80,7 +82,8 @@ const recipe: Recipe = {
           unit: 'handful',
           ingredient: { slug: 'thyme', name: 'thyme' },
           note: 'leaves picked, from https://en.wikibooks.org/wiki/Cookbook:Thyme',
-          optional: true
+          optional: true,
+          original_text: ''
         }
       ]
     }
@@ -143,5 +146,6 @@ test('a recipe page fits a 375 px phone screen without scrolling sideways', asyn
     page.getByText('leaves picked, from https://en.wikibooks.org/wiki/Cookbook:Thyme', { exact: false })
   ).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Method' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Show original' })).toBeVisible();
   expect(await sidewaysScroll(page)).toBe(0);
 });

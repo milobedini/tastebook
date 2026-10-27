@@ -59,14 +59,15 @@ const rounding: Record<Unit | '', Round> = {
   '': counted
 };
 
+// Rounds an amount already worked out in unit to what can be measured in it.
+export const roundIn = (unit: Unit | '', amount: number, amountMax: number | null): Amounts =>
+  rounding[unit](tidy(amount), amountMax === null ? null : tidy(amountMax));
+
 // Multiplies a line's amount by factor and rounds it to what can be measured; at factor 1 the recipe's own amount stays.
 export const scale = <T extends Quantity>(quantity: T, factor: number): T => {
   const { amount, amount_max, unit } = quantity;
   if (amount === null || factor === 1) {
     return quantity;
   }
-  return {
-    ...quantity,
-    ...rounding[unit](tidy(amount * factor), amount_max === null ? null : tidy(amount_max * factor))
-  };
+  return { ...quantity, ...roundIn(unit, amount * factor, amount_max === null ? null : amount_max * factor) };
 };

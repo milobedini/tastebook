@@ -791,6 +791,7 @@ def test_returns_the_ingredients_with_ungrouped_lines_first_then_each_group_and_
             'ingredient': {'slug': slug, 'name': name},
             'note': '',
             'optional': False,
+            'original_text': '',
             **fields,
         }
 
@@ -806,7 +807,14 @@ def test_returns_the_ingredients_with_ungrouped_lines_first_then_each_group_and_
             'name': 'For the sauce',
             'lines': [
                 line(onion, 'onion', 'onion', amount=1.0, note='finely chopped'),
-                line(tomatoes, 'chopped-tomatoes', 'chopped tomatoes', amount=1.0, unit='tin'),
+                line(
+                    tomatoes,
+                    'chopped-tomatoes',
+                    'chopped tomatoes',
+                    amount=1.0,
+                    unit='tin',
+                    original_text='1 tin of chopped tomatoes',
+                ),
             ],
         },
         {
