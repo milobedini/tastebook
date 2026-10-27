@@ -32,7 +32,7 @@ Names marked _planned_ don't exist in the code yet; use them when you build the 
 | Yield | How much a recipe makes, with a unit ("makes 12 cookies"), instead of servings. | `Recipe.yield_amount`, `yield_unit` |
 | Scaling | Changing servings or yield, which changes every amount, rounded to what you can measure. | `scale()` _planned_ |
 | Source credit | Where a recipe came from: an author, a website, or "Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)". | `Recipe.source` |
-| Catalogue | The public recipes Tastebook seeds itself with, loaded from a file in the repo. | `catalogue` _planned_ |
+| Catalogue | The public recipes Tastebook seeds itself with, loaded from a file in the repo with the shared ingredient and equipment lists. | `catalogue.json`, `load_catalogue` |
 | Report | A signed-in person flagging a public recipe, which hides it until staff review it. | `Report` _planned_ |
 | Slug | The recipe's address in a URL, set once from its title. | `Recipe.slug` |
 

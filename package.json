@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "pnpm dev:setup && concurrently --kill-others --names api,web --prefix-colors blue,magenta \"pnpm dev:api\" \"pnpm dev:web\"",
-    "dev:setup": "pnpm install && docker compose up -d --wait && cd backend && uv sync && (test -f .env || cp .env.example .env) && uv run --env-file .env python manage.py migrate",
+    "dev:setup": "pnpm install && docker compose up -d --wait && cd backend && uv sync && (test -f .env || cp .env.example .env) && uv run --env-file .env python manage.py migrate && uv run --env-file .env python manage.py load_catalogue",
     "dev:api": "cd backend && uv run --env-file .env python manage.py runserver 8000",
     "dev:web": "pnpm --filter frontend dev",
     "build": "pnpm --filter frontend build",
