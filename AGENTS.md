@@ -115,7 +115,8 @@ From the repo root unless noted.
 | Start Postgres               | `docker compose up -d --wait`                                                               |
 | Install                      | `pnpm install`, then `uv sync && cp .env.example .env` (in `backend/`)                      |
 | Run the backend              | `uv run --env-file .env python manage.py migrate`, then `… runserver` (in `backend/`)      |
-| Run everything               | `pnpm dev`: starts Postgres, installs, migrates, then runs both servers (Ctrl+C stops them) |
+| Load the catalogue           | `uv run --env-file .env python manage.py load_catalogue` (in `backend/`; `pnpm dev` and every deploy run it) |
+| Run everything               | `pnpm dev`: starts Postgres, installs, migrates, loads the catalogue, then runs both servers (Ctrl+C stops them) |
 | Run the frontend only        | `pnpm dev:web` (proxies `/api` to `localhost:8000`)                                         |
 | Lint and type-check frontend | `pnpm lint` (fix with `pnpm format`)                                                        |
 | Lint backend                 | `uv run ruff check . && uv run ruff format --check .` (in `backend/`)                       |
