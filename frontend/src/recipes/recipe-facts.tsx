@@ -26,9 +26,10 @@ const NamesFact = ({ one, many, names }: NamesFactProps) => {
 
 const capitalise = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
 
-type RecipeFactsProps = { recipe: Recipe };
+// withServings is false when the ingredients' stepper shows the servings or yield instead.
+type RecipeFactsProps = { recipe: Recipe; withServings: boolean };
 
-export const RecipeFacts = ({ recipe }: RecipeFactsProps) => (
+export const RecipeFacts = ({ recipe, withServings }: RecipeFactsProps) => (
   <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 tabular-nums">
     <NamesFact one="Cuisine" many="Cuisines" names={recipe.cuisines} />
     <NamesFact one="Course" many="Courses" names={recipe.courses} />
@@ -38,8 +39,10 @@ export const RecipeFacts = ({ recipe }: RecipeFactsProps) => (
       <Fact term={capitalise(recipe.extra_label)}>{formatMinutes(recipe.extra_minutes)}</Fact>
     )}
     <Fact term="Total">{formatMinutes(recipe.total_minutes)}</Fact>
-    {recipe.servings !== null && <Fact term="Serves">{recipe.servings}</Fact>}
-    {recipe.yield_amount !== null && <Fact term="Makes">{`${recipe.yield_amount} ${recipe.yield_unit}`}</Fact>}
+    {withServings && recipe.servings !== null && <Fact term="Serves">{recipe.servings}</Fact>}
+    {withServings && recipe.yield_amount !== null && (
+      <Fact term="Makes">{`${recipe.yield_amount} ${recipe.yield_unit}`}</Fact>
+    )}
     <NamesFact one="Equipment" many="Equipment" names={recipe.equipment} />
     {recipe.source !== '' && <Fact term="Source">{recipe.source}</Fact>}
   </dl>
