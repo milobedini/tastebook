@@ -5,8 +5,10 @@ import type { RootOptions } from 'react-dom/client';
 // the window, where Sentry's own handlers listen.
 export const startErrorReporting = (): RootOptions => {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
-  // Vercel sets the DSN for previews and production only: locally, in CI and in tests nothing is sent.
-  if (!dsn) {
+  // Vercel sets the DSN for previews and production only: locally, in CI and in tests nothing is sent. Previews send
+  // nothing either: they're behind Vercel's sign-in, and the tunnel's cookieless request is redirected to it, which
+  // fails cross-origin, logs a console error and fails Lighthouse. Django still reports previews' server errors.
+  if (!dsn || import.meta.env.VITE_SENTRY_ENVIRONMENT !== 'production') {
     return {};
   }
   init({

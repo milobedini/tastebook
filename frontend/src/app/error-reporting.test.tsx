@@ -71,7 +71,7 @@ describe('startErrorReporting', () => {
       const received = receiveEnvelopes();
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
       vi.stubEnv('VITE_SENTRY_DSN', DSN);
-      vi.stubEnv('VITE_SENTRY_ENVIRONMENT', 'preview');
+      vi.stubEnv('VITE_SENTRY_ENVIRONMENT', 'production');
       vi.stubEnv('VITE_SENTRY_RELEASE', RELEASE);
       // Rendered as the browser does: under act(), React rethrows uncaught errors instead of passing them to the root.
       vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', false);
@@ -84,7 +84,7 @@ describe('startErrorReporting', () => {
       expect(received.direct).toEqual([]);
       // The tunnel forwards the envelope as it is; Sentry finds the project from the DSN in its header.
       expect(JSON.parse(received.tunnelled[0]?.split('\n')[0] ?? '').dsn).toBe(DSN);
-      expect(event?.environment).toBe('preview');
+      expect(event?.environment).toBe('production');
       expect(event?.release).toBe(RELEASE);
       expect(event?.exception.values.at(-1)?.value).toBe('The oven caught fire');
       expect(event?.exception.values.at(-1)?.mechanism.handled).toBe(false);
@@ -98,6 +98,7 @@ describe('startErrorReporting', () => {
     const { tunnelled: envelopes } = receiveEnvelopes();
     server.use(http.post('/api/recipes/', () => HttpResponse.json({ id: 3 }, { status: 201 })));
     vi.stubEnv('VITE_SENTRY_DSN', DSN);
+    vi.stubEnv('VITE_SENTRY_ENVIRONMENT', 'production');
     vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', false);
 
     const root = createRoot(document.body.appendChild(document.createElement('div')), startErrorReporting());
@@ -118,11 +119,13 @@ describe('startErrorReporting', () => {
   });
 
   it.each([
-    ['set', DSN, 1],
-    ['unset', '', 0]
-  ])('with the DSN %s, sends %i reports', async (_, dsn, eventsSent) => {
+    ['set', 'production', 1, DSN],
+    ['set', 'preview', 0, DSN],
+    ['unset', 'production', 0, '']
+  ])('with the DSN %s in %s, sends %i reports', async (_, environment, eventsSent, dsn) => {
     const received = receiveEnvelopes();
     vi.stubEnv('VITE_SENTRY_DSN', dsn);
+    vi.stubEnv('VITE_SENTRY_ENVIRONMENT', environment);
     vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', false);
 
     const root = createRoot(document.body.appendChild(document.createElement('div')), startErrorReporting());
