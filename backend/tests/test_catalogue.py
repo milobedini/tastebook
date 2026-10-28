@@ -116,7 +116,7 @@ def test_loads_the_repos_catalogue_in_place_of_the_recipes_already_there() -> No
     call_command('load_catalogue')
 
     loaded = titles()
-    assert len(loaded) == 155
+    assert len(loaded) == 205
     assert [title for title in loaded if title in HAND_WRITTEN] == HAND_WRITTEN
     assert 'Typed in the admin' not in loaded
 
@@ -357,7 +357,7 @@ def test_every_wikibooks_recipe_is_credited_and_links_to_its_page() -> None:
     call_command('load_catalogue')
 
     recipes = wikibooks_recipes()
-    assert len(recipes) == 150
+    assert len(recipes) == 200
     assert {recipe['source'] for recipe in recipes} == {CREDIT}
     assert [recipe['slug'] for recipe in recipes if not WIKIBOOKS_PAGE.match(recipe['source_url'])] == []
 
@@ -415,6 +415,45 @@ def test_the_repos_recipes_use_uk_words_in_titles_steps_and_notes() -> None:
     assert [(slug, match.group(0)) for slug, text in copy for match in US_WORDS.finditer(text)] == []
 
 
+# Lines whose amount comes from a measure the line doesn't write in grams or millilitres.
+UNROUNDED_BY_SOURCE = {
+    ('gazpacho', 'water'),  # 2.4 dl
+    ('toad-in-the-hole', 'plain flour'),  # the Yorkshire pudding recipe's batter
+}
+
+
+def rounded(amount: float) -> bool:
+    return amount < 10 or amount % (25 if amount >= 100 else 5) == 0
+
+
+@pytest.mark.django_db
+def test_the_repos_recipes_round_converted_grams_and_millilitres_as_the_spec_says() -> None:
+    call_command('load_catalogue')
+
+    lines = [
+        (recipe['slug'], line)
+        for summary in APIClient().get(reverse('recipe-list')).json()
+        for recipe in [recipe_json(summary['slug'])]
+        for line in [
+            *recipe['ingredient_lines'],
+            *(line for group in recipe['ingredient_groups'] for line in group['lines']),
+        ]
+        if line['unit'] in {'g', 'ml'} and (summary['slug'], line['ingredient']['name']) not in UNROUNDED_BY_SOURCE
+    ]
+    unrounded = [
+        (slug, line['ingredient']['name'], amount)
+        for slug, line in lines
+        for amount in (line['amount'], line['amount_max'])
+        if amount is not None
+        and not rounded(amount)
+        and f'{amount:g}' not in re.findall(r'\d+(?:\.\d+)?', line['original_text'].replace(',', ''))
+    ]
+    assert ('arroz-con-maiz', 'paella rice', 725) in [
+        (slug, line['ingredient']['name'], line['amount']) for slug, line in lines
+    ]
+    assert unrounded == []
+
+
 @pytest.mark.django_db
 def test_every_ingredient_the_filter_offers_is_used_by_a_recipe_in_the_repos_catalogue() -> None:
     call_command('load_catalogue')
@@ -457,7 +496,7 @@ def test_the_shortlist_holds_about_300_wikibooks_pages_spread_across_cuisines() 
     assert set(per_cuisine) <= cuisines
     assert {entry['course'] for entry in shortlist} <= {'Baking', 'Breakfast', 'Dessert', 'Main', 'Side'}
     assert [cuisine for cuisine, count in per_cuisine.items() if count > 40] == []
-    assert Counter(entry['batch'] for entry in shortlist if entry['batch'] is not None) == {1: 50, 2: 50, 3: 50}
+    assert Counter(entry['batch'] for entry in shortlist if entry['batch'] is not None) == {1: 50, 2: 50, 3: 50, 4: 50}
 
 
 @pytest.mark.django_db
