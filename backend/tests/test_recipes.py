@@ -287,27 +287,35 @@ def test_lists_the_seeded_cuisines_alphabetically() -> None:
 
     assert response.status_code == 200
     assert [cuisine['name'] for cuisine in response.json()] == [
+        'American',
         'British',
+        'Caribbean',
         'Chinese',
         'French',
+        'German',
         'Greek',
         'Indian',
         'Italian',
         'Japanese',
+        'Korean',
         'Mexican',
+        'Middle Eastern',
+        'Moroccan',
         'Spanish',
         'Thai',
+        'Turkish',
+        'Vietnamese',
     ]
-    assert response.json()[0] == {'slug': 'british', 'name': 'British'}
+    assert {'slug': 'middle-eastern', 'name': 'Middle Eastern'} in response.json()
 
 
 @pytest.mark.django_db
 def test_a_staff_user_adds_a_cuisine_in_the_admin(admin_client: Client) -> None:
-    response = admin_client.post(reverse('admin:recipes_cuisine_add'), {'name': 'Korean', 'slug': 'korean'})
+    response = admin_client.post(reverse('admin:recipes_cuisine_add'), {'name': 'Ethiopian', 'slug': 'ethiopian'})
 
     assert response.status_code == 302
     names = [cuisine['name'] for cuisine in APIClient().get(reverse('cuisine-list')).json()]
-    assert names[names.index('Japanese') : names.index('Mexican') + 1] == ['Japanese', 'Korean', 'Mexican']
+    assert names[names.index('Chinese') : names.index('French') + 1] == ['Chinese', 'Ethiopian', 'French']
 
 
 CATALOGUE_NOTICE = 'it changes through <code>backend/recipes/catalogue.json</code> in a PR'
