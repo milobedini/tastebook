@@ -19521,6 +19521,10 @@
       "one_pot": true,
       "source": "Adapted from the Wikibooks Cookbook (CC BY-SA 4.0), converted to metric, ingredients restructured",
       "source_url": "https://en.wikibooks.org/wiki/Cookbook:North_Staffordshire_Oatcakes",
+      "photo_url": "https://upload.wikimedia.org/wikipedia/commons/b/bc/Staffordshire_oatcakes.jpg",
+      "photo_author": "Rathfelder",
+      "photo_licence": "CC0 1.0",
+      "photo_source_url": "https://commons.wikimedia.org/wiki/File:Staffordshire_oatcakes.jpg",
       "ingredient_lines": [
         {
           "amount": 220,
