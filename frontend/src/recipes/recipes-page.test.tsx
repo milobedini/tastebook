@@ -148,7 +148,7 @@ const ingredients: IngredientOption[] = [
 const openPicker = async (name: string) => {
   await userEvent.click(filtersButton());
   await userEvent.click(await within(filterGroup('Ingredients')).findByRole('button', { name }));
-  return screen.getByRole('combobox', { name: 'Search ingredients' });
+  return within(screen.getByRole('dialog', { name })).getByRole('combobox', { name: 'Search ingredients' });
 };
 
 const options = () => screen.getAllByRole('option').map((option) => option.textContent);
@@ -747,6 +747,7 @@ describe('RecipesPage', () => {
     await waitFor(() => expect(within(filterGroup(group)).getAllByRole('button')).toHaveLength(count));
     expect(within(filterGroup(group)).queryByText(loading)).not.toBeInTheDocument();
   });
+
   it('needs every diet picked', async () => {
     const queries = answerFilters({});
     const { router } = renderRoute('/recipes');

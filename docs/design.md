@@ -99,6 +99,10 @@ Review checks new UI against these.
 - Fonts bundled with the app, never loaded from Google.
 - [Lucide](https://lucide.dev) icons at a 2 px stroke. An icon on its own always has a label for screen readers.
 
+**State**
+
+- A list's active option (the one Enter picks while focus stays in a search field) carries the cobalt outline, as focus does, beside its chip fill: the fill alone is too faint to see.
+
 **Touch and motion**
 
 - Every control at least 44 px tall (WCAG 2.5.8 asks for 24); 48 px or more in cooking mode.

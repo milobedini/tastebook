@@ -42,6 +42,7 @@ export const IngredientPicker = ({ label, ingredients, onPick }: IngredientPicke
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
+          aria-label={label}
           align="start"
           sideOffset={4}
           className="z-50 w-72 max-w-[calc(100vw-2rem)] rounded-field border border-field bg-surface p-0 shadow-lg"
@@ -62,7 +63,7 @@ export const IngredientPicker = ({ label, ingredients, onPick }: IngredientPicke
                     key={slug}
                     value={slug}
                     onSelect={() => pick(slug)}
-                    className="flex min-h-11 cursor-pointer items-center rounded-field px-3 text-body text-ink data-[selected=true]:bg-chip"
+                    className="flex min-h-11 cursor-pointer items-center rounded-field px-3 text-body text-ink data-[selected=true]:bg-chip data-[selected=true]:outline-2 data-[selected=true]:outline-cobalt data-[selected=true]:-outline-offset-2"
                   >
                     {/* One inline child, and the space outside the muted span, so neither the flex layout nor the
                         option's accessible name drops the space. */}
