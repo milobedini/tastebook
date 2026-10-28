@@ -619,6 +619,18 @@ def test_filters_by_diet_and_ingredients(params: str, titles: list[str]) -> None
 
 
 @pytest.mark.django_db
+def test_the_vegetarian_filter_leaves_out_a_recipe_with_cheese_made_with_animal_rennet() -> None:
+    parmesan = flagged('parmesan', 'contains_dairy', 'contains_animal_rennet')
+    mozzarella = flagged('mozzarella', 'contains_dairy')
+    for title, cheese in [('Pesto pasta', parmesan), ('Caprese salad', mozzarella)]:
+        IngredientLine.objects.create(recipe=make_recipe(title=title), ingredient=cheese)
+
+    response = APIClient().get(reverse('recipe-list'), {'diet': 'vegetarian'})
+
+    assert [recipe['title'] for recipe in response.json()] == ['Caprese salad']
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize('diet', ['vegetarian', 'vegan', 'gluten_free', 'dairy_free'])
 def test_the_diet_filter_agrees_with_each_recipes_diet_tags(diet: str) -> None:
     make_diet_recipes()
@@ -1258,6 +1270,7 @@ def flagged(name: str, *flags: str) -> Ingredient:
         (('contains_dairy',), ['vegetarian', 'gluten_free']),
         (('contains_egg',), ['vegetarian', 'gluten_free', 'dairy_free']),
         (('contains_other_animal_product',), ['vegetarian', 'gluten_free', 'dairy_free']),
+        (('contains_animal_rennet',), ['gluten_free', 'dairy_free']),
         (('contains_gluten',), ['vegetarian', 'vegan', 'dairy_free']),
         (('contains_dairy', 'contains_gluten'), ['vegetarian']),
     ],
@@ -1305,7 +1318,7 @@ def test_optional_lines_keep_the_diet_tags_and_name_the_ones_they_would_take_awa
     bacon = flagged('bacon', 'contains_meat')
     IngredientLine.objects.create(recipe=recipe, ingredient=bacon, optional=True)
     to_serve = IngredientGroup.objects.create(recipe=recipe, name='To serve')
-    parmesan = flagged('parmesan', 'contains_dairy')
+    parmesan = flagged('parmesan', 'contains_dairy', 'contains_animal_rennet')
     IngredientLine.objects.create(recipe=recipe, group=to_serve, ingredient=parmesan, optional=True)
     IngredientLine.objects.create(recipe=recipe, group=to_serve, ingredient=parmesan, optional=True, note='to grate')
     # Gluten-free isn't one of the recipe's tags, so an optional crouton takes nothing away.
@@ -1321,7 +1334,7 @@ def test_optional_lines_keep_the_diet_tags_and_name_the_ones_they_would_take_awa
     assert detail['diet_tags'] == ['vegetarian', 'vegan', 'dairy_free']
     assert detail['diet_tag_conflicts'] == [
         {'ingredient': {'slug': 'bacon', 'name': 'bacon'}, 'diet_tags': ['vegetarian', 'vegan']},
-        {'ingredient': {'slug': 'parmesan', 'name': 'parmesan'}, 'diet_tags': ['vegan', 'dairy_free']},
+        {'ingredient': {'slug': 'parmesan', 'name': 'parmesan'}, 'diet_tags': ['vegetarian', 'vegan', 'dairy_free']},
     ]
 
 
@@ -1344,6 +1357,26 @@ def test_a_staff_user_records_what_an_ingredient_contains_in_the_admin(admin_cli
     assert response.status_code == 302
     detail = APIClient().get(reverse('recipe-detail', args=['noodle-soup'])).json()
     assert detail['diet_tags'] == ['vegetarian', 'dairy_free']
+
+
+@pytest.mark.django_db
+def test_a_staff_user_records_that_a_cheese_is_made_with_animal_rennet_in_the_admin(admin_client: Client) -> None:
+    add_line(make_recipe(title='Cacio e pepe'), 'pecorino')
+
+    response = admin_client.post(
+        reverse('admin:recipes_ingredient_change', args=[Ingredient.objects.get().id]),
+        {
+            'name': 'pecorino',
+            'slug': 'pecorino',
+            'contains_dairy': 'on',
+            'contains_animal_rennet': 'on',
+            **inline_forms('synonyms', []),
+        },
+    )
+
+    assert response.status_code == 302
+    detail = APIClient().get(reverse('recipe-detail', args=['cacio-e-pepe'])).json()
+    assert detail['diet_tags'] == ['gluten_free']
 
 
 @pytest.mark.django_db

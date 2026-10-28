@@ -11,7 +11,7 @@ Names marked _planned_ don't exist in the code yet; use them when you build the 
 | Recipe | A dish with its ingredients, method and details. Public or private. | `Recipe` |
 | Public recipe | A recipe anyone can find and save. Only recipes written by their author (or by Claude for them) can be public. | `Recipe.visibility` _planned_ |
 | Private recipe | A recipe only its household can see. Imported recipes are always private. | `Recipe.visibility` _planned_ |
-| Ingredient | A food in the shared ingredient list, under its UK name (courgette, coriander, plain flour). Records whether it contains meat, fish, dairy, egg, another animal product or gluten. | `Ingredient`, `contains_meat`, `contains_fish`, `contains_dairy`, `contains_egg`, `contains_other_animal_product`, `contains_gluten` |
+| Ingredient | A food in the shared ingredient list, under its UK name (courgette, coriander, plain flour). Records whether it contains meat, fish, dairy, animal rennet, egg, another animal product or gluten. | `Ingredient`, `contains_meat`, `contains_fish`, `contains_dairy`, `contains_animal_rennet`, `contains_egg`, `contains_other_animal_product`, `contains_gluten` |
 | Synonym | Another name for an ingredient, including US names (zucchini for courgette). Search finds the ingredient by any of them. | `IngredientSynonym` |
 | Ingredient line | One line of a recipe's ingredients: amount, unit, ingredient, note, and whether it's optional. | `IngredientLine` |
 | Ingredient group | A named group of ingredient lines ("For the sauce", "To serve"). | `IngredientGroup` |

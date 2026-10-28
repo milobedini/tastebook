@@ -174,7 +174,11 @@ def test_the_repos_recipes_cover_groups_ranges_optional_lines_a_yield_and_extra_
     [
         ('chicken-tikka-masala', ['gluten_free'], []),
         ('oat-and-raisin-cookies', ['vegetarian'], []),
-        ('spaghetti-aglio-e-olio', ['vegetarian', 'vegan', 'dairy_free'], [('parmesan', ['vegan', 'dairy_free'])]),
+        (
+            'spaghetti-aglio-e-olio',
+            ['vegetarian', 'vegan', 'dairy_free'],
+            [('parmesan', ['vegetarian', 'vegan', 'dairy_free'])],
+        ),
         ('greek-salad', ['vegetarian', 'gluten_free'], []),
         ('spanish-tortilla', ['vegetarian', 'gluten_free', 'dairy_free'], []),
     ],
