@@ -24,6 +24,16 @@ const NamesFact = ({ one, many, names }: NamesFactProps) => {
   return <Fact term={names.length === 1 ? one : many}>{names.map(({ name }) => name).join(', ')}</Fact>;
 };
 
+type SourceCreditProps = { source: string; sourceUrl: string };
+
+// The credit itself is the link, so its accessible name is the whole credit.
+const SourceCredit = ({ source, sourceUrl }: SourceCreditProps) => {
+  if (sourceUrl === '') {
+    return source;
+  }
+  return <a href={sourceUrl}>{source}</a>;
+};
+
 const capitalise = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
 
 // withServings is false when the ingredients' stepper shows the servings or yield instead.
@@ -44,6 +54,10 @@ export const RecipeFacts = ({ recipe, withServings }: RecipeFactsProps) => (
       <Fact term="Makes">{`${recipe.yield_amount} ${recipe.yield_unit}`}</Fact>
     )}
     <NamesFact one="Equipment" many="Equipment" names={recipe.equipment} />
-    {recipe.source !== '' && <Fact term="Source">{recipe.source}</Fact>}
+    {recipe.source !== '' && (
+      <Fact term="Source">
+        <SourceCredit source={recipe.source} sourceUrl={recipe.source_url} />
+      </Fact>
+    )}
   </dl>
 );

@@ -23,6 +23,7 @@ SHAKSHUKA: dict[str, Any] = {
     'equipment': ['Hob'],
     'one_pot': True,
     'source': 'Tastebook',
+    'source_url': 'https://en.wikibooks.org/wiki/Cookbook:Shakshouka',
     'ingredient_lines': [{'amount': 1, 'unit': 'tbsp', 'ingredient': 'olive oil'}],
     'ingredient_groups': [
         {
@@ -220,6 +221,7 @@ def test_loads_a_recipe_with_its_details_ingredients_and_method(tmp_path: Path) 
         'equipment': [{'slug': 'hob', 'name': 'Hob'}],
         'one_pot': True,
         'source': 'Tastebook',
+        'source_url': 'https://en.wikibooks.org/wiki/Cookbook:Shakshouka',
         'ingredient_lines': [
             {
                 'id': recipe['ingredient_lines'][0]['id'],

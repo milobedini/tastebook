@@ -48,6 +48,7 @@ const recipe: Recipe = {
   ],
   one_pot: true,
   source: 'Adapted from https://en.wikibooks.org/wiki/Cookbook:Roast_Pork_Shoulder_with_Crackling (CC BY-SA 4.0)',
+  source_url: 'https://en.wikibooks.org/wiki/Cookbook:Roast_Pork_Shoulder_with_Crackling',
   ingredient_lines: [
     {
       id: 1,

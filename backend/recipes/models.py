@@ -176,6 +176,12 @@ class Recipe(models.Model):
     source = models.CharField(
         'source credit', max_length=300, help_text='Where the recipe came from: an author, a website or a book.'
     )
+    source_url = models.URLField(
+        'source address',
+        max_length=500,
+        blank=True,
+        help_text="The original recipe's page, which the source credit links to. Leave empty when there is none.",
+    )
     photo_url = models.URLField(
         'photo address',
         max_length=500,

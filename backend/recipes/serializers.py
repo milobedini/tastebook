@@ -242,6 +242,7 @@ class RecipeSerializer(RecipeSummarySerializer):
             'equipment',
             'one_pot',
             'source',
+            'source_url',
             'ingredient_lines',
             'ingredient_groups',
             'steps',
@@ -256,6 +257,7 @@ class RecipeSerializer(RecipeSummarySerializer):
             'servings': {'required': True, 'allow_null': True},
             'yield_amount': {'required': True, 'allow_null': True},
             'one_pot': {'required': True},
+            'source_url': {'required': True, 'allow_blank': True},
         }
 
     # Reuses the lines with_ingredients_and_method() prefetched, rather than fetching every line again.

@@ -33,7 +33,7 @@ Names marked _planned_ don't exist in the code yet; use them when you build the 
 | Servings | How many people a recipe feeds ("serves 4"). | `Recipe.servings` |
 | Yield | How much a recipe makes, with a unit ("makes 12 cookies"), instead of servings. | `Recipe.yield_amount`, `yield_unit` |
 | Scaling | Changing servings or yield, which changes every amount, rounded to what you can measure. | `scale()` |
-| Source credit | Where a recipe came from: an author, a website, or "Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)". | `Recipe.source` |
+| Source credit | Where a recipe came from: an author, a website, or "Adapted from the Wikibooks Cookbook (CC BY-SA 4.0), …", linked to the original page when the recipe has its address. | `Recipe.source`, `Recipe.source_url` |
 | Photo | A recipe's one picture, an image on Wikimedia Commons: 16:10 on its page, 4:3 on its card. | `Recipe.photo_url`, `Recipe.photo` |
 | Photo credit | A photo's author, its licence and a link to its page on Wikimedia Commons, shown under it on the recipe's page. | `photo_author`, `photo_licence`, `photo_source_url` |
 | Cuisine plate | The drawing of a plate in a recipe's first cuisine's colour, shown where the recipe has no photo. | `CuisinePlate` |

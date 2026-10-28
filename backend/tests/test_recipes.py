@@ -154,6 +154,7 @@ def test_returns_the_whole_recipe_with_its_details() -> None:
         servings=2,
         one_pot=True,
         source='Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)',
+        source_url='https://en.wikibooks.org/wiki/Cookbook:Shakshouka',
     )
     recipe.cuisines.add(Cuisine.objects.get(slug='italian'))
     recipe.courses.set(Course.objects.filter(slug__in=['main', 'breakfast']))
@@ -182,6 +183,7 @@ def test_returns_the_whole_recipe_with_its_details() -> None:
         'equipment': [{'slug': 'hob', 'name': 'Hob'}, {'slug': 'oven', 'name': 'Oven'}],
         'one_pot': True,
         'source': 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)',
+        'source_url': 'https://en.wikibooks.org/wiki/Cookbook:Shakshouka',
         'ingredient_lines': [],
         'ingredient_groups': [],
         'steps': [],
@@ -371,7 +373,7 @@ def test_the_catalogue_pages_in_the_admin_show_each_row_read_only_and_say_where_
 
 @pytest.mark.django_db
 def test_the_recipe_page_in_the_admin_shows_its_ingredients_and_method_read_only(admin_client: Client) -> None:
-    recipe = make_recipe(title='Shakshuka')
+    recipe = make_recipe(title='Shakshuka', source_url='https://en.wikibooks.org/wiki/Cookbook:Shakshouka')
     sauce = IngredientGroup.objects.create(recipe=recipe, name='For the sauce')
     add_line(recipe, 'chopped tomatoes', group=sauce, amount=Decimal(1), unit='tin')
     Step.objects.create(recipe=recipe, text='Crack in the eggs and cover.')
@@ -381,6 +383,7 @@ def test_the_recipe_page_in_the_admin_shows_its_ingredients_and_method_read_only
     page = response.content.decode()
     assert response.status_code == 200
     assert ['For the sauce' in page, 'chopped tomatoes' in page, 'Crack in the eggs and cover.' in page] == [True] * 3
+    assert ['Source address' in page, 'https://en.wikibooks.org/wiki/Cookbook:Shakshouka' in page] == [True] * 2
     assert ['name="steps-0-text"' in page, 'name="ingredient_lines-0-amount"' in page, 'name="_save"' in page] == [
         False
     ] * 3

@@ -32,6 +32,7 @@ const shakshuka: Recipe = {
   equipment: [{ slug: 'hob', name: 'Hob' }],
   one_pot: true,
   source: 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)',
+  source_url: '',
   ingredient_lines: [],
   ingredient_groups: [],
   steps: [],
@@ -225,6 +226,26 @@ describe('RecipePage', () => {
       ['Source', 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)']
     ]);
   });
+
+  it.each([
+    ['https://en.wikibooks.org/wiki/Cookbook:Shakshouka', 1],
+    ['', 0]
+  ])(
+    'links the source credit to the original page only when the recipe has its address (%s)',
+    async (sourceUrl, count) => {
+      server.use(
+        http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>({ ...shakshuka, source_url: sourceUrl }))
+      );
+
+      renderRoute('/recipes/shakshuka');
+
+      expect(await screen.findByRole('heading', { name: 'Shakshuka' })).toBeInTheDocument();
+      expect(facts()).toContainEqual(['Source', 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)']);
+      const links = screen.queryAllByRole('link', { name: 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)' });
+      expect(links).toHaveLength(count);
+      expect(links.map((link) => link.getAttribute('href'))).toEqual(sourceUrl === '' ? [] : [sourceUrl]);
+    }
+  );
 
   it.each<[Recipe['diet_tags'], Recipe['diet_tag_conflicts'], string[], string[]]>([
     [[], [], ['Easy', 'One-pot'], []],
