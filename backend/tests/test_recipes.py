@@ -33,44 +33,12 @@ def make_recipe(**fields: Any) -> Recipe:
     return Recipe.objects.create(**{**DETAILS, **fields})
 
 
-INLINES = ['ingredient_groups', 'ingredient_lines', 'steps']
-
-
-# The management form of each inline on the recipe admin page, with the rows it posts and the rows it already had.
-def inline_forms(prefix: str, rows: list[dict[str, Any]], initial: int = 0) -> dict[str, Any]:
-    fields = {f'{prefix}-{index}-{name}': value for index, row in enumerate(rows) for name, value in row.items()}
-    return {
-        f'{prefix}-TOTAL_FORMS': len(rows),
-        f'{prefix}-INITIAL_FORMS': initial,
-        f'{prefix}-MIN_NUM_FORMS': 0,
-        f'{prefix}-MAX_NUM_FORMS': 1000,
-        **fields,
-    }
-
-
-def no_inlines() -> dict[str, Any]:
-    return {key: value for prefix in INLINES for key, value in inline_forms(prefix, []).items()}
-
-
 def ingredient(name: str) -> Ingredient:
     return Ingredient.objects.get_or_create(name=name, defaults={'slug': name.replace(' ', '-')})[0]
 
 
 def add_line(recipe: Recipe, name: str, **fields: Any) -> IngredientLine:
     return IngredientLine.objects.create(recipe=recipe, ingredient=ingredient(name), **fields)
-
-
-# The admin form's version of DETAILS: every field it posts, with one course and no ingredients or steps.
-def admin_details() -> dict[str, Any]:
-    return {
-        **DETAILS,
-        **no_inlines(),
-        'extra_minutes': 0,
-        'extra_label': '',
-        'yield_amount': '',
-        'yield_unit': '',
-        'courses': [Course.objects.get(slug='main').id],
-    }
 
 
 @pytest.mark.django_db
@@ -135,44 +103,6 @@ def test_returns_an_empty_list_with_no_recipes() -> None:
 
 
 @pytest.mark.django_db
-def test_a_staff_user_adds_a_recipe_in_the_admin(admin_client: Client) -> None:
-    italian = Cuisine.objects.get(slug='italian')
-
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_add'),
-        {**admin_details(), 'title': 'Shakshuka', 'description': '', 'cuisines': [italian.id]},
-    )
-
-    assert response.status_code == 302
-    assert list(Recipe.objects.values_list('title', 'description')) == [('Shakshuka', '')]
-
-
-@pytest.mark.django_db
-def test_a_staff_user_edits_a_recipe_in_the_admin(admin_client: Client) -> None:
-    recipe = make_recipe(title='Shakshuka', description='Eggs in spiced tomatoes.')
-    italian = Cuisine.objects.get(slug='italian')
-
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_change', args=[recipe.id]),
-        {**admin_details(), 'title': 'Green shakshuka', 'description': 'With spinach.', 'cuisines': [italian.id]},
-    )
-
-    assert response.status_code == 302
-    recipe.refresh_from_db()
-    assert (recipe.title, recipe.description) == ('Green shakshuka', 'With spinach.')
-
-
-@pytest.mark.django_db
-def test_the_admin_refuses_a_recipe_with_no_title(admin_client: Client) -> None:
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_add'), {**admin_details(), 'title': '', 'description': 'No name.'}
-    )
-
-    assert response.status_code == 200
-    assert Recipe.objects.count() == 0
-
-
-@pytest.mark.django_db
 @pytest.mark.parametrize(
     ('title', 'slug'),
     [
@@ -199,34 +129,6 @@ def test_numbers_clashing_slugs_from_2_skipping_one_already_taken() -> None:
         'shakshuka-3',
         'shakshuka-4',
     ]
-
-
-@pytest.mark.django_db
-def test_a_recipe_added_in_the_admin_gets_a_slug_from_its_title(admin_client: Client) -> None:
-    italian = Cuisine.objects.get(slug='italian')
-
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_add'),
-        {**admin_details(), 'title': 'Apple tart', 'description': '', 'cuisines': [italian.id]},
-    )
-
-    assert response.status_code == 302
-    assert list(Recipe.objects.values_list('slug', flat=True)) == ['apple-tart']
-
-
-@pytest.mark.django_db
-def test_renaming_a_recipe_in_the_admin_keeps_its_slug(admin_client: Client) -> None:
-    recipe = make_recipe(title='Shakshuka')
-    italian = Cuisine.objects.get(slug='italian')
-
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_change', args=[recipe.id]),
-        {**admin_details(), 'title': 'Green shakshuka', 'description': '', 'cuisines': [italian.id]},
-    )
-
-    assert response.status_code == 302
-    recipe.refresh_from_db()
-    assert (recipe.title, recipe.slug) == ('Green shakshuka', 'shakshuka')
 
 
 @pytest.mark.django_db
@@ -404,6 +306,84 @@ def test_a_staff_user_adds_a_cuisine_in_the_admin(admin_client: Client) -> None:
     assert response.status_code == 302
     names = [cuisine['name'] for cuisine in APIClient().get(reverse('cuisine-list')).json()]
     assert names[names.index('Japanese') : names.index('Mexican') + 1] == ['Japanese', 'Korean', 'Mexican']
+
+
+CATALOGUE_NOTICE = 'it changes through <code>backend/recipes/catalogue.json</code> in a PR'
+
+
+# One row of each model in the admin, by its admin URL name, with the name it's shown by.
+def admin_row(model: str) -> tuple[int, str]:
+    rows = {
+        'recipe': lambda: make_recipe(title='Shakshuka'),
+        'ingredient': lambda: ingredient('courgette'),
+        'equipment': lambda: Equipment.objects.get(slug='oven'),
+        'cuisine': lambda: Cuisine.objects.get(slug='italian'),
+    }
+    row = rows[model]()
+    return row.pk, str(row)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('model', 'status_code'), [('recipe', 403), ('ingredient', 403), ('equipment', 403), ('cuisine', 200)]
+)
+def test_the_admin_lets_staff_add_cuisines_but_not_to_the_catalogue(
+    admin_client: Client, model: str, status_code: int
+) -> None:
+    response = admin_client.get(reverse(f'admin:recipes_{model}_add'))
+
+    assert response.status_code == status_code
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('model', ['recipe', 'ingredient', 'equipment'])
+def test_the_admin_refuses_to_change_or_delete_the_catalogue(admin_client: Client, model: str) -> None:
+    pk, name = admin_row(model)
+
+    change = admin_client.post(
+        reverse(f'admin:recipes_{model}_change', args=[pk]), {'title': 'Edited', 'name': 'Edited'}
+    )
+    delete = admin_client.post(reverse(f'admin:recipes_{model}_delete', args=[pk]), {'post': 'yes'})
+    changelist = admin_client.get(reverse(f'admin:recipes_{model}_changelist'))
+
+    assert (change.status_code, delete.status_code) == (403, 403)
+    assert name in changelist.content.decode()
+    assert 'Edited' not in changelist.content.decode()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('model', 'shown_by', 'says_where_it_changes'),
+    [('recipe', 'title', True), ('ingredient', 'name', True), ('equipment', 'name', True), ('cuisine', 'name', False)],
+)
+def test_the_catalogue_pages_in_the_admin_show_each_row_read_only_and_say_where_it_changes(
+    admin_client: Client, model: str, shown_by: str, says_where_it_changes: bool
+) -> None:
+    pk, name = admin_row(model)
+
+    changelist = admin_client.get(reverse(f'admin:recipes_{model}_changelist')).content.decode()
+    change = admin_client.get(reverse(f'admin:recipes_{model}_change', args=[pk])).content.decode()
+
+    assert name in change
+    assert (CATALOGUE_NOTICE in changelist, CATALOGUE_NOTICE in change) == (says_where_it_changes,) * 2
+    assert (f'name="{shown_by}"' in change) is not says_where_it_changes
+
+
+@pytest.mark.django_db
+def test_the_recipe_page_in_the_admin_shows_its_ingredients_and_method_read_only(admin_client: Client) -> None:
+    recipe = make_recipe(title='Shakshuka')
+    sauce = IngredientGroup.objects.create(recipe=recipe, name='For the sauce')
+    add_line(recipe, 'chopped tomatoes', group=sauce, amount=Decimal(1), unit='tin')
+    Step.objects.create(recipe=recipe, text='Crack in the eggs and cover.')
+
+    response = admin_client.get(reverse('admin:recipes_recipe_change', args=[recipe.id]))
+
+    page = response.content.decode()
+    assert response.status_code == 200
+    assert ['For the sauce' in page, 'chopped tomatoes' in page, 'Crack in the eggs and cover.' in page] == [True] * 3
+    assert ['name="steps-0-text"' in page, 'name="ingredient_lines-0-amount"' in page, 'name="_save"' in page] == [
+        False
+    ] * 3
 
 
 @pytest.mark.django_db
@@ -689,30 +669,6 @@ def test_lists_ingredients_in_two_queries(django_assert_num_queries: DjangoAsser
 
 
 @pytest.mark.django_db
-def test_a_staff_user_adds_a_recipe_with_cuisines_in_the_admin(admin_client: Client) -> None:
-    japanese = Cuisine.objects.get(slug='japanese')
-    mexican = Cuisine.objects.get(slug='mexican')
-
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_add'),
-        {**admin_details(), 'title': 'Ramen tacos', 'description': '', 'cuisines': [japanese.id, mexican.id]},
-    )
-
-    assert response.status_code == 302
-    assert list(Recipe.objects.get().cuisines.values_list('slug', flat=True)) == ['japanese', 'mexican']
-
-
-@pytest.mark.django_db
-def test_the_admin_refuses_a_recipe_with_no_cuisine(admin_client: Client) -> None:
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_add'), {**admin_details(), 'title': 'Shakshuka', 'description': ''}
-    )
-
-    assert response.status_code == 200
-    assert Recipe.objects.count() == 0
-
-
-@pytest.mark.django_db
 def test_returns_a_yield_instead_of_servings() -> None:
     make_recipe(title='Oat cookies', servings=None, yield_amount=12, yield_unit='cookies')
 
@@ -779,116 +735,6 @@ def test_returns_a_recipe_with_its_details_ingredients_method_and_diet_tags_in_e
         3,
     ]
     assert [len(group['lines']) for group in body['ingredient_groups']] == [2, 1]
-
-
-@pytest.mark.django_db
-def test_a_staff_user_adds_a_recipe_with_all_its_details_in_the_admin(admin_client: Client) -> None:
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_add'),
-        {
-            'title': 'Oat cookies',
-            'description': '',
-            'cuisines': [Cuisine.objects.get(slug='british').id],
-            'courses': list(Course.objects.filter(slug__in=['baking', 'dessert']).values_list('id', flat=True)),
-            'difficulty': 'hard',
-            'prep_minutes': 15,
-            'cook_minutes': 12,
-            'extra_minutes': 30,
-            'extra_label': 'chilling',
-            'servings': '',
-            'yield_amount': 12,
-            'yield_unit': 'cookies',
-            'equipment': list(Equipment.objects.filter(slug__in=['oven', 'stand-mixer']).values_list('id', flat=True)),
-            'one_pot': 'on',
-            'source': 'Grandma Rose',
-            **no_inlines(),
-        },
-    )
-
-    assert response.status_code == 302
-    detail = APIClient().get(reverse('recipe-detail', args=['oat-cookies'])).json()
-    assert {key: detail[key] for key in detail if key not in ['id', 'slug', 'title', 'description']} == {
-        'cuisines': [{'slug': 'british', 'name': 'British'}],
-        'courses': [{'slug': 'baking', 'name': 'Baking'}, {'slug': 'dessert', 'name': 'Dessert'}],
-        'difficulty': 'hard',
-        'prep_minutes': 15,
-        'cook_minutes': 12,
-        'extra_minutes': 30,
-        'extra_label': 'chilling',
-        'total_minutes': 57,
-        'servings': None,
-        'yield_amount': 12,
-        'yield_unit': 'cookies',
-        'equipment': [{'slug': 'oven', 'name': 'Oven'}, {'slug': 'stand-mixer', 'name': 'Stand mixer'}],
-        'one_pot': True,
-        'source': 'Grandma Rose',
-        'photo': None,
-        'diet_tags': [],
-        'ingredient_lines': [],
-        'ingredient_groups': [],
-        'steps': [],
-        'diet_tag_conflicts': [],
-    }
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize(
-    ('fields', 'message'),
-    [
-        ({'servings': 4, 'yield_amount': 12, 'yield_unit': 'cookies'}, 'Give either servings or a yield'),
-        ({'servings': '', 'yield_amount': '', 'yield_unit': ''}, 'Give either servings or a yield'),
-        ({'servings': '', 'yield_amount': 12, 'yield_unit': ''}, 'Give either servings or a yield'),
-        ({'servings': '', 'yield_amount': '', 'yield_unit': 'cookies'}, 'Give either servings or a yield'),
-        ({'extra_minutes': 30, 'extra_label': ''}, 'Give extra time with its label'),
-        ({'extra_minutes': 0, 'extra_label': 'resting'}, 'Give extra time with its label'),
-        ({'courses': []}, 'This field is required.'),
-        ({'difficulty': ''}, 'This field is required.'),
-        ({'prep_minutes': ''}, 'This field is required.'),
-        ({'cook_minutes': ''}, 'This field is required.'),
-        ({'source': ''}, 'This field is required.'),
-        ({'difficulty': 'impossible'}, 'Select a valid choice.'),
-        ({'prep_minutes': -5}, 'Ensure this value is greater than or equal to 0.'),
-        ({'servings': 0}, 'Ensure this value is greater than or equal to 1.'),
-        (
-            {'servings': '', 'yield_amount': 0, 'yield_unit': 'cookies'},
-            'Ensure this value is greater than or equal to 1.',
-        ),
-    ],
-)
-def test_the_admin_refuses_a_recipe_with_details_that_dont_fit(
-    admin_client: Client, fields: dict[str, Any], message: str
-) -> None:
-    italian = Cuisine.objects.get(slug='italian')
-
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_add'),
-        {**admin_details(), 'title': 'Shakshuka', 'description': '', 'cuisines': [italian.id], **fields},
-    )
-
-    assert response.status_code == 200
-    assert message in response.content.decode()
-    assert Recipe.objects.count() == 0
-
-
-@pytest.mark.django_db
-def test_a_staff_user_adds_equipment_in_the_admin_and_gives_it_to_a_recipe(admin_client: Client) -> None:
-    response = admin_client.post(reverse('admin:recipes_equipment_add'), {'name': 'Wok', 'slug': 'wok'})
-    recipe = make_recipe(title='Egg fried rice')
-
-    edit = admin_client.post(
-        reverse('admin:recipes_recipe_change', args=[recipe.id]),
-        {
-            **admin_details(),
-            'title': 'Egg fried rice',
-            'description': '',
-            'cuisines': [Cuisine.objects.get(slug='chinese').id],
-            'equipment': [Equipment.objects.get(slug='wok').id],
-        },
-    )
-
-    assert (response.status_code, edit.status_code) == (302, 302)
-    detail = APIClient().get(reverse('recipe-detail', args=['egg-fried-rice'])).json()
-    assert detail['equipment'] == [{'slug': 'wok', 'name': 'Wok'}]
 
 
 @pytest.mark.django_db
@@ -969,196 +815,6 @@ def test_returns_the_ingredients_with_ungrouped_lines_first_then_each_group_and_
     ]
 
 
-@pytest.mark.django_db
-def test_a_staff_user_adds_an_ingredient_under_its_uk_name_in_the_admin(admin_client: Client) -> None:
-    response = admin_client.post(
-        reverse('admin:recipes_ingredient_add'),
-        {'name': 'courgette', 'slug': 'courgette', **inline_forms('synonyms', [])},
-    )
-
-    assert response.status_code == 302
-    assert list(Ingredient.objects.values_list('name', 'slug')) == [('courgette', 'courgette')]
-
-
-def line_row(name: str, **fields: Any) -> dict[str, Any]:
-    return {
-        'position': 0,
-        'group': '',
-        'amount': '',
-        'amount_max': '',
-        'unit': '',
-        'ingredient': ingredient(name).id,
-        'note': '',
-        'original_text': '',
-        **fields,
-    }
-
-
-@pytest.mark.django_db
-def test_a_staff_user_adds_a_recipe_with_ingredients_and_steps_in_the_admin(admin_client: Client) -> None:
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_add'),
-        {
-            **admin_details(),
-            'title': 'Shakshuka',
-            'description': '',
-            'cuisines': [Cuisine.objects.get(slug='italian').id],
-            **inline_forms(
-                'ingredient_lines',
-                [
-                    line_row('egg', amount='2', amount_max='3', original_text='2-3 eggs'),
-                    line_row('salt', position=1, note='to taste', optional='on'),
-                ],
-            ),
-            **inline_forms('steps', [{'position': 2, 'text': 'Crack in the eggs.'}, {'position': 1, 'text': 'Fry.'}]),
-        },
-    )
-
-    assert response.status_code == 302
-    detail = APIClient().get(reverse('recipe-detail', args=['shakshuka'])).json()
-    assert [
-        (line['ingredient']['name'], line['amount'], line['amount_max'], line['note'], line['optional'])
-        for line in detail['ingredient_lines']
-    ] == [('egg', 2.0, 3.0, '', False), ('salt', None, None, 'to taste', True)]
-    assert [step['text'] for step in detail['steps']] == ['Fry.', 'Crack in the eggs.']
-    assert list(IngredientLine.objects.values_list('original_text', flat=True)) == ['2-3 eggs', '']
-
-
-@pytest.mark.django_db
-def test_a_staff_user_adds_groups_to_a_recipe_and_puts_lines_in_them_in_the_admin(admin_client: Client) -> None:
-    recipe = make_recipe(title='Shakshuka')
-    recipe.cuisines.add(Cuisine.objects.get(slug='italian'))
-    edit = {
-        **admin_details(),
-        'title': 'Shakshuka',
-        'description': '',
-        'cuisines': [Cuisine.objects.get(slug='italian').id],
-    }
-
-    groups = admin_client.post(
-        reverse('admin:recipes_recipe_change', args=[recipe.id]),
-        {
-            **edit,
-            **inline_forms(
-                'ingredient_groups', [{'position': 2, 'name': 'To serve'}, {'position': 1, 'name': 'For the sauce'}]
-            ),
-        },
-    )
-    to_serve, sauce = (IngredientGroup.objects.get(name=name) for name in ['To serve', 'For the sauce'])
-    lines = admin_client.post(
-        reverse('admin:recipes_recipe_change', args=[recipe.id]),
-        {
-            **edit,
-            **inline_forms(
-                'ingredient_groups',
-                [
-                    {'id': to_serve.id, 'recipe': recipe.id, 'position': 2, 'name': 'To serve'},
-                    {'id': sauce.id, 'recipe': recipe.id, 'position': 1, 'name': 'For the sauce'},
-                ],
-                initial=2,
-            ),
-            **inline_forms(
-                'ingredient_lines',
-                [
-                    line_row('feta', group=to_serve.id, amount='50', unit='g'),
-                    line_row('chopped tomatoes', group=sauce.id, amount='1', unit='tin'),
-                    line_row('egg', amount='4'),
-                ],
-            ),
-        },
-    )
-
-    assert (groups.status_code, lines.status_code) == (302, 302)
-    detail = APIClient().get(reverse('recipe-detail', args=['shakshuka'])).json()
-    assert [line['ingredient']['name'] for line in detail['ingredient_lines']] == ['egg']
-    assert [
-        (group['name'], [(line['ingredient']['name'], line['unit']) for line in group['lines']])
-        for group in detail['ingredient_groups']
-    ] == [('For the sauce', [('chopped tomatoes', 'tin')]), ('To serve', [('feta', 'g')])]
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize(
-    ('fields', 'message'),
-    [
-        ({'amount': '3', 'amount_max': '2'}, 'Give a range with its lower amount first'),
-        ({'amount': '2', 'amount_max': '2'}, 'Give a range with its lower amount first'),
-        ({'amount': '', 'amount_max': '3'}, 'Give a range with its lower amount first'),
-        ({'amount': '0'}, 'Give an amount above 0'),
-        ({'unit': 'bucket'}, 'Select a valid choice.'),
-        ({'ingredient': '', 'note': 'to taste'}, 'This field is required.'),
-    ],
-)
-def test_the_admin_refuses_an_ingredient_line_that_doesnt_fit(
-    admin_client: Client, fields: dict[str, Any], message: str
-) -> None:
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_add'),
-        {
-            **admin_details(),
-            'title': 'Shakshuka',
-            'description': '',
-            'cuisines': [Cuisine.objects.get(slug='italian').id],
-            **inline_forms('ingredient_lines', [line_row('egg', **fields)]),
-        },
-    )
-
-    assert response.status_code == 200
-    assert message in response.content.decode()
-    assert (Recipe.objects.count(), IngredientLine.objects.count()) == (0, 0)
-
-
-@pytest.mark.django_db
-def test_the_admin_refuses_a_line_in_another_recipes_group(admin_client: Client) -> None:
-    other = IngredientGroup.objects.create(recipe=make_recipe(title='Apple tart'), name='For the pastry')
-    recipe = make_recipe(title='Shakshuka')
-
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_change', args=[recipe.id]),
-        {
-            **admin_details(),
-            'title': 'Shakshuka',
-            'description': '',
-            'cuisines': [Cuisine.objects.get(slug='italian').id],
-            **inline_forms('ingredient_lines', [line_row('egg', group=other.id)]),
-        },
-    )
-
-    assert response.status_code == 200
-    assert 'Select a valid choice.' in response.content.decode()
-    assert IngredientLine.objects.count() == 0
-
-
-@pytest.mark.django_db
-def test_deleting_a_group_in_the_admin_keeps_its_lines_above_the_groups(admin_client: Client) -> None:
-    recipe = make_recipe(title='Shakshuka')
-    recipe.cuisines.add(Cuisine.objects.get(slug='italian'))
-    sauce = IngredientGroup.objects.create(recipe=recipe, name='For the sauce')
-    add_line(recipe, 'onion', group=sauce)
-
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_change', args=[recipe.id]),
-        {
-            **admin_details(),
-            'title': 'Shakshuka',
-            'description': '',
-            'cuisines': [Cuisine.objects.get(slug='italian').id],
-            **inline_forms(
-                'ingredient_groups',
-                [{'id': sauce.id, 'recipe': recipe.id, 'position': 0, 'name': 'For the sauce', 'DELETE': 'on'}],
-                initial=1,
-            ),
-        },
-    )
-
-    assert response.status_code == 302
-    detail = APIClient().get(reverse('recipe-detail', args=['shakshuka'])).json()
-    assert ([line['ingredient']['name'] for line in detail['ingredient_lines']], detail['ingredient_groups']) == (
-        ['onion'],
-        [],
-    )
-
-
 PHOTO = {
     'photo_url': 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Shakshuka_%28Tel_Aviv%29.jpg',
     'photo_author': 'Jane Doe',
@@ -1197,63 +853,6 @@ def test_lists_and_returns_a_recipes_photo_with_its_thumbnails_and_credit_or_nul
         ('Apple tart', None),
         ('Shakshuka', PHOTO_IN_THE_API),
     ]
-
-
-@pytest.mark.django_db
-def test_a_staff_user_gives_a_recipe_a_credited_photo_in_the_admin(admin_client: Client) -> None:
-    recipe = make_recipe(title='Shakshuka')
-    italian = Cuisine.objects.get(slug='italian')
-
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_change', args=[recipe.id]),
-        {**admin_details(), 'title': 'Shakshuka', 'description': '', 'cuisines': [italian.id], **PHOTO},
-    )
-
-    assert response.status_code == 302
-    detail = APIClient().get(reverse('recipe-detail', args=['shakshuka'])).json()
-    assert detail['photo'] == PHOTO_IN_THE_API
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize(
-    ('fields', 'message'),
-    [
-        ({**PHOTO, 'photo_author': ''}, 'Give a photo with its author, licence and source, or none of them.'),
-        ({**PHOTO, 'photo_licence': ''}, 'Give a photo with its author, licence and source, or none of them.'),
-        ({**PHOTO, 'photo_source_url': ''}, 'Give a photo with its author, licence and source, or none of them.'),
-        ({'photo_author': 'Jane Doe'}, 'Give a photo with its author, licence and source, or none of them.'),
-        (
-            {**PHOTO, 'photo_url': 'https://example.com/shakshuka.jpg'},
-            'Give the address of a JPEG, PNG or WebP file on Wikimedia Commons',
-        ),
-        (
-            {**PHOTO, 'photo_url': 'https://commons.wikimedia.org/wiki/File:Shakshuka_(Tel_Aviv).jpg'},
-            'Give the address of a JPEG, PNG or WebP file on Wikimedia Commons',
-        ),
-        (
-            {**PHOTO, 'photo_url': 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Shakshuka.svg'},
-            'Give the address of a JPEG, PNG or WebP file on Wikimedia Commons',
-        ),
-        ({**PHOTO, 'photo_source_url': 'Wikimedia Commons'}, 'Enter a valid URL.'),
-        (
-            {**PHOTO, 'photo_source_url': 'https://example.com/shakshuka'},
-            'Give the photo&#x27;s page on Wikimedia Commons',
-        ),
-    ],
-)
-def test_the_admin_refuses_a_photo_that_doesnt_fit(admin_client: Client, fields: dict[str, Any], message: str) -> None:
-    recipe = make_recipe(title='Shakshuka')
-    italian = Cuisine.objects.get(slug='italian')
-
-    response = admin_client.post(
-        reverse('admin:recipes_recipe_change', args=[recipe.id]),
-        {**admin_details(), 'title': 'Shakshuka', 'description': '', 'cuisines': [italian.id], **fields},
-    )
-
-    assert response.status_code == 200
-    assert message in response.content.decode()
-    recipe.refresh_from_db()
-    assert recipe.photo_url == ''
 
 
 def flagged(name: str, *flags: str) -> Ingredient:
@@ -1336,82 +935,3 @@ def test_optional_lines_keep_the_diet_tags_and_name_the_ones_they_would_take_awa
         {'ingredient': {'slug': 'bacon', 'name': 'bacon'}, 'diet_tags': ['vegetarian', 'vegan']},
         {'ingredient': {'slug': 'parmesan', 'name': 'parmesan'}, 'diet_tags': ['vegetarian', 'vegan', 'dairy_free']},
     ]
-
-
-@pytest.mark.django_db
-def test_a_staff_user_records_what_an_ingredient_contains_in_the_admin(admin_client: Client) -> None:
-    recipe = make_recipe(title='Noodle soup')
-    add_line(recipe, 'egg noodles')
-
-    response = admin_client.post(
-        reverse('admin:recipes_ingredient_change', args=[Ingredient.objects.get().id]),
-        {
-            'name': 'egg noodles',
-            'slug': 'egg-noodles',
-            'contains_gluten': 'on',
-            'contains_egg': 'on',
-            **inline_forms('synonyms', []),
-        },
-    )
-
-    assert response.status_code == 302
-    detail = APIClient().get(reverse('recipe-detail', args=['noodle-soup'])).json()
-    assert detail['diet_tags'] == ['vegetarian', 'dairy_free']
-
-
-@pytest.mark.django_db
-def test_a_staff_user_records_that_a_cheese_is_made_with_animal_rennet_in_the_admin(admin_client: Client) -> None:
-    add_line(make_recipe(title='Cacio e pepe'), 'pecorino')
-
-    response = admin_client.post(
-        reverse('admin:recipes_ingredient_change', args=[Ingredient.objects.get().id]),
-        {
-            'name': 'pecorino',
-            'slug': 'pecorino',
-            'contains_dairy': 'on',
-            'contains_animal_rennet': 'on',
-            **inline_forms('synonyms', []),
-        },
-    )
-
-    assert response.status_code == 302
-    detail = APIClient().get(reverse('recipe-detail', args=['cacio-e-pepe'])).json()
-    assert detail['diet_tags'] == ['gluten_free']
-
-
-@pytest.mark.django_db
-def test_a_staff_user_gives_an_ingredient_synonyms_in_the_admin_and_search_finds_it_by_them(
-    admin_client: Client,
-) -> None:
-    add_line(make_recipe(title='Ratatouille'), 'courgette')
-
-    response = admin_client.post(
-        reverse('admin:recipes_ingredient_change', args=[Ingredient.objects.get().id]),
-        {
-            'name': 'courgette',
-            'slug': 'courgette',
-            **inline_forms('synonyms', [{'name': 'zucchini'}, {'name': 'baby marrow'}]),
-        },
-    )
-
-    assert response.status_code == 302
-    found = {
-        q: [recipe['title'] for recipe in APIClient().get(reverse('recipe-list'), {'q': q}).json()]
-        for q in ['zucchini', 'baby marrow']
-    }
-    assert found == {'zucchini': ['Ratatouille'], 'baby marrow': ['Ratatouille']}
-
-
-@pytest.mark.django_db
-def test_the_admin_refuses_a_synonym_another_ingredient_already_has(admin_client: Client) -> None:
-    IngredientSynonym.objects.create(ingredient=ingredient('coriander'), name='cilantro')
-    parsley = ingredient('flat-leaf parsley')
-
-    response = admin_client.post(
-        reverse('admin:recipes_ingredient_change', args=[parsley.id]),
-        {'name': 'flat-leaf parsley', 'slug': 'flat-leaf-parsley', **inline_forms('synonyms', [{'name': 'cilantro'}])},
-    )
-
-    assert response.status_code == 200
-    assert 'Ingredient synonym with this Name already exists.' in response.content.decode()
-    assert list(IngredientSynonym.objects.values_list('ingredient__name', 'name')) == [('coriander', 'cilantro')]
