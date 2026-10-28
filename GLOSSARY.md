@@ -27,7 +27,7 @@ Names marked _planned_ don't exist in the code yet; use them when you build the 
 | Course | Where a recipe sits in a meal: main, side, dessert, breakfast, baking. | `Course` |
 | Difficulty | Easy, medium or hard. | `Difficulty` |
 | Diet tag | Vegetarian, vegan, gluten-free or dairy-free. Computed from the ingredients, never typed in. | `DietTag`, `diet_tags` |
-| Diet tag conflict | An optional ingredient that would take a diet tag away from its recipe, named on the recipe's page ("Leave out the parmesan to keep it vegan and dairy-free."). | `diet_tag_conflicts` |
+| Diet tag conflict | An optional ingredient that would take a diet tag away from its recipe, named on the recipe's page ("Leave out the parmesan to keep it vegetarian, vegan and dairy-free."). | `diet_tag_conflicts` |
 | One-pot | A recipe cooked in a single vessel. | `Recipe.one_pot` |
 | Prep time, cook time, extra time, total time | Minutes of preparation, of cooking, and of waiting (marinating, resting, proving, with a label). Total time is all three. | `prep_minutes`, `cook_minutes`, `extra_minutes`, `extra_label`, `total_minutes` |
 | Servings | How many people a recipe feeds ("serves 4"). | `Recipe.servings` |
