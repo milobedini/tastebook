@@ -17556,6 +17556,12 @@
           "ingredient": "onion",
           "note": "sliced",
           "original_text": "2 onions, sliced"
+        },
+        {
+          "amount": 1,
+          "unit": "clove",
+          "ingredient": "garlic",
+          "note": "for the onions"
         }
       ],
       "steps": [
