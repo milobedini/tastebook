@@ -1,24 +1,32 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { api } from '../api/client';
+import type { RecipeFilters } from './recipe-filters';
 
-export type RecipeFilters = { searchTerm: string; cuisine: string };
+export type RecipeQuery = { searchTerm: string; filters: RecipeFilters };
 
-const toQuery = ({ searchTerm, cuisine }: RecipeFilters) => ({
+// Leaves out what filters nothing, so an unfiltered list asks for /api/recipes/ with no query string.
+const toQuery = ({ searchTerm, filters }: RecipeQuery) => ({
   ...(searchTerm === '' ? {} : { q: searchTerm }),
-  ...(cuisine === '' ? {} : { cuisine: [cuisine] })
+  ...(filters.cuisines.length === 0 ? {} : { cuisine: filters.cuisines }),
+  ...(filters.courses.length === 0 ? {} : { course: filters.courses }),
+  ...(filters.difficulties.length === 0 ? {} : { difficulty: filters.difficulties }),
+  ...(filters.times.total === null ? {} : { max_total: filters.times.total }),
+  ...(filters.times.prep === null ? {} : { max_prep: filters.times.prep }),
+  ...(filters.times.cook === null ? {} : { max_cook: filters.times.cook }),
+  ...(filters.onePot ? { one_pot: true } : {})
 });
 
-export const useRecipes = (filters: RecipeFilters) =>
+export const useRecipes = (query: RecipeQuery) =>
   useQuery({
-    queryKey: ['recipes', { q: filters.searchTerm, cuisine: filters.cuisine }],
+    queryKey: ['recipes', toQuery(query)],
     queryFn: async () => {
-      const { data, error } = await api.GET('/api/recipes/', { params: { query: toQuery(filters) } });
+      const { data, error } = await api.GET('/api/recipes/', { params: { query: toQuery(query) } });
       if (error || !data) {
         throw new Error('Recipes request failed');
       }
-      // The filters travel with their results, so previous results shown while loading keep their own empty message.
-      return { filters, recipes: data };
+      // The query travels with its results, so previous results shown while loading keep their own empty message.
+      return { query, recipes: data };
     },
     placeholderData: keepPreviousData
   });

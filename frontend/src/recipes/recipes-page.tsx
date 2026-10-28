@@ -1,19 +1,21 @@
-import { CookingPot } from 'lucide-react';
+import { CookingPot, SlidersHorizontal } from 'lucide-react';
 import type { ChangeEvent } from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
 import type { components } from '../api/schema';
-import { Banner, Button, EmptyState, Field, NativeSelect, Page, RecipeCard, SearchInput, Tag } from '../ui';
-import { useCuisines } from './cuisines-api';
+import { Banner, Button, EmptyState, Field, Page, RecipeCard, SearchInput, Tag } from '../ui';
+import { ActiveFilters } from './active-filters';
 import { dietTagLabels } from './diet-tags';
 import { difficultyLabels } from './difficulty';
 import { formatMinutes } from './format-minutes';
-import type { RecipeFilters } from './recipes-api';
+import { RecipeFilterPanel } from './recipe-filter-panel';
+import type { RecipeFilters } from './recipe-filters';
+import { hasFilters, noFilters, readFilters, writeFilters } from './recipe-filters';
+import type { RecipeQuery } from './recipes-api';
 import { useRecipes } from './recipes-api';
 import { useDebouncedValue } from './use-debounced-value';
 
-type Cuisine = components['schemas']['Cuisine'];
 type RecipeSummary = components['schemas']['RecipeSummary'];
 
 const SEARCH_DELAY_MS = 300;
@@ -25,7 +27,7 @@ const toSearchTerm = (text: string) => {
   return term.length >= MIN_SEARCH_LENGTH ? term : '';
 };
 
-// Each control writes its own parameter and keeps the others, so the search and the cuisine combine.
+// The search box writes only q and keeps the others, so the search and the filters combine.
 const withParam = (params: URLSearchParams, name: string, value: string) => {
   const next = new URLSearchParams(params);
   if (value === '') {
@@ -44,71 +46,6 @@ type RecipeSearchProps = {
 const RecipeSearch = ({ value, onChange }: RecipeSearchProps) => (
   <Field label="Search recipes">{(control) => <SearchInput {...control} value={value} onChange={onChange} />}</Field>
 );
-
-type CuisineSelectProps = {
-  cuisines: Cuisine[];
-  value: string;
-  onChange: (event: ChangeEvent<HTMLSelectElement>) => void;
-};
-
-const CuisineSelect = ({ cuisines, value, onChange }: CuisineSelectProps) => {
-  // A select can't show a value it has no option for, and the API ignores an unknown slug, so both say "All cuisines".
-  const known = cuisines.some(({ slug }) => slug === value);
-  return (
-    <Field label="Cuisine">
-      {(control) => (
-        <NativeSelect {...control} value={known ? value : ''} onChange={onChange}>
-          <option value="">All cuisines</option>
-          {cuisines.map(({ slug, name }) => (
-            <option key={slug} value={slug}>
-              {name}
-            </option>
-          ))}
-        </NativeSelect>
-      )}
-    </Field>
-  );
-};
-
-const CuisinesLoading = () => (
-  <Field label="Cuisine">
-    {(control) => (
-      <NativeSelect {...control} disabled>
-        <option>Loading cuisines…</option>
-      </NativeSelect>
-    )}
-  </Field>
-);
-
-type CuisinesUnavailableProps = {
-  onRetry: () => void;
-};
-
-const CuisinesUnavailable = ({ onRetry }: CuisinesUnavailableProps) => (
-  <>
-    <Banner tone="danger" title="The cuisines couldn't be loaded." />
-    <Button variant="secondary" className="self-start" onClick={onRetry}>
-      Load cuisines again
-    </Button>
-  </>
-);
-
-type CuisinePickerProps = {
-  value: string;
-  onChange: (event: ChangeEvent<HTMLSelectElement>) => void;
-};
-
-const CuisinePicker = ({ value, onChange }: CuisinePickerProps) => {
-  const { data: cuisines, isPending, refetch } = useCuisines();
-  if (cuisines !== undefined) {
-    return <CuisineSelect cuisines={cuisines} value={value} onChange={onChange} />;
-  }
-  // Refetching a query that has never succeeded resets it to pending, so "Load cuisines again" shows this too.
-  if (isPending) {
-    return <CuisinesLoading />;
-  }
-  return <CuisinesUnavailable onRetry={() => void refetch()} />;
-};
 
 type RecipesUnavailableProps = {
   onRetry: () => void;
@@ -156,54 +93,61 @@ const RecipeItem = ({ recipe }: RecipeItemProps) => (
   </li>
 );
 
-type NoRecipesProps = { searchTerm: string; cuisineName: string | undefined };
+type NoRecipesProps = { query: RecipeQuery; onClearFilters: () => void };
 
-const NoRecipes = ({ searchTerm, cuisineName }: NoRecipesProps) => {
-  const subject = cuisineName === undefined ? 'recipes' : `${cuisineName} recipes`;
-  if (searchTerm === '') {
-    return <EmptyState icon={CookingPot} title={`No ${subject} yet.`} />;
+const NoRecipes = ({ query: { searchTerm, filters }, onClearFilters }: NoRecipesProps) => {
+  if (!hasFilters(filters)) {
+    const title = searchTerm === '' ? 'No recipes yet.' : `No recipes match “${searchTerm}”.`;
+    return <EmptyState icon={CookingPot} title={title} />;
   }
-  return <EmptyState icon={CookingPot} title={`No ${subject} match “${searchTerm}”.`} />;
+  const title =
+    searchTerm === '' ? 'No recipes match these filters.' : `No recipes match “${searchTerm}” with these filters.`;
+  return (
+    <EmptyState
+      icon={CookingPot}
+      title={title}
+      action={
+        <Button variant="secondary" onClick={onClearFilters}>
+          Clear filters
+        </Button>
+      }
+    />
+  );
 };
 
 type RecipeCountProps = { count: number };
 
+// A status message, so a screen reader hears the new count after each change; with none, the empty state says so.
 const RecipeCount = ({ count }: RecipeCountProps) => (
-  <p className="text-muted text-small">{`${count} ${count === 1 ? 'recipe' : 'recipes'}`}</p>
+  <p role="status" className={count === 0 ? 'sr-only' : 'text-muted text-small'}>
+    {`${count} ${count === 1 ? 'recipe' : 'recipes'}`}
+  </p>
 );
 
-type RecipesProps = { recipes: RecipeSummary[]; searchTerm: string; cuisineName: string | undefined };
+type RecipesProps = { recipes: RecipeSummary[]; query: RecipeQuery; onClearFilters: () => void };
 
-const Recipes = ({ recipes, searchTerm, cuisineName }: RecipesProps) => {
-  if (recipes.length === 0) {
-    return <NoRecipes searchTerm={searchTerm} cuisineName={cuisineName} />;
-  }
-  return (
-    <>
-      <RecipeCount count={recipes.length} />
+const Recipes = ({ recipes, query, onClearFilters }: RecipesProps) => (
+  <>
+    <RecipeCount count={recipes.length} />
+    {recipes.length === 0 ? (
+      <NoRecipes query={query} onClearFilters={onClearFilters} />
+    ) : (
       <ul className="grid gap-4">
         {recipes.map((recipe) => (
           <RecipeItem key={recipe.id} recipe={recipe} />
         ))}
       </ul>
-    </>
-  );
-};
+    )}
+  </>
+);
 
-type RecipeListProps = { filters: RecipeFilters };
+type RecipeListProps = { query: RecipeQuery; onClearFilters: () => void };
 
-const RecipeList = ({ filters }: RecipeListProps) => {
-  const { data, isPending, refetch } = useRecipes(filters);
-  const { data: cuisines } = useCuisines();
+const RecipeList = ({ query, onClearFilters }: RecipeListProps) => {
+  const { data, isPending, refetch } = useRecipes(query);
   // A list already shown stays up if a background refetch fails.
   if (data !== undefined) {
-    return (
-      <Recipes
-        recipes={data.recipes}
-        searchTerm={data.filters.searchTerm}
-        cuisineName={cuisines?.find(({ slug }) => slug === data.filters.cuisine)?.name}
-      />
-    );
+    return <Recipes recipes={data.recipes} query={data.query} onClearFilters={onClearFilters} />;
   }
   // Refetching a query that has never succeeded resets it to pending, so "Try again" shows this too.
   if (isPending) {
@@ -211,6 +155,8 @@ const RecipeList = ({ filters }: RecipeListProps) => {
   }
   return <RecipesUnavailable onRetry={() => void refetch()} />;
 };
+
+const FILTER_PANEL_ID = 'recipe-filters';
 
 export const RecipesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -227,25 +173,49 @@ export const RecipesPage = () => {
     [setSearchParams]
   );
 
-  // The dropdown changes the address at once, so the address is its only state.
-  const cuisine = searchParams.get('cuisine') ?? '';
-  const handleCuisineChange = useCallback(
-    (event: ChangeEvent<HTMLSelectElement>) => {
-      setSearchParams((params) => withParam(params, 'cuisine', event.target.value), { replace: true });
+  // The chips change the address at once, so the address is the filters' only state.
+  const filters = readFilters(searchParams);
+  const changeFilters = useCallback(
+    (next: RecipeFilters) => {
+      setSearchParams((params) => writeFilters(params, next), { replace: true });
     },
     [setSearchParams]
   );
+
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const filtersButton = useRef<HTMLButtonElement>(null);
+  // The pressed chip or "Clear filters" disappears, so focus goes back to the Filters button.
+  const removeFilters = useCallback(
+    (next: RecipeFilters) => {
+      changeFilters(next);
+      filtersButton.current?.focus();
+    },
+    [changeFilters]
+  );
+  const clearFilters = useCallback(() => removeFilters(noFilters), [removeFilters]);
 
   return (
     <Page>
       <title>Recipes · Tastebook</title>
       <h1>Recipes</h1>
-      {/* No form: results follow the typing and the dropdown, so Enter has nothing to submit. */}
+      {/* No form: results follow the typing and the chips, so Enter has nothing to submit. */}
       <search className="flex flex-col gap-4">
         <RecipeSearch value={searchText} onChange={handleSearchChange} />
-        <CuisinePicker value={cuisine} onChange={handleCuisineChange} />
+        <Button
+          ref={filtersButton}
+          variant="secondary"
+          className="self-start"
+          aria-expanded={isPanelOpen}
+          aria-controls={FILTER_PANEL_ID}
+          onClick={() => setIsPanelOpen(!isPanelOpen)}
+        >
+          <SlidersHorizontal aria-hidden="true" />
+          Filters
+        </Button>
+        {isPanelOpen && <RecipeFilterPanel id={FILTER_PANEL_ID} filters={filters} onChange={changeFilters} />}
       </search>
-      <RecipeList filters={{ searchTerm, cuisine }} />
+      <ActiveFilters filters={filters} onChange={removeFilters} />
+      <RecipeList query={{ searchTerm, filters }} onClearFilters={clearFilters} />
       <Button asChild variant="ghost" className="self-start">
         <Link to="/">Back to Tastebook</Link>
       </Button>

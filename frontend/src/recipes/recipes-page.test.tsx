@@ -7,6 +7,7 @@ import type { components } from '../api/schema';
 import { renderRoute } from '../test/render-route';
 import { server } from '../test/server';
 
+type Course = components['schemas']['Course'];
 type Cuisine = components['schemas']['Cuisine'];
 type Recipe = components['schemas']['RecipeSummary'];
 
@@ -35,8 +36,8 @@ const bananaBread: Recipe = {
   diet_tags: []
 };
 
-// Holds the next recipes response until released, so the test can see the page while the request is in flight.
-const holdRecipes = (respond: () => Response) => {
+// Holds the next response from `path` until released, so the test can see the page while the request is in flight.
+const hold = (path: string, respond: () => Response) => {
   const gate = { arrive: () => {}, release: () => {} };
   const requested = new Promise<void>((resolve) => {
     gate.arrive = resolve;
@@ -45,7 +46,7 @@ const holdRecipes = (respond: () => Response) => {
     gate.release = resolve;
   });
   server.use(
-    http.get('/api/recipes/', async () => {
+    http.get(path, async () => {
       gate.arrive();
       await released;
       return respond();
@@ -53,6 +54,8 @@ const holdRecipes = (respond: () => Response) => {
   );
   return { requested, release: () => gate.release() };
 };
+
+const holdRecipes = (respond: () => Response) => hold('/api/recipes/', respond);
 
 // Answers each list request from `results` by its q ('' for none) and records the q each request sent.
 const answerSearches = (results: Record<string, Recipe[]>) => {
@@ -69,24 +72,11 @@ const answerSearches = (results: Record<string, Recipe[]>) => {
 
 const failCuisines = () => server.use(http.get('/api/cuisines/', () => new HttpResponse(null, { status: 503 })));
 
-// Holds the next cuisines response until released, so the test can see the picker while the request is in flight.
-const holdCuisines = (respond: () => Response) => {
-  const gate = { arrive: () => {}, release: () => {} };
-  const requested = new Promise<void>((resolve) => {
-    gate.arrive = resolve;
-  });
-  const released = new Promise<void>((resolve) => {
-    gate.release = resolve;
-  });
-  server.use(
-    http.get('/api/cuisines/', async () => {
-      gate.arrive();
-      await released;
-      return respond();
-    })
-  );
-  return { requested, release: () => gate.release() };
-};
+const holdCuisines = (respond: () => Response) => hold('/api/cuisines/', respond);
+
+const failCourses = () => server.use(http.get('/api/courses/', () => new HttpResponse(null, { status: 503 })));
+
+const holdCourses = (respond: () => Response) => hold('/api/courses/', respond);
 
 // Answers each list request from `results` by its sorted query string ('' for none) and records the ones it was asked for.
 const answerFilters = (results: Record<string, Recipe[]>) => {
@@ -103,13 +93,36 @@ const answerFilters = (results: Record<string, Recipe[]>) => {
   return queries;
 };
 
-const cuisinePicker = () => screen.getByRole('combobox', { name: 'Cuisine' });
-
-const optionNames = () => screen.getAllByRole('option').map((option) => option.textContent);
-
 const headings = () => screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent);
 
 const searchBox = () => screen.getByRole('searchbox', { name: 'Search recipes' });
+
+const filtersButton = () => screen.getByRole('button', { name: 'Filters' });
+
+const filterGroup = (name: string) => screen.getByRole('group', { name });
+
+const chipNames = (group: string) =>
+  within(filterGroup(group))
+    .getAllByRole('button')
+    .map((chip) => chip.textContent);
+
+const filtersOn = () =>
+  within(screen.getByRole('list', { name: 'Filters on' }))
+    .getAllByRole('button', { name: /^Remove filter: / })
+    .map((chip) => chip.getAttribute('aria-label'));
+
+const filterGroupNames = ['Total time', 'Prep time', 'Cook time', 'Difficulty', 'Course', 'Cuisine', 'One-pot'];
+
+const cuisines: Cuisine[] = [
+  { slug: 'french', name: 'French' },
+  { slug: 'italian', name: 'Italian' },
+  { slug: 'japanese', name: 'Japanese' }
+];
+
+const courses: Course[] = [
+  { slug: 'dessert', name: 'Dessert' },
+  { slug: 'main', name: 'Main' }
+];
 
 const recipeCount = () => screen.queryByText(/^\d+ recipes?$/)?.textContent;
 
@@ -281,7 +294,7 @@ describe('RecipesPage', () => {
     expect(await screen.findByText(shown)).toBeInTheDocument();
     expect(screen.queryByText(absent)).not.toBeInTheDocument();
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
-    expect(recipeCount()).toBeUndefined();
+    expect(screen.getByRole('status')).toHaveTextContent('0 recipes');
   });
 
   it.each([
@@ -461,66 +474,6 @@ describe('RecipesPage', () => {
     expect(screen.queryByRole('heading', { name: 'Recipes' })).not.toBeInTheDocument();
   });
 
-  it('offers every cuisine after "All cuisines"', async () => {
-    renderRoute('/recipes');
-
-    await waitFor(() => expect(cuisinePicker()).toBeEnabled());
-    expect(optionNames()).toEqual(['All cuisines', 'French', 'Italian', 'Japanese']);
-    expect(cuisinePicker()).toHaveValue('');
-  });
-
-  it('disables the picker while the cuisines load', async () => {
-    const { requested, release } = holdCuisines(() =>
-      HttpResponse.json<Cuisine[]>([
-        { slug: 'french', name: 'French' },
-        { slug: 'italian', name: 'Italian' },
-        { slug: 'japanese', name: 'Japanese' }
-      ])
-    );
-
-    renderRoute('/recipes');
-    await requested;
-
-    expect(cuisinePicker()).toBeDisabled();
-    expect(optionNames()).toEqual(['Loading cuisines…']);
-
-    release();
-
-    await waitFor(() => expect(cuisinePicker()).toBeEnabled());
-    expect(optionNames()).toHaveLength(4);
-  });
-
-  it('narrows the list to the cuisine picked', async () => {
-    const queries = answerFilters({ '': [appleTart, bananaBread], 'cuisine=french': [appleTart] });
-    const { router } = renderRoute('/recipes');
-    await screen.findByText('Banana bread');
-    await waitFor(() => expect(cuisinePicker()).toBeEnabled());
-
-    await userEvent.selectOptions(cuisinePicker(), 'French');
-
-    await waitFor(() => expect(headings()).toEqual(['Apple tart']));
-    expect(recipeCount()).toBe('1 recipe');
-    expect(router.state.location.search).toBe('?cuisine=french');
-    expect(queries).toEqual(['', 'cuisine=french']);
-  });
-
-  it('combines the cuisine with the search, and "All cuisines" removes only the cuisine', async () => {
-    const queries = answerFilters({ 'q=tart': [appleTart], 'cuisine=french&q=tart': [appleTart] });
-    const { router } = renderRoute('/recipes?q=tart');
-    await waitFor(() => expect(cuisinePicker()).toBeEnabled());
-
-    await userEvent.selectOptions(cuisinePicker(), 'French');
-
-    expect(router.state.location.search).toBe('?q=tart&cuisine=french');
-    await waitFor(() => expect(queries.at(-1)).toBe('cuisine=french&q=tart'));
-
-    await userEvent.selectOptions(cuisinePicker(), 'All cuisines');
-
-    expect(router.state.location.search).toBe('?q=tart');
-    expect(searchBox()).toHaveValue('tart');
-    await waitFor(() => expect(queries.at(-1)).toBe('q=tart'));
-  });
-
   it('keeps the cuisine while typing a search', async () => {
     const queries = answerFilters({ 'cuisine=french': [appleTart], 'cuisine=french&q=tart': [appleTart] });
     const { router } = renderRoute('/recipes?cuisine=french');
@@ -532,51 +485,223 @@ describe('RecipesPage', () => {
     await waitFor(() => expect(queries.at(-1)).toBe('cuisine=french&q=tart'));
   });
 
-  it('opens the search and the cuisine from the address', async () => {
-    const queries = answerFilters({ 'cuisine=french&q=tart': [appleTart] });
+  it('opens and closes the filters from the Filters button', async () => {
+    renderRoute('/recipes');
+    expect(filtersButton()).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('group')).not.toBeInTheDocument();
 
-    renderRoute('/recipes?q=tart&cuisine=french');
+    await userEvent.click(filtersButton());
 
-    await waitFor(() => expect(cuisinePicker()).toHaveValue('french'));
-    expect(searchBox()).toHaveValue('tart');
-    await waitFor(() => expect(headings()).toEqual(['Apple tart']));
-    expect(queries).toEqual(['cuisine=french&q=tart']);
-  });
+    expect(filtersButton()).toHaveAttribute('aria-expanded', 'true');
+    const panel = document.getElementById(filtersButton().getAttribute('aria-controls') ?? '');
+    expect(
+      within(panel ?? document.createElement('div'))
+        .getAllByRole('group')
+        .map((group) => group.querySelector('legend')?.textContent)
+    ).toEqual(filterGroupNames);
 
-  it('shows "All cuisines" for an unknown cuisine', async () => {
-    renderRoute('/recipes?cuisine=klingon');
+    await userEvent.click(filtersButton());
 
-    await waitFor(() => expect(cuisinePicker()).toBeEnabled());
-    expect(cuisinePicker()).toHaveValue('');
-    await waitFor(() => expect(headings()).toEqual(['Apple tart', 'Banana bread']));
+    expect(filtersButton()).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('group')).not.toBeInTheDocument();
   });
 
   it.each([
-    ['/recipes?cuisine=italian', 'No Italian recipes yet.'],
-    ['/recipes?cuisine=italian&q=xyzzy', 'No Italian recipes match “xyzzy”.']
-  ])('at %s, says %s when nothing matches', async (path, shown) => {
-    server.use(http.get('/api/recipes/', () => HttpResponse.json<Recipe[]>([])));
+    ['Total time', 'Up to 30 min', 'max_total=30'],
+    ['Prep time', 'Up to 15 min', 'max_prep=15'],
+    ['Cook time', 'Up to 60 min', 'max_cook=60'],
+    ['Difficulty', 'Easy', 'difficulty=easy'],
+    ['Course', 'Dessert', 'course=dessert'],
+    ['Cuisine', 'Italian', 'cuisine=italian'],
+    ['One-pot', 'One-pot only', 'one_pot=true']
+  ])('in %s, "%s" filters by %s', async (group, name, query) => {
+    const queries = answerFilters({});
+    const { router } = renderRoute('/recipes');
+    await userEvent.click(filtersButton());
 
-    renderRoute(path);
+    const chip = await within(filterGroup(group)).findByRole('button', { name });
+    await userEvent.click(chip);
 
-    expect(await screen.findByText(shown)).toBeInTheDocument();
-    expect(screen.queryByText('No recipes yet.')).not.toBeInTheDocument();
-    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    expect(chip).toHaveAttribute('aria-pressed', 'true');
+    expect(router.state.location.search).toBe(`?${query}`);
+    await waitFor(() => expect(queries.at(-1)).toBe(query));
   });
 
-  it('keeps the list when the cuisines fail, and loads them again on request', async () => {
-    failCuisines();
-    renderRoute('/recipes');
+  it('combines two cuisines in one request', async () => {
+    const queries = answerFilters({});
+    const { router } = renderRoute('/recipes');
+    await userEvent.click(filtersButton());
 
-    expect(await screen.findByRole('alert')).toHaveTextContent("The cuisines couldn't be loaded.");
+    await userEvent.click(await within(filterGroup('Cuisine')).findByRole('button', { name: 'Italian' }));
+    await userEvent.click(within(filterGroup('Cuisine')).getByRole('button', { name: 'Japanese' }));
+
+    expect(router.state.location.search).toBe('?cuisine=italian&cuisine=japanese');
+    await waitFor(() => expect(queries.at(-1)).toBe('cuisine=italian&cuisine=japanese'));
+  });
+
+  it('a second time limit replaces the first', async () => {
+    const { router } = renderRoute('/recipes');
+    await userEvent.click(filtersButton());
+    const totalTime = within(filterGroup('Total time'));
+
+    await userEvent.click(totalTime.getByRole('button', { name: 'Up to 15 min' }));
+    await userEvent.click(totalTime.getByRole('button', { name: 'Up to 45 min' }));
+
+    expect(router.state.location.search).toBe('?max_total=45');
+    expect(totalTime.getByRole('button', { name: 'Up to 15 min' })).toHaveAttribute('aria-pressed', 'false');
+    expect(totalTime.getByRole('button', { name: 'Up to 45 min' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('pressing a pressed chip turns it off', async () => {
+    const queries = answerFilters({ 'difficulty=easy': [bananaBread], '': [appleTart, bananaBread] });
+    const { router } = renderRoute('/recipes?difficulty=easy');
+    await userEvent.click(filtersButton());
+    const easy = within(filterGroup('Difficulty')).getByRole('button', { name: 'Easy' });
+    expect(easy).toHaveAttribute('aria-pressed', 'true');
+
+    await userEvent.click(easy);
+
+    expect(router.state.location.search).toBe('');
+    expect(easy).toHaveAttribute('aria-pressed', 'false');
+    await waitFor(() => expect(queries.at(-1)).toBe(''));
+  });
+
+  it('opens the search and filters from the address', async () => {
+    const queries = answerFilters({ 'cuisine=french&cuisine=japanese&max_total=30&one_pot=true&q=tart': [appleTart] });
+
+    renderRoute('/recipes?q=tart&cuisine=french&cuisine=japanese&max_total=30&one_pot=true');
+
+    expect(searchBox()).toHaveValue('tart');
+    await waitFor(() =>
+      expect(filtersOn()).toEqual([
+        'Remove filter: Total up to 30 min',
+        'Remove filter: French',
+        'Remove filter: Japanese',
+        'Remove filter: One-pot'
+      ])
+    );
+    await waitFor(() => expect(headings()).toEqual(['Apple tart']));
+    expect(queries).toEqual(['cuisine=french&cuisine=japanese&max_total=30&one_pot=true&q=tart']);
+  });
+
+  it('removes one filter from its chip', async () => {
+    const { router } = renderRoute('/recipes?q=tart&cuisine=french&cuisine=japanese&max_total=30&one_pot=true');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Remove filter: French' }));
+
+    expect(router.state.location.search).toBe('?q=tart&cuisine=japanese&max_total=30&one_pot=true');
+    expect(filtersOn()).toEqual([
+      'Remove filter: Total up to 30 min',
+      'Remove filter: Japanese',
+      'Remove filter: One-pot'
+    ]);
+    expect(filtersButton()).toHaveFocus();
+  });
+
+  it('Clear filters keeps the search', async () => {
+    answerFilters({ 'cuisine=french&difficulty=easy&q=tart': [appleTart], 'q=tart': [appleTart] });
+    const { router } = renderRoute('/recipes?q=tart&cuisine=french&difficulty=easy');
+    await waitFor(() => expect(headings()).toEqual(['Apple tart']));
+
+    await userEvent.click(
+      within(screen.getByRole('list', { name: 'Filters on' })).getByRole('button', { name: 'Clear filters' })
+    );
+
+    expect(router.state.location.search).toBe('?q=tart');
+    expect(screen.queryByRole('list', { name: 'Filters on' })).not.toBeInTheDocument();
+    expect(searchBox()).toHaveValue('tart');
+    expect(filtersButton()).toHaveFocus();
+  });
+
+  it('names only cuisines it knows', async () => {
+    const queries = answerFilters({});
+
+    renderRoute('/recipes?cuisine=klingon&cuisine=italian');
+
+    await waitFor(() => expect(filtersOn()).toEqual(['Remove filter: Italian']));
+    expect(queries).toEqual(['cuisine=klingon&cuisine=italian']);
+  });
+
+  it('shows the slug on a chip while the cuisines load', async () => {
+    const { requested, release } = holdCuisines(() => HttpResponse.json<Cuisine[]>(cuisines));
+    renderRoute('/recipes?cuisine=italian');
+    await requested;
+
+    expect(filtersOn()).toEqual(['Remove filter: italian']);
+
+    release();
+
+    await waitFor(() => expect(filtersOn()).toEqual(['Remove filter: Italian']));
+  });
+
+  it('shows no filters on once the only cuisine turns out to be unknown', async () => {
+    const { requested, release } = holdCuisines(() => HttpResponse.json<Cuisine[]>(cuisines));
+    renderRoute('/recipes?cuisine=klingon');
+    await requested;
+
+    expect(filtersOn()).toEqual(['Remove filter: klingon']);
+
+    release();
+
+    await waitFor(() => expect(screen.queryByRole('list', { name: 'Filters on' })).not.toBeInTheDocument());
+  });
+
+  it.each([
+    ['/recipes?cuisine=italian', 'No recipes match these filters.', ''],
+    ['/recipes?q=tart&cuisine=italian', 'No recipes match “tart” with these filters.', '?q=tart']
+  ])('at %s, says %s and clears the filters from there', async (path, title, cleared) => {
+    server.use(http.get('/api/recipes/', () => HttpResponse.json<Recipe[]>([])));
+    const { router } = renderRoute(path);
+
+    const emptyState = (await screen.findByRole('heading', { name: title })).parentElement;
+    expect(screen.queryByText('No recipes yet.')).not.toBeInTheDocument();
+    await userEvent.click(within(emptyState ?? document.body).getByRole('button', { name: 'Clear filters' }));
+
+    expect(router.state.location.search).toBe(cleared);
+    expect(filtersButton()).toHaveFocus();
+  });
+
+  it('says how many recipes match', async () => {
+    answerFilters({ 'difficulty=easy': [bananaBread] });
+
+    renderRoute('/recipes?difficulty=easy');
+
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('1 recipe'));
+    expect(headings()).toEqual(['Banana bread']);
+  });
+
+  it.each([
+    ['cuisines', failCuisines, 'Cuisine', 'Load cuisines again', ['French', 'Italian', 'Japanese']],
+    ['courses', failCourses, 'Course', 'Load courses again', ['Dessert', 'Main']]
+  ])('keeps the list when the %s fail, and loads them again on request', async (noun, fail, group, retry, names) => {
+    fail();
+    renderRoute('/recipes');
+    await userEvent.click(filtersButton());
+
+    expect(await within(filterGroup(group)).findByRole('alert')).toHaveTextContent(`The ${noun} couldn't be loaded.`);
     await waitFor(() => expect(headings()).toEqual(['Apple tart', 'Banana bread']));
-    expect(screen.queryByRole('combobox', { name: 'Cuisine' })).not.toBeInTheDocument();
 
     server.resetHandlers();
-    await userEvent.click(screen.getByRole('button', { name: 'Load cuisines again' }));
+    await userEvent.click(screen.getByRole('button', { name: retry }));
 
-    await waitFor(() => expect(cuisinePicker()).toBeEnabled());
-    expect(optionNames()).toHaveLength(4);
+    await waitFor(() => expect(chipNames(group)).toEqual(names));
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['Cuisine', 'Loading cuisines…', () => holdCuisines(() => HttpResponse.json<Cuisine[]>(cuisines)), 3],
+    ['Course', 'Loading courses…', () => holdCourses(() => HttpResponse.json<Course[]>(courses)), 2]
+  ])('in %s, says %s, then shows the chips', async (group, loading, holdList, count) => {
+    const { requested, release } = holdList();
+    renderRoute('/recipes');
+    await requested;
+    await userEvent.click(filtersButton());
+
+    expect(within(filterGroup(group)).getByText(loading)).toBeInTheDocument();
+
+    release();
+
+    await waitFor(() => expect(within(filterGroup(group)).getAllByRole('button')).toHaveLength(count));
+    expect(within(filterGroup(group)).queryByText(loading)).not.toBeInTheDocument();
   });
 });

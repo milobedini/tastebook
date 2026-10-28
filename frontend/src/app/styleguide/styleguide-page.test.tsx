@@ -69,6 +69,16 @@ describe('StyleguidePage', () => {
     expect(chip).toHaveAttribute('aria-pressed', 'true');
   });
 
+  it('removes a removable chip', async () => {
+    renderRoute('/styleguide');
+    const chip = await screen.findByRole('button', { name: 'Remove filter: Italian' });
+
+    await userEvent.click(chip);
+
+    expect(screen.queryByRole('button', { name: 'Remove filter: Italian' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add it back' })).toBeInTheDocument();
+  });
+
   it('ticks a shopping list row', async () => {
     renderRoute('/styleguide');
     const row = await screen.findByRole('checkbox', { name: '2 courgettes' });
