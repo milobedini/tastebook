@@ -116,7 +116,7 @@ def test_loads_the_repos_catalogue_in_place_of_the_recipes_already_there() -> No
     call_command('load_catalogue')
 
     loaded = titles()
-    assert len(loaded) == 55
+    assert len(loaded) == 105
     assert [title for title in loaded if title in HAND_WRITTEN] == HAND_WRITTEN
     assert 'Typed in the admin' not in loaded
 
@@ -357,7 +357,7 @@ def test_every_wikibooks_recipe_is_credited_and_links_to_its_page() -> None:
     call_command('load_catalogue')
 
     recipes = wikibooks_recipes()
-    assert len(recipes) == 50
+    assert len(recipes) == 100
     assert {recipe['source'] for recipe in recipes} == {CREDIT}
     assert [recipe['slug'] for recipe in recipes if not WIKIBOOKS_PAGE.match(recipe['source_url'])] == []
 
@@ -377,6 +377,42 @@ def test_no_recipe_in_the_repos_catalogue_measures_in_cups_ounces_or_pounds() ->
     }
     assert {'g', 'ml'} <= units
     assert units & {'cup', 'oz', 'lb', 'fl_oz'} == set()
+
+
+# The US words the TAS-48 spec's UK names table replaces, in titles, steps and notes.
+US_WORDS = re.compile(
+    r'\b(all-purpose flour|ground beef|cilantro|shrimps?|zucchinis?|arugula|eggplants?|garbanzo beans?|scallions?'
+    r'|green onions?|molasses|heavy cream|light cream|semi-?sweet chocolate|golden raisins|powdered sugar'
+    r"|confectioners'? sugar|canola oil|superfine sugar|bell peppers?|baking soda|cornstarch|yogurts?|chili(e?s)?"
+    r'|broil(s|ed|ing|er)?|skillets?|stove(top)?s?|plastic wrap|alumin(i)?um foil|cookie sheets?)\b',
+    re.IGNORECASE,
+)
+# Dishes whose own name uses the US word.
+NAMED_WITH_A_US_WORD = {'Skillet cornbread'}
+
+
+@pytest.mark.django_db
+def test_the_repos_recipes_use_uk_words_in_titles_steps_and_notes() -> None:
+    call_command('load_catalogue')
+
+    copy = [
+        (recipe['slug'], text)
+        for summary in APIClient().get(reverse('recipe-list')).json()
+        for recipe in [recipe_json(summary['slug'])]
+        for text in [
+            *([] if recipe['title'] in NAMED_WITH_A_US_WORD else [recipe['title']]),
+            *(step['text'] for step in recipe['steps']),
+            *(
+                line['note']
+                for line in [
+                    *recipe['ingredient_lines'],
+                    *(line for group in recipe['ingredient_groups'] for line in group['lines']),
+                ]
+            ),
+        ]
+    ]
+    assert ('meat-and-prawn-potstickers', 'Meat and prawn potstickers') in copy
+    assert [(slug, match.group(0)) for slug, text in copy for match in US_WORDS.finditer(text)] == []
 
 
 @pytest.mark.django_db
@@ -421,16 +457,16 @@ def test_the_shortlist_holds_about_300_wikibooks_pages_spread_across_cuisines() 
     assert set(per_cuisine) <= cuisines
     assert {entry['course'] for entry in shortlist} <= {'Baking', 'Breakfast', 'Dessert', 'Main', 'Side'}
     assert [cuisine for cuisine, count in per_cuisine.items() if count > 40] == []
-    assert len([entry for entry in shortlist if entry['batch'] == 1]) == 50
+    assert Counter(entry['batch'] for entry in shortlist if entry['batch'] is not None) == {1: 50, 2: 50}
 
 
 @pytest.mark.django_db
-def test_the_catalogue_holds_the_shortlists_first_batch() -> None:
+def test_the_catalogue_holds_the_shortlists_batches() -> None:
     call_command('load_catalogue')
 
     shortlist = json.loads(SHORTLIST.read_text(encoding='utf-8'))
     assert {recipe['source_url'] for recipe in wikibooks_recipes()} == {
-        entry['page'] for entry in shortlist if entry['batch'] == 1
+        entry['page'] for entry in shortlist if entry['batch'] is not None
     }
 
 
