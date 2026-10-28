@@ -41,7 +41,7 @@ export const noFilters: RecipeFilters = {
   excludedIngredients: []
 };
 
-const filterParams = [
+export const filterParams = [
   'cuisine',
   'course',
   'difficulty',
@@ -51,7 +51,7 @@ const filterParams = [
   'include_ingredient',
   'include_match',
   'exclude_ingredient'
-];
+] as const;
 
 const unique = <T>(values: T[]) => [...new Set(values)];
 
@@ -85,7 +85,7 @@ export const readFilters = (params: URLSearchParams): RecipeFilters => ({
 
 // Replaces only the filter parameters, so the search and anything else stay where they were.
 export const writeFilters = (params: URLSearchParams, filters: RecipeFilters): URLSearchParams => {
-  const kept = [...params].filter(([name]) => !filterParams.includes(name));
+  const kept = [...params].filter(([name]) => !filterParams.some((param) => param === name));
   const entries = [
     ...filters.cuisines.map((slug) => ['cuisine', slug]),
     ...filters.courses.map((slug) => ['course', slug]),
