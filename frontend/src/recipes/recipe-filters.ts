@@ -1,9 +1,10 @@
-import type { components } from '../api/schema';
+import type { components, operations } from '../api/schema';
 import { dietTags } from './diet-tags';
 import { difficulties } from './difficulty';
 
 type DietTag = components['schemas']['DietTag'];
 type Difficulty = components['schemas']['DifficultyEnum'];
+export type IncludeMatch = NonNullable<NonNullable<operations['recipes_list']['parameters']['query']>['include_match']>;
 
 export const timeLimits = [15, 30, 45, 60] as const;
 export type TimeLimit = (typeof timeLimits)[number];
@@ -24,6 +25,7 @@ export type RecipeFilters = {
   onePot: boolean;
   diets: DietTag[];
   includedIngredients: string[];
+  includeMatch: IncludeMatch;
   excludedIngredients: string[];
 };
 
@@ -35,6 +37,7 @@ export const noFilters: RecipeFilters = {
   onePot: false,
   diets: [],
   includedIngredients: [],
+  includeMatch: 'any',
   excludedIngredients: []
 };
 
@@ -46,6 +49,7 @@ const filterParams = [
   'one_pot',
   'diet',
   'include_ingredient',
+  'include_match',
   'exclude_ingredient'
 ];
 
@@ -75,6 +79,7 @@ export const readFilters = (params: URLSearchParams): RecipeFilters => ({
   onePot: params.get('one_pot') === 'true',
   diets: unique(params.getAll('diet').filter(isDietTag)),
   includedIngredients: unique(params.getAll('include_ingredient').filter((slug) => slug !== '')),
+  includeMatch: params.get('include_match') === 'all' ? 'all' : 'any',
   excludedIngredients: unique(params.getAll('exclude_ingredient').filter((slug) => slug !== ''))
 });
 
@@ -92,11 +97,13 @@ export const writeFilters = (params: URLSearchParams, filters: RecipeFilters): U
     ...(filters.onePot ? [['one_pot', 'true']] : []),
     ...filters.diets.map((diet) => ['diet', diet]),
     ...filters.includedIngredients.map((slug) => ['include_ingredient', slug]),
+    ...(filters.includeMatch === 'all' ? [['include_match', 'all']] : []),
     ...filters.excludedIngredients.map((slug) => ['exclude_ingredient', slug])
   ];
   return new URLSearchParams([...kept, ...entries]);
 };
 
+// includeMatch isn't counted: on its own it filters nothing.
 export const hasFilters = (filters: RecipeFilters) =>
   filters.cuisines.length > 0 ||
   filters.courses.length > 0 ||

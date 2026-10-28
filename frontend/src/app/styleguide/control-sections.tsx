@@ -100,7 +100,12 @@ export const FiltersSection = () => {
       </div>
       <div className="flex flex-wrap items-center gap-2">
         {isRemovableShown ? (
-          <RemovableChip onRemove={() => setIsRemovableShown(false)}>Italian</RemovableChip>
+          <>
+            <RemovableChip onRemove={() => setIsRemovableShown(false)}>Italian</RemovableChip>
+            <RemovableChip look="outline" onRemove={() => setIsRemovableShown(false)}>
+              With all of these
+            </RemovableChip>
+          </>
         ) : (
           <Button variant="ghost" onClick={() => setIsRemovableShown(true)}>
             Add it back

@@ -17,6 +17,9 @@ const toQuery = ({ searchTerm, filters }: RecipeQuery) => ({
   ...(filters.onePot ? { one_pot: true } : {}),
   ...(filters.diets.length === 0 ? {} : { diet: filters.diets }),
   ...(filters.includedIngredients.length === 0 ? {} : { include_ingredient: filters.includedIngredients }),
+  ...(filters.includedIngredients.length < 2 || filters.includeMatch === 'any'
+    ? {}
+    : { include_match: filters.includeMatch }),
   ...(filters.excludedIngredients.length === 0 ? {} : { exclude_ingredient: filters.excludedIngredients })
 });
 

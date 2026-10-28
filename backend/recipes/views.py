@@ -16,7 +16,9 @@ from recipes.serializers import (
     parameters=[RecipeFiltersSerializer],
     responses={
         200: RecipeSummarySerializer(many=True),
-        400: OpenApiResponse(description='A difficulty, a diet or a time limit is not one the list accepts.'),
+        400: OpenApiResponse(
+            description='A difficulty, a diet, an include_match or a time limit is not one the list accepts.'
+        ),
     },
 )
 class RecipeListView(ListAPIView):
@@ -28,7 +30,7 @@ class RecipeListView(ListAPIView):
         filters = RecipeFiltersSerializer(data=self.request.query_params)
         filters.is_valid(raise_exception=True)
         given = filters.validated_data
-        return (
+        recipes = (
             Recipe.objects.search(given['q'])
             .with_cuisines(given['cuisine'])
             .with_courses(given['course'])
@@ -36,11 +38,11 @@ class RecipeListView(ListAPIView):
             .taking_at_most(prep=given.get('max_prep'), cook=given.get('max_cook'), total=given.get('max_total'))
             .only_one_pot(given['one_pot'])
             .suiting(given['diet'])
-            .using_any_of(given['include_ingredient'])
             .using_none_of(given['exclude_ingredient'])
-            .prefetch_related('cuisines')
-            .with_diet_tags()
         )
+        included = given['include_ingredient']
+        recipes = recipes.using_all_of(included) if given['include_match'] == 'all' else recipes.using_any_of(included)
+        return recipes.prefetch_related('cuisines').with_diet_tags()
 
 
 @extend_schema(responses={200: RecipeSerializer, 404: OpenApiResponse(description='No recipe has this slug.')})

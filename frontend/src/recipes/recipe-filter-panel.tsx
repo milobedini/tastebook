@@ -1,14 +1,14 @@
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 
-import { Banner, Button, FilterChip } from '../ui';
+import { Banner, Button, FilterChip, SegmentedControl } from '../ui';
 import { useCourses } from './courses-api';
 import { useCuisines } from './cuisines-api';
 import { dietTagLabels, dietTags } from './diet-tags';
 import { difficulties, difficultyLabels } from './difficulty';
 import { IngredientPicker } from './ingredient-picker';
 import { useIngredients } from './ingredients-api';
-import type { RecipeFilters, TimeFilterName } from './recipe-filters';
+import type { IncludeMatch, RecipeFilters, TimeFilterName } from './recipe-filters';
 import { timeFilters, timeLimits, toggled } from './recipe-filters';
 
 type FilterGroupProps = { legend: string; children: ReactNode };
@@ -163,6 +163,11 @@ const DietGroup = ({ filters, onChange }: FilterChangeProps) => (
   </FilterGroup>
 );
 
+const includeMatchOptions: { value: IncludeMatch; label: string }[] = [
+  { value: 'any', label: 'With any' },
+  { value: 'all', label: 'With all' }
+];
+
 const IngredientFilterGroup = ({ filters, onChange }: FilterChangeProps) => {
   // An ingredient picked in one list isn't offered in either, so it can't be both included and excluded.
   const picked = [...filters.includedIngredients, ...filters.excludedIngredients];
@@ -183,6 +188,15 @@ const IngredientFilterGroup = ({ filters, onChange }: FilterChangeProps) => {
               ingredients={unpicked}
               onPick={(slug) => onChange({ ...filters, includedIngredients: [...filters.includedIngredients, slug] })}
             />
+            {/* With one included ingredient, any and all are the same, so the choice waits for a second. */}
+            {filters.includedIngredients.length > 1 && (
+              <SegmentedControl
+                label="Included ingredients"
+                options={includeMatchOptions}
+                value={filters.includeMatch}
+                onValueChange={(includeMatch) => onChange({ ...filters, includeMatch })}
+              />
+            )}
             <IngredientPicker
               label="Exclude an ingredient"
               ingredients={unpicked}

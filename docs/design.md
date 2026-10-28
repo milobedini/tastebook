@@ -63,7 +63,7 @@ The set lives in `frontend/src/ui/` (shadcn/ui, restyled to Enamel) and is expor
 | Button | Primary (cobalt fill), secondary (cobalt outline), ghost, danger (danger fill), disabled (chip fill, muted text). One primary per screen. 44 px tall; 52 px (`lg`) in cooking mode. |
 | Icon button | 44 × 44 px, field border; pressed state fills with cobalt. Always has an accessible name (`aria-label`), and a toggle keeps one name ("Favourite") while `aria-pressed` says whether it's on, so its name never changes under a screen reader. |
 | Field | Visible label above, help text below, error replaces help in danger with an icon and says how to fix it ("Enter a number, like 4."). Search fields are pill-shaped with a search icon. |
-| Filter chip | A toggle (`aria-pressed`), pill, field border; on is cobalt fill. A removable chip names what it removes in its label. |
+| Filter chip | A toggle (`aria-pressed`), pill, field border; on is cobalt fill. A removable chip names what it removes in its label; it's cobalt-filled for a filter, or outlined in cobalt for a choice that changes how other filters combine (With all of these). |
 | Tag | Yolk, not interactive: describes a recipe (Vegetarian, One-pot, Easy) or marks something to check. |
 | Stepper | Servings: minus, "Serves 4", plus, or a yield: "Makes 16 cookies"; the count is announced (`aria-live="polite"`). |
 | Segmented control | Two to four options, one pressed (Metric / US; System / Light / Dark). |

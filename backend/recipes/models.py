@@ -90,6 +90,16 @@ class RecipeQuerySet(models.QuerySet['Recipe']):
     def using_any_of(self, slugs: list[str]) -> RecipeQuerySet:
         return self._having_any_of(Ingredient.objects.filter(slug__in=slugs), 'lines__recipe')
 
+    def using_all_of(self, slugs: list[str]) -> RecipeQuerySet:
+        """Recipes with a line, optional or not, for every one of these ingredients. Unknown slugs are dropped."""
+        known = Ingredient.objects.filter(slug__in=slugs).values_list('pk', flat=True)
+        # One subquery per ingredient, so each must have its own line; with none known, nothing is filtered.
+        return reduce(
+            lambda recipes, pk: recipes.filter(pk__in=IngredientLine.objects.filter(ingredient=pk).values('recipe')),
+            known,
+            self,
+        )
+
     def using_none_of(self, slugs: list[str]) -> RecipeQuerySet:
         """Recipes with no line, optional or not, using any of these ingredients."""
         if not slugs:
