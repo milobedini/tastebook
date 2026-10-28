@@ -388,8 +388,15 @@ export interface operations {
                 difficulty?: ("easy" | "medium" | "hard")[];
                 /** @description Recipes with no line, optional or not, using any of these ingredients, by slug. Unknown slugs exclude nothing. */
                 exclude_ingredient?: string[];
-                /** @description Recipes with a line, optional or not, using any of these ingredients, by slug. Unknown slugs are dropped; with none left, nothing is filtered. */
+                /** @description Recipes with a line, optional or not, using any of these ingredients (every one with include_match=all), by slug. Unknown slugs are dropped; with none left, nothing is filtered. */
                 include_ingredient?: string[];
+                /**
+                 * @description any (or missing) means a recipe needs one of the include_ingredient ingredients; all means it needs every one of them. Any other value is a 400.
+                 *
+                 *     * `any` - any
+                 *     * `all` - all
+                 */
+                include_match?: "any" | "all";
                 /** @description Cook time is this many minutes or fewer. A value that is not a whole number of at least 1 is a 400. */
                 max_cook?: number;
                 /** @description Prep time is this many minutes or fewer. A value that is not a whole number of at least 1 is a 400. */
@@ -415,7 +422,7 @@ export interface operations {
                     "application/json": components["schemas"]["RecipeSummary"][];
                 };
             };
-            /** @description A difficulty, a diet or a time limit is not one the list accepts. */
+            /** @description A difficulty, a diet, an include_match or a time limit is not one the list accepts. */
             400: {
                 headers: {
                     [name: string]: unknown;

@@ -126,8 +126,23 @@ paths:
           type: array
           items:
             type: string
-        description: Recipes with a line, optional or not, using any of these ingredients,
-          by slug. Unknown slugs are dropped; with none left, nothing is filtered.
+        description: Recipes with a line, optional or not, using any of these ingredients
+          (every one with include_match=all), by slug. Unknown slugs are dropped;
+          with none left, nothing is filtered.
+      - in: query
+        name: include_match
+        schema:
+          enum:
+          - any
+          - all
+          type: string
+          default: any
+          minLength: 1
+        description: |-
+          any (or missing) means a recipe needs one of the include_ingredient ingredients; all means it needs every one of them. Any other value is a 400.
+
+          * `any` - any
+          * `all` - all
       - in: query
         name: max_cook
         schema:
@@ -176,7 +191,8 @@ paths:
                   $ref: '#/components/schemas/RecipeSummary'
           description: ''
         '400':
-          description: A difficulty, a diet or a time limit is not one the list accepts.
+          description: A difficulty, a diet, an include_match or a time limit is not
+            one the list accepts.
   /api/recipes/{slug}/:
     get:
       operationId: recipes_retrieve

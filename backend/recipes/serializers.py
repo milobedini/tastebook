@@ -176,8 +176,17 @@ class RecipeFiltersSerializer(serializers.Serializer):
         required=False,
         default=list,
         help_text=(
-            'Recipes with a line, optional or not, using any of these ingredients, by slug. '
-            'Unknown slugs are dropped; with none left, nothing is filtered.'
+            'Recipes with a line, optional or not, using any of these ingredients (every one with include_match=all), '
+            'by slug. Unknown slugs are dropped; with none left, nothing is filtered.'
+        ),
+    )
+    include_match = serializers.ChoiceField(
+        choices=['any', 'all'],
+        required=False,
+        default='any',
+        help_text=(
+            'any (or missing) means a recipe needs one of the include_ingredient ingredients; '
+            'all means it needs every one of them. Any other value is a 400.'
         ),
     )
     exclude_ingredient = serializers.ListField(
