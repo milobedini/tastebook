@@ -704,7 +704,350 @@
     "title": "1-2-3-4 cake",
     "cuisine": "American",
     "course": "Baking",
-    "batch": null
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Black_Bean_Soup",
+    "title": "Black bean soup",
+    "cuisine": "American",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Churros_I",
+    "title": "Churros",
+    "cuisine": "American",
+    "course": "Dessert",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Deep_Dish_Pizza",
+    "title": "Deep dish pizza",
+    "cuisine": "American",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Mexican_Rice_I",
+    "title": "Mexican rice",
+    "cuisine": "American",
+    "course": "Side",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Nachos",
+    "title": "Nachos",
+    "cuisine": "American",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Bangers_and_Mash",
+    "title": "Bangers and mash",
+    "cuisine": "British",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Banoffee_Pie",
+    "title": "Banoffee pie",
+    "cuisine": "British",
+    "course": "Dessert",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Pasties",
+    "title": "Cornish pasties",
+    "cuisine": "British",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:English_Breakfast",
+    "title": "English breakfast",
+    "cuisine": "British",
+    "course": "Breakfast",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Fish_and_Chips",
+    "title": "Fish and chips",
+    "cuisine": "British",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Yorkshire_Pudding_(Vegan)",
+    "title": "Yorkshire pudding",
+    "cuisine": "British",
+    "course": "Baking",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Arroz_con_Gandules_(Puerto_Rican_Rice_and_Pigeon_Peas)",
+    "title": "Arroz con gandules",
+    "cuisine": "Caribbean",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Boliche_(Cuban_Chorizo-Stuffed_Roast)",
+    "title": "Boliche",
+    "cuisine": "Caribbean",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Callaloo_(Caribbean_Stewed_Greens)",
+    "title": "Callaloo",
+    "cuisine": "Caribbean",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Jamaican_Patty",
+    "title": "Jamaican patty",
+    "cuisine": "Caribbean",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Macaroni_Pie",
+    "title": "Macaroni pie",
+    "cuisine": "Caribbean",
+    "course": "Side",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Tembleque_(Puerto_Rican_Coconut_Pudding)",
+    "title": "Tembleque",
+    "cuisine": "Caribbean",
+    "course": "Dessert",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Cantonese_Crispy_Fried_Chicken",
+    "title": "Cantonese crispy fried chicken",
+    "cuisine": "Chinese",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Steamed_Pork_With_Mustard_Greens",
+    "title": "Steamed pork with mustard greens",
+    "cuisine": "Chinese",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Bouillabaisse",
+    "title": "Bouillabaisse",
+    "cuisine": "French",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Choucroute_(Sauerkraut_with_Meat_and_Potatoes)",
+    "title": "Choucroute",
+    "cuisine": "French",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Lemon_Mille-feuille",
+    "title": "Lemon mille-feuille",
+    "cuisine": "French",
+    "course": "Baking",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Pot-au-feu_(Boiled_Meat_and_Vegetables)",
+    "title": "Pot-au-feu",
+    "cuisine": "French",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Tourte_%C3%A0_la_Lorraine",
+    "title": "Tourte à la Lorraine",
+    "cuisine": "French",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Stollen",
+    "title": "Stollen",
+    "cuisine": "German",
+    "course": "Baking",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Cinnamon-braised_Chicken_(Kotopoulo_Kapama)",
+    "title": "Cinnamon-braised chicken",
+    "cuisine": "Greek",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Galaktoboureko_(Greek_Semolina_Custard_Pastry)",
+    "title": "Galaktoboureko",
+    "cuisine": "Greek",
+    "course": "Baking",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Baingan_Bartha_(South_Indian_Eggplant_with_Coconut_and_Chili)_I",
+    "title": "Baingan bartha",
+    "cuisine": "Indian",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Chicken_Vindaloo",
+    "title": "Chicken vindaloo",
+    "cuisine": "Indian",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Gajjar_Halwa_(Carrot_Pudding)",
+    "title": "Gajjar halwa",
+    "cuisine": "Indian",
+    "course": "Dessert",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Gulab_Jamun_(Fried_Milk_Balls_in_Syrup)",
+    "title": "Gulab jamun",
+    "cuisine": "Indian",
+    "course": "Dessert",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Khara_Pongal_(Rice_and_Mung_Bean_Porridge)",
+    "title": "Khara pongal",
+    "cuisine": "Indian",
+    "course": "Breakfast",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Sambar_I",
+    "title": "Sambar",
+    "cuisine": "Indian",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Ricotta_Lasagne",
+    "title": "Ricotta lasagne",
+    "cuisine": "Italian",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Spaghetti_with_Clams",
+    "title": "Spaghetti with clams",
+    "cuisine": "Italian",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Struffoli_(Neapolitan_Honey_Fried_Dough)",
+    "title": "Struffoli",
+    "cuisine": "Italian",
+    "course": "Dessert",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Grilled_Aubergine",
+    "title": "Grilled aubergine",
+    "cuisine": "Japanese",
+    "course": "Side",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Bizcochito_(Cinnamon_Anise_Cookies)_I",
+    "title": "Bizcochito",
+    "cuisine": "Mexican",
+    "course": "Baking",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Chiles_en_Nogada_(Stuffed_Chile_Peppers_with_Almonds)",
+    "title": "Chiles en nogada",
+    "cuisine": "Mexican",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Baklava_II",
+    "title": "Baklava",
+    "cuisine": "Middle Eastern",
+    "course": "Baking",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Israeli_Salad",
+    "title": "Israeli salad",
+    "cuisine": "Middle Eastern",
+    "course": "Side",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Kanafeh_(Egyptian_Sweet_Cheese_Pastry)",
+    "title": "Kanafeh",
+    "cuisine": "Middle Eastern",
+    "course": "Baking",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Lamb_Shawarma",
+    "title": "Lamb shawarma",
+    "cuisine": "Middle Eastern",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Musakhan_(Palestinian_Spiced_Chicken)",
+    "title": "Musakhan",
+    "cuisine": "Middle Eastern",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Sabich_(Vegetable_and_Pita_Sandwich)",
+    "title": "Sabich",
+    "cuisine": "Middle Eastern",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Liver_Kebabs",
+    "title": "Liver kebabs",
+    "cuisine": "Moroccan",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Paella_de_Marisco",
+    "title": "Paella de marisco",
+    "cuisine": "Spanish",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Tod_Mun_(Thai_Fish_Cakes)",
+    "title": "Tod mun",
+    "cuisine": "Thai",
+    "course": "Main",
+    "batch": 3
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Com_Chien_(Vietnamese_Fried_Rice)",
+    "title": "Com chien",
+    "cuisine": "Vietnamese",
+    "course": "Main",
+    "batch": 3
   },
   {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Beans_and_Rice",
@@ -718,13 +1061,6 @@
     "title": "Betty's salad",
     "cuisine": "American",
     "course": "Side",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Black_Bean_Soup",
-    "title": "Black bean soup",
-    "cuisine": "American",
-    "course": "Main",
     "batch": null
   },
   {
@@ -751,20 +1087,6 @@
   {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Cheese_Enchilada",
     "title": "Cheese enchilada",
-    "cuisine": "American",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Churros_I",
-    "title": "Churros",
-    "cuisine": "American",
-    "course": "Dessert",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Deep_Dish_Pizza",
-    "title": "Deep dish pizza",
     "cuisine": "American",
     "course": "Main",
     "batch": null
@@ -814,20 +1136,6 @@
   {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Lobster_Thermidor",
     "title": "Lobster thermidor",
-    "cuisine": "American",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Mexican_Rice_I",
-    "title": "Mexican rice",
-    "cuisine": "American",
-    "course": "Side",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Nachos",
-    "title": "Nachos",
     "cuisine": "American",
     "course": "Main",
     "batch": null
@@ -910,20 +1218,6 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Bangers_and_Mash",
-    "title": "Bangers and mash",
-    "cuisine": "British",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Banoffee_Pie",
-    "title": "Banoffee pie",
-    "cuisine": "British",
-    "course": "Dessert",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Basic_Flapjacks",
     "title": "Basic flapjacks",
     "cuisine": "British",
@@ -959,13 +1253,6 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Pasties",
-    "title": "Cornish pasties",
-    "cuisine": "British",
-    "course": "Main",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Coronation_Chicken",
     "title": "Coronation chicken",
     "cuisine": "British",
@@ -980,24 +1267,10 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:English_Breakfast",
-    "title": "English breakfast",
-    "cuisine": "British",
-    "course": "Breakfast",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Figgie_%27obbin_(Cornish_Raisin_Pastry)",
     "title": "Figgie 'obbin",
     "cuisine": "British",
     "course": "Baking",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Fish_and_Chips",
-    "title": "Fish and chips",
-    "cuisine": "British",
-    "course": "Main",
     "batch": null
   },
   {
@@ -1099,13 +1372,6 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Yorkshire_Pudding_(Vegan)",
-    "title": "Yorkshire pudding",
-    "cuisine": "British",
-    "course": "Baking",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Potato_Samosas_(Aloo_Pies)",
     "title": "Aloo pies",
     "cuisine": "Caribbean",
@@ -1113,29 +1379,8 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Arroz_con_Gandules_(Puerto_Rican_Rice_and_Pigeon_Peas)",
-    "title": "Arroz con gandules",
-    "cuisine": "Caribbean",
-    "course": "Main",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Arroz_con_Maiz_(Rice_with_Corn)",
     "title": "Arroz con maiz",
-    "cuisine": "Caribbean",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Boliche_(Cuban_Chorizo-Stuffed_Roast)",
-    "title": "Boliche",
-    "cuisine": "Caribbean",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Callaloo_(Caribbean_Stewed_Greens)",
-    "title": "Callaloo",
     "cuisine": "Caribbean",
     "course": "Main",
     "batch": null
@@ -1190,13 +1435,6 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Jamaican_Patty",
-    "title": "Jamaican patty",
-    "cuisine": "Caribbean",
-    "course": "Main",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Jerk_Lobster",
     "title": "Jerk lobster",
     "cuisine": "Caribbean",
@@ -1208,13 +1446,6 @@
     "title": "Kurma",
     "cuisine": "Caribbean",
     "course": "Dessert",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Macaroni_Pie",
-    "title": "Macaroni pie",
-    "cuisine": "Caribbean",
-    "course": "Side",
     "batch": null
   },
   {
@@ -1274,29 +1505,8 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Tembleque_(Puerto_Rican_Coconut_Pudding)",
-    "title": "Tembleque",
-    "cuisine": "Caribbean",
-    "course": "Dessert",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Cantonese_Crispy_Fried_Chicken",
-    "title": "Cantonese crispy fried chicken",
-    "cuisine": "Chinese",
-    "course": "Main",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Pig%27s_Trotters_and_Ginger_Vinegar_Stew",
     "title": "Pig's trotters and ginger vinegar stew",
-    "cuisine": "Chinese",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Steamed_Pork_With_Mustard_Greens",
-    "title": "Steamed pork with mustard greens",
     "cuisine": "Chinese",
     "course": "Main",
     "batch": null
@@ -1344,20 +1554,6 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Bouillabaisse",
-    "title": "Bouillabaisse",
-    "cuisine": "French",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Choucroute_(Sauerkraut_with_Meat_and_Potatoes)",
-    "title": "Choucroute",
-    "cuisine": "French",
-    "course": "Main",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Cod,_Olive_Oil,_and_Cream_Sauce_(Brandade_de_Morue)",
     "title": "Cod, olive oil, and cream sauce",
     "cuisine": "French",
@@ -1386,29 +1582,8 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Lemon_Mille-feuille",
-    "title": "Lemon mille-feuille",
-    "cuisine": "French",
-    "course": "Baking",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Pot-au-feu_(Boiled_Meat_and_Vegetables)",
-    "title": "Pot-au-feu",
-    "cuisine": "French",
-    "course": "Main",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Snails_with_Garlic_Butter_(Escargots_%C3%A0_la_Bourguignonne)",
     "title": "Snails with garlic butter",
-    "cuisine": "French",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Tourte_%C3%A0_la_Lorraine",
-    "title": "Tourte à la Lorraine",
     "cuisine": "French",
     "course": "Main",
     "batch": null
@@ -1435,37 +1610,9 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Stollen",
-    "title": "Stollen",
-    "cuisine": "German",
-    "course": "Baking",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Cinnamon-braised_Chicken_(Kotopoulo_Kapama)",
-    "title": "Cinnamon-braised chicken",
-    "cuisine": "Greek",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Galaktoboureko_(Greek_Semolina_Custard_Pastry)",
-    "title": "Galaktoboureko",
-    "cuisine": "Greek",
-    "course": "Baking",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Pan-Fried_White_Brined_Cheese_(Saganaki)",
     "title": "Pan-Fried white brined cheese",
     "cuisine": "Greek",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Baingan_Bartha_(South_Indian_Eggplant_with_Coconut_and_Chili)_I",
-    "title": "Baingan bartha",
-    "cuisine": "Indian",
     "course": "Main",
     "batch": null
   },
@@ -1486,13 +1633,6 @@
   {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Chicken_Tikka",
     "title": "Chicken tikka",
-    "cuisine": "Indian",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Chicken_Vindaloo",
-    "title": "Chicken vindaloo",
     "cuisine": "Indian",
     "course": "Main",
     "batch": null
@@ -1526,22 +1666,8 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Gajjar_Halwa_(Carrot_Pudding)",
-    "title": "Gajjar halwa",
-    "cuisine": "Indian",
-    "course": "Dessert",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Ghevar_(Rajasthani_Honeycomb_Fritter)",
     "title": "Ghevar",
-    "cuisine": "Indian",
-    "course": "Dessert",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Gulab_Jamun_(Fried_Milk_Balls_in_Syrup)",
-    "title": "Gulab jamun",
     "cuisine": "Indian",
     "course": "Dessert",
     "batch": null
@@ -1572,13 +1698,6 @@
     "title": "Khandvi",
     "cuisine": "Indian",
     "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Khara_Pongal_(Rice_and_Mung_Bean_Porridge)",
-    "title": "Khara pongal",
-    "cuisine": "Indian",
-    "course": "Breakfast",
     "batch": null
   },
   {
@@ -1642,13 +1761,6 @@
     "title": "Rosogulla",
     "cuisine": "Indian",
     "course": "Dessert",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Sambar_I",
-    "title": "Sambar",
-    "cuisine": "Indian",
-    "course": "Main",
     "batch": null
   },
   {
@@ -1722,27 +1834,6 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Ricotta_Lasagne",
-    "title": "Ricotta lasagne",
-    "cuisine": "Italian",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Spaghetti_with_Clams",
-    "title": "Spaghetti with clams",
-    "cuisine": "Italian",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Struffoli_(Neapolitan_Honey_Fried_Dough)",
-    "title": "Struffoli",
-    "cuisine": "Italian",
-    "course": "Dessert",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Daifuku_(Sweet_Filled_Mochi)",
     "title": "Daifuku",
     "cuisine": "Japanese",
@@ -1757,24 +1848,10 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Grilled_Aubergine",
-    "title": "Grilled aubergine",
-    "cuisine": "Japanese",
-    "course": "Side",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Euneo-juk_(Korean_Sweetfish_Porridge)",
     "title": "Euneo-juk",
     "cuisine": "Korean",
     "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Bizcochito_(Cinnamon_Anise_Cookies)_I",
-    "title": "Bizcochito",
-    "cuisine": "Mexican",
-    "course": "Baking",
     "batch": null
   },
   {
@@ -1785,24 +1862,10 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Chiles_en_Nogada_(Stuffed_Chile_Peppers_with_Almonds)",
-    "title": "Chiles en nogada",
-    "cuisine": "Mexican",
-    "course": "Main",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Menudo_(Mexican_Tripe_and_Hominy_Soup)",
     "title": "Menudo",
     "cuisine": "Mexican",
     "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Baklava_II",
-    "title": "Baklava",
-    "cuisine": "Middle Eastern",
-    "course": "Baking",
     "batch": null
   },
   {
@@ -1862,13 +1925,6 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Israeli_Salad",
-    "title": "Israeli salad",
-    "cuisine": "Middle Eastern",
-    "course": "Side",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Jahnun_(Yemenite_Layered_Pastry)",
     "title": "Jahnun",
     "cuisine": "Middle Eastern",
@@ -1883,13 +1939,6 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Kanafeh_(Egyptian_Sweet_Cheese_Pastry)",
-    "title": "Kanafeh",
-    "cuisine": "Middle Eastern",
-    "course": "Baking",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Kubaneh_(Yemenite_Pull-Apart_Bread)",
     "title": "Kubaneh",
     "cuisine": "Middle Eastern",
@@ -1899,13 +1948,6 @@
   {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Lamb_and_Okra_Stew_(Khoresht_Bamiye)",
     "title": "Lamb and okra stew",
-    "cuisine": "Middle Eastern",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Lamb_Shawarma",
-    "title": "Lamb shawarma",
     "cuisine": "Middle Eastern",
     "course": "Main",
     "batch": null
@@ -1932,13 +1974,6 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Musakhan_(Palestinian_Spiced_Chicken)",
-    "title": "Musakhan",
-    "cuisine": "Middle Eastern",
-    "course": "Main",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Persian_Apple_Dessert",
     "title": "Persian apple dessert",
     "cuisine": "Middle Eastern",
@@ -1950,13 +1985,6 @@
     "title": "Pudding with pistachios and rose water",
     "cuisine": "Middle Eastern",
     "course": "Dessert",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Sabich_(Vegetable_and_Pita_Sandwich)",
-    "title": "Sabich",
-    "cuisine": "Middle Eastern",
-    "course": "Main",
     "batch": null
   },
   {
@@ -2009,22 +2037,8 @@
     "batch": null
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Liver_Kebabs",
-    "title": "Liver kebabs",
-    "cuisine": "Moroccan",
-    "course": "Main",
-    "batch": null
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Arroz_Negro_(Valencian_Squid_Rice)",
     "title": "Arroz negro",
-    "cuisine": "Spanish",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Paella_de_Marisco",
-    "title": "Paella de marisco",
     "cuisine": "Spanish",
     "course": "Main",
     "batch": null
@@ -2041,20 +2055,6 @@
     "title": "Thong yib",
     "cuisine": "Thai",
     "course": "Dessert",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Tod_Mun_(Thai_Fish_Cakes)",
-    "title": "Tod mun",
-    "cuisine": "Thai",
-    "course": "Main",
-    "batch": null
-  },
-  {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Com_Chien_(Vietnamese_Fried_Rice)",
-    "title": "Com chien",
-    "cuisine": "Vietnamese",
-    "course": "Main",
     "batch": null
   },
   {
