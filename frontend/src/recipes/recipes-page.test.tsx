@@ -783,7 +783,7 @@ describe('RecipesPage', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: 'Include an ingredient' })).toHaveFocus());
   });
 
-  it('lists recipes with all the included ingredients once asked, without a chip of its own', async () => {
+  it('lists recipes with all the included ingredients once asked', async () => {
     const queries = answerFilters({
       'include_ingredient=aubergine&include_ingredient=peanuts': [appleTart, bananaBread],
       'include_ingredient=aubergine&include_ingredient=peanuts&include_match=all': [bananaBread]
@@ -802,12 +802,34 @@ describe('RecipesPage', () => {
     await waitFor(() => expect(headings()).toEqual(['Banana bread']));
     expect(queries.at(-1)).toBe('include_ingredient=aubergine&include_ingredient=peanuts&include_match=all');
     expect(within(includeMatch).getByRole('button', { name: 'With all' })).toHaveAttribute('aria-pressed', 'true');
-    expect(filtersOn()).toEqual(['Remove filter: With aubergine', 'Remove filter: With peanuts']);
+    expect(filtersOn()).toEqual([
+      'Remove filter: With aubergine',
+      'Remove filter: With peanuts',
+      'Remove filter: With all of these'
+    ]);
 
     await userEvent.click(within(includeMatch).getByRole('button', { name: 'With any' }));
 
     expect(router.state.location.search).toBe('?include_ingredient=aubergine&include_ingredient=peanuts');
     await waitFor(() => expect(headings()).toEqual(['Apple tart', 'Banana bread']));
+  });
+
+  it('goes back to any of the included ingredients when the With all of these chip is removed', async () => {
+    const queries = answerFilters({
+      'include_ingredient=aubergine&include_ingredient=peanuts': [appleTart, bananaBread],
+      'include_ingredient=aubergine&include_ingredient=peanuts&include_match=all': [bananaBread]
+    });
+    const { router } = renderRoute(
+      '/recipes?include_ingredient=aubergine&include_ingredient=peanuts&include_match=all'
+    );
+    await waitFor(() => expect(headings()).toEqual(['Banana bread']));
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Remove filter: With all of these' }));
+
+    expect(router.state.location.search).toBe('?include_ingredient=aubergine&include_ingredient=peanuts');
+    await waitFor(() => expect(headings()).toEqual(['Apple tart', 'Banana bread']));
+    expect(queries.at(-1)).toBe('include_ingredient=aubergine&include_ingredient=peanuts');
+    expect(filtersOn()).toEqual(['Remove filter: With aubergine', 'Remove filter: With peanuts']);
   });
 
   it('offers the any or all choice only once two ingredients are included', async () => {
@@ -818,6 +840,7 @@ describe('RecipesPage', () => {
 
     expect(screen.queryByRole('group', { name: 'Included ingredients' })).not.toBeInTheDocument();
     expect(queries).toEqual(['include_ingredient=aubergine']);
+    expect(filtersOn()).toEqual(['Remove filter: With aubergine']);
 
     const search = await openPickerInOpenPanel('Include an ingredient');
     await userEvent.type(search, 'peanuts');
@@ -828,6 +851,11 @@ describe('RecipesPage', () => {
     await waitFor(() =>
       expect(queries.at(-1)).toBe('include_ingredient=aubergine&include_ingredient=peanuts&include_match=all')
     );
+    expect(filtersOn()).toEqual([
+      'Remove filter: With aubergine',
+      'Remove filter: With peanuts',
+      'Remove filter: With all of these'
+    ]);
   });
 
   it('clears the any or all choice with the other filters', async () => {

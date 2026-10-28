@@ -1,3 +1,5 @@
+import type { ComponentProps } from 'react';
+
 import { Button, RemovableChip } from '../ui';
 import { useCourses } from './courses-api';
 import { useCuisines } from './cuisines-api';
@@ -11,7 +13,9 @@ type Named = { slug: string; name: string };
 
 type NamedLists = { courses?: Named[]; cuisines?: Named[]; ingredients?: Named[] };
 
-type ActiveFilter = { key: string; label: string; without: RecipeFilters };
+type ChipLook = ComponentProps<typeof RemovableChip>['look'];
+
+type ActiveFilter = { key: string; label: string; without: RecipeFilters; look?: ChipLook };
 
 // While the list loads or has failed, a chip shows its slug so it stays removable; once loaded, the API ignores a slug
 // that isn't in it, so it gets no chip.
@@ -26,6 +30,13 @@ const namedChips = (
     const name = list === undefined ? slug : list.find((item) => item.slug === slug)?.name;
     return name === undefined ? [] : [{ key: `${kind}-${slug}`, label: toLabel(name), without: without(slug) }];
   });
+
+const includeMatchChip = (filters: RecipeFilters): ActiveFilter => ({
+  key: 'include-match',
+  label: 'With all of these',
+  without: { ...filters, includeMatch: 'any' },
+  look: 'outline'
+});
 
 const toActiveFilters = (filters: RecipeFilters, { courses, cuisines, ingredients }: NamedLists) => [
   ...timeFilters.flatMap(({ name, chip }): ActiveFilter[] => {
@@ -66,6 +77,8 @@ const toActiveFilters = (filters: RecipeFilters, { courses, cuisines, ingredient
     (slug) => ({ ...filters, includedIngredients: filters.includedIngredients.filter((item) => item !== slug) }),
     (name) => `With ${name}`
   ),
+  // Outlined because it changes how the With chips combine rather than adding a filter of its own.
+  ...(filters.includeMatch === 'all' && filters.includedIngredients.length > 1 ? [includeMatchChip(filters)] : []),
   ...namedChips(
     'exclude',
     filters.excludedIngredients,
@@ -87,9 +100,11 @@ export const ActiveFilters = ({ filters, onChange }: ActiveFiltersProps) => {
   }
   return (
     <ul aria-label="Filters on" className="flex flex-wrap items-center gap-2">
-      {activeFilters.map(({ key, label, without }) => (
+      {activeFilters.map(({ key, label, without, look }) => (
         <li key={key}>
-          <RemovableChip onRemove={() => onChange(without)}>{label}</RemovableChip>
+          <RemovableChip look={look} onRemove={() => onChange(without)}>
+            {label}
+          </RemovableChip>
         </li>
       ))}
       <li>
