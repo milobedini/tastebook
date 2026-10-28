@@ -6857,7 +6857,7 @@
     },
     {
       "slug": "chicken-and-andouille-sausage-gumbo",
-      "title": "Chicken and Andouille sausage gumbo",
+      "title": "Chicken and andouille sausage gumbo",
       "description": "A Louisiana gumbo built on a slow oil-and-flour roux with peppers, onion and celery, simmered with browned chicken breast and spicy smoked andouille sausage.",
       "cuisines": ["American"],
       "courses": ["Main"],
@@ -8458,8 +8458,8 @@
       ]
     },
     {
-      "slug": "meat-and-shrimp-potstickers",
-      "title": "Meat and shrimp potstickers",
+      "slug": "meat-and-prawn-potstickers",
+      "title": "Meat and prawn potstickers",
       "description": "Northern Chinese dumplings filled with pork, prawns, water chestnuts, ginger and coriander, fried until crisp underneath, then steamed in the same pan.",
       "cuisines": ["Chinese"],
       "courses": ["Main"],
