@@ -15,7 +15,7 @@ Needs Node 24+, pnpm, uv and Docker.
 pnpm dev
 ```
 
-This starts Postgres in Docker, installs dependencies, creates `backend/.env` if it's missing, applies migrations, then runs the API and the frontend together. Ctrl+C stops both servers; Postgres keeps running until `docker compose down`.
+This starts Postgres in Docker, installs dependencies, creates `backend/.env` if it's missing, applies migrations, loads the recipe catalogue, then runs the API and the frontend together. Ctrl+C stops both servers; Postgres keeps running until `docker compose down`.
 
 Open <http://localhost:5173>. The API is at <http://localhost:8000/api/>, with its docs at `/api/schema/docs/`.
 
