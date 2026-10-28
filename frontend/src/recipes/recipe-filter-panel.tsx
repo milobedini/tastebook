@@ -3,7 +3,10 @@ import type { ReactNode } from 'react';
 import { Banner, Button, FilterChip } from '../ui';
 import { useCourses } from './courses-api';
 import { useCuisines } from './cuisines-api';
+import { dietTagLabels, dietTags } from './diet-tags';
 import { difficulties, difficultyLabels } from './difficulty';
+import { IngredientPicker } from './ingredient-picker';
+import { useIngredients } from './ingredients-api';
 import type { RecipeFilters, TimeFilterName } from './recipe-filters';
 import { timeFilters, timeLimits, toggled } from './recipe-filters';
 
@@ -140,6 +143,56 @@ const OnePotGroup = ({ filters, onChange }: FilterChangeProps) => (
   </FilterGroup>
 );
 
+const dietChoices = dietTags.map((tag) => ({ value: tag, label: dietTagLabels[tag] }));
+
+// Every diet picked must hold, so the chips toggle independently.
+const DietGroup = ({ filters, onChange }: FilterChangeProps) => (
+  <FilterGroup legend="Diet">
+    <ChoiceChips
+      choices={dietChoices}
+      selected={filters.diets}
+      onChange={(selected) => onChange({ ...filters, diets: selected })}
+    />
+  </FilterGroup>
+);
+
+const IngredientGroup = ({ filters, onChange }: FilterChangeProps) => {
+  const { data: ingredients, isPending, refetch } = useIngredients();
+  const content = () => {
+    if (ingredients !== undefined) {
+      // An ingredient picked in one list isn't offered in either, so it can't be both included and excluded.
+      const picked = [...filters.includedIngredients, ...filters.excludedIngredients];
+      const unpicked = ingredients.filter(({ slug }) => !picked.includes(slug));
+      return (
+        <>
+          <IngredientPicker
+            label="Include an ingredient"
+            ingredients={unpicked}
+            onPick={(slug) => onChange({ ...filters, includedIngredients: [...filters.includedIngredients, slug] })}
+          />
+          <IngredientPicker
+            label="Exclude an ingredient"
+            ingredients={unpicked}
+            onPick={(slug) => onChange({ ...filters, excludedIngredients: [...filters.excludedIngredients, slug] })}
+          />
+        </>
+      );
+    }
+    // Refetching a query that has never succeeded resets it to pending, so "Load ingredients again" shows this too.
+    if (isPending) {
+      return <p>Loading ingredients…</p>;
+    }
+    return (
+      <GroupUnavailable
+        title="The ingredients couldn't be loaded."
+        retryLabel="Load ingredients again"
+        onRetry={() => void refetch()}
+      />
+    );
+  };
+  return <FilterGroup legend="Ingredients">{content()}</FilterGroup>;
+};
+
 type RecipeFilterPanelProps = FilterChangeProps & { id: string };
 
 export const RecipeFilterPanel = ({ id, filters, onChange }: RecipeFilterPanelProps) => (
@@ -151,5 +204,7 @@ export const RecipeFilterPanel = ({ id, filters, onChange }: RecipeFilterPanelPr
     <CourseGroup filters={filters} onChange={onChange} />
     <CuisineGroup filters={filters} onChange={onChange} />
     <OnePotGroup filters={filters} onChange={onChange} />
+    <DietGroup filters={filters} onChange={onChange} />
+    <IngredientGroup filters={filters} onChange={onChange} />
   </div>
 );

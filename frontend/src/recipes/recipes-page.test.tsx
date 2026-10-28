@@ -9,6 +9,7 @@ import { server } from '../test/server';
 
 type Course = components['schemas']['Course'];
 type Cuisine = components['schemas']['Cuisine'];
+type IngredientOption = components['schemas']['IngredientOption'];
 type Recipe = components['schemas']['RecipeSummary'];
 
 const failRecipes = () => server.use(http.get('/api/recipes/', () => new HttpResponse(null, { status: 503 })));
@@ -78,6 +79,10 @@ const failCourses = () => server.use(http.get('/api/courses/', () => new HttpRes
 
 const holdCourses = (respond: () => Response) => hold('/api/courses/', respond);
 
+const failIngredients = () => server.use(http.get('/api/ingredients/', () => new HttpResponse(null, { status: 503 })));
+
+const holdIngredients = (respond: () => Response) => hold('/api/ingredients/', respond);
+
 // Answers each list request from `results` by its sorted query string ('' for none) and records the ones it was asked for.
 const answerFilters = (results: Record<string, Recipe[]>) => {
   const queries: string[] = [];
@@ -111,7 +116,17 @@ const filtersOn = () =>
     .getAllByRole('button', { name: /^Remove filter: / })
     .map((chip) => chip.getAttribute('aria-label'));
 
-const filterGroupNames = ['Total time', 'Prep time', 'Cook time', 'Difficulty', 'Course', 'Cuisine', 'One-pot'];
+const filterGroupNames = [
+  'Total time',
+  'Prep time',
+  'Cook time',
+  'Difficulty',
+  'Course',
+  'Cuisine',
+  'One-pot',
+  'Diet',
+  'Ingredients'
+];
 
 const cuisines: Cuisine[] = [
   { slug: 'french', name: 'French' },
@@ -123,6 +138,20 @@ const courses: Course[] = [
   { slug: 'dessert', name: 'Dessert' },
   { slug: 'main', name: 'Main' }
 ];
+
+const ingredients: IngredientOption[] = [
+  { slug: 'aubergine', name: 'aubergine', synonyms: ['eggplant'] },
+  { slug: 'creme-fraiche', name: 'crème fraîche', synonyms: [] },
+  { slug: 'peanuts', name: 'peanuts', synonyms: ['groundnuts'] }
+];
+
+const openPicker = async (name: string) => {
+  await userEvent.click(filtersButton());
+  await userEvent.click(await within(filterGroup('Ingredients')).findByRole('button', { name }));
+  return screen.getByRole('combobox', { name: 'Search ingredients' });
+};
+
+const options = () => screen.getAllByRole('option').map((option) => option.textContent);
 
 const recipeCount = () => screen.queryByText(/^\d+ recipes?$/)?.textContent;
 
@@ -513,7 +542,8 @@ describe('RecipesPage', () => {
     ['Difficulty', 'Easy', 'difficulty=easy'],
     ['Course', 'Dessert', 'course=dessert'],
     ['Cuisine', 'Italian', 'cuisine=italian'],
-    ['One-pot', 'One-pot only', 'one_pot=true']
+    ['One-pot', 'One-pot only', 'one_pot=true'],
+    ['Diet', 'Vegan', 'diet=vegan']
   ])('in %s, "%s" filters by %s', async (group, name, query) => {
     const queries = answerFilters({});
     const { router } = renderRoute('/recipes');
@@ -672,7 +702,14 @@ describe('RecipesPage', () => {
 
   it.each([
     ['cuisines', failCuisines, 'Cuisine', 'Load cuisines again', ['French', 'Italian', 'Japanese']],
-    ['courses', failCourses, 'Course', 'Load courses again', ['Dessert', 'Main']]
+    ['courses', failCourses, 'Course', 'Load courses again', ['Dessert', 'Main']],
+    [
+      'ingredients',
+      failIngredients,
+      'Ingredients',
+      'Load ingredients again',
+      ['Include an ingredient', 'Exclude an ingredient']
+    ]
   ])('keeps the list when the %s fail, and loads them again on request', async (noun, fail, group, retry, names) => {
     fail();
     renderRoute('/recipes');
@@ -690,7 +727,13 @@ describe('RecipesPage', () => {
 
   it.each([
     ['Cuisine', 'Loading cuisines…', () => holdCuisines(() => HttpResponse.json<Cuisine[]>(cuisines)), 3],
-    ['Course', 'Loading courses…', () => holdCourses(() => HttpResponse.json<Course[]>(courses)), 2]
+    ['Course', 'Loading courses…', () => holdCourses(() => HttpResponse.json<Course[]>(courses)), 2],
+    [
+      'Ingredients',
+      'Loading ingredients…',
+      () => holdIngredients(() => HttpResponse.json<IngredientOption[]>(ingredients)),
+      2
+    ]
   ])('in %s, says %s, then shows the chips', async (group, loading, holdList, count) => {
     const { requested, release } = holdList();
     renderRoute('/recipes');
@@ -703,5 +746,126 @@ describe('RecipesPage', () => {
 
     await waitFor(() => expect(within(filterGroup(group)).getAllByRole('button')).toHaveLength(count));
     expect(within(filterGroup(group)).queryByText(loading)).not.toBeInTheDocument();
+  });
+  it('needs every diet picked', async () => {
+    const queries = answerFilters({});
+    const { router } = renderRoute('/recipes');
+    await userEvent.click(filtersButton());
+
+    await userEvent.click(within(filterGroup('Diet')).getByRole('button', { name: 'Vegan' }));
+    await userEvent.click(within(filterGroup('Diet')).getByRole('button', { name: 'Gluten-free' }));
+
+    expect(router.state.location.search).toBe('?diet=vegan&diet=gluten_free');
+    await waitFor(() => expect(queries.at(-1)).toBe('diet=vegan&diet=gluten_free'));
+    expect(filtersOn()).toEqual(['Remove filter: Vegan', 'Remove filter: Gluten-free']);
+  });
+
+  it('includes an ingredient found by a synonym', async () => {
+    const queries = answerFilters({});
+    const { router } = renderRoute('/recipes');
+    const search = await openPicker('Include an ingredient');
+
+    await userEvent.type(search, 'eggpl');
+
+    expect(options()).toEqual(['aubergine · also eggplant']);
+
+    await userEvent.click(screen.getByRole('option', { name: 'aubergine · also eggplant' }));
+
+    expect(router.state.location.search).toBe('?include_ingredient=aubergine');
+    await waitFor(() => expect(queries.at(-1)).toBe('include_ingredient=aubergine'));
+    expect(filtersOn()).toEqual(['Remove filter: With aubergine']);
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Include an ingredient' })).toHaveFocus());
+  });
+
+  it('finds an ingredient ignoring accents', async () => {
+    renderRoute('/recipes');
+    const search = await openPicker('Exclude an ingredient');
+
+    await userEvent.type(search, 'creme');
+
+    expect(options()).toEqual(['crème fraîche']);
+  });
+
+  it('offers an ingredient picked in one list nowhere else', async () => {
+    const { router } = renderRoute('/recipes');
+    const search = await openPicker('Exclude an ingredient');
+    await userEvent.type(search, 'peanuts');
+    await userEvent.click(screen.getByRole('option', { name: 'peanuts · also groundnuts' }));
+
+    await userEvent.click(within(filterGroup('Ingredients')).getByRole('button', { name: 'Include an ingredient' }));
+
+    expect(router.state.location.search).toBe('?exclude_ingredient=peanuts');
+    expect(filtersOn()).toEqual(['Remove filter: Without peanuts']);
+    expect(options()).toEqual(['aubergine · also eggplant', 'crème fraîche']);
+  });
+
+  it('says when no ingredient matches', async () => {
+    renderRoute('/recipes');
+    const search = await openPicker('Include an ingredient');
+    expect(options()).toHaveLength(3);
+
+    await userEvent.type(search, 'kale');
+
+    expect(screen.getByText('No ingredients match.')).toBeInTheDocument();
+    expect(screen.queryByRole('option')).not.toBeInTheDocument();
+  });
+
+  it('closes the picker with Escape', async () => {
+    const { router } = renderRoute('/recipes');
+    await openPicker('Exclude an ingredient');
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    expect(router.state.location.search).toBe('');
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Exclude an ingredient' })).toHaveFocus());
+  });
+
+  it('opens diet and ingredient filters from the address', async () => {
+    const queries = answerFilters({});
+
+    renderRoute(
+      '/recipes?diet=vegan&include_ingredient=aubergine&exclude_ingredient=peanuts&exclude_ingredient=klingon'
+    );
+
+    await waitFor(() =>
+      expect(
+        within(screen.getByRole('list', { name: 'Filters on' }))
+          .getAllByRole('button')
+          .map((button) => button.getAttribute('aria-label') ?? button.textContent)
+      ).toEqual([
+        'Remove filter: Vegan',
+        'Remove filter: With aubergine',
+        'Remove filter: Without peanuts',
+        'Clear filters'
+      ])
+    );
+    expect(queries).toEqual([
+      'diet=vegan&exclude_ingredient=peanuts&exclude_ingredient=klingon&include_ingredient=aubergine'
+    ]);
+  });
+
+  it('removes an excluded ingredient from its chip', async () => {
+    const queries = answerFilters({});
+    const { router } = renderRoute('/recipes?diet=vegan&exclude_ingredient=peanuts');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Remove filter: Without peanuts' }));
+
+    expect(router.state.location.search).toBe('?diet=vegan');
+    await waitFor(() => expect(queries.at(-1)).toBe('diet=vegan'));
+  });
+
+  it('shows the slug on an ingredient chip while the ingredients load', async () => {
+    const { requested, release } = holdIngredients(() => HttpResponse.json<IngredientOption[]>(ingredients));
+    renderRoute('/recipes?exclude_ingredient=creme-fraiche');
+    await requested;
+
+    expect(filtersOn()).toEqual(['Remove filter: Without creme-fraiche']);
+
+    release();
+
+    await waitFor(() => expect(filtersOn()).toEqual(['Remove filter: Without crème fraîche']));
   });
 });

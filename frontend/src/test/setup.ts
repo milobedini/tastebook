@@ -5,6 +5,14 @@ import { afterAll, afterEach, beforeAll } from 'vitest';
 
 import { server } from './server';
 
+// jsdom lays nothing out, so it has neither; Radix's Popover measures with one and cmdk scrolls its active option.
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+Element.prototype.scrollIntoView ??= () => {};
+
 beforeAll(() => server.listen({ onUnhandledFrame: 'error' }));
 afterEach(() => {
   cleanup();

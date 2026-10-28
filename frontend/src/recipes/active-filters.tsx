@@ -1,11 +1,15 @@
 import { Button, RemovableChip } from '../ui';
 import { useCourses } from './courses-api';
 import { useCuisines } from './cuisines-api';
+import { dietTagLabels } from './diet-tags';
 import { difficultyLabels } from './difficulty';
+import { useIngredients } from './ingredients-api';
 import type { RecipeFilters } from './recipe-filters';
 import { noFilters, timeFilters } from './recipe-filters';
 
 type Named = { slug: string; name: string };
+
+type NamedLists = { courses?: Named[]; cuisines?: Named[]; ingredients?: Named[] };
 
 type ActiveFilter = { key: string; label: string; without: RecipeFilters };
 
@@ -15,14 +19,15 @@ const namedChips = (
   kind: string,
   slugs: string[],
   list: Named[] | undefined,
-  without: (slug: string) => RecipeFilters
+  without: (slug: string) => RecipeFilters,
+  toLabel: (name: string) => string = (name) => name
 ): ActiveFilter[] =>
   slugs.flatMap((slug) => {
-    const label = list === undefined ? slug : list.find((item) => item.slug === slug)?.name;
-    return label === undefined ? [] : [{ key: `${kind}-${slug}`, label, without: without(slug) }];
+    const name = list === undefined ? slug : list.find((item) => item.slug === slug)?.name;
+    return name === undefined ? [] : [{ key: `${kind}-${slug}`, label: toLabel(name), without: without(slug) }];
   });
 
-const toActiveFilters = (filters: RecipeFilters, courses: Named[] | undefined, cuisines: Named[] | undefined) => [
+const toActiveFilters = (filters: RecipeFilters, { courses, cuisines, ingredients }: NamedLists) => [
   ...timeFilters.flatMap(({ name, chip }): ActiveFilter[] => {
     const limit = filters.times[name];
     if (limit === null) {
@@ -46,7 +51,28 @@ const toActiveFilters = (filters: RecipeFilters, courses: Named[] | undefined, c
     ...filters,
     cuisines: filters.cuisines.filter((item) => item !== slug)
   })),
-  ...(filters.onePot ? [{ key: 'one-pot', label: 'One-pot', without: { ...filters, onePot: false } }] : [])
+  ...(filters.onePot ? [{ key: 'one-pot', label: 'One-pot', without: { ...filters, onePot: false } }] : []),
+  ...filters.diets.map(
+    (diet): ActiveFilter => ({
+      key: `diet-${diet}`,
+      label: dietTagLabels[diet],
+      without: { ...filters, diets: filters.diets.filter((item) => item !== diet) }
+    })
+  ),
+  ...namedChips(
+    'include',
+    filters.includedIngredients,
+    ingredients,
+    (slug) => ({ ...filters, includedIngredients: filters.includedIngredients.filter((item) => item !== slug) }),
+    (name) => `With ${name}`
+  ),
+  ...namedChips(
+    'exclude',
+    filters.excludedIngredients,
+    ingredients,
+    (slug) => ({ ...filters, excludedIngredients: filters.excludedIngredients.filter((item) => item !== slug) }),
+    (name) => `Without ${name}`
+  )
 ];
 
 type ActiveFiltersProps = { filters: RecipeFilters; onChange: (filters: RecipeFilters) => void };
@@ -54,7 +80,8 @@ type ActiveFiltersProps = { filters: RecipeFilters; onChange: (filters: RecipeFi
 export const ActiveFilters = ({ filters, onChange }: ActiveFiltersProps) => {
   const { data: courses } = useCourses();
   const { data: cuisines } = useCuisines();
-  const activeFilters = toActiveFilters(filters, courses, cuisines);
+  const { data: ingredients } = useIngredients();
+  const activeFilters = toActiveFilters(filters, { courses, cuisines, ingredients });
   if (activeFilters.length === 0) {
     return null;
   }
