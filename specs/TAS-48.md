@@ -1,8 +1,8 @@
 ---
 issue: TAS-48
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tastebook/tas-48-catalogue-batch-1
-pr:
+pr: 54
 ---
 
 # Catalogue batch 1
