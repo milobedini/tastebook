@@ -28,6 +28,8 @@ export default defineConfig({
     extraHTTPHeaders: previewHeaders,
     // A trace records request headers, so on a preview it would carry the bypass secret into the uploaded report.
     trace: previewUrl ? 'off' : 'retain-on-failure',
+    // enamel.css then collapses transitions, so axe never reads a colour mid-transition.
+    reducedMotion: 'reduce',
     video: 'retain-on-failure',
     screenshot: 'only-on-failure'
   },

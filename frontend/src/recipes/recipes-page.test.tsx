@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import type { components } from '../api/schema';
 import { renderRoute } from '../test/render-route';
 import { server } from '../test/server';
+import { filterParams } from './recipe-filters';
 
 type Course = components['schemas']['Course'];
 type Cuisine = components['schemas']['Cuisine'];
@@ -96,6 +97,22 @@ const answerFilters = (results: Record<string, Recipe[]>) => {
     })
   );
   return queries;
+};
+
+// A sample value for every parameter the address can filter by, and the chips it shows under Filters on. Keyed by
+// filterParams, so a new filter parameter doesn't type-check here until it has a chip, or an empty list saying why not.
+const filterChips: Record<(typeof filterParams)[number], { values: string[]; chips: string[] }> = {
+  cuisine: { values: ['french'], chips: ['French'] },
+  course: { values: ['dessert'], chips: ['Dessert'] },
+  difficulty: { values: ['easy'], chips: ['Easy'] },
+  max_total: { values: ['30'], chips: ['Total up to 30 min'] },
+  max_prep: { values: ['15'], chips: ['Prep up to 15 min'] },
+  max_cook: { values: ['45'], chips: ['Cook up to 45 min'] },
+  one_pot: { values: ['true'], chips: ['One-pot'] },
+  diet: { values: ['vegan'], chips: ['Vegan'] },
+  include_ingredient: { values: ['aubergine', 'peanuts'], chips: ['With aubergine', 'With peanuts'] },
+  include_match: { values: ['all'], chips: ['With all of these'] },
+  exclude_ingredient: { values: ['creme-fraiche'], chips: ['Without crème fraîche'] }
 };
 
 const headings = () => screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent);
@@ -616,6 +633,25 @@ describe('RecipesPage', () => {
     );
     await waitFor(() => expect(headings()).toEqual(['Apple tart']));
     expect(queries).toEqual(['cuisine=french&cuisine=japanese&max_total=30&one_pot=true&q=tart']);
+  });
+
+  it('shows a chip for every filter parameter that changes the request', async () => {
+    const queries = answerFilters({});
+    const address = new URLSearchParams(
+      Object.entries(filterChips).flatMap(([param, { values }]) => values.map((value) => [param, value]))
+    );
+
+    renderRoute(`/recipes?${address}`);
+
+    await waitFor(() =>
+      expect(filtersOn().toSorted()).toEqual(
+        Object.values(filterChips)
+          .flatMap(({ chips }) => chips.map((chip) => `Remove filter: ${chip}`))
+          .toSorted()
+      )
+    );
+    const requested = new URLSearchParams(queries.at(-1));
+    expect([...new Set(requested.keys())].toSorted()).toEqual(filterParams.toSorted());
   });
 
   it('removes one filter from its chip', async () => {
