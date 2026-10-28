@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -8,6 +9,17 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 from recipes.models import Equipment, Ingredient, Recipe
+
+HAND_WRITTEN = [
+    'Chicken tikka masala',
+    'Greek salad',
+    'Oat and raisin cookies',
+    'Spaghetti aglio e olio',
+    'Spanish tortilla',
+]
+CREDIT = 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0), converted to metric, ingredients restructured'
+WIKIBOOKS_PAGE = re.compile(r'^https://en\.wikibooks\.org/wiki/Cookbook:[^?#]+$')
+SHORTLIST = Path(__file__).resolve().parent.parent / 'recipes' / 'catalogue-shortlist.json'
 
 # A small catalogue for tests about loading, not about the repo's own file.
 SHAKSHUKA: dict[str, Any] = {
@@ -102,13 +114,10 @@ def test_loads_the_repos_catalogue_in_place_of_the_recipes_already_there() -> No
 
     call_command('load_catalogue')
 
-    assert titles() == [
-        'Chicken tikka masala',
-        'Greek salad',
-        'Oat and raisin cookies',
-        'Spaghetti aglio e olio',
-        'Spanish tortilla',
-    ]
+    loaded = titles()
+    assert len(loaded) == 55
+    assert [title for title in loaded if title in HAND_WRITTEN] == HAND_WRITTEN
+    assert 'Typed in the admin' not in loaded
 
 
 @pytest.mark.django_db
@@ -330,7 +339,63 @@ def test_loading_records_what_each_ingredient_contains_and_clears_what_the_file_
 def test_the_repos_recipes_are_found_by_their_ingredients_us_names(q: str, expected: list[str]) -> None:
     call_command('load_catalogue')
 
-    assert titles(q) == expected
+    assert [title for title in titles(q) if title in HAND_WRITTEN] == expected
+
+
+def wikibooks_recipes() -> list[dict[str, Any]]:
+    summaries = APIClient().get(reverse('recipe-list')).json()
+    return [
+        recipe
+        for recipe in map(recipe_json, (summary['slug'] for summary in summaries))
+        if recipe['source'] != 'Tastebook'
+    ]
+
+
+@pytest.mark.django_db
+def test_every_wikibooks_recipe_is_credited_and_links_to_its_page() -> None:
+    call_command('load_catalogue')
+
+    recipes = wikibooks_recipes()
+    assert len(recipes) == 50
+    assert {recipe['source'] for recipe in recipes} == {CREDIT}
+    assert [recipe['slug'] for recipe in recipes if not WIKIBOOKS_PAGE.match(recipe['source_url'])] == []
+
+
+@pytest.mark.django_db
+def test_no_recipe_in_the_repos_catalogue_measures_in_cups_ounces_or_pounds() -> None:
+    call_command('load_catalogue')
+
+    units = {
+        line['unit']
+        for summary in APIClient().get(reverse('recipe-list')).json()
+        for recipe in [recipe_json(summary['slug'])]
+        for line in [
+            *recipe['ingredient_lines'],
+            *(line for group in recipe['ingredient_groups'] for line in group['lines']),
+        ]
+    }
+    assert {'g', 'ml'} <= units
+    assert units & {'cup', 'oz', 'lb', 'fl_oz'} == set()
+
+
+@pytest.mark.django_db
+def test_every_photo_in_the_repos_catalogue_has_a_licence_that_allows_reuse() -> None:
+    call_command('load_catalogue')
+
+    photos = [summary['photo'] for summary in APIClient().get(reverse('recipe-list')).json() if summary['photo']]
+    assert photos != []
+    allowed = re.compile(r'^(Public domain|CC0 1\.0|CC BY(-SA)? \d\.\d( [a-z]{2,3})?)$')
+    assert [photo['licence'] for photo in photos if not allowed.match(photo['licence'])] == []
+
+
+@pytest.mark.django_db
+def test_the_catalogue_holds_the_shortlists_first_batch() -> None:
+    call_command('load_catalogue')
+
+    shortlist = json.loads(SHORTLIST.read_text(encoding='utf-8'))
+    assert {recipe['source_url'] for recipe in wikibooks_recipes()} == {
+        entry['page'] for entry in shortlist if entry['batch'] == 1
+    }
 
 
 def with_synonyms(synonyms: dict[str, list[str]]) -> list[dict[str, Any]]:
