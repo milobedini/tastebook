@@ -273,6 +273,9 @@ class Ingredient(models.Model):
         'fish', default=False, help_text='Including shellfish, anchovies and fish sauce.'
     )
     contains_dairy = models.BooleanField('dairy', default=False, help_text='Milk, cream, butter, cheese, yoghurt.')
+    contains_animal_rennet = models.BooleanField(
+        'animal rennet', default=False, help_text='Cheese made with calf rennet, such as parmesan: not vegetarian.'
+    )
     contains_egg = models.BooleanField('egg', default=False)
     contains_other_animal_product = models.BooleanField(
         'other animal product', default=False, help_text='Such as honey: vegetarian, but not vegan.'
@@ -284,6 +287,7 @@ class Ingredient(models.Model):
         'contains_meat',
         'contains_fish',
         'contains_dairy',
+        'contains_animal_rennet',
         'contains_egg',
         'contains_other_animal_product',
         'contains_gluten',
@@ -319,11 +323,12 @@ class DietTag(models.TextChoices):
 
 # The ingredient flags that rule each diet tag out. services.diet_tags() and RecipeQuerySet.suiting() both read it.
 RULED_OUT_BY: dict[DietTag, tuple[str, ...]] = {
-    DietTag.VEGETARIAN: ('contains_meat', 'contains_fish'),
+    DietTag.VEGETARIAN: ('contains_meat', 'contains_fish', 'contains_animal_rennet'),
     DietTag.VEGAN: (
         'contains_meat',
         'contains_fish',
         'contains_dairy',
+        'contains_animal_rennet',
         'contains_egg',
         'contains_other_animal_product',
     ),

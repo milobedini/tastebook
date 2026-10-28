@@ -43,7 +43,7 @@
     { "name": "olive oil" },
     { "name": "onion" },
     { "name": "paprika" },
-    { "name": "parmesan", "contains_dairy": true },
+    { "name": "parmesan", "contains_dairy": true, "contains_animal_rennet": true },
     { "name": "plain flour", "contains_gluten": true, "synonyms": ["all-purpose flour"] },
     { "name": "porridge oats", "contains_gluten": true, "synonyms": ["rolled oats"] },
     { "name": "potatoes" },
