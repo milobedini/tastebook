@@ -238,6 +238,11 @@ export interface components {
              * @description Where the recipe came from: an author, a website or a book.
              */
             source: string;
+            /**
+             * Source address
+             * @description The original recipe's page, which the source credit links to. Leave empty when there is none.
+             */
+            source_url: string;
             readonly ingredient_lines: components["schemas"]["IngredientLine"][];
             readonly ingredient_groups: components["schemas"]["IngredientGroup"][];
             readonly steps: components["schemas"]["Step"][];

@@ -108,7 +108,7 @@ class RecipeAdmin(CatalogueAdmin):
         (None, {'fields': ('title', 'slug', 'description', 'cuisines', 'courses', 'difficulty', 'one_pot')}),
         ('Time', {'fields': ('prep_minutes', 'cook_minutes', 'extra_minutes', 'extra_label')}),
         ('Servings or yield', {'fields': ('servings', 'yield_amount', 'yield_unit')}),
-        (None, {'fields': ('equipment', 'source')}),
+        (None, {'fields': ('equipment', 'source', 'source_url')}),
         ('Photo', {'fields': ('photo_url', 'photo_author', 'photo_licence', 'photo_source_url')}),
     )
     inlines = (IngredientGroupInline, IngredientLineInline, StepInline)

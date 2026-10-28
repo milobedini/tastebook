@@ -32,6 +32,7 @@ const shakshuka: Recipe = {
   equipment: [{ slug: 'hob', name: 'Hob' }],
   one_pot: true,
   source: 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)',
+  source_url: '',
   ingredient_lines: [],
   ingredient_groups: [],
   steps: [],
@@ -158,7 +159,7 @@ describe('RecipePage', () => {
     expect(screen.queryAllByRole('img').map((image) => image.getAttribute('alt'))).toEqual(images);
   });
 
-  it('loads the photo at once at the page width, credited with its author, licence and a link to its page', async () => {
+  it('loads the photo at once at the page width without cookies, credited with its author, licence and a link to its page', async () => {
     server.use(http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>({ ...shakshuka, photo })));
 
     renderRoute('/recipes/shakshuka');
@@ -173,6 +174,7 @@ describe('RecipePage', () => {
     );
     expect(image).toHaveAttribute('sizes', '(min-width: 42rem) 40rem, calc(100vw - 2rem)');
     expect(image).toHaveAttribute('loading', 'eager');
+    expect(image).toHaveAttribute('crossorigin', 'anonymous');
     expect(within(figure).getByRole('link', { name: 'Wikimedia Commons' })).toHaveAttribute(
       'href',
       'https://commons.wikimedia.org/wiki/File:Shakshuka.jpg'
@@ -225,6 +227,26 @@ describe('RecipePage', () => {
       ['Source', 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)']
     ]);
   });
+
+  it.each([
+    ['https://en.wikibooks.org/wiki/Cookbook:Shakshouka', 1],
+    ['', 0]
+  ])(
+    'links the source credit to the original page only when the recipe has its address (%s)',
+    async (sourceUrl, count) => {
+      server.use(
+        http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>({ ...shakshuka, source_url: sourceUrl }))
+      );
+
+      renderRoute('/recipes/shakshuka');
+
+      expect(await screen.findByRole('heading', { name: 'Shakshuka' })).toBeInTheDocument();
+      expect(facts()).toContainEqual(['Source', 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)']);
+      const links = screen.queryAllByRole('link', { name: 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0)' });
+      expect(links).toHaveLength(count);
+      expect(links.map((link) => link.getAttribute('href'))).toEqual(sourceUrl === '' ? [] : [sourceUrl]);
+    }
+  );
 
   it.each<[Recipe['diet_tags'], Recipe['diet_tag_conflicts'], string[], string[]]>([
     [[], [], ['Easy', 'One-pot'], []],

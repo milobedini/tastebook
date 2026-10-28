@@ -1,4 +1,12 @@
+import { readFileSync } from 'node:fs';
+
 import { expect, test } from './fixtures.ts';
+
+type CatalogueRecipe = { slug: string; source: string; source_url?: string };
+
+const catalogue: { recipes: CatalogueRecipe[] } = JSON.parse(
+  readFileSync(new URL('../../backend/recipes/catalogue.json', import.meta.url), 'utf-8')
+);
 
 test('an unknown recipe shows "not found" through the real API', async ({ page, accessibility }) => {
   await page.goto('/recipes/no-such-recipe');
@@ -56,5 +64,24 @@ test('switching to US customary converts a catalogue recipe through the real API
   await expect(page.getByRole('region', { name: 'Method' }).getByRole('listitem').nth(3)).toContainText(
     'Heat the oven to 355°F (320°F fan)'
   );
+  await accessibility.check();
+});
+
+test('a Wikibooks recipe credits and links to its original page through the real API', async ({
+  page,
+  accessibility
+}) => {
+  const recipe = catalogue.recipes.find(({ source_url }) => source_url !== undefined && source_url !== '');
+  if (recipe === undefined) {
+    throw new Error('The catalogue has no Wikibooks recipe');
+  }
+  await page.goto(`/recipes/${recipe.slug}`);
+
+  await expect(
+    page.getByRole('link', {
+      name: 'Adapted from the Wikibooks Cookbook (CC BY-SA 4.0), converted to metric, ingredients restructured',
+      exact: true
+    })
+  ).toHaveAttribute('href', recipe.source_url ?? '');
   await accessibility.check();
 });

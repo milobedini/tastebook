@@ -540,6 +540,16 @@ components:
           title: Source credit
           description: 'Where the recipe came from: an author, a website or a book.'
           maxLength: 300
+        source_url:
+          title: Source address
+          description: The original recipe's page, which the source credit links to.
+            Leave empty when there is none.
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 500
+          - type: string
+            maxLength: 0
         ingredient_lines:
           type: array
           items:
@@ -580,6 +590,7 @@ components:
       - servings
       - slug
       - source
+      - source_url
       - steps
       - title
       - total_minutes
