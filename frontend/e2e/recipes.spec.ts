@@ -43,3 +43,32 @@ test('filters and clears them through the real API', async ({ page, accessibilit
   await expect(page.getByText('No recipes match “xyzzy”.')).toBeVisible();
   await expect(page.getByRole('alert')).toHaveCount(0);
 });
+
+test("filters by diet and by an ingredient's synonym through the real API", async ({ page, accessibility }) => {
+  await page.goto('/recipes');
+
+  await page.getByRole('button', { name: 'Filters', exact: true }).click();
+  const diet = page.getByRole('group', { name: 'Diet' });
+  await diet.getByRole('button', { name: 'Gluten-free' }).click();
+  await diet.getByRole('button', { name: 'Dairy-free' }).click();
+
+  await expect(page).toHaveURL(/\/recipes\?diet=gluten_free&diet=dairy_free$/);
+  await expect(page.getByRole('heading', { name: 'Spanish tortilla' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Greek salad' })).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Clear filters' }).first().click();
+  await page.getByRole('button', { name: 'Exclude an ingredient' }).click();
+  await page.getByRole('combobox', { name: 'Search ingredients' }).fill('plain yogurt');
+
+  const yoghurt = page.getByRole('option', { name: 'natural yoghurt · also plain yogurt' });
+  await expect(yoghurt).toBeVisible();
+  await accessibility.check();
+
+  await yoghurt.click();
+
+  await expect(page).toHaveURL(/\/recipes\?exclude_ingredient=natural-yoghurt$/);
+  await expect(page.getByRole('button', { name: 'Remove filter: Without natural yoghurt' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Greek salad' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Chicken tikka masala' })).toHaveCount(0);
+  await expect(page.getByRole('alert')).toHaveCount(0);
+});
