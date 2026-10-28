@@ -1,3 +1,5 @@
+from functools import reduce
+from operator import or_
 from typing import Any
 
 from django.core.validators import MinValueValidator, RegexValidator
@@ -72,21 +74,39 @@ class RecipeQuerySet(models.QuerySet['Recipe']):
             | Q(pk__in=cuisines.values('recipes'))
         ).order_by(Case(When(in_title, then=Value(0)), default=Value(1)), Lower('title'), 'id')
 
-    def with_cuisines(self, slugs: list[str]) -> RecipeQuerySet:
+    def _having_any_of(self, known: models.QuerySet[Any], recipe_field: str) -> RecipeQuerySet:
         # Unknown slugs (a removed cuisine, a mistyped link) are dropped; with none left, nothing is filtered.
-        known = Cuisine.objects.filter(slug__in=slugs)
         if not known.exists():
             return self
-        # A subquery, not a join, so a recipe with two of the cuisines is listed once.
-        return self.filter(pk__in=known.values('recipes'))
+        # A subquery, not a join, so a recipe with two of them is listed once.
+        return self.filter(pk__in=known.values(recipe_field))
+
+    def with_cuisines(self, slugs: list[str]) -> RecipeQuerySet:
+        return self._having_any_of(Cuisine.objects.filter(slug__in=slugs), 'recipes')
 
     def with_courses(self, slugs: list[str]) -> RecipeQuerySet:
-        # Unknown slugs are dropped; with none left, nothing is filtered.
-        known = Course.objects.filter(slug__in=slugs)
-        if not known.exists():
+        return self._having_any_of(Course.objects.filter(slug__in=slugs), 'recipes')
+
+    def using_any_of(self, slugs: list[str]) -> RecipeQuerySet:
+        return self._having_any_of(Ingredient.objects.filter(slug__in=slugs), 'lines__recipe')
+
+    def using_none_of(self, slugs: list[str]) -> RecipeQuerySet:
+        """Recipes with no line, optional or not, using any of these ingredients."""
+        if not slugs:
             return self
-        # A subquery, not a join, so a recipe with two of the courses is listed once.
-        return self.filter(pk__in=known.values('recipes'))
+        lines = IngredientLine.objects.filter(ingredient__slug__in=slugs)
+        return self.exclude(pk__in=lines.values('recipe'))
+
+    def suiting(self, diets: list[str]) -> RecipeQuerySet:
+        """Recipes with every one of these diet tags, by the rule services.diet_tags() follows."""
+        if not diets:
+            return self
+        # Every diet must hold, so a line breaking any one of them rules the recipe out.
+        flags = sorted({flag for diet in diets for flag in RULED_OUT_BY[DietTag(diet)]})
+        required = IngredientLine.objects.filter(optional=False)
+        ruled_out = required.filter(reduce(or_, (Q(**{f'ingredient__{flag}': True}) for flag in flags)))
+        # A recipe with no required line claims no diet, as diet_tags() says.
+        return self.filter(pk__in=required.values('recipe')).exclude(pk__in=ruled_out.values('recipe'))
 
     def with_difficulties(self, difficulties: list[str]) -> RecipeQuerySet:
         return self.filter(difficulty__in=difficulties) if difficulties else self
@@ -295,6 +315,21 @@ class DietTag(models.TextChoices):
     VEGAN = 'vegan', 'Vegan'
     GLUTEN_FREE = 'gluten_free', 'Gluten-free'
     DAIRY_FREE = 'dairy_free', 'Dairy-free'
+
+
+# The ingredient flags that rule each diet tag out. services.diet_tags() and RecipeQuerySet.suiting() both read it.
+RULED_OUT_BY: dict[DietTag, tuple[str, ...]] = {
+    DietTag.VEGETARIAN: ('contains_meat', 'contains_fish'),
+    DietTag.VEGAN: (
+        'contains_meat',
+        'contains_fish',
+        'contains_dairy',
+        'contains_egg',
+        'contains_other_animal_product',
+    ),
+    DietTag.GLUTEN_FREE: ('contains_gluten',),
+    DietTag.DAIRY_FREE: ('contains_dairy',),
+}
 
 
 class Unit(models.TextChoices):

@@ -40,6 +40,16 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ['slug', 'name']
 
 
+class IngredientOptionSerializer(serializers.ModelSerializer):
+    """An ingredient as the filters offer it, with the synonyms it can be found by."""
+
+    synonyms = serializers.SlugRelatedField(many=True, read_only=True, slug_field='name')
+
+    class Meta:
+        model = Ingredient
+        fields = ['slug', 'name', 'synonyms']
+
+
 class IngredientLineSerializer(serializers.ModelSerializer):
     ingredient = IngredientSerializer(read_only=True)
     # Numbers, not strings, so the page can format and later scale them.
@@ -151,6 +161,33 @@ class RecipeFiltersSerializer(serializers.Serializer):
         required=False,
         default=False,
         help_text='true means only one-pot recipes; false or missing means every recipe.',
+    )
+    diet = serializers.ListField(
+        child=serializers.ChoiceField(choices=DietTag.choices),
+        required=False,
+        default=list,
+        help_text=(
+            "Recipes with every one of these diet tags, worked out as each recipe's diet_tags are. "
+            'Any other value is a 400.'
+        ),
+    )
+    include_ingredient = serializers.ListField(
+        child=serializers.CharField(allow_blank=True),
+        required=False,
+        default=list,
+        help_text=(
+            'Recipes with a line, optional or not, using any of these ingredients, by slug. '
+            'Unknown slugs are dropped; with none left, nothing is filtered.'
+        ),
+    )
+    exclude_ingredient = serializers.ListField(
+        child=serializers.CharField(allow_blank=True),
+        required=False,
+        default=list,
+        help_text=(
+            'Recipes with no line, optional or not, using any of these ingredients, by slug. '
+            'Unknown slugs exclude nothing.'
+        ),
     )
 
 
