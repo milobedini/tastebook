@@ -145,10 +145,14 @@ const ingredients: IngredientOption[] = [
   { slug: 'peanuts', name: 'peanuts', synonyms: ['groundnuts'] }
 ];
 
-const openPicker = async (name: string) => {
-  await userEvent.click(filtersButton());
+const openPickerInOpenPanel = async (name: string) => {
   await userEvent.click(await within(filterGroup('Ingredients')).findByRole('button', { name }));
   return within(screen.getByRole('dialog', { name })).getByRole('combobox', { name: 'Search ingredients' });
+};
+
+const openPicker = async (name: string) => {
+  await userEvent.click(filtersButton());
+  return openPickerInOpenPanel(name);
 };
 
 const options = () => screen.getAllByRole('option').map((option) => option.textContent);
@@ -777,6 +781,63 @@ describe('RecipesPage', () => {
     expect(filtersOn()).toEqual(['Remove filter: With aubergine']);
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     await waitFor(() => expect(screen.getByRole('button', { name: 'Include an ingredient' })).toHaveFocus());
+  });
+
+  it('lists recipes with all the included ingredients once asked, without a chip of its own', async () => {
+    const queries = answerFilters({
+      'include_ingredient=aubergine&include_ingredient=peanuts': [appleTart, bananaBread],
+      'include_ingredient=aubergine&include_ingredient=peanuts&include_match=all': [bananaBread]
+    });
+    const { router } = renderRoute('/recipes?include_ingredient=aubergine&include_ingredient=peanuts');
+    await waitFor(() => expect(headings()).toEqual(['Apple tart', 'Banana bread']));
+    await userEvent.click(filtersButton());
+    const includeMatch = filterGroup('Included ingredients');
+    expect(within(includeMatch).getByRole('button', { name: 'With any' })).toHaveAttribute('aria-pressed', 'true');
+
+    await userEvent.click(within(includeMatch).getByRole('button', { name: 'With all' }));
+
+    expect(router.state.location.search).toBe(
+      '?include_ingredient=aubergine&include_ingredient=peanuts&include_match=all'
+    );
+    await waitFor(() => expect(headings()).toEqual(['Banana bread']));
+    expect(queries.at(-1)).toBe('include_ingredient=aubergine&include_ingredient=peanuts&include_match=all');
+    expect(within(includeMatch).getByRole('button', { name: 'With all' })).toHaveAttribute('aria-pressed', 'true');
+    expect(filtersOn()).toEqual(['Remove filter: With aubergine', 'Remove filter: With peanuts']);
+
+    await userEvent.click(within(includeMatch).getByRole('button', { name: 'With any' }));
+
+    expect(router.state.location.search).toBe('?include_ingredient=aubergine&include_ingredient=peanuts');
+    await waitFor(() => expect(headings()).toEqual(['Apple tart', 'Banana bread']));
+  });
+
+  it('offers the any or all choice only once two ingredients are included', async () => {
+    const queries = answerFilters({});
+    renderRoute('/recipes?include_ingredient=aubergine&include_match=all');
+    await userEvent.click(filtersButton());
+    await within(filterGroup('Ingredients')).findByRole('button', { name: 'Include an ingredient' });
+
+    expect(screen.queryByRole('group', { name: 'Included ingredients' })).not.toBeInTheDocument();
+    expect(queries).toEqual(['include_ingredient=aubergine']);
+
+    const search = await openPickerInOpenPanel('Include an ingredient');
+    await userEvent.type(search, 'peanuts');
+    await userEvent.click(screen.getByRole('option', { name: 'peanuts · also groundnuts' }));
+
+    const includeMatch = filterGroup('Included ingredients');
+    expect(within(includeMatch).getByRole('button', { name: 'With all' })).toHaveAttribute('aria-pressed', 'true');
+    await waitFor(() =>
+      expect(queries.at(-1)).toBe('include_ingredient=aubergine&include_ingredient=peanuts&include_match=all')
+    );
+  });
+
+  it('clears the any or all choice with the other filters', async () => {
+    const { router } = renderRoute(
+      '/recipes?q=tart&include_ingredient=aubergine&include_ingredient=peanuts&include_match=all'
+    );
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Clear filters' }));
+
+    expect(router.state.location.search).toBe('?q=tart');
   });
 
   it('finds an ingredient ignoring accents', async () => {

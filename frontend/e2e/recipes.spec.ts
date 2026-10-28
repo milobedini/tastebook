@@ -72,3 +72,22 @@ test("filters by diet and by an ingredient's synonym through the real API", asyn
   await expect(page.getByRole('heading', { name: 'Chicken tikka masala' })).toHaveCount(0);
   await expect(page.getByRole('alert')).toHaveCount(0);
 });
+
+test('lists recipes with any or all of the included ingredients through the real API', async ({
+  page,
+  accessibility
+}) => {
+  await page.goto('/recipes?include_ingredient=garlic&include_ingredient=onion');
+  await expect(page.getByRole('heading', { name: 'Spanish tortilla' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Spaghetti aglio e olio' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Filters', exact: true }).click();
+  await page.getByRole('group', { name: 'Included ingredients' }).getByRole('button', { name: 'With all' }).click();
+
+  await expect(page).toHaveURL(/\/recipes\?include_ingredient=garlic&include_ingredient=onion&include_match=all$/);
+  await expect(page.getByRole('heading', { name: 'Chicken tikka masala' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Spanish tortilla' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Spaghetti aglio e olio' })).toHaveCount(0);
+  await accessibility.check();
+  await expect(page.getByRole('alert')).toHaveCount(0);
+});

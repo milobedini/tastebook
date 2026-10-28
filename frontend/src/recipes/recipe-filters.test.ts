@@ -18,7 +18,14 @@ describe('readFilters', () => {
     [
       'include_ingredient=aubergine&include_ingredient=&include_ingredient=aubergine&exclude_ingredient=peanuts',
       { ...noFilters, includedIngredients: ['aubergine'], excludedIngredients: ['peanuts'] }
-    ]
+    ],
+    [
+      'include_ingredient=aubergine&include_ingredient=peanuts&include_match=all',
+      { ...noFilters, includedIngredients: ['aubergine', 'peanuts'], includeMatch: 'all' }
+    ],
+    ['include_match=any', noFilters],
+    ['include_match=both', noFilters],
+    ['include_match=all', { ...noFilters, includeMatch: 'all' }]
   ])('reads "%s"', (query, filters) => {
     expect(readFilters(new URLSearchParams(query))).toEqual(filters);
   });
@@ -38,10 +45,16 @@ describe('writeFilters', () => {
       { ...noFilters, diets: ['vegetarian'], excludedIngredients: ['peanuts'] }
     ],
     ['q=tart&diet=vegan&include_ingredient=aubergine', 'q=tart', noFilters],
+    ['q=tart&include_ingredient=aubergine&include_match=all', 'q=tart', noFilters],
+    [
+      'q=tart',
+      'q=tart&include_ingredient=aubergine&include_ingredient=peanuts',
+      { ...noFilters, includedIngredients: ['aubergine', 'peanuts'], includeMatch: 'any' }
+    ],
     [
       '',
       'cuisine=british&course=main&course=side&difficulty=hard&max_total=60&max_prep=45&max_cook=30&one_pot=true' +
-        '&diet=vegan&include_ingredient=aubergine&exclude_ingredient=peanuts',
+        '&diet=vegan&include_ingredient=aubergine&include_ingredient=tofu&include_match=all&exclude_ingredient=peanuts',
       {
         cuisines: ['british'],
         courses: ['main', 'side'],
@@ -49,7 +62,8 @@ describe('writeFilters', () => {
         times: { total: 60, prep: 45, cook: 30 },
         onePot: true,
         diets: ['vegan'],
-        includedIngredients: ['aubergine'],
+        includedIngredients: ['aubergine', 'tofu'],
+        includeMatch: 'all',
         excludedIngredients: ['peanuts']
       }
     ]
