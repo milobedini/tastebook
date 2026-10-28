@@ -1,5 +1,6 @@
 import json
 import re
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -386,6 +387,23 @@ def test_every_photo_in_the_repos_catalogue_has_a_licence_that_allows_reuse() ->
     assert photos != []
     allowed = re.compile(r'^(Public domain|CC0 1\.0|CC BY(-SA)? \d\.\d( [a-z]{2,3})?)$')
     assert [photo['licence'] for photo in photos if not allowed.match(photo['licence'])] == []
+
+
+@pytest.mark.django_db
+def test_the_shortlist_holds_about_300_wikibooks_pages_spread_across_cuisines() -> None:
+    # The shortlist is the plan the batches work through, not loaded, so it is read as a file.
+    shortlist = json.loads(SHORTLIST.read_text(encoding='utf-8'))
+    cuisines = {cuisine['name'] for cuisine in APIClient().get(reverse('cuisine-list')).json()}
+
+    pages = [entry['page'] for entry in shortlist]
+    per_cuisine = Counter(entry['cuisine'] for entry in shortlist)
+    assert 280 <= len(shortlist) <= 320
+    assert len(set(pages)) == len(pages)
+    assert [page for page in pages if not WIKIBOOKS_PAGE.match(page)] == []
+    assert set(per_cuisine) <= cuisines
+    assert {entry['course'] for entry in shortlist} <= {'Baking', 'Breakfast', 'Dessert', 'Main', 'Side'}
+    assert [cuisine for cuisine, count in per_cuisine.items() if count > 40] == []
+    assert len([entry for entry in shortlist if entry['batch'] == 1]) == 50
 
 
 @pytest.mark.django_db
