@@ -1,5 +1,7 @@
 from django.contrib import admin
+from django.db.models import Model
 from django.forms import BaseInlineFormSet, ModelForm
+from django.http import HttpRequest
 
 from recipes.models import (
     Cuisine,
@@ -19,20 +21,42 @@ class CuisineAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 
+class ReadOnly:
+    """Viewable only: every deploy's load_catalogue makes the catalogue what catalogue.json says, undoing any edit."""
+
+    def has_add_permission(self, request: HttpRequest, obj: Model | None = None) -> bool:
+        return False
+
+    def has_change_permission(self, request: HttpRequest, obj: Model | None = None) -> bool:
+        return False
+
+    def has_delete_permission(self, request: HttpRequest, obj: Model | None = None) -> bool:
+        return False
+
+
+class CatalogueAdmin(ReadOnly, admin.ModelAdmin):
+    change_list_template = 'admin/recipes/catalogue_change_list.html'
+    change_form_template = 'admin/recipes/catalogue_change_form.html'
+
+
+class CatalogueInline(ReadOnly, admin.TabularInline):
+    pass
+
+
 @admin.register(Equipment)
-class EquipmentAdmin(admin.ModelAdmin):
+class EquipmentAdmin(CatalogueAdmin):
     list_display = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
 
 
-class IngredientSynonymInline(admin.TabularInline):
+class IngredientSynonymInline(CatalogueInline):
     model = IngredientSynonym
     fields = ('name',)
     extra = 0
 
 
 @admin.register(Ingredient)
-class IngredientAdmin(admin.ModelAdmin):
+class IngredientAdmin(CatalogueAdmin):
     list_display = ('name', 'slug', *Ingredient.CONTAINS)
     list_filter = Ingredient.CONTAINS
     # Synonyms too, so the ingredient picker on a recipe line finds courgette by "zucchini".
@@ -45,7 +69,7 @@ class IngredientAdmin(admin.ModelAdmin):
     inlines = (IngredientSynonymInline,)
 
 
-class IngredientGroupInline(admin.TabularInline):
+class IngredientGroupInline(CatalogueInline):
     model = IngredientGroup
     fields = ('position', 'name')
     extra = 0
@@ -61,7 +85,7 @@ class IngredientLineFormSet(BaseInlineFormSet):
         form.fields['group'].queryset = groups
 
 
-class IngredientLineInline(admin.TabularInline):
+class IngredientLineInline(CatalogueInline):
     model = IngredientLine
     formset = IngredientLineFormSet
     fields = ('position', 'group', 'amount', 'amount_max', 'unit', 'ingredient', 'note', 'optional', 'original_text')
@@ -69,14 +93,14 @@ class IngredientLineInline(admin.TabularInline):
     extra = 0
 
 
-class StepInline(admin.TabularInline):
+class StepInline(CatalogueInline):
     model = Step
     fields = ('position', 'text')
     extra = 0
 
 
 @admin.register(Recipe)
-class RecipeAdmin(admin.ModelAdmin):
+class RecipeAdmin(CatalogueAdmin):
     list_display = ('title', 'description')
     readonly_fields = ('slug',)
     filter_horizontal = ('cuisines', 'courses', 'equipment')

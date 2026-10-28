@@ -348,6 +348,14 @@ def test_loading_an_edited_file_moves_and_removes_synonyms(tmp_path: Path) -> No
     assert (titles('pimenton'), titles('red powder')) == (['Shakshuka'], [])
 
 
+PHOTO = {
+    'photo_url': 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Shakshuka_%28Tel_Aviv%29.jpg',
+    'photo_author': 'Jane Doe',
+    'photo_licence': 'CC BY-SA 4.0',
+    'photo_source_url': 'https://commons.wikimedia.org/wiki/File:Shakshuka_(Tel_Aviv).jpg',
+}
+
+
 def with_line(**line: Any) -> dict[str, Any]:
     return catalogue({**FLAPJACKS, 'ingredient_lines': [{'ingredient': 'porridge oats', **line}]})
 
@@ -369,6 +377,32 @@ def with_line(**line: Any) -> dict[str, Any]:
             'Recipe flapjacks: Give extra time with its label (marinating, resting, proving), or neither.',
         ),
         (
+            catalogue({**FLAPJACKS, 'difficulty': 'impossible'}),
+            "Recipe flapjacks: Value 'impossible' is not a valid choice.",
+        ),
+        (
+            catalogue({**FLAPJACKS, 'yield_amount': 0}),
+            'Recipe flapjacks: Ensure this value is greater than or equal to 1.',
+        ),
+        (
+            catalogue({**FLAPJACKS, 'source': ''}),
+            'Recipe flapjacks: This field cannot be blank.',
+        ),
+        (
+            catalogue({**FLAPJACKS, **PHOTO, 'photo_licence': ''}),
+            'Recipe flapjacks: Give a photo with its author, licence and source, or none of them.',
+        ),
+        (
+            catalogue({**FLAPJACKS, **PHOTO, 'photo_url': 'https://example.com/flapjacks.jpg'}),
+            'Recipe flapjacks: Give the address of a JPEG, PNG or WebP file on Wikimedia Commons, '
+            'starting https://upload.wikimedia.org/wikipedia/commons/.',
+        ),
+        (
+            catalogue({**FLAPJACKS, **PHOTO, 'photo_source_url': 'https://example.com/flapjacks'}),
+            "Recipe flapjacks: Give the photo's page on Wikimedia Commons, "
+            'starting https://commons.wikimedia.org/wiki/File:.',
+        ),
+        (
             catalogue({**FLAPJACKS, 'cuisines': ['Klingon']}),
             'Recipe flapjacks names no known cuisine: "Klingon"',
         ),
@@ -379,6 +413,10 @@ def with_line(**line: Any) -> dict[str, Any]:
         (
             with_line(amount=3, amount_max=2),
             'Recipe flapjacks: Give a range with its lower amount first, such as 2 up to 3.',
+        ),
+        (
+            with_line(amount=0),
+            'Recipe flapjacks: Give an amount above 0, or leave it empty.',
         ),
         (
             with_line(unit='handfuls'),
