@@ -42,6 +42,8 @@ export const RecipePhoto = ({ photo, cuisineSlug, shape, alt, caption }: RecipeP
       loading={loading}
       fetchPriority={loading === 'eager' ? 'high' : 'auto'}
       decoding="async"
+      // Sent without credentials, so Wikimedia Commons can't set its WMF-Uniq cookie (a third-party cookie Lighthouse fails).
+      crossOrigin="anonymous"
       className={cn('w-full rounded-photo object-cover', className)}
       onError={() => setFailedSrc(src)}
     />

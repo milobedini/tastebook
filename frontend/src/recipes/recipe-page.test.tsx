@@ -159,7 +159,7 @@ describe('RecipePage', () => {
     expect(screen.queryAllByRole('img').map((image) => image.getAttribute('alt'))).toEqual(images);
   });
 
-  it('loads the photo at once at the page width, credited with its author, licence and a link to its page', async () => {
+  it('loads the photo at once at the page width without cookies, credited with its author, licence and a link to its page', async () => {
     server.use(http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>({ ...shakshuka, photo })));
 
     renderRoute('/recipes/shakshuka');
@@ -174,6 +174,7 @@ describe('RecipePage', () => {
     );
     expect(image).toHaveAttribute('sizes', '(min-width: 42rem) 40rem, calc(100vw - 2rem)');
     expect(image).toHaveAttribute('loading', 'eager');
+    expect(image).toHaveAttribute('crossorigin', 'anonymous');
     expect(within(figure).getByRole('link', { name: 'Wikimedia Commons' })).toHaveAttribute(
       'href',
       'https://commons.wikimedia.org/wiki/File:Shakshuka.jpg'
