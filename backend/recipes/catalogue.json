@@ -2390,7 +2390,7 @@
           "amount": 2,
           "unit": "tbsp",
           "ingredient": "dry white wine",
-          "note": "dry, or dry sherry",
+          "note": "or dry sherry",
           "original_text": "2 tbsp dry white wine (cooking wine or dry sherry is fine)"
         },
         {
@@ -3031,7 +3031,7 @@
           "amount": 1,
           "unit": "tsp",
           "ingredient": "fresh thyme",
-          "note": "or dried, fresh or dried",
+          "note": "or dried",
           "original_text": "1 tsp fresh or dried thyme"
         },
         {
