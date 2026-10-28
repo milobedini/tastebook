@@ -379,6 +379,42 @@ def test_no_recipe_in_the_repos_catalogue_measures_in_cups_ounces_or_pounds() ->
     assert units & {'cup', 'oz', 'lb', 'fl_oz'} == set()
 
 
+# The US words the TAS-48 spec's UK names table replaces, in titles, steps and notes.
+US_WORDS = re.compile(
+    r'\b(all-purpose flour|ground beef|cilantro|shrimps?|zucchinis?|arugula|eggplants?|garbanzo beans?|scallions?'
+    r'|green onions?|molasses|heavy cream|light cream|semi-?sweet chocolate|golden raisins|powdered sugar'
+    r"|confectioners'? sugar|canola oil|superfine sugar|bell peppers?|baking soda|cornstarch|yogurts?|chili(e?s)?"
+    r'|broil(s|ed|ing|er)?|skillets?|stove(top)?s?|plastic wrap|alumin(i)?um foil|cookie sheets?)\b',
+    re.IGNORECASE,
+)
+# Dishes whose own name uses the US word.
+NAMED_WITH_A_US_WORD = {'Skillet cornbread'}
+
+
+@pytest.mark.django_db
+def test_the_repos_recipes_use_uk_words_in_titles_steps_and_notes() -> None:
+    call_command('load_catalogue')
+
+    copy = [
+        (recipe['slug'], text)
+        for summary in APIClient().get(reverse('recipe-list')).json()
+        for recipe in [recipe_json(summary['slug'])]
+        for text in [
+            *([] if recipe['title'] in NAMED_WITH_A_US_WORD else [recipe['title']]),
+            *(step['text'] for step in recipe['steps']),
+            *(
+                line['note']
+                for line in [
+                    *recipe['ingredient_lines'],
+                    *(line for group in recipe['ingredient_groups'] for line in group['lines']),
+                ]
+            ),
+        ]
+    ]
+    assert ('meat-and-prawn-potstickers', 'Meat and prawn potstickers') in copy
+    assert [(slug, match.group(0)) for slug, text in copy for match in US_WORDS.finditer(text)] == []
+
+
 @pytest.mark.django_db
 def test_every_ingredient_the_filter_offers_is_used_by_a_recipe_in_the_repos_catalogue() -> None:
     call_command('load_catalogue')
