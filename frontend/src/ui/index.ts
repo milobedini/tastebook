@@ -12,6 +12,7 @@ export { NativeSelect } from './native-select';
 export { Page } from './page';
 export { RecipeCard } from './recipe-card';
 export { RecipePhoto } from './recipe-photo';
+export { RemovableChip } from './removable-chip';
 export { SegmentedControl } from './segmented-control';
 export { ServingsStepper } from './servings-stepper';
 export { Toaster, toast } from './sonner';

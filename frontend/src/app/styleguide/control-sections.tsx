@@ -9,6 +9,7 @@ import {
   IconButton,
   Input,
   NativeSelect,
+  RemovableChip,
   SearchInput,
   SegmentedControl,
   ServingsStepper,
@@ -79,6 +80,7 @@ const filterChips = ['Vegetarian', 'One-pot', 'Under 30 min', 'Italian'];
 
 export const FiltersSection = () => {
   const [pressedChips, setPressedChips] = useState<ReadonlySet<string>>(new Set(['Vegetarian', 'One-pot']));
+  const [isRemovableShown, setIsRemovableShown] = useState(true);
 
   return (
     <StyleguideSection
@@ -95,6 +97,15 @@ export const FiltersSection = () => {
             {chip}
           </FilterChip>
         ))}
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {isRemovableShown ? (
+          <RemovableChip onRemove={() => setIsRemovableShown(false)}>Italian</RemovableChip>
+        ) : (
+          <Button variant="ghost" onClick={() => setIsRemovableShown(true)}>
+            Add it back
+          </Button>
+        )}
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Tag>Vegetarian</Tag>
