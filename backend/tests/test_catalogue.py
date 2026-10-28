@@ -380,6 +380,24 @@ def test_no_recipe_in_the_repos_catalogue_measures_in_cups_ounces_or_pounds() ->
 
 
 @pytest.mark.django_db
+def test_every_ingredient_the_filter_offers_is_used_by_a_recipe_in_the_repos_catalogue() -> None:
+    call_command('load_catalogue')
+
+    used = {
+        line['ingredient']['name']
+        for summary in APIClient().get(reverse('recipe-list')).json()
+        for recipe in [recipe_json(summary['slug'])]
+        for line in [
+            *recipe['ingredient_lines'],
+            *(line for group in recipe['ingredient_groups'] for line in group['lines']),
+        ]
+    }
+    offered = [ingredient['name'] for ingredient in APIClient().get(reverse('ingredient-list')).json()]
+    assert 'olive oil' in offered
+    assert [name for name in offered if name not in used] == []
+
+
+@pytest.mark.django_db
 def test_every_photo_in_the_repos_catalogue_has_a_licence_that_allows_reuse() -> None:
     call_command('load_catalogue')
 
