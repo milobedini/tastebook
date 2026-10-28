@@ -124,13 +124,34 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
+// The list's query string changes with the filters, so the route matches on the path alone.
+const routeRecipeList = (page: Page) =>
+  page.route(
+    (url) => url.pathname === '/api/recipes/',
+    (route) => route.fulfill({ json: [summary] })
+  );
+
 test('the recipe list fits a 375 px phone screen without scrolling sideways', async ({ page }) => {
-  await page.route('**/api/recipes/', (route) => route.fulfill({ json: [summary] }));
+  await routeRecipeList(page);
 
   await page.goto('/recipes');
 
   await expect(page.getByText('19 hr · Hard · British, French')).toBeVisible();
   await expect(page.getByText('Dairy-free')).toBeVisible();
+  expect(await sidewaysScroll(page)).toBe(0);
+});
+
+test('the recipe list with every filter on fits a 375 px phone screen', async ({ page }) => {
+  await routeRecipeList(page);
+
+  await page.goto(
+    '/recipes?cuisine=british&course=main&difficulty=hard&max_total=60&max_prep=45&max_cook=30&one_pot=true'
+  );
+  await page.getByRole('button', { name: 'Filters', exact: true }).click();
+
+  await expect(page.getByRole('button', { name: 'Remove filter: Total up to 60 min' })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Cuisine' }).getByRole('button', { name: 'British' })).toBeVisible();
+  await expect(page.getByText('19 hr · Hard · British, French')).toBeVisible();
   expect(await sidewaysScroll(page)).toBe(0);
 });
 
