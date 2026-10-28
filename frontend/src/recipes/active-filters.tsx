@@ -3,7 +3,7 @@ import { useCourses } from './courses-api';
 import { useCuisines } from './cuisines-api';
 import { difficultyLabels } from './difficulty';
 import type { RecipeFilters } from './recipe-filters';
-import { hasFilters, noFilters, timeFilters } from './recipe-filters';
+import { noFilters, timeFilters } from './recipe-filters';
 
 type Named = { slug: string; name: string };
 
@@ -54,12 +54,13 @@ type ActiveFiltersProps = { filters: RecipeFilters; onChange: (filters: RecipeFi
 export const ActiveFilters = ({ filters, onChange }: ActiveFiltersProps) => {
   const { data: courses } = useCourses();
   const { data: cuisines } = useCuisines();
-  if (!hasFilters(filters)) {
+  const activeFilters = toActiveFilters(filters, courses, cuisines);
+  if (activeFilters.length === 0) {
     return null;
   }
   return (
     <ul aria-label="Filters on" className="flex flex-wrap items-center gap-2">
-      {toActiveFilters(filters, courses, cuisines).map(({ key, label, without }) => (
+      {activeFilters.map(({ key, label, without }) => (
         <li key={key}>
           <RemovableChip onRemove={() => onChange(without)}>{label}</RemovableChip>
         </li>

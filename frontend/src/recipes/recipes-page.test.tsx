@@ -634,6 +634,18 @@ describe('RecipesPage', () => {
     await waitFor(() => expect(filtersOn()).toEqual(['Remove filter: Italian']));
   });
 
+  it('shows no filters on once the only cuisine turns out to be unknown', async () => {
+    const { requested, release } = holdCuisines(() => HttpResponse.json<Cuisine[]>(cuisines));
+    renderRoute('/recipes?cuisine=klingon');
+    await requested;
+
+    expect(filtersOn()).toEqual(['Remove filter: klingon']);
+
+    release();
+
+    await waitFor(() => expect(screen.queryByRole('list', { name: 'Filters on' })).not.toBeInTheDocument());
+  });
+
   it.each([
     ['/recipes?cuisine=italian', 'No recipes match these filters.', ''],
     ['/recipes?q=tart&cuisine=italian', 'No recipes match “tart” with these filters.', '?q=tart']
