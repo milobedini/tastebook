@@ -1655,7 +1655,7 @@
           "amount": 1,
           "amount_max": 2,
           "unit": "tbsp",
-          "ingredient": "caster sugar",
+          "ingredient": "granulated sugar",
           "original_text": "1–2 tbsp white sugar"
         },
         {
@@ -1668,7 +1668,7 @@
           "amount": 200,
           "unit": "g",
           "ingredient": "polenta",
-          "note": "fine cornmeal, yellow or white",
+          "note": "yellow or white cornmeal",
           "original_text": "1 ¼ cups yellow or white cornmeal"
         },
         {
@@ -1680,7 +1680,7 @@
           "amount": 30,
           "amount_max": 45,
           "unit": "g",
-          "ingredient": "unsalted butter",
+          "ingredient": "butter",
           "note": "melted, or pan drippings",
           "original_text": "2–3 tbsp melted butter or pan drippings"
         },
@@ -3923,7 +3923,7 @@
         {
           "amount": 125,
           "unit": "ml",
-          "ingredient": "caster sugar",
+          "ingredient": "granulated sugar",
           "original_text": "125 ml (½ cup) white sugar"
         },
         {
@@ -4046,7 +4046,6 @@
           "amount": 450,
           "unit": "g",
           "ingredient": "dried white beans",
-          "note": "such as cannellini",
           "original_text": "1 pound dried white beans"
         },
         {
@@ -4207,7 +4206,7 @@
       "cuisines": ["Italian"],
       "courses": ["Dessert"],
       "difficulty": "medium",
-      "prep_minutes": 20,
+      "prep_minutes": 15,
       "cook_minutes": 0,
       "extra_minutes": 60,
       "extra_label": "chilling",
@@ -4530,7 +4529,8 @@
               "amount": 275,
               "unit": "g",
               "ingredient": "spinach",
-              "original_text": "10 oz fresh spinach"
+              "original_text": "10 oz fresh spinach",
+              "note": "fresh"
             },
             {
               "amount": 1,
@@ -4650,7 +4650,8 @@
             {
               "amount": 3,
               "ingredient": "eggs",
-              "original_text": "3 eggs, cooked over easy"
+              "original_text": "3 eggs, cooked over easy",
+              "note": "fried over easy"
             },
             {
               "amount": 175,
@@ -5314,7 +5315,7 @@
           "original_text": "Saffron"
         },
         {
-          "ingredient": "caster sugar",
+          "ingredient": "granulated sugar",
           "optional": true,
           "original_text": "Sugar (optional)"
         }
@@ -6195,7 +6196,7 @@
       "cuisines": ["Vietnamese"],
       "courses": ["Main"],
       "difficulty": "easy",
-      "prep_minutes": 20,
+      "prep_minutes": 15,
       "cook_minutes": 0,
       "servings": 4,
       "equipment": [],
