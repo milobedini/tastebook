@@ -3,6 +3,8 @@ import type { components } from '../api/schema';
 type DietTag = components['schemas']['DietTag'];
 type DietTagConflict = components['schemas']['DietTagConflict'];
 
+export const dietTags: DietTag[] = ['vegetarian', 'vegan', 'gluten_free', 'dairy_free'];
+
 export const dietTagLabels: Record<DietTag, string> = {
   vegetarian: 'Vegetarian',
   vegan: 'Vegan',

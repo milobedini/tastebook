@@ -1,6 +1,8 @@
 import type { components } from '../api/schema';
+import { dietTags } from './diet-tags';
 import { difficulties } from './difficulty';
 
+type DietTag = components['schemas']['DietTag'];
 type Difficulty = components['schemas']['DifficultyEnum'];
 
 export const timeLimits = [15, 30, 45, 60] as const;
@@ -20,6 +22,9 @@ export type RecipeFilters = {
   difficulties: Difficulty[];
   times: Record<TimeFilterName, TimeLimit | null>;
   onePot: boolean;
+  diets: DietTag[];
+  includedIngredients: string[];
+  excludedIngredients: string[];
 };
 
 export const noFilters: RecipeFilters = {
@@ -27,12 +32,26 @@ export const noFilters: RecipeFilters = {
   courses: [],
   difficulties: [],
   times: { total: null, prep: null, cook: null },
-  onePot: false
+  onePot: false,
+  diets: [],
+  includedIngredients: [],
+  excludedIngredients: []
 };
 
-const filterParams = ['cuisine', 'course', 'difficulty', ...timeFilters.map(({ param }) => param), 'one_pot'];
+const filterParams = [
+  'cuisine',
+  'course',
+  'difficulty',
+  ...timeFilters.map(({ param }) => param),
+  'one_pot',
+  'diet',
+  'include_ingredient',
+  'exclude_ingredient'
+];
 
 const unique = <T>(values: T[]) => [...new Set(values)];
+
+const isDietTag = (value: string): value is DietTag => dietTags.some((tag) => tag === value);
 
 const isDifficulty = (value: string): value is Difficulty => difficulties.some((difficulty) => difficulty === value);
 
@@ -53,7 +72,10 @@ export const readFilters = (params: URLSearchParams): RecipeFilters => ({
     prep: readTimeLimit(params.get('max_prep')),
     cook: readTimeLimit(params.get('max_cook'))
   },
-  onePot: params.get('one_pot') === 'true'
+  onePot: params.get('one_pot') === 'true',
+  diets: unique(params.getAll('diet').filter(isDietTag)),
+  includedIngredients: unique(params.getAll('include_ingredient').filter((slug) => slug !== '')),
+  excludedIngredients: unique(params.getAll('exclude_ingredient').filter((slug) => slug !== ''))
 });
 
 // Replaces only the filter parameters, so the search and anything else stay where they were.
@@ -67,7 +89,10 @@ export const writeFilters = (params: URLSearchParams, filters: RecipeFilters): U
       const limit = filters.times[name];
       return limit === null ? [] : [[param, String(limit)]];
     }),
-    ...(filters.onePot ? [['one_pot', 'true']] : [])
+    ...(filters.onePot ? [['one_pot', 'true']] : []),
+    ...filters.diets.map((diet) => ['diet', diet]),
+    ...filters.includedIngredients.map((slug) => ['include_ingredient', slug]),
+    ...filters.excludedIngredients.map((slug) => ['exclude_ingredient', slug])
   ];
   return new URLSearchParams([...kept, ...entries]);
 };
@@ -77,7 +102,10 @@ export const hasFilters = (filters: RecipeFilters) =>
   filters.courses.length > 0 ||
   filters.difficulties.length > 0 ||
   Object.values(filters.times).some((limit) => limit !== null) ||
-  filters.onePot;
+  filters.onePot ||
+  filters.diets.length > 0 ||
+  filters.includedIngredients.length > 0 ||
+  filters.excludedIngredients.length > 0;
 
 export const toggled = <T>(values: T[], value: T) =>
   values.includes(value) ? values.filter((item) => item !== value) : [...values, value];

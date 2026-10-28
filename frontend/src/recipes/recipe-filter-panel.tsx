@@ -1,9 +1,13 @@
+import type { UseQueryResult } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 
 import { Banner, Button, FilterChip } from '../ui';
 import { useCourses } from './courses-api';
 import { useCuisines } from './cuisines-api';
+import { dietTagLabels, dietTags } from './diet-tags';
 import { difficulties, difficultyLabels } from './difficulty';
+import { IngredientPicker } from './ingredient-picker';
+import { useIngredients } from './ingredients-api';
 import type { RecipeFilters, TimeFilterName } from './recipe-filters';
 import { timeFilters, timeLimits, toggled } from './recipe-filters';
 
@@ -78,59 +82,65 @@ const DifficultyGroup = ({ filters, onChange }: FilterChangeProps) => (
   </FilterGroup>
 );
 
-const CourseGroup = ({ filters, onChange }: FilterChangeProps) => {
-  const { data: courses, isPending, refetch } = useCourses();
-  const content = () => {
-    if (courses !== undefined) {
-      return (
-        <ChoiceChips
-          choices={courses.map(({ slug, name }) => ({ value: slug, label: name }))}
-          selected={filters.courses}
-          onChange={(selected) => onChange({ ...filters, courses: selected })}
-        />
-      );
-    }
-    // Refetching a query that has never succeeded resets it to pending, so "Load courses again" shows this too.
-    if (isPending) {
-      return <p>Loading courses…</p>;
-    }
-    return (
-      <GroupUnavailable
-        title="The courses couldn't be loaded."
-        retryLabel="Load courses again"
-        onRetry={() => void refetch()}
-      />
-    );
-  };
-  return <FilterGroup legend="Course">{content()}</FilterGroup>;
+type QueryGroupProps<T> = {
+  legend: string;
+  query: UseQueryResult<T>;
+  loading: string;
+  errorTitle: string;
+  retryLabel: string;
+  children: (data: T) => ReactNode;
 };
 
-const CuisineGroup = ({ filters, onChange }: FilterChangeProps) => {
-  const { data: cuisines, isPending, refetch } = useCuisines();
+const QueryGroup = <T,>({ legend, query, loading, errorTitle, retryLabel, children }: QueryGroupProps<T>) => {
+  const { data, isPending, refetch } = query;
   const content = () => {
-    if (cuisines !== undefined) {
-      return (
-        <ChoiceChips
-          choices={cuisines.map(({ slug, name }) => ({ value: slug, label: name }))}
-          selected={filters.cuisines}
-          onChange={(selected) => onChange({ ...filters, cuisines: selected })}
-        />
-      );
+    if (data !== undefined) {
+      return children(data);
     }
-    // Refetching a query that has never succeeded resets it to pending, so "Load cuisines again" shows this too.
+    // Refetching a query that has never succeeded resets it to pending, so the retry shows the loading text too.
     if (isPending) {
-      return <p>Loading cuisines…</p>;
+      return <p>{loading}</p>;
     }
-    return (
-      <GroupUnavailable
-        title="The cuisines couldn't be loaded."
-        retryLabel="Load cuisines again"
-        onRetry={() => void refetch()}
-      />
-    );
+    return <GroupUnavailable title={errorTitle} retryLabel={retryLabel} onRetry={() => void refetch()} />;
   };
-  return <FilterGroup legend="Cuisine">{content()}</FilterGroup>;
+  return <FilterGroup legend={legend}>{content()}</FilterGroup>;
 };
+
+const CourseGroup = ({ filters, onChange }: FilterChangeProps) => (
+  <QueryGroup
+    legend="Course"
+    query={useCourses()}
+    loading="Loading courses…"
+    errorTitle="The courses couldn't be loaded."
+    retryLabel="Load courses again"
+  >
+    {(courses) => (
+      <ChoiceChips
+        choices={courses.map(({ slug, name }) => ({ value: slug, label: name }))}
+        selected={filters.courses}
+        onChange={(selected) => onChange({ ...filters, courses: selected })}
+      />
+    )}
+  </QueryGroup>
+);
+
+const CuisineGroup = ({ filters, onChange }: FilterChangeProps) => (
+  <QueryGroup
+    legend="Cuisine"
+    query={useCuisines()}
+    loading="Loading cuisines…"
+    errorTitle="The cuisines couldn't be loaded."
+    retryLabel="Load cuisines again"
+  >
+    {(cuisines) => (
+      <ChoiceChips
+        choices={cuisines.map(({ slug, name }) => ({ value: slug, label: name }))}
+        selected={filters.cuisines}
+        onChange={(selected) => onChange({ ...filters, cuisines: selected })}
+      />
+    )}
+  </QueryGroup>
+);
 
 const OnePotGroup = ({ filters, onChange }: FilterChangeProps) => (
   <FilterGroup legend="One-pot">
@@ -139,6 +149,51 @@ const OnePotGroup = ({ filters, onChange }: FilterChangeProps) => (
     </FilterChip>
   </FilterGroup>
 );
+
+const dietChoices = dietTags.map((tag) => ({ value: tag, label: dietTagLabels[tag] }));
+
+// Every diet picked must hold, so the chips toggle independently.
+const DietGroup = ({ filters, onChange }: FilterChangeProps) => (
+  <FilterGroup legend="Diet">
+    <ChoiceChips
+      choices={dietChoices}
+      selected={filters.diets}
+      onChange={(selected) => onChange({ ...filters, diets: selected })}
+    />
+  </FilterGroup>
+);
+
+const IngredientFilterGroup = ({ filters, onChange }: FilterChangeProps) => {
+  // An ingredient picked in one list isn't offered in either, so it can't be both included and excluded.
+  const picked = [...filters.includedIngredients, ...filters.excludedIngredients];
+  return (
+    <QueryGroup
+      legend="Ingredients"
+      query={useIngredients()}
+      loading="Loading ingredients…"
+      errorTitle="The ingredients couldn't be loaded."
+      retryLabel="Load ingredients again"
+    >
+      {(ingredients) => {
+        const unpicked = ingredients.filter(({ slug }) => !picked.includes(slug));
+        return (
+          <>
+            <IngredientPicker
+              label="Include an ingredient"
+              ingredients={unpicked}
+              onPick={(slug) => onChange({ ...filters, includedIngredients: [...filters.includedIngredients, slug] })}
+            />
+            <IngredientPicker
+              label="Exclude an ingredient"
+              ingredients={unpicked}
+              onPick={(slug) => onChange({ ...filters, excludedIngredients: [...filters.excludedIngredients, slug] })}
+            />
+          </>
+        );
+      }}
+    </QueryGroup>
+  );
+};
 
 type RecipeFilterPanelProps = FilterChangeProps & { id: string };
 
@@ -151,5 +206,7 @@ export const RecipeFilterPanel = ({ id, filters, onChange }: RecipeFilterPanelPr
     <CourseGroup filters={filters} onChange={onChange} />
     <CuisineGroup filters={filters} onChange={onChange} />
     <OnePotGroup filters={filters} onChange={onChange} />
+    <DietGroup filters={filters} onChange={onChange} />
+    <IngredientFilterGroup filters={filters} onChange={onChange} />
   </div>
 );

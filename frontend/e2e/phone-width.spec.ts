@@ -155,6 +155,29 @@ test('the recipe list with every filter on fits a 375 px phone screen', async ({
   expect(await sidewaysScroll(page)).toBe(0);
 });
 
+test('the recipe list with diet and ingredient filters fits a 375 px phone screen', async ({ page }) => {
+  await routeRecipeList(page);
+  // The included ingredient isn't offered again, so a second one is left for the open picker to show.
+  await page.route('**/api/ingredients/', (route) =>
+    route.fulfill({
+      json: [
+        { slug: 'flat-leaf-parsley', name: 'flat-leaf parsley', synonyms: ['continental parsley', 'Italian parsley'] },
+        { slug: 'natural-yoghurt', name: 'natural yoghurt', synonyms: ['plain yogurt'] }
+      ]
+    })
+  );
+
+  await page.goto('/recipes?diet=vegetarian&diet=gluten_free&include_ingredient=natural-yoghurt');
+  await page.getByRole('button', { name: 'Filters', exact: true }).click();
+  await page.getByRole('button', { name: 'Exclude an ingredient' }).click();
+
+  await expect(page.getByRole('button', { name: 'Remove filter: With natural yoghurt' })).toBeVisible();
+  await expect(
+    page.getByRole('option', { name: 'flat-leaf parsley · also continental parsley, Italian parsley' })
+  ).toBeVisible();
+  expect(await sidewaysScroll(page)).toBe(0);
+});
+
 test('a recipe page fits a 375 px phone screen without scrolling sideways', async ({ page }) => {
   await page.route(`**/api/recipes/${recipe.slug}/`, (route) => route.fulfill({ json: recipe }));
 
