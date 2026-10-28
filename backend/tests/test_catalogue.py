@@ -116,7 +116,7 @@ def test_loads_the_repos_catalogue_in_place_of_the_recipes_already_there() -> No
     call_command('load_catalogue')
 
     loaded = titles()
-    assert len(loaded) == 55
+    assert len(loaded) == 105
     assert [title for title in loaded if title in HAND_WRITTEN] == HAND_WRITTEN
     assert 'Typed in the admin' not in loaded
 
@@ -357,7 +357,7 @@ def test_every_wikibooks_recipe_is_credited_and_links_to_its_page() -> None:
     call_command('load_catalogue')
 
     recipes = wikibooks_recipes()
-    assert len(recipes) == 50
+    assert len(recipes) == 100
     assert {recipe['source'] for recipe in recipes} == {CREDIT}
     assert [recipe['slug'] for recipe in recipes if not WIKIBOOKS_PAGE.match(recipe['source_url'])] == []
 
@@ -421,16 +421,16 @@ def test_the_shortlist_holds_about_300_wikibooks_pages_spread_across_cuisines() 
     assert set(per_cuisine) <= cuisines
     assert {entry['course'] for entry in shortlist} <= {'Baking', 'Breakfast', 'Dessert', 'Main', 'Side'}
     assert [cuisine for cuisine, count in per_cuisine.items() if count > 40] == []
-    assert len([entry for entry in shortlist if entry['batch'] == 1]) == 50
+    assert Counter(entry['batch'] for entry in shortlist if entry['batch'] is not None) == {1: 50, 2: 50}
 
 
 @pytest.mark.django_db
-def test_the_catalogue_holds_the_shortlists_first_batch() -> None:
+def test_the_catalogue_holds_the_shortlists_batches() -> None:
     call_command('load_catalogue')
 
     shortlist = json.loads(SHORTLIST.read_text(encoding='utf-8'))
     assert {recipe['source_url'] for recipe in wikibooks_recipes()} == {
-        entry['page'] for entry in shortlist if entry['batch'] == 1
+        entry['page'] for entry in shortlist if entry['batch'] is not None
     }
 
 
