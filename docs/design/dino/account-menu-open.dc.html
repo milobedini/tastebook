@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>The account menu, open</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.frame{position:relative;background:var(--color-ground);border:1px solid var(--color-line);border-radius:20px;overflow:hidden;flex-shrink:0}
+.bar{border-bottom:1px solid var(--color-line)}
+.in{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:minmax(76px,auto);align-items:center;column-gap:8px;padding:0 20px;box-sizing:border-box}
+.in.wide{column-gap:24px;padding:0 32px;max-width:1200px;margin:0 auto}
+.wmk{display:inline-flex;align-items:center;min-height:44px;font-family:var(--font-serif);font-size:34px;line-height:36px;font-style:italic;color:var(--color-ink);text-decoration:none}
+.av{width:44px;height:44px;padding:0;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-surface);color:var(--color-ink);display:inline-grid;place-items:center;font-family:var(--font-sans);font-size:19px;line-height:24px;font-weight:800;cursor:pointer}
+.av.open{background:var(--color-line);border-color:var(--color-ink)}
+.sf{width:360px}
+.page{padding:32px 20px;display:flex;flex-direction:column;gap:16px}
+.page.wide{padding:32px;max-width:1200px;margin:0 auto;box-sizing:border-box}
+.page h1{margin:0}
+.menu{position:absolute;min-width:224px;max-width:320px;box-sizing:border-box;background:var(--color-surface);border:2px solid var(--color-field);border-radius:var(--radius-card);padding:6px;display:flex;flex-direction:column;gap:2px;color:var(--color-ink)}
+.mh{padding:10px 14px 8px;font-size:15px;line-height:20px;font-weight:800;overflow-wrap:anywhere}
+.sep{border-top:1px solid var(--color-line);margin:2px 8px 4px}
+.mi{min-height:44px;display:flex;align-items:center;box-sizing:border-box;padding:10px 14px;border-radius:var(--radius-option);font-size:16px;line-height:24px;font-weight:600;color:var(--color-ink);text-decoration:none;cursor:pointer}
+.mi.hl{background:var(--color-line)}
+.mi.fv{background:var(--color-line);outline:3px solid var(--color-ink);outline-offset:-3px}
+.col{display:flex;flex-direction:column;gap:10px}
+.notes{display:flex;flex-direction:column;gap:12px;max-width:560px}
+.notes p{margin:0;font-size:15px;line-height:22px;font-weight:600}
+.notes p b{font-weight:800}
+</style>
+</helmet>
+<div style="width: 1840px; height: 900px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">TAS-101 · the account menu, open</span>
+    <h1 class="ttl">One press away: the name, then the items</h1>
+    <span class="cap">The menu drops 8 px below the avatar, its right edge in line with the avatar’s. It fades in over 150 ms (not at all with reduced motion) and doesn’t dim the page.</span>
+  </header>
+
+  <div style="display: flex; gap: 48px; align-items: flex-start">
+
+    <div class="col">
+      <span class="cap"><b>Opened from the keyboard</b> · 390 px · focus on the first item</span>
+      <div class="frame" style="width: 390px; height: 380px">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av open" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="true"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <div class="page">
+          <h1>What shall we <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">cook</x-import> tonight?</h1>
+          <span class="cap">24 recipes</span>
+        </div>
+        <div class="menu" role="menu" aria-label="Milo Bedini" style="top: 68px; right: 20px">
+          <div class="mh">Milo Bedini</div>
+          <div class="sep" aria-hidden="true"></div>
+          <a href="#" class="mi fv" role="menuitem">Account</a>
+          <div class="mi" role="menuitem" tabindex="-1">Sign out</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Opened with the pointer</b> · laptop, 1280 px · pointer over Sign out</span>
+      <div class="frame" style="width: 1280px; height: 380px">
+        <header class="bar"><div class="in wide">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <div class="sf"><x-import component-from-global-scope="Dino.SearchInput" value="" on-value-change="{{noop}}" placeholder="Search recipes" aria-label="Search recipes"></x-import></div>
+          <button type="button" class="av open" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="true"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <div class="page wide">
+          <h1>What shall we <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">cook</x-import> tonight?</h1>
+          <span class="cap">24 recipes</span>
+        </div>
+        <div class="menu" role="menu" aria-label="Milo Bedini" style="top: 68px; right: 72px">
+          <div class="mh">Milo Bedini</div>
+          <div class="sep" aria-hidden="true"></div>
+          <a href="#" class="mi" role="menuitem">Account</a>
+          <div class="mi hl" role="menuitem" tabindex="-1">Sign out</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <p><b>Keyboard:</b> Enter, Space or Down opens the menu on the first item, Up on the last; Up and Down move, Home and End jump, a letter jumps to its item. Escape or choosing an item closes it and puts focus back on the avatar; Tab closes it.</p>
+    <p><b>Pointer:</b> the item under the pointer fills with Line, with no ring; the ring is for the keyboard.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1840,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { icons: window.Dino.icons, yes: true, noop: function () {} };
+  }
+}
+</script>
+</body>
+</html>

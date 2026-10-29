@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Menu</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.sec{margin:0;font-family:var(--font-serif);font-size:28px;line-height:30px;font-style:italic;font-weight:400}
+.menu{width:240px;box-sizing:border-box;background:var(--color-surface);border:2px solid var(--color-field);border-radius:var(--radius-card);padding:6px;display:flex;flex-direction:column;gap:2px;color:var(--color-ink)}
+.mh{padding:10px 14px 8px;font-size:15px;line-height:20px;font-weight:800;overflow-wrap:anywhere}
+.sep{border-top:1px solid var(--color-line);margin:2px 8px 4px}
+.mi{min-height:44px;display:flex;align-items:center;box-sizing:border-box;padding:10px 14px;border-radius:var(--radius-option);font-size:16px;line-height:24px;font-weight:600;color:var(--color-ink);text-decoration:none;cursor:pointer}
+.mi.hl{background:var(--color-line)}
+.mi.pr{background:var(--color-surface-pressed)}
+.mi.fv{background:var(--color-line);outline:3px solid var(--color-ink);outline-offset:-3px}
+.cell{display:flex;flex-direction:column;gap:12px}
+.cell p{margin:0;font-size:13px;line-height:18px;font-weight:700;color:var(--color-muted);max-width:240px}
+.cell .nm{font-size:15px;line-height:20px;font-weight:800;color:var(--color-ink)}
+.row{display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap}
+.spec{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;max-width:620px}
+.spec li{font-size:15px;line-height:22px;font-weight:600}
+.spec b{font-weight:800}
+code{font-family:inherit;font-weight:800}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1100px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 36px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">Dino · new component</span>
+    <h1 class="ttl">Menu</h1>
+    <span class="cap">A short list of things to go to or do, opened from a button: an optional heading, then the items. The account menu is its first use; it knows nothing about accounts.</span>
+  </header>
+
+  <div class="row" style="gap: 56px">
+    <div class="menu" role="menu" aria-label="Milo Bedini">
+      <div class="mh">Milo Bedini</div>
+      <div class="sep" aria-hidden="true"></div>
+      <a href="#" class="mi" role="menuitem">Account</a>
+      <div class="mi" role="menuitem" tabindex="-1">Sign out</div>
+    </div>
+    <ul class="spec">
+      <li><b>Panel:</b> Surface, a 2 px Field border (like the combobox’s list), <code>radius-card</code> (24 px), 6 px padding, 2 px between items. No shadow: the lift is only for polaroids, the dock and sheets.</li>
+      <li><b>Width:</b> at least 224 px, at most 320 px, and never closer than 20 px to the screen’s edge.</li>
+      <li><b>Heading:</b> Label (Nunito 15 / 20, 800) in Ink, 10 / 14 / 8 px padding, then a Line hairline. Text, not an item: arrow keys skip it. A long one wraps, never truncates.</li>
+      <li><b>Items:</b> Body (Nunito 16 / 24, 600) in Ink, at least 44 px tall, 10 × 14 px padding, <code>radius-option</code> (16 px: the panel’s 24 less its border and padding). A link item goes somewhere; an action item does something.</li>
+      <li><b>Motion:</b> fades in and out over 150 ms ease-out; none with reduced motion.</li>
+    </ul>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 16px">
+    <h2 class="sec">An item’s states</h2>
+    <div class="row">
+      <div class="cell">
+        <div class="menu"><div class="mi" role="menuitem">Account</div><div class="mi" role="menuitem">Sign out</div></div>
+        <span class="nm">Rest</span><p>No fill</p>
+      </div>
+      <div class="cell">
+        <div class="menu"><div class="mi hl" role="menuitem">Account</div><div class="mi" role="menuitem">Sign out</div></div>
+        <span class="nm">Hover</span><p>Under the pointer: a Line fill, no ring</p>
+      </div>
+      <div class="cell">
+        <div class="menu"><div class="mi pr" role="menuitem">Account</div><div class="mi" role="menuitem">Sign out</div></div>
+        <span class="nm">Pressed</span><p>Surface pressed. Items don’t shrink: the panel holds still while you choose</p>
+      </div>
+      <div class="cell">
+        <div class="menu"><div class="mi fv" role="menuitem">Account</div><div class="mi" role="menuitem">Sign out</div></div>
+        <span class="nm">Focus</span><p>From the keyboard: a Line fill and a 3 px Ink ring on the item’s own edge</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 16px">
+    <h2 class="sec">Variants</h2>
+    <div class="row">
+      <div class="cell">
+        <div class="menu"><div class="mi fv" role="menuitem">Account</div><div class="mi" role="menuitem">Sign out</div></div>
+        <span class="nm">No heading</span><p>An account with no name yet: the items alone</p>
+      </div>
+      <div class="cell">
+        <div class="menu"><div class="mh">Margaret Featherstonehaugh-Whittingham</div><div class="sep" aria-hidden="true"></div><div class="mi" role="menuitem">Account</div><div class="mi" role="menuitem">Sign out</div></div>
+        <span class="nm">A long heading</span><p>Wraps rather than being cut short</p>
+      </div>
+      <div class="cell" style="max-width: 420px">
+        <span class="nm">Grows into</span>
+        <p style="max-width: 420px">An icon before each item’s label, hairlines between groups of items, and a danger item for an action that destroys something (in Danger, naming the action). None is in this issue: the account menu needs none of them.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

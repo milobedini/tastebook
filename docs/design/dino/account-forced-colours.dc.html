@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Account end under forced colours</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.hc{--canvas:#000000;--text:#ffffff;--hl:#1aebff;background:var(--canvas);color:var(--text);border-radius:16px;padding:16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-family:var(--font-sans);font-weight:800;font-size:15px;line-height:20px;min-height:52px}
+.hc .wm{font-family:var(--font-serif);font-size:34px;line-height:36px;font-style:italic;font-weight:400;margin-right:auto}
+.hc .c{width:44px;height:44px;box-sizing:border-box;border:2px solid var(--text);border-radius:999px;display:inline-grid;place-items:center;font-size:19px;line-height:24px;font-weight:800;color:var(--text);background:transparent;padding:0}
+.hc .b{height:44px;padding:0 20px;border-radius:999px;border:2px solid var(--text);box-sizing:border-box;display:inline-flex;align-items:center;background:transparent;color:var(--text);font:inherit;white-space:nowrap;text-decoration:none}
+.hc .ring{outline:3px solid var(--hl);outline-offset:0}
+.hc .menu{width:240px;box-sizing:border-box;border:2px solid var(--text);border-radius:24px;padding:6px;display:flex;flex-direction:column;gap:2px}
+.hc .mh{padding:10px 14px 8px}
+.hc .sep{border-top:1px solid var(--text);margin:2px 8px 4px}
+.hc .mi{min-height:44px;display:flex;align-items:center;box-sizing:border-box;padding:10px 14px;border-radius:16px;font-weight:600;font-size:16px;line-height:24px;color:var(--text);text-decoration:none}
+.hc .mi.ring{outline-offset:-3px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:20px;align-items:start}
+.txt{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.name{font-weight:800;font-size:16px;line-height:22px}
+.v{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:13px;font-size:13px;font-weight:800;color:var(--color-on-pastel);border:2px solid transparent;box-sizing:border-box}
+.ok{background:var(--color-success)}
+.fix{background:var(--color-warning)}
+.note{margin:0;font-size:13px;line-height:18px;font-weight:700;color:var(--color-muted)}
+.pair{display:flex;flex-direction:column;gap:8px;min-width:0}
+.tag{font-size:12px;line-height:16px;font-weight:800;color:var(--color-muted)}
+code{font-family:inherit;font-weight:800}
+</style>
+</helmet>
+<div style="width: 1320px; height: 1000px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">TAS-101 · forced colours</span>
+    <h1 class="ttl">The account end in High Contrast</h1>
+    <span class="cap">Simulated in Windows’ High Contrast Black: fills drop; text, borders and outlines take the system’s colours (CanvasText white, Highlight cyan).</span>
+  </header>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 56px">
+
+    <div class="row">
+      <div class="hc"><span class="wm">Tastebook</span><span class="c" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></span><button type="button" class="c" aria-label="Account for Milo Bedini">M</button></div>
+      <div class="txt"><span class="name">Signed in</span><span class="v ok">Holds</span><p class="note">The avatar’s 2 px transparent border is drawn, so it’s a circle like search beside it.</p></div>
+    </div>
+
+    <div class="row">
+      <div class="hc"><span class="wm">Tastebook</span><span class="c" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></span><a href="#" class="b">Sign in</a></div>
+      <div class="txt"><span class="name">Signed out</span><span class="v ok">Holds</span><p class="note">Sign in keeps the secondary Button’s outline.</p></div>
+    </div>
+
+    <div class="row">
+      <div class="hc"><button type="button" class="c ring" aria-label="Account for Milo Bedini">M</button><button type="button" class="c" aria-label="Account"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg></button><button type="button" class="c ring" aria-label="Account"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg></button></div>
+      <div class="txt"><span class="name">Avatar focus, and no name</span><span class="v ok">Holds</span><p class="note">The ring is an outline, so it shows in Highlight. The person icon is drawn in currentColor from an HTML wrapper, so it takes the text colour.</p></div>
+    </div>
+
+    <div class="row">
+      <div class="hc" style="align-items: flex-start">
+        <div class="menu" role="menu" aria-label="Milo Bedini"><div class="mh">Milo Bedini</div><div class="sep" aria-hidden="true"></div><a href="#" class="mi ring" role="menuitem">Account</a><div class="mi" role="menuitem">Sign out</div></div>
+      </div>
+      <div class="txt"><span class="name">Open menu, focus on Account</span><span class="v ok">Holds</span><p class="note">The panel keeps its 2 px border and the focused item its ring. The hairline under the heading is a 1 px top border, not a fill, so it’s drawn too.</p></div>
+    </div>
+
+    <div class="row">
+      <div class="pair">
+        <span class="tag">With the Line fill alone</span>
+        <div class="hc" style="align-items: flex-start"><div class="menu"><div class="mi">Account</div><div class="mi">Sign out</div></div></div>
+        <span class="tag">Designed</span>
+        <div class="hc" style="align-items: flex-start"><div class="menu"><div class="mi">Account</div><div class="mi ring">Sign out</div></div></div>
+      </div>
+      <div class="txt"><span class="name">Item under the pointer</span><span class="v fix">Designed for</span><p class="note">Its Line fill drops, so nothing would show which item a click picks. Under forced colours the highlighted item also takes the 3 px Highlight ring.</p></div>
+    </div>
+
+    <div class="row">
+      <div class="hc"><span class="wm">Tastebook</span><button type="button" class="c" aria-label="Account for Milo Bedini" aria-expanded="true">M</button></div>
+      <div class="txt"><span class="name">Avatar expanded</span><span class="v ok">Holds</span><p class="note">Looks as at rest here: its Ink border is drawn either way. The open menu below it, and <code>aria-expanded</code>, say it’s open.</p></div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

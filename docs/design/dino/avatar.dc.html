@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Avatar</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.sec{margin:0;font-family:var(--font-serif);font-size:28px;line-height:30px;font-style:italic;font-weight:400}
+.av{width:44px;height:44px;padding:0;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-surface);color:var(--color-ink);display:inline-grid;place-items:center;font-family:var(--font-sans);font-size:19px;line-height:24px;font-weight:800;cursor:pointer}
+.av.hover{background:var(--color-line)}
+.av.pressed{background:var(--color-surface-pressed);transform:scale(0.94)}
+.av.focus{outline:3px solid var(--color-ink);outline-offset:0}
+.av.open{background:var(--color-line);border-color:var(--color-ink)}
+.av.big{width:132px;height:132px;border-width:6px;font-size:57px;line-height:72px}
+.cell{display:flex;flex-direction:column;align-items:flex-start;gap:12px;width:150px}
+.cell p{margin:0;font-size:13px;line-height:18px;font-weight:700;color:var(--color-muted)}
+.cell .nm{font-size:15px;line-height:20px;font-weight:800;color:var(--color-ink)}
+.grid{display:flex;gap:24px;flex-wrap:wrap}
+.panel{border:1px solid var(--color-line);border-radius:var(--radius-card);padding:28px;display:flex;flex-direction:column;gap:20px}
+.spec{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.spec li{font-size:15px;line-height:22px;font-weight:600}
+.spec b{font-weight:800}
+code{font-family:inherit;font-weight:800}
+</style>
+</helmet>
+<div style="width: 1240px; height: 900px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 32px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">Dino · new component</span>
+    <h1 class="ttl">Avatar</h1>
+    <span class="cap">The first letter of a name in a Surface circle. Decorative: the control it sits in carries the name (“Account for Milo Bedini”).</span>
+  </header>
+
+  <div style="display: flex; gap: 40px; align-items: flex-start">
+    <div class="panel" style="flex-direction: row; gap: 32px; align-items: center">
+      <span class="av big" aria-hidden="true">M</span>
+      <ul class="spec">
+        <li><b>44 px circle</b> (<code>radius-pill</code>), one size</li>
+        <li><b>Surface</b> fill, 2 px transparent border</li>
+        <li><b>Label L</b> (Nunito 19 / 24, 800) in <b>Ink</b>: 14.2 : 1</li>
+        <li>The first character of the trimmed name, upper-cased</li>
+        <li>Never peach, mint, butter or pink</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <span class="cap"><b>Beside search</b>: the same circle, so the bar’s end reads as one pair</span>
+      <div style="display: flex; gap: 8px; align-items: center">
+        <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+        <span class="av" aria-hidden="true">M</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 16px">
+    <h2 class="sec">What it shows</h2>
+    <div class="grid">
+      <div class="cell"><span class="av" aria-hidden="true">M</span><span class="nm">Milo Bedini</span><p>First letter</p></div>
+      <div class="cell"><span class="av" aria-hidden="true">É</span><span class="nm">“  émile”</span><p>Trimmed and upper-cased in the reader’s locale</p></div>
+      <div class="cell"><span class="av" aria-hidden="true">Ł</span><span class="nm">łucja</span><p>Any letter, accents and all, taken whole</p></div>
+      <div class="cell"><span class="av" aria-hidden="true"><x-import component-from-global-scope="Dino.icons.UserRound" size="{{n20}}" stroke-width="{{w}}" aria-hidden="true"></x-import></span><span class="nm">No name yet</span><p>Lucide UserRound, 20 px, 2.5 stroke, in <b style="color: var(--color-ink)">currentColor</b>; the button is named “Account”</p></div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 16px">
+    <h2 class="sec">As the account button</h2>
+    <div class="grid">
+      <div class="cell"><button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button><span class="nm">Rest</span><p>Surface</p></div>
+      <div class="cell"><button type="button" class="av hover" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button><span class="nm">Hover</span><p>Fills with Line, as an icon button</p></div>
+      <div class="cell"><button type="button" class="av pressed" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button><span class="nm">Pressed</span><p>Shrinks to 94%, Surface pressed</p></div>
+      <div class="cell"><button type="button" class="av focus" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button><span class="nm">Focus</span><p>3 px Ink ring, flush with the circle</p></div>
+      <div class="cell"><button type="button" class="av open" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="true"><span aria-hidden="true">M</span></button><span class="nm">Expanded</span><p>Menu open: Line fill, its border turns Ink</p></div>
+      <div class="cell"><button type="button" class="av focus" aria-label="Account" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true"><x-import component-from-global-scope="Dino.icons.UserRound" size="{{n20}}" stroke-width="{{w}}" aria-hidden="true"></x-import></span></button><span class="nm">No name, focus</span><p>The icon takes the same states</p></div>
+    </div>
+  </div>
+
+  <span class="cap"><b>Grows into</b> another size for a household’s members, and a photo, when their designs need them; neither is in this issue. State changes take 120 ms; reduced motion turns them off.</span>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1240,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { icons: window.Dino.icons, n20: 20, w: 2.5 };
+  }
+}
+</script>
+</body>
+</html>
