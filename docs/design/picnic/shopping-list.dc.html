@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Picnic: shopping list</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.t-dark{--stage:#0b0716;--bg:#1c1233;--surface:#2a1d47;--sheet:#2a1d47;--fg:#fff4ea;--muted:#cbbfe0;--field:#8f7fb0;--dock:#fff4ea;--dock-fg:#2a1440;--pop:#ffb38a;--scrim:rgb(8 4 18 / 0.66)}
+.t-dark{--paper:#fff8ef;--ink:#2a1440;--peach:#ffb38a;--mint:#8fe3c0;--butter:#ffe08a;--pink:#ff9fc6;--tape:rgb(255 224 138 / 0.85)}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.polaroid{background:var(--paper);color:var(--ink);box-shadow:0 8px 20px rgb(0 0 0 / 0.3);position:relative}
+.box{width:28px;height:28px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
+.row{display:flex;align-items:center;gap:12px;min-height:48px;width:100%;border:0;background:transparent;color:var(--fg);font:700 16px Nunito,sans-serif;text-align:left;padding:0}
+.sticker{align-self:flex-start;color:var(--ink);font:800 13px Nunito,sans-serif;padding:6px 12px;border-radius:16px}
+input::placeholder{color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</helmet>
+<div class="{{theme}}" style="width: 820px; height: 844px; display: flex; gap: 40px; background: var(--stage); font-family: Nunito, system-ui, sans-serif; color: var(--fg)">
+
+<!-- The list -->
+<div style="width: 390px; height: 844px; border-radius: 44px; overflow: hidden; position: relative; background: var(--bg); display: flex; flex-direction: column">
+  <div style="padding: 54px 20px 0; display: flex; justify-content: space-between; align-items: flex-start">
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <h1 class="serif" style="margin: 0; font-size: 46px; line-height: 46px; font-style: italic; position: relative; align-self: flex-start">Shopping<svg aria-hidden="true" width="120" height="12" viewBox="0 0 120 12" style="position: absolute; left: 0; bottom: -8px"><path d="M2 7c7-5 12-5 19 0s12 5 19 0 12-5 19 0 12 5 19 0 12-5 19 0 12 5 19 0" fill="none" stroke="var(--pop)" stroke-width="3" stroke-linecap="round"></path></svg></h1>
+      <span style="font-size: 14px; font-weight: 700; color: var(--muted)">22 things for 2 recipes · 3 in the basket</span>
+    </div>
+    <button type="button" aria-label="Shared with the household" style="width: 44px; height: 44px; border-radius: 22px; border: 0; background: var(--peach); color: var(--ink); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg></button>
+  </div>
+  <div style="padding: 20px 20px 0; display: flex; gap: 14px; align-items: flex-start">
+    <a href="#" class="polaroid" style="width: 92px; padding: 6px 6px 0; box-sizing: border-box; transform: rotate(-3deg); text-decoration: none; display: block">
+      <img src="/_blob/4813334b2e4d4668bff2289c284b3d45" alt="" style="width: 80px; height: 60px; object-fit: cover; display: block">
+      <span class="serif" style="display: block; padding: 3px 0 5px; font-size: 15px; line-height: 16px; font-style: italic">Chana masala</span>
+    </a>
+    <a href="#" class="polaroid" style="width: 92px; padding: 6px 6px 0; box-sizing: border-box; transform: rotate(2.5deg); text-decoration: none; display: block">
+      <img src="/_blob/3e7f4885a57eb8a69b47f14625bcf9b9" alt="" style="width: 80px; height: 60px; object-fit: cover; display: block">
+      <span class="serif" style="display: block; padding: 3px 0 5px; font-size: 15px; line-height: 16px; font-style: italic">Bibimbap</span>
+    </a>
+    <a href="#" style="width: 92px; height: 88px; box-sizing: border-box; border: 2px dashed var(--field); border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; font-size: 13px; font-weight: 800; color: var(--fg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"></path></svg>Add a recipe</a>
+  </div>
+  <div style="margin: 20px 20px 0; display: flex; gap: 8px">
+    <label for="shop-add" class="sr">Add something to the list</label>
+    <input id="shop-add" type="text" placeholder="Add something else…" style="flex-grow: 1; height: 48px; border-radius: 24px; border: 2px solid var(--field); background: transparent; color: var(--fg); padding: 0 18px; font: 700 16px Nunito, sans-serif; outline: 0">
+    <button type="button" aria-label="Add to the list" style="width: 48px; height: 48px; border-radius: 24px; border: 0; background: var(--mint); color: var(--ink); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"></path></svg></button>
+  </div>
+  <section aria-labelledby="veg" style="padding: 18px 20px 0; display: flex; flex-direction: column">
+    <h2 id="veg" class="sticker" style="margin: 0 0 4px; background: var(--mint)">Fruit and veg</h2>
+    <sc-for list="{{veg}}" as="v" hint-placeholder-count="8">
+      <button type="button" role="checkbox" aria-checked="{{v.checked}}" class="row">
+        <sc-if value="{{v.got}}" hint-placeholder-val="{{false}}">
+          <span class="box" style="background: var(--mint); color: var(--ink)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span>
+          <span style="flex-grow: 1; color: var(--muted); text-decoration: line-through; text-decoration-thickness: 2px">{{v.name}}</span>
+          <span style="color: var(--muted); font-weight: 700">{{v.amount}}</span>
+        </sc-if>
+        <sc-if value="{{v.need}}" hint-placeholder-val="{{true}}">
+          <span class="box" style="border: 2.5px solid var(--field)"></span>
+          <span style="flex-grow: 1">{{v.name}}</span>
+          <span style="font-weight: 800; font-variant-numeric: tabular-nums">{{v.amount}}</span>
+        </sc-if>
+      </button>
+    </sc-for>
+  </section>
+  <nav aria-label="Main" style="position: absolute; left: 20px; right: 20px; bottom: 26px; height: 62px; border-radius: 31px; background: var(--dock); display: flex; align-items: center; gap: 4px; padding: 0 8px; box-shadow: 0 10px 30px rgb(0 0 0 / 0.35)">
+    <a href="#" aria-label="Recipes" style="width: 64px; height: 46px; color: var(--dock-fg); display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></a>
+    <a href="#" aria-current="page" style="flex-grow: 1; height: 46px; border-radius: 23px; background: var(--peach); color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font: 800 15px Nunito, sans-serif"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"></path></svg>Shopping</a>
+    <a href="#" aria-label="Household" style="width: 64px; height: 46px; color: var(--dock-fg); display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg></a>
+  </nav>
+</div>
+
+<!-- Adding a recipe to the list -->
+<div style="width: 390px; height: 844px; border-radius: 44px; overflow: hidden; position: relative; background: var(--bg)">
+  <div aria-hidden="true" style="padding: 100px 0 0; display: flex; justify-content: center">
+    <div class="polaroid" style="width: 296px; padding: 10px 10px 28px; box-sizing: border-box; transform: rotate(-2deg)">
+      <img src="/_blob/4813334b2e4d4668bff2289c284b3d45" alt="" style="width: 276px; height: 150px; object-fit: cover; display: block">
+    </div>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--scrim)"></div>
+  <section role="dialog" aria-modal="true" aria-labelledby="add-title" style="position: absolute; left: 0; right: 0; bottom: 0; top: 196px; border-radius: 32px 32px 0 0; background: var(--sheet); padding: 8px 20px 0; display: flex; flex-direction: column; box-shadow: 0 -10px 30px rgb(0 0 0 / 0.3)">
+    <span aria-hidden="true" style="align-self: center; width: 40px; height: 5px; border-radius: 3px; background: var(--field)"></span>
+    <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: flex-start">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <h2 id="add-title" class="serif" style="margin: 0; font-size: 34px; line-height: 36px; font-style: italic">Add to the list</h2>
+        <span style="font-size: 15px; font-weight: 700; color: var(--muted)">Chana masala</span>
+      </div>
+      <button type="button" aria-label="Close" style="width: 44px; height: 44px; border-radius: 22px; border: 2px solid var(--field); background: transparent; color: var(--fg); display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+    </div>
+    <div style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between">
+      <span style="font-size: 15px; font-weight: 700">Amounts for</span>
+      <div style="display: flex; align-items: center; gap: 8px">
+        <button type="button" aria-label="Fewer servings" style="width: 44px; height: 44px; border-radius: 22px; border: 2px solid var(--field); background: transparent; color: var(--fg); display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
+        <span aria-live="polite" style="font-weight: 800; font-size: 15px; min-width: 62px; text-align: center">4 people</span>
+        <button type="button" aria-label="More servings" style="width: 44px; height: 44px; border-radius: 22px; border: 0; background: var(--mint); color: var(--ink); display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"></path></svg></button>
+      </div>
+    </div>
+    <div style="margin-top: 12px; border-radius: 20px; background: var(--butter); color: var(--ink); padding: 10px 12px 10px 14px; display: flex; align-items: center; gap: 10px">
+      <span style="flex-grow: 1; font-size: 14px; line-height: 19px; font-weight: 700">Left out salt, water and vegetable oil: you probably have them.</span>
+      <button type="button" style="height: 44px; padding: 0 14px; border-radius: 22px; border: 2px solid var(--ink); background: transparent; color: var(--ink); font: 800 14px Nunito, sans-serif; flex-shrink: 0">Add them</button>
+    </div>
+    <div style="margin-top: 6px; display: flex; flex-direction: column">
+      <sc-for list="{{adding}}" as="a" hint-placeholder-count="6">
+        <button type="button" role="checkbox" aria-checked="true" class="row">
+          <span class="box" style="background: var(--mint); color: var(--ink)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span>
+          <span style="flex-grow: 1">{{a.name}}</span>
+          <span style="font-weight: 800; font-variant-numeric: tabular-nums">{{a.amount}}</span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="position: absolute; left: 20px; right: 20px; bottom: 30px">
+      <button type="button" style="width: 100%; height: 60px; border-radius: 30px; border: 2px solid var(--ink); background: var(--peach); color: var(--ink); box-shadow: 0 5px 0 var(--ink); font: 800 18px Nunito, sans-serif">Add 10 things</button>
+    </div>
+  </section>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":820,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const veg = [
+      { name: 'Garlic', amount: '2 cloves', got: false },
+      { name: 'Spinach', amount: '275 g', got: false },
+      { name: 'Bean sprouts', amount: '225 g', got: false },
+      { name: 'Cucumber', amount: '1', got: false },
+      { name: 'Fresh coriander', amount: 'a handful', got: false },
+      { name: 'Onion', amount: '1', got: true },
+      { name: 'Tomatoes', amount: '2 medium', got: true },
+      { name: 'Carrots', amount: '2 small', got: true }
+    ];
+    return {
+      theme: 't-dark',
+      veg: veg.map((v) => ({ ...v, need: !v.got, checked: v.got ? 'true' : 'false' })),
+      adding: [
+        { name: 'Dried chickpeas', amount: '250 g' },
+        { name: 'Coriander seeds', amount: '1 tsp' },
+        { name: 'Cumin seeds', amount: '1 tsp' },
+        { name: 'Nigella seeds', amount: '1 tsp' },
+        { name: 'Onion', amount: '1' },
+        { name: 'Garlic', amount: '1 clove' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -61,7 +61,7 @@ Uploads are _planned: Accounts and households._
 
 ## On the phone
 
-- Light and dark follow the phone's setting, with a toggle to override it.
+- Dark only (`docs/design.md`, Colour): one theme, no toggle.
 - Installable to the home screen. Recipes you've opened and the week's planned recipes are kept for reading offline, cooking mode included. Nothing can be edited offline: syncing offline changes is a project of its own.
 - The shopping list polls every few seconds while it's open (TanStack Query's refetch interval), not WebSockets: simple and reliable on serverless, and a second's delay doesn't matter in a shop.
 

@@ -2,7 +2,7 @@
 
 Tastebook is a household recipe hub. One repo, two apps: `frontend/` (React 19, Vite, TanStack Query, react-router) and `backend/` (Django, Django REST framework, Postgres). People and the mb-factory agents both work here, and the rules below apply to both.
 
-What the product does and won't do is in the Linear team's Vision document; each project's PRD is a document on its Linear project. The platform, environments and the reasons behind them are in [`docs/architecture.md`](docs/architecture.md). The look (Enamel: tokens, type, components and their rules) is in [`docs/design.md`](docs/design.md). The domain's words are in [`GLOSSARY.md`](GLOSSARY.md).
+What the product does and won't do is in the Linear team's Vision document; each project's PRD is a document on its Linear project. The platform, environments and the reasons behind them are in [`docs/architecture.md`](docs/architecture.md). The look (Picnic: tokens, type, components and their rules) is in [`docs/design.md`](docs/design.md). The domain's words are in [`GLOSSARY.md`](GLOSSARY.md).
 
 ## Directive key
 
@@ -91,7 +91,7 @@ frontend/
                     API hooks, each *.test.tsx beside its file; index.ts exports what other areas use
   src/app/          router, query client, and what belongs to no area (home and not-found pages, health check)
   src/api/          typed client (openapi-fetch) and generated schema.d.ts, shared by every area
-  src/ui/           design-system components: shadcn/ui restyled to Enamel, tokens in enamel.css; add one with pnpm --filter frontend ui:add <name>
+  src/ui/           Dino, the design-system components: shadcn/ui restyled, tokens in enamel.css until they move to Picnic; add one with pnpm --filter frontend ui:add <name>
   src/lib/          shared code with at least three users (none yet)
   src/test/         MSW server and default handlers, render helpers
   e2e/              Playwright specs (run against the real backend)
@@ -102,7 +102,7 @@ backend/
   schema.yml        generated OpenAPI schema (committed)
 tools/openapi/      generates frontend/src/api/schema.d.ts
 tools/backup/       nightly production backup and restore (docs/architecture.md, Backups)
-tools/biome/        Biome lint plugins (no arbitrary radius outside Enamel's corner tokens)
+tools/biome/        Biome lint plugins (no arbitrary radius outside the design system's corner tokens)
 specs/              one spec per issue, plus lessons/
 ```
 

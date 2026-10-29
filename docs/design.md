@@ -1,80 +1,141 @@
-# Design system: Enamel
+# Design system: Picnic
 
-Tastebook's look, agreed in the design system session on 2026-10-26. Cheerful and sturdy, like an enamel pie dish: a blue-white ground, cobalt for anything you act on, round shapes, and a typeface built for legibility.
+Tastebook's look, agreed on a design canvas on 2026-10-29; it replaces Enamel. Warm and playful, like a picnic spread on a rug: a plum ground, pastels you can almost taste, photos as taped polaroids, and a serif with a little flourish over a rounded sans. The fun is rationed so the kitchen jobs (find a recipe, cook it, shop for it) stay calm and legible.
 
-The app's `/styleguide` page (local and previews only, never production) is the reference: it shows every token and component in light and dark. [`design/enamel.html`](design/enamel.html) is the design session's original. This file stays the rules. This is a starting point: change it through PRs like the code.
+[`design/picnic/`](design/picnic/) holds the canvas's artboards: browse and recipe, cooking mode, and the shopping list, They're reference markup: their photos load only on the canvas. This file stays the rules. Change it through PRs like the code.
+
+**Moving from Enamel.** The code still runs Enamel's tokens and components (`frontend/src/ui/enamel.css`, the `/styleguide` page) until the Dino project moves them onto Picnic: Storybook first, then the tokens and fonts, then each component. Until a part has moved, build with the components as they are and add no new styling to them; anything that needs new visual work is designed in Picnic.
+
+## Principles
+
+Judge every screen and component against two references: Nielsen Norman Group's [ten usability heuristics](https://www.nngroup.com/articles/ten-usability-heuristics/) and Apple's [design principles](https://developer.apple.com/design/human-interface-guidelines/design-principles). Where they meet the rules below, the rules say how; where a rule is silent, the principles decide. Review cites them by name ("NN/g 1", "Apple Agency").
+
+**NN/g's heuristics, as Tastebook applies them**
+
+1. **Visibility of system status.** Every press shows a pressed state; anything that waits shows that it's working; a change is confirmed (a toast, an announced count).
+2. **Match between the system and the real world.** Kitchen words, not system words: "Serves 4", "Makes 16 cookies", "Fruit and veg".
+3. **User control and freedom.** Offer Undo rather than asking first, wherever the action can be undone; every sheet and dialog has a clear way out.
+4. **Consistency and standards.** One look means one thing (peach means the main action, mint means chosen), and platform behaviour wins over invention: native selects, radio groups that answer to arrow keys.
+5. **Error prevention.** Make the wrong input hard to give (number keyboards for numbers, limits on steppers) before explaining it.
+6. **Recognition rather than recall.** Show what's on (filters as chips), show options rather than asking people to remember them; an icon alone only where it's universally known.
+7. **Flexibility and efficiency of use.** Keyboard paths for desk use, large targets for the kitchen; text that scales with the reader's setting.
+8. **Aesthetic and minimalist design.** Every element earns its place, the playful ones most of all (see [The fun, rationed](#the-fun-rationed)).
+9. **Help users recognise, diagnose and recover from errors.** Say what went wrong and how to fix it, with an example, and offer the retry beside it.
+10. **Help and documentation.** Help text under the field and a way out in every empty state, so nothing needs a manual.
+
+**Apple's principles, as Tastebook applies them**
+
+- **Purpose:** each screen does one household job well (find a recipe, cook it, shop for it).
+- **Agency:** never trap someone in a flow; guided steps can be skipped; mistakes can be undone.
+- **Responsibility:** collect only what Tastebook needs and say why; fonts are bundled so no visitor is sent to Google.
+- **Familiarity:** build on platform conventions and keep a behaviour the same everywhere once it's set; give clear feedback.
+- **Flexibility:** accessible from the start, at any text size, by touch, keyboard and screen reader.
+- **Simplicity:** just what's necessary, in exactly the words needed, with a clear hierarchy (one primary action per screen).
+- **Craft:** care for every detail, from a polaroid's tape to the wording of an error; shipping is not the finish line.
+- **Delight:** warmth comes from the whole (the polaroids, the pastels, a squiggle under the right word), never decoration that slows the task.
+
+## Voice
+
+- British English, sentence case everywhere: "Save recipe", "Clear filters", never "Save Recipe".
+- Plain and specific, and a little warm. A control says exactly what it does ("Add 10 things", "Next step"); the main action may be friendly ("Let's get cooking") as long as it stays clear.
+- Errors say what's wrong and how to fix it, with an example: "Enter a number, like 4." No apologies, no "Invalid input".
+- A dialog says exactly what will happen, with real numbers: "Your 12 private recipes will be deleted. Your 3 public recipes stay."
+- An empty state says what's empty, why, and the way out: "No recipes match. Nothing is vegetarian, one-pot and under 30 minutes yet. Try removing a filter."
+- No emoji in the interface.
 
 ## Colour
 
-Token names follow Tailwind's `--color-*` convention, so `--color-cobalt` is `bg-cobalt`, `text-cobalt` and so on. Contrast is against Surface unless noted; every text pair reaches 4.5:1 ([WCAG 2.2, 1.4.3](https://www.w3.org/TR/WCAG22/#contrast-minimum)) and field borders reach 3:1 ([1.4.11](https://www.w3.org/TR/WCAG22/#non-text-contrast)) in both themes.
+Tastebook has **one theme, dark**: no light theme and no toggle. The root sets `color-scheme: dark`, so native controls, scrollbars and the browser's own surfaces match.
 
-| Token | Light | Dark | Use | Contrast (light / dark) |
-| --- | --- | --- | --- | --- |
-| `--color-ground` | `#f3f5f8` | `#0d1424` | Page background | |
-| `--color-surface` | `#ffffff` | `#16203a` | Cards, panels, fields | |
-| `--color-ink` | `#14213a` | `#e8edf7` | Text | 16.1 / 13.7 |
-| `--color-muted` | `#55617a` | `#9aa6bf` | Secondary text | 6.2 / 6.6 |
-| `--color-cobalt` | `#1f4fd1` | `#8aa9ff` | Actions, links, selected state, the recipe card rim | 6.8 / 7.1 |
-| `--color-on-cobalt` | `#ffffff` | `#0d1424` | Text on cobalt | 6.8 / 8.1 |
-| `--color-chip` | `#e6ecf7` | `#1e2b4a` | Quiet fills (stepper buttons, timer) | |
-| `--color-line` | `#d5dce8` | `#2a3654` | Hairlines between rows and around panels (decorative) | |
-| `--color-field` | `#7d8aa3` | `#66769a` | Borders of fields, chips and checkboxes | 3.5 / 3.6 |
-| `--color-yolk` | `#ffd84d` | `#ffd84d` | Tags describing a recipe; things to check | |
-| `--color-on-yolk` | `#14213a` | `#14213a` | Text on yolk | 11.6 / 11.6 |
-| `--color-success` | `#1e7a46` | `#5fd18f` | Status: done, saved | 5.4 / 8.5 |
-| `--color-warning` | `#7a5200` | `#ffd84d` | Status: needs a look | 6.9 / 11.7 |
-| `--color-danger` | `#c2321f` | `#ff8a75` | Status: errors, destructive actions | 5.6 / 7.0 |
-| `--color-on-danger` | `#ffffff` | `#0d1424` | Text on danger | |
-| `--color-scrim` | `rgb(13 20 36 / 0.45)` | `rgb(0 0 0 / 0.6)` | The backdrop behind a dialog | |
+Token names follow Tailwind's `--color-*` convention, so `--color-peach` is `bg-peach`, `text-peach` and so on. Contrast is against Ground unless noted; every text pair reaches 4.5:1 ([WCAG 2.2, 1.4.3](https://www.w3.org/TR/WCAG22/#contrast-minimum)) and field borders reach 3:1 ([1.4.11](https://www.w3.org/TR/WCAG22/#non-text-contrast)).
 
-**Cuisine colours** fill the placeholder plate when a recipe has no photo. They're decorative, so they have no contrast requirement: `--cuisine-italian` `#e2583e`, `--cuisine-indian` `#e0a526`, `--cuisine-japanese` `#4e7a5a`, `--cuisine-mexican` `#b8342c`, `--cuisine-french` `#7c8f4e`, `--cuisine-other` `#6a5acd`. A cuisine without its own colour uses `--cuisine-other`; add a cuisine's colour when it's added to the catalogue. The plate drawn on them is `--plate`: `#ffffff` in light, `#e8edf7` in dark.
+| Token | Value | Use | Contrast |
+| --- | --- | --- | --- |
+| `--color-ground` | `#1c1233` | Page background | |
+| `--color-surface` | `#2a1d47` | Quiet panels (a step's ingredients, icon buttons), sheets and dialogs | |
+| `--color-ink` | `#fff4ea` | Text | 16.4 (14.2 on Surface) |
+| `--color-muted` | `#cbbfe0` | Secondary text | 10.2 (8.8 on Surface) |
+| `--color-pop` | `#ffb38a` | An emphasised word in a heading, its squiggle, the step number | 10.2 |
+| `--color-field` | `#8f7fb0` | Borders of fields, outlined chips and checkboxes | 4.9 (4.3 on Surface) |
+| `--color-line` | `#3a2c5c` | Hairlines between rows (decorative) | |
+| `--color-peach` | `#ffb38a` | The main action; where you are (the current tab, the current step) | |
+| `--color-mint` | `#8fe3c0` | Chosen and done: filters that are on, ticked boxes, finished steps, add buttons, the ingredients a step names | |
+| `--color-butter` | `#ffe08a` | Time and heads-ups: timers, durations, "start the night before" notes | |
+| `--color-pink` | `#ff9fc6` | Favourites and diet stickers | |
+| `--color-on-pastel` | `#2a1440` | All text and icons on a pastel or on Paper | 9.5 peach, 10.9 mint, 12.8 butter, 8.7 pink |
+| `--color-paper` | `#fff8ef` | Polaroid frames | 15.7 with On pastel |
+| `--color-tape` | `rgb(255 224 138 / 0.85)` | The tape on a polaroid (decorative) | |
+| `--color-dock` | `#fff4ea` | The floating tab bar and toasts | |
+| `--color-on-dock` | `#2a1440` | Text and icons on the dock | 15.2 |
+| `--color-success` | `#8fe3c0` | Status: done, saved | 11.8 |
+| `--color-warning` | `#ffe08a` | Status: needs a look | 13.8 |
+| `--color-danger` | `#ff9a8a` | Status: errors, destructive actions | 8.7 |
+| `--color-on-danger` | `#1c1233` | Text on danger | 8.7 |
+| `--color-scrim` | `rgb(8 4 18 / 0.66)` | The backdrop behind a sheet or dialog | |
 
-Light and dark follow the phone's setting; a toggle overrides it by setting `data-theme="light"` or `data-theme="dark"` on the root element.
+The pastels stand out from the ground (9:1 and more), so they need no outline. Every pastel control still has a 2 px transparent border, which forced colours draws, so they stay outlined there.
 
 ## Type
 
 | Role | Face | Size / line height | Weight |
 | --- | --- | --- | --- |
-| Display XL | Bricolage Grotesque | 40 / 42 px | 800 |
-| Display L | Bricolage Grotesque | 32 / 35 px | 800 |
-| Display M | Bricolage Grotesque | 24 / 29 px | 700 |
-| Title (recipe cards, panel headings) | Bricolage Grotesque | 18 / 23 px | 700 |
-| Step (cooking mode) | Atkinson Hyperlegible | 24 / 32 px | 700 |
-| Body | Atkinson Hyperlegible | 16 / 25 px | 400 |
-| Small | Atkinson Hyperlegible | 14 / 21 px | 400 |
-| Label | Atkinson Hyperlegible | 13 / 17 px | 700 |
+| Display XL (screen titles) | Instrument Serif | 46 / 44 px | 400, one word may be italic |
+| Display L (sheet titles) | Instrument Serif italic | 34 / 36 px | 400 |
+| Title (section headings) | Instrument Serif italic | 28 / 30 px | 400 |
+| Caption (polaroid captions) | Instrument Serif italic | 21 / 22 px | 400 |
+| Step number (cooking mode) | Instrument Serif italic | 96 / 80 px | 400 |
+| Step (cooking mode) | Nunito | 23 / 34 px | 700 |
+| Timer | Nunito | 38 / 40 px | 800 |
+| Body | Nunito | 16 / 24 px | 600 |
+| Small | Nunito | 13 / 17 px | 700 |
+| Label (buttons, chips) | Nunito | 15 / 20 px | 800 |
 
-Both faces are under the SIL Open Font License and are **bundled with the app**: never loaded from Google Fonts, which would send every visitor's IP address to Google (see UK GDPR in `AGENTS.md`, Standards) and fail offline. Numbers that line up (amounts, times) use tabular figures.
+Both faces are under the SIL Open Font License and are **bundled with the app**: never loaded from Google Fonts, which would send every visitor's IP address to Google (see UK GDPR in `AGENTS.md`, Standards) and fail offline. Instrument Serif has one weight, so hierarchy comes from size and italics, never bold serif. Numbers that line up (amounts, times, timers) use tabular figures.
 
 ## Space and shape
 
-- **Spacing:** a 4 px base: 4, 8, 12, 16, 24, 32, 48. Space siblings with `gap`, not margins.
-- **Corners:** pill (999 px) for controls (buttons, chips, fields used for search, steppers), 18 px for cards and dialogs, 14 px for photos, 12 px for fields and banners, 8 px for checkboxes (the field corner would make a 24 px box a circle).
-- **Edges:** the **cobalt rim** (3 px, `--color-cobalt`) is the recipe card's alone. Everything else uses a **hairline** (1 px, `--color-line`). Fields, chips and checkboxes use `--color-field` so they're visible as controls.
-- **Photos:** 4:3 on cards, 16:10 at the top of a recipe. No photo: the placeholder plate in the recipe's first cuisine's colour, never a grey box.
+- **Spacing:** a 4 px base: 4, 8, 12, 16, 20, 24, 32, 48. Space siblings with `gap`, not margins. Screens have 20 px side gutters.
+- **Corners:** pill (999 px) for controls (buttons, chips, fields, steppers) and the dock; 32 px for a sheet's top corners; 28 px for the timer card; 24 px for cards and panels; 20 px for notes; 10 px for checkboxes; square for polaroids.
+- **Shadows:** the **press shadow** (`0 5px 0` in On pastel) sits under the screen's main action and the timer card, so they look pressable; pressed, they sink 3 px and the shadow shrinks to match. The **lift** (`0 12px 28px rgb(0 0 0 / 0.35)`) sits under polaroids, the dock and sheets. Nothing else has a shadow.
+- **Photos:** in a polaroid (below), 4:3 in lists and 7:5 at the top of a recipe, always with the credit. No photo: still to design (Enamel's cuisine plate goes).
 - **Motion:** 150 ms ease-out fades and slides for sheets, dialogs and toasts; never over 200 ms. Nothing moves on its own except a running timer. `prefers-reduced-motion` turns it all off.
+
+## The fun, rationed
+
+Picnic works only while its playful parts stay rare. Review checks each screen against these.
+
+- **Polaroids** frame photos in lists and at the top of a recipe: a Paper frame (10 px, 8 px on small ones) with a Caption underneath, tilted 2 to 4 degrees, alternating direction. A featured polaroid may carry tape. The recipe's photo credit sits inside its frame.
+- **Tilt** is for polaroids, stickers and browse's filter chips (1 to 2 degrees) only. Never tilt text you read for more than a glance, anything you type into, the method, ingredient lists, dialogs, or any control in cooking mode.
+- **Stickers** carry a recipe's diet tags or a featured recipe's time, in pink, mint or butter, tilted 6 to 12 degrees; two at most on one photo. They describe and are never buttons.
+- **The squiggle** goes under one word of a screen's title, a recipe's name or a step number, in Pop. One per screen.
+- **Doodles** (a hand-drawn arrow and a note in italic serif, like "start it tonight!") go on browse and empty states only, one per screen, and repeat nothing the screen doesn't already say in words: they're hidden from screen readers.
+- **Blobs** (three fixed irregular shapes in peach, butter and mint) hold a recipe's prep, cook and soaking times, and nothing else.
+- **Dotted leaders** join an ingredient to its amount wherever amounts are listed.
 
 ## Components
 
-The set lives in `frontend/src/ui/` (shadcn/ui, restyled to Enamel) and is exported from its `index.ts`; the tokens are in `frontend/src/ui/enamel.css`. Build pages from these; add a component to `src/ui/` on its third use (`AGENTS.md`, rule of three). To add one from shadcn/ui, run `pnpm --filter frontend ui:add <name>`, restyle the new file to Enamel's tokens, export it from `index.ts` and show it on `/styleguide`.
+The set lives in `frontend/src/ui/` (Dino: shadcn/ui, restyled) and is exported from its `index.ts`. Build pages from these; add a component to `src/ui/` on its third use (`AGENTS.md`, rule of three). To add one from shadcn/ui, run `pnpm --filter frontend ui:add <name>`, restyle it to these tokens and export it from `index.ts`. The Dino project designs each component's states (hover, pressed, focus, disabled, loading) before it's built; the notes below are the direction.
 
 | Component | Notes |
 | --- | --- |
-| Button | Primary (cobalt fill), secondary (cobalt outline), ghost, danger (danger fill), disabled (chip fill, muted text). One primary per screen. 44 px tall; 52 px (`lg`) in cooking mode. |
-| Icon button | 44 × 44 px, field border; pressed state fills with cobalt. Always has an accessible name (`aria-label`), and a toggle keeps one name ("Favourite") while `aria-pressed` says whether it's on, so its name never changes under a screen reader. |
-| Field | Visible label above, help text below, error replaces help in danger with an icon and says how to fix it ("Enter a number, like 4."). Search fields are pill-shaped with a search icon. |
-| Filter chip | A toggle (`aria-pressed`), pill, field border; on is cobalt fill. A removable chip names what it removes in its label; it's cobalt-filled for a filter, or outlined in cobalt for a choice that changes how other filters combine (With all of these). |
-| Tag | Yolk, not interactive: describes a recipe (Vegetarian, One-pot, Easy) or marks something to check. |
-| Stepper | Servings: minus, "Serves 4", plus, or a yield: "Makes 16 cookies"; the count is announced (`aria-live="polite"`). |
-| Segmented control | Two to four options, one pressed (Metric / US; System / Light / Dark). |
-| Checkbox row | Shopping list rows: 48 px tall, a 24 px box, ticked rows struck through in muted. |
-| Recipe card | Surface with the cobalt rim, photo or plate, title in Title type, meta (time, difficulty, cuisine) in Small muted. |
-| Toast | Ink background, ground text, short message and at most one action ("Saved to Favourites · Undo"). |
-| Banner | 2 px border in a status colour with its icon: warning for an import's gaps, success for a clean import. |
+| Button | Primary: peach fill, the press shadow, one per screen. Secondary: a 2 px field outline. Ghost: no fill. Danger: danger fill. 44 px tall; 64 px in cooking mode. |
+| Icon button | A 44 px circle on Surface (48 px in cooking mode); a toggle that's on fills with its colour (pink for Favourite). Always has an accessible name, and a toggle keeps one name while `aria-pressed` says whether it's on. |
+| Field | Pill, a 2 px field border, visible label above (visually hidden only for search), help text below, error replaces help in danger with an icon and says how to fix it. |
+| Filter chip | A toggle (`aria-pressed`), pill. Off: field outline. On: mint fill with a check icon, so the state never rests on colour alone. A removable chip names what it removes in its label. |
+| Sticker | Replaces Tag: describes a recipe (Vegan, Gluten-free) on its photo. Not interactive. |
+| Stepper | Servings: minus (outlined), "Serves 4", plus (mint), or a yield: "Makes 16 cookies"; the count is announced (`aria-live="polite"`). |
+| Segmented control | Two to four options, one chosen, as a radio group that answers to arrow keys. |
+| Checkbox row | Shopping list rows: 48 px tall, a 28 px box with 10 px corners; ticked, the box fills mint with a check and the row is struck through in muted and moves to the end of its group. |
+| Polaroid card | Replaces Recipe card: a polaroid with the recipe's name as its caption; meta below it in Small muted where the list needs it. |
+| Note | A butter panel for heads-ups ("Left out salt, water and vegetable oil: you probably have them"), with at most one action. |
+| Banner | A 2 px border in a status colour with its icon: warning for an import's gaps, success for a clean import. |
+| Toast | Dock colours, pill, a short message and at most one action ("Saved to Favourites · Undo"). |
+| Sheet | Slides up over a scrim, Surface colour, 32 px top corners, a grab handle, a title in Display L, a close button. For light tasks (adding a recipe to the list, filters). |
 | Dialog | For anything that can't be undone: says exactly what happens; the danger button names the action ("Delete account"), the other is "Cancel". |
-| Empty state | An icon, what's empty and why, and the way out ("Clear filters"). |
+| Empty state | What's empty and why, the way out ("Clear filters"), and perhaps the screen's one doodle. |
+| Dock | The tab bar: a floating pill in dock colours, 62 px tall; the current tab is a peach pill with its label, the others are icons with accessible names. |
 
-Cooking mode (Cooking mode project) uses Step type, `lg` buttons (52 px) and a large timer, and keeps the screen awake.
+**Cooking mode** keeps the screen awake and drops the playful parts that get in the way: a progress bar of segments (mint done, peach current), the step number in Step number type with its squiggle, the step in Step type with the ingredients it names in mint, and Back and Next at 64 px. A duration in a step ("60 to 90 minutes") is a butter button that starts a timer; a running timer shows as a butter card with a ring and a pause button, and follows you to later steps as a small pill. A range counts to its first check, then says how much longer it may need. A step's own ingredients sit below it with their amounts.
 
 ## Rules
 
@@ -82,34 +143,40 @@ Review checks new UI against these.
 
 **Colour**
 
-- Cobalt fill only on things you act on. One primary button per screen.
-- Yolk only for tags that describe a recipe and for things to check.
+- Peach only for the main action and where you are. One peach button per screen.
+- Mint for chosen and done, butter for time and heads-ups, pink for favourites and diet stickers: never swapped, never decoration.
+- Text on a pastel or on Paper is always On pastel.
 - Success, warning and danger only for status, never decoration.
-- Tokens only, never a literal colour, so both themes work.
+- Tokens only, never a literal colour.
 
 **Shape**
 
-- The cobalt rim belongs to recipe cards alone.
-- Pills for controls, 18 px for cards, 14 px for photos, 12 px for fields, 8 px for checkboxes.
-- No photo means the cuisine plate.
+- Pills for controls, 24 px for cards, 32 px for sheets, 10 px for checkboxes, square for polaroids.
+- The press shadow only under the main action and the timer; the lift only under polaroids, the dock and sheets.
+- Every pastel control has a 2 px transparent border, for forced colours.
 
 **Type and icons**
 
-- Bricolage Grotesque for headings and the wordmark only; Atkinson Hyperlegible for everything else.
+- Instrument Serif for headings, captions, the step number and the wordmark only; Nunito for everything else.
 - Fonts bundled with the app, never loaded from Google.
-- [Lucide](https://lucide.dev) icons at a 2 px stroke. An icon on its own always has a label for screen readers.
+- [Lucide](https://lucide.dev) icons at a 2 to 2.5 px stroke. An icon on its own always has a label for screen readers.
 
 **State**
 
-- A list's active option (the one Enter picks while focus stays in a search field) carries the cobalt outline, as focus does, beside its chip fill: the fill alone is too faint to see.
+- A chosen or ticked state shows an icon as well as its fill, so it survives forced colours and colour blindness.
+- A list's active option (the one Enter picks while focus stays in a search field) carries the focus outline beside its fill.
 
 **Touch and motion**
 
 - Every control at least 44 px tall (WCAG 2.5.8 asks for 24); 48 px or more in cooking mode.
 - Motion under 200 ms, for sheets, dialogs and toasts only; respect "reduce motion".
-- Light and dark follow the phone, with a toggle to override it.
+- Dark only: no light theme, no theme toggle.
 
 ## Brand
 
-- **Wordmark:** "Tastebook" in Bricolage Grotesque 800, cobalt.
-- **Mark:** an enamel dish seen from above: a surface-coloured circle with a cobalt rim, an inner hairline ring and a few speckles. It's the home-screen icon. No custom logo work for now.
+- **Wordmark:** "Tastebook" in Instrument Serif italic, in ink.
+- **Mark:** still to design, for the home-screen icon; the current favicon (an orange book) goes.
+
+## Still to settle
+
+Decided in the Dino project, then written here: the pressed, focus, disabled and loading states of each component; a recipe with no photo; the mark; how tilted parts behave at the largest text sizes; and a check of every screen in forced colours.
