@@ -160,12 +160,12 @@ export const isFocus = { pseudo: { focusVisible: true } };
 
 A story that forces a state on one element of several passes a selector instead (`{ pseudo: { active: ['button[aria-label="More servings"]'] } }`). `is-disabled` and `is-on` are args, not pseudo-states. Enamel has a state style only where its classes say so (the ghost button's hover, the focus outline, disabled fills, `aria-pressed`/`data-state=on` fills); a state story whose component has no style for it renders like its default, and the restyling issues fill it in.
 
-**Stateful stories.** A controlled component's story keeps its value in args with `useArgs` from `storybook/preview-api`, so an interaction test sees the component re-render and the Controls panel stays in step:
+**Stateful stories.** A controlled component's story keeps its value in React state seeded from its args, so an interaction test sees the component re-render. (`useArgs` was the first plan, but under the Vitest add-on nothing listens for its updates, so the story never re-renders.)
 
 ```tsx
 render: (args) => {
-  const [{ pressed }, updateArgs] = useArgs<typeof args>();
-  return <FilterChip {...args} pressed={pressed} onPressedChange={(next) => updateArgs({ pressed: next })} />;
+  const [pressed, setPressed] = useState(args.pressed);
+  return <FilterChip {...args} pressed={pressed} onPressedChange={setPressed} />;
 }
 ```
 
@@ -180,7 +180,7 @@ Callbacks in `args` use `fn()` from `storybook/test`. Interaction tests are `pla
 | `filter-chip.stories.tsx` | `Default`, `IsHover`, `IsPressed`, `IsFocus`, `IsOn`, `IsOnIsHover`, `IsOnIsPressed` | "Under 30 min"; `Default` is stateful on `pressed` |
 | `removable-chip.stories.tsx` | `Filled`, `Outline`, `IsHover`, `IsPressed`, `IsFocus` (the states on the filled look) | Filled: "Italian"; Outline: "With all of these" |
 | `segmented-control.stories.tsx` | `Default`, `IsHover`, `IsPressed`, `IsFocus` | label "Units", options Metric (`metric`) and US (`us`), value `metric`; `Default` is stateful on `value`. Hover and pressed target `button[aria-pressed="false"]`, focus targets `button[aria-pressed="true"]` |
-| `servings-stepper.stories.tsx` | `Default`, `Yield`, `AtMinimum`, `AtMaximum`, `IsHover`, `IsPressed`, `IsFocus` | Default: value 4, min 1, max 12; Yield: value 12, `yieldUnit` "cookies"; AtMinimum value 1; AtMaximum value 12. States target `button[aria-label="More servings"]`. `Default` and `Yield` are stateful on `value` |
+| `servings-stepper.stories.tsx` | `Default`, `Yield`, `AtMinimum`, `AtMaximum`, `IsHover`, `IsPressed`, `IsFocus` | Default: value 4, min 1, max 12; Yield: value 12, max 24, `yieldUnit` "cookies"; AtMinimum value 1; AtMaximum value 12. States target `button[aria-label="More servings"]`. `Default` and `Yield` are stateful on `value` |
 | `checkbox-row.stories.tsx` | `Default`, `IsOn`, `IsHover`, `IsPressed`, `IsFocus` | children `<b className="tabular-nums">2</b> courgettes`; `IsOn` is `checked: true`; `Default` is stateful on `checked` |
 
 #### Part 2 stories
