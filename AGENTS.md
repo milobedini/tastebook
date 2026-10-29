@@ -153,6 +153,7 @@ Review is adversarial: it checks work against these published standards and cite
 A Lighthouse accessibility score of 100 doesn't mean WCAG conformance: the review still applies.
 
 - [a] when you fix a problem found in review or a bug, propose in the same PR the cheapest guard that stops its whole class, in this order: a type or lint rule; an automated check (a test, axe, a CI step); a rule here or a lesson. Say in the PR which you chose and why.
+- A PR that changes Dino (`frontend/src/ui/`) gets the `dino` label from [`.github/labeler.yml`](.github/labeler.yml), and review also checks it with the design-system rubric against [`docs/design.md`](docs/design.md) and the Dino boards in `docs/design/dino/`.
 
 ## Specs and lessons
 

@@ -1,0 +1,4 @@
+# Labels for .github/workflows/labeler.yml. Review loads the design-system rubric on a PR labelled `dino` (AGENTS.md).
+dino:
+  - changed-files:
+      - any-glob-to-any-file: frontend/src/ui/**
