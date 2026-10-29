@@ -17,9 +17,10 @@ const project = join(out, 'project');
 const read = (path: string) => readFileSync(path, 'utf8');
 const git = (...args: string[]) => execFileSync('git', args, { cwd: repo, encoding: 'utf8' }).trim();
 
-// What a republish compares with main to tell whether the artifact is behind.
+// What a republish compares with main to tell whether the artifact is behind, as git pathspecs from the repo root.
 const inputs = [
   'frontend/src/dino',
+  ':(exclude)frontend/src/dino/*.stories.tsx',
   'frontend/src/main.tsx',
   'frontend/package.json',
   'frontend/scripts/dino-bundle.ts',
@@ -215,7 +216,7 @@ const families = Object.fromEntries(
 );
 
 const head = git('rev-parse', '--short', 'HEAD');
-const uncommitted = git('status', '--porcelain', '--', ...inputs.map((input) => `:/${input}`)) !== '';
+const uncommitted = git('status', '--porcelain', '--', ...inputs) !== '';
 const ref = `${git('rev-parse', '--abbrev-ref', 'HEAD')}@${head}${uncommitted ? '+uncommitted' : ''}`;
 
 const tokens = {
