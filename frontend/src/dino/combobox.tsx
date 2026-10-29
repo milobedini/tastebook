@@ -25,11 +25,9 @@ type ComboboxProps = {
   defaultOpen?: boolean;
 };
 
-type Range = { start: number; end: number };
-
 const optionId = (comboboxId: string, index: number) => `${comboboxId}-option-${index}`;
 
-const Highlighted = ({ text, range }: { text: string; range: Range | null }) => {
+const Highlighted = ({ text, range }: { text: string; range: ReturnType<typeof matchRange> }) => {
   if (range === null || range.start === range.end) {
     return text;
   }
@@ -205,7 +203,7 @@ export const Combobox = ({
                       event.preventDefault();
                       choose(value);
                     }}
-                    className="flex min-h-12 cursor-pointer items-center justify-between gap-2 rounded-option px-3.5 text-body text-ink aria-selected:bg-line aria-selected:outline-3 aria-selected:-outline-offset-3 aria-selected:outline-ink"
+                    className="flex min-h-12 cursor-pointer items-center justify-between gap-2 rounded-option px-3.5 py-3 text-body text-ink aria-selected:bg-line aria-selected:outline-3 aria-selected:-outline-offset-3 aria-selected:outline-ink"
                   >
                     <OptionText name={name} hint={hint} search={search} />
                     {index === activeIndex && (

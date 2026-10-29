@@ -160,3 +160,31 @@ export const IsOpen = {
   args: { search: 'chick', defaultOpen: true },
   parameters: { pseudo: { focusVisible: ['input'] } }
 } satisfies Story;
+export const WrappedHint = {
+  args: {
+    chosen: [],
+    options: [
+      { value: 'vietnamese-caramel-sauce', name: 'Vietnamese caramel sauce', hint: 'also nuoc mau, nước màu' },
+      { value: 'salted-caramel-sauce', name: 'Salted caramel sauce', hint: 'also caramel au beurre salé' }
+    ],
+    search: 'caramel',
+    defaultOpen: true
+  },
+  // The narrowest reflow width (WCAG 1.4.10), so the hints wrap in the story tests' wider viewport too.
+  decorators: [
+    (Story) => (
+      <div className="w-80">
+        <Story />
+      </div>
+    )
+  ],
+  play: async ({ canvasElement }) => {
+    const option = within(canvasElement).getByRole('option', { name: /^Vietnamese caramel sauce/ });
+    const text = option.querySelector('span')?.getBoundingClientRect();
+    const box = option.getBoundingClientRect();
+    // Two lines of text, with the option's 12 px padding still above and below them.
+    await expect(text?.height).toBeGreaterThan(30);
+    await expect(text?.top).toBeGreaterThanOrEqual(box.top + 12);
+    await expect(text?.bottom).toBeLessThanOrEqual(box.bottom - 12);
+  }
+} satisfies Story;
