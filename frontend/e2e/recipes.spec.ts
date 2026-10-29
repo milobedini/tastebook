@@ -7,7 +7,7 @@ test('the home page links to the recipes page, which loads from the real API', a
 
   await page.getByRole('link', { name: 'Browse recipes' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Recipes' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'What shall we cook tonight?' })).toBeVisible();
   // Accepts either state, so a local database that already has recipes doesn't break the check.
   await expect(page.getByText('No recipes yet.').or(page.getByRole('list').first())).toBeVisible();
   await expect(page.getByRole('alert')).toHaveCount(0);
@@ -26,7 +26,6 @@ test('a search with no matches says so through the real API', async ({ page }) =
 test('filters and clears them through the real API', async ({ page, accessibility }) => {
   await page.goto('/recipes?q=xyzzy');
 
-  await page.getByRole('button', { name: 'Filters', exact: true }).click();
   await page.getByRole('group', { name: 'Cuisine' }).getByRole('button', { name: 'Italian' }).click();
   await page.getByRole('group', { name: 'Total time' }).getByRole('button', { name: 'Up to 30 min' }).click();
 
@@ -47,7 +46,6 @@ test('filters and clears them through the real API', async ({ page, accessibilit
 test("filters by diet and by an ingredient's synonym through the real API", async ({ page, accessibility }) => {
   await page.goto('/recipes');
 
-  await page.getByRole('button', { name: 'Filters', exact: true }).click();
   const diet = page.getByRole('group', { name: 'Diet' });
   await diet.getByRole('button', { name: 'Gluten-free' }).click();
   await diet.getByRole('button', { name: 'Dairy-free' }).click();
@@ -80,7 +78,6 @@ test('lists recipes with any or all of the included ingredients through the real
   await expect(page.getByRole('heading', { name: 'Spanish tortilla' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Spaghetti aglio e olio' })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Filters', exact: true }).click();
   await page.getByRole('group', { name: 'Included ingredients' }).getByRole('radio', { name: 'With all' }).check();
 
   await expect(page).toHaveURL(/\/recipes\?include_ingredient=garlic&include_ingredient=onion&include_match=all$/);
@@ -89,4 +86,19 @@ test('lists recipes with any or all of the included ingredients through the real
   await expect(page.getByRole('heading', { name: 'Spaghetti aglio e olio' })).toHaveCount(0);
   await accessibility.check();
   await expect(page.getByRole('alert')).toHaveCount(0);
+});
+
+test('tilts the filter chips in the laptop column but not in the phone sheet', async ({ page }) => {
+  await page.goto('/recipes');
+  const firstTotalTimeChip = page.getByRole('group', { name: 'Total time' }).getByRole('button').first();
+
+  await expect(page.getByRole('complementary', { name: 'Filters' })).toBeVisible();
+  // Tailwind's rotate utilities set the rotate property, not transform.
+  expect(await firstTotalTimeChip.evaluate((chip) => getComputedStyle(chip).rotate)).toBe('-1.5deg');
+
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.getByRole('button', { name: 'Filters', exact: true }).click();
+
+  await expect(page.getByRole('dialog', { name: 'Filters' })).toBeVisible();
+  expect(await firstTotalTimeChip.evaluate((chip) => getComputedStyle(chip).rotate)).toBe('none');
 });

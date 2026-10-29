@@ -150,9 +150,10 @@ test('the recipe list with every filter on fits a 375 px phone screen', async ({
   await page.goto(
     '/recipes?cuisine=british&course=main&difficulty=hard&max_total=60&max_prep=45&max_cook=30&one_pot=true'
   );
-  await page.getByRole('button', { name: 'Filters', exact: true }).click();
-
+  // The chips behind the sheet are hidden from it, so they're checked before it opens.
   await expect(page.getByRole('button', { name: 'Remove filter: Total up to 60 min' })).toBeVisible();
+  await page.getByRole('button', { name: 'Filters · 7' }).click();
+
   await expect(page.getByRole('group', { name: 'Cuisine' }).getByRole('button', { name: 'British' })).toBeVisible();
   await expect(page.getByText('19 hr · Hard · British, French')).toBeVisible();
   expect(await sidewaysScroll(page)).toBe(0);
@@ -171,10 +172,10 @@ test('the recipe list with diet and ingredient filters fits a 375 px phone scree
   );
 
   await page.goto('/recipes?diet=vegetarian&diet=gluten_free&include_ingredient=natural-yoghurt');
-  await page.getByRole('button', { name: 'Filters', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Remove filter: With natural yoghurt' })).toBeVisible();
+  await page.getByRole('button', { name: 'Filters · 3' }).click();
   await page.getByRole('combobox', { name: 'Exclude an ingredient' }).click();
 
-  await expect(page.getByRole('button', { name: 'Remove filter: With natural yoghurt' })).toBeVisible();
   await expect(
     page.getByRole('option', { name: 'flat-leaf parsley · also continental parsley, Italian parsley' })
   ).toBeVisible();
