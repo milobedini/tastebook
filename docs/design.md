@@ -143,7 +143,7 @@ Picnic works only while its playful parts stay rare. Review checks each screen a
 
 - **Polaroids** frame photos in lists and at the top of a recipe: a Paper frame (10 px, 8 px on small ones) with a Caption underneath, tilted 2 to 4 degrees, alternating direction. A featured polaroid may carry tape. The recipe's photo credit sits inside its frame.
 - **Tilt** is for polaroids, stickers and browse's filter chips (1 to 2 degrees) only. Never tilt text you read for more than a glance, anything you type into, the method, ingredient lists, dialogs, or any control in cooking mode. Above about 150% text, tilt turns off everywhere: filter chips wrap, polaroids sit straight at full width, and stickers move below the photo instead of overlapping it.
-- **Stickers** carry a recipe's diet tags or a featured recipe's time, in pink, mint or butter, tilted 6 to 12 degrees; two at most on one photo. They describe and are never buttons.
+- **Stickers** carry a recipe's diet tags in pink, or a featured recipe's time in butter, tilted 6 to 12 degrees; two at most on one photo. They describe and are never buttons.
 - **The squiggle** goes under one word of a screen's title, a recipe's name or a step number, in Pop. One per screen.
 - **Doodles** (a hand-drawn arrow and a note in italic serif, like "start it tonight!") go on browse and empty states only, one per screen, and repeat nothing the screen doesn't already say in words: they're hidden from screen readers.
 - **Blobs** (three fixed irregular shapes in peach, butter and mint) hold a recipe's prep, cook and soaking times, and nothing else.
