@@ -64,6 +64,8 @@ Tests are black box: they go through a public interface and assert what a user o
 - [a] call the subject the way a user or caller does, with a concrete input, and assert a literal, observable result: rendered text, a role's state, a response body, a row in the database.
 - [a] add a failing test first when fixing a bug, and run it against the unchanged code to prove it fails.
 - [a] use `it.each` / `pytest.mark.parametrize` for cases that differ only by input.
+- [a] when a change alters a story's look on purpose, commit its updated baselines (`frontend/visual/baselines/`) in the same PR, so the diff shows the old and new images.
+- [n] make baselines anywhere but a GitHub Actions Linux runner: fonts and anti-aliasing differ, and every shot would fail.
 
 ## Domain areas
 
@@ -95,6 +97,7 @@ frontend/
   src/lib/          shared code with at least three users (none yet)
   src/test/         MSW server and default handlers, render helpers
   e2e/              Playwright specs (run against the real backend)
+  visual/           Playwright screenshot of every story (one baseline each in visual/baselines/), run against storybook-static
 backend/
   config/           settings, root URLs
   <app>/            one Django app per domain area (health/ is the example)
@@ -122,6 +125,7 @@ From the repo root unless noted.
 | Lint backend                 | `uv run ruff check . && uv run ruff format --check .` (in `backend/`)                       |
 | Frontend tests               | `pnpm test` (runs every story in Chromium too: install it once with `pnpm --filter frontend exec playwright install chromium`) |
 | Storybook                    | `pnpm --filter frontend storybook`                                                          |
+| Story screenshots            | `pnpm --filter frontend test:visual` (after `build-storybook`); new baselines: `pnpm --filter frontend test:visual:update` on a GitHub Actions runner, or the **Update screenshots** workflow on your branch |
 | Backend tests                | `uv run pytest` (in `backend/`)                                                             |
 | End-to-end tests             | `pnpm test:e2e` (starts both servers; needs Postgres)                                       |
 | Regenerate the API contract  | `uv run --env-file .env python manage.py spectacular --file schema.yml` (in `backend/`), then `pnpm generate:api` |
