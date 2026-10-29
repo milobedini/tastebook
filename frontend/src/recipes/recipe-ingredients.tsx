@@ -1,18 +1,21 @@
-import { useId, useState } from 'react';
+import { useId } from 'react';
 
 import type { components } from '../api/schema';
-import { FilterChip, ServingsStepper } from '../dino';
+import { AmountList } from '../dino';
 import { convert, type UnitSystem } from './convert';
 import { formatQuantity } from './format-quantity';
+import { isLaptopQuery, useMediaQuery } from './use-media-query';
 
 type Recipe = components['schemas']['Recipe'];
 type IngredientLine = components['schemas']['IngredientLine'];
 
-type Reading = { factor: number; system: UnitSystem; showOriginal: boolean };
+export type Reading = { factor: number; system: UnitSystem; showOriginal: boolean };
 
-// The line as the page shows it, scaled and in the unit system, without the optional marker.
-const describeLine = (line: IngredientLine, { factor, system }: Reading) => {
-  const quantity = formatQuantity(convert(line, factor, system));
+const amountOf = (line: IngredientLine, { factor, system }: Reading) => formatQuantity(convert(line, factor, system));
+
+// The line as Tastebook would write it, scaled and in the unit system, without the optional marker.
+const describeLine = (line: IngredientLine, reading: Reading) => {
+  const quantity = amountOf(line, reading);
   return `${quantity === '' ? '' : `${quantity} `}${line.ingredient.name}${line.note === '' ? '' : `, ${line.note}`}`;
 };
 
@@ -20,26 +23,27 @@ const describeLine = (line: IngredientLine, { factor, system }: Reading) => {
 const differsFromOriginal = (line: IngredientLine, reading: Reading) =>
   line.original_text !== '' && line.original_text !== describeLine(line, reading);
 
-const IngredientLineItem = ({ line, reading }: { line: IngredientLine; reading: Reading }) => {
+// Names are stored in lower case; the list shows them capitalised.
+const capitalise = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
+
+const itemOf = (line: IngredientLine, reading: Reading) => {
   if (reading.showOriginal && line.original_text !== '') {
-    return <li className="min-w-0 break-words">{line.original_text}</li>;
+    return { key: line.id, name: line.original_text, amount: '' };
   }
-  return (
-    <li className="min-w-0 break-words">
-      {describeLine(line, reading)}
+  const name = (
+    <>
+      {capitalise(line.ingredient.name)}
+      {line.note !== '' && `, ${line.note}`}
       {line.optional && <span className="text-muted"> (optional)</span>}
-    </li>
+    </>
   );
+  return { key: line.id, name, amount: amountOf(line, reading) };
 };
 
 type LinesProps = { lines: IngredientLine[]; reading: Reading };
 
 const IngredientLines = ({ lines, reading }: LinesProps) => (
-  <ul className="flex flex-col gap-2 tabular-nums">
-    {lines.map((line) => (
-      <IngredientLineItem key={line.id} line={line} reading={reading} />
-    ))}
-  </ul>
+  <AmountList items={lines.map((line) => itemOf(line, reading))} />
 );
 
 // A group saved before its lines were added has nothing to show yet.
@@ -48,50 +52,33 @@ const groupsWithLines = (recipe: Recipe) => recipe.ingredient_groups.filter(({ l
 export const hasIngredients = (recipe: Recipe) =>
   recipe.ingredient_lines.length > 0 || groupsWithLines(recipe).length > 0;
 
-// The model allows up to 32767; past this a stepper clicked one at a time stops being a way to get there.
-const maxServings = 99;
+const linesOf = (recipe: Recipe) => [
+  ...recipe.ingredient_lines,
+  ...groupsWithLines(recipe).flatMap((group) => group.lines)
+];
 
-type RecipeIngredientsProps = {
-  recipe: Recipe;
-  system: UnitSystem;
-  showOriginal: boolean;
-  onShowOriginalChange: (showOriginal: boolean) => void;
-};
+// Stays while pressed, so it can always be turned off again.
+export const canShowOriginal = (recipe: Recipe, reading: Reading) =>
+  hasIngredients(recipe) &&
+  (reading.showOriginal || linesOf(recipe).some((line) => differsFromOriginal(line, reading)));
 
-export const RecipeIngredients = ({ recipe, system, showOriginal, onShowOriginalChange }: RecipeIngredientsProps) => {
+type RecipeIngredientsProps = { recipe: Recipe; reading: Reading };
+
+export const RecipeIngredients = ({ recipe, reading }: RecipeIngredientsProps) => {
   const headingId = useId();
-  // The database holds exactly one of servings and a yield.
-  const original = recipe.servings ?? recipe.yield_amount ?? 1;
-  const [scaledTo, setScaledTo] = useState(original);
+  const isLaptop = useMediaQuery(isLaptopQuery);
   if (!hasIngredients(recipe)) {
     return null;
   }
-  const reading = { factor: scaledTo / original, system, showOriginal };
-  const lines = [...recipe.ingredient_lines, ...groupsWithLines(recipe).flatMap((group) => group.lines)];
-  // Stays while pressed, so it can always be turned off again.
-  const canShowOriginal = showOriginal || lines.some((line) => differsFromOriginal(line, reading));
-  const canScale = recipe.servings !== null || recipe.yield_amount !== null;
   return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-4">
+    // On a laptop the ingredients stay in view and scroll inside themselves when taller than the window, so the
+    // keyboard needs to reach the scroll region (WCAG 2.1.1).
+    <section
+      aria-labelledby={headingId}
+      tabIndex={isLaptop ? 0 : undefined}
+      className="flex flex-col gap-4 self-start lg:sticky lg:top-6 lg:col-start-1 lg:row-start-2 lg:max-h-[calc(100dvh-3rem)] lg:overflow-y-auto"
+    >
       <h2 id={headingId}>Ingredients</h2>
-      {(canScale || canShowOriginal) && (
-        <div className="flex flex-wrap items-center gap-2">
-          {canScale && (
-            <ServingsStepper
-              value={scaledTo}
-              min={1}
-              max={Math.max(maxServings, original)}
-              onValueChange={setScaledTo}
-              yieldUnit={recipe.servings === null ? recipe.yield_unit : undefined}
-            />
-          )}
-          {canShowOriginal && (
-            <FilterChip pressed={showOriginal} onPressedChange={onShowOriginalChange}>
-              Show original
-            </FilterChip>
-          )}
-        </div>
-      )}
       {recipe.ingredient_lines.length > 0 && <IngredientLines lines={recipe.ingredient_lines} reading={reading} />}
       {groupsWithLines(recipe).map((group) => (
         <div key={group.id} className="flex flex-col gap-2">
