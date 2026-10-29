@@ -16,7 +16,7 @@ Canvas: https://claude.ai/artifact/V6jwKtEfj9Z78HLqo43xS8
 - Focus is a 3 px Ink ring on the row (radius-row), flush, not on the pill.
 - Disabled keeps focus and reads its reason: Surface track, dashed Field border, Field thumb, Muted label, the reason in Small Muted after an Info icon, tied with `aria-describedby`.
 - Motion: thumb slides 20 px and the track fills in 120 ms ease-out; instant under reduced motion.
-- Forced colours: the track's and thumb's 2 px borders stay drawn, so on shows by the thumb's position and check; the ring becomes Highlight, disabled stays dashed in GrayText.
+- Forced colours: the track's and thumb's 2 px borders stay drawn, so on shows by the thumb's position and check; the ring is drawn in CanvasText, as on the checkbox row, disabled stays dashed in GrayText.
 - At 320 px a long label wraps and the switch stays beside its first line without shrinking; sizes in rem so it scales with text settings.
 - Later variants, not in this issue: a help line under the label, a busy state with `aria-busy`, a group of switches under one heading.
 
