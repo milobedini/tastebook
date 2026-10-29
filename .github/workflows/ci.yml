@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [main]
+  # The Update screenshots workflow starts CI on its commit, since a push with GITHUB_TOKEN starts none.
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -33,6 +35,15 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - run: pnpm --filter frontend build-storybook
+      - run: pnpm --filter frontend test:visual
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: visual-report
+          path: |
+            frontend/playwright-report/visual
+            frontend/test-results/visual
+          retention-days: 14
 
   backend:
     name: Backend
