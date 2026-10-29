@@ -116,7 +116,7 @@ def test_loads_the_repos_catalogue_in_place_of_the_recipes_already_there() -> No
     call_command('load_catalogue')
 
     loaded = titles()
-    assert len(loaded) == 255
+    assert len(loaded) == 305
     assert [title for title in loaded if title in HAND_WRITTEN] == HAND_WRITTEN
     assert 'Typed in the admin' not in loaded
 
@@ -357,7 +357,7 @@ def test_every_wikibooks_recipe_is_credited_and_links_to_its_page() -> None:
     call_command('load_catalogue')
 
     recipes = wikibooks_recipes()
-    assert len(recipes) == 250
+    assert len(recipes) == 300
     assert {recipe['source'] for recipe in recipes} == {CREDIT}
     assert [recipe['slug'] for recipe in recipes if not WIKIBOOKS_PAGE.match(recipe['source_url'])] == []
 
@@ -497,7 +497,7 @@ def test_the_shortlist_holds_about_300_wikibooks_pages_spread_across_cuisines() 
     assert {entry['course'] for entry in shortlist} <= {'Baking', 'Breakfast', 'Dessert', 'Main', 'Side'}
     assert [cuisine for cuisine, count in per_cuisine.items() if count > 40] == []
     batches = Counter(entry['batch'] for entry in shortlist if entry['batch'] is not None)
-    assert batches == {1: 50, 2: 50, 3: 50, 4: 50, 5: 50}
+    assert batches == {1: 50, 2: 50, 3: 50, 4: 50, 5: 50, 6: 50}
 
 
 @pytest.mark.django_db
