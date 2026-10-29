@@ -86,6 +86,7 @@
   --radius-note: 20px;
   --radius-check: 10px;
   --radius-row: 14px;
+  --radius-option: 16px;
 
   /* Nothing else has a shadow (docs/design.md, Space and shape). */
   --shadow-*: initial;
