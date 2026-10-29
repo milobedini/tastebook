@@ -126,7 +126,7 @@ describe('RecipePage', () => {
 
     renderRoute('/recipes/shakshuka');
 
-    expect(await screen.findByText('Loading recipe…')).toBeInTheDocument();
+    expect((await screen.findByText('Opening the recipe…')).closest('[aria-busy="true"]')).not.toBeNull();
     await waitFor(() => expect(document.title).toBe('Recipe · Tastebook'));
 
     release();
@@ -134,7 +134,7 @@ describe('RecipePage', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Shakshuka' })).toBeInTheDocument();
     expect(screen.getByText('Eggs in spiced tomatoes.')).toBeInTheDocument();
     await waitFor(() => expect(document.title).toBe('Shakshuka · Tastebook'));
-    expect(screen.queryByText('Loading recipe…')).not.toBeInTheDocument();
+    expect(screen.queryByText('Opening the recipe…')).not.toBeInTheDocument();
   });
 
   it.each([
@@ -585,8 +585,10 @@ describe('RecipePage', () => {
 
     renderRoute('/recipes/shakshuka');
 
-    expect(await screen.findByRole('alert')).toHaveTextContent("The recipe couldn't be loaded.");
-    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent("Couldn't load the recipe");
+    expect(alert).toHaveTextContent('Check your connection, then try again.');
+    expect(within(alert).getByRole('button', { name: 'Try again' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Recipe not found' })).not.toBeInTheDocument();
   });
 
@@ -598,13 +600,14 @@ describe('RecipePage', () => {
     const release = holdRecipe(() => HttpResponse.json<Recipe>(shakshuka));
     await userEvent.click(tryAgain);
 
-    expect(await screen.findByText('Loading recipe…')).toBeInTheDocument();
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Trying…' })).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't load the recipe");
+    expect(screen.queryByText('Opening the recipe…')).not.toBeInTheDocument();
 
     release();
 
     expect(await screen.findByRole('heading', { name: 'Shakshuka' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('brings the alert back when the retry fails again', async () => {
@@ -615,12 +618,14 @@ describe('RecipePage', () => {
     const release = holdRecipe(() => new HttpResponse(null, { status: 503 }));
     await userEvent.click(tryAgain);
 
-    expect(await screen.findByText('Loading recipe…')).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Trying…' })).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't load the recipe");
+    expect(screen.queryByText('Opening the recipe…')).not.toBeInTheDocument();
 
     release();
 
-    expect(await screen.findByRole('alert')).toHaveTextContent("The recipe couldn't be loaded.");
-    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Try again' })).not.toHaveAttribute('aria-busy');
+    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't load the recipe");
   });
 
   it.each([
