@@ -6,6 +6,7 @@ export const boardByTitle: Record<string, `docs/design/${string}.dc.png`> = {
   'Dino/RemovableChip': 'docs/design/dino/controls.dc.png',
   'Dino/SegmentedControl': 'docs/design/dino/controls.dc.png',
   'Dino/ServingsStepper': 'docs/design/dino/controls.dc.png',
+  'Dino/Switch': 'docs/design/dino/switch.dc.png',
   'Dino/Banner': 'docs/design/dino/feedback.dc.png',
   'Dino/Note': 'docs/design/dino/feedback.dc.png',
   'Dino/Toast': 'docs/design/dino/feedback.dc.png',

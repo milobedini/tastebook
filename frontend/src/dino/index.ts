@@ -23,4 +23,5 @@ export { ServingsStepper } from './servings-stepper';
 export { Sheet } from './sheet';
 export { Toaster, toast } from './sonner';
 export { Sticker, StickeredPhoto, type StickerItem } from './sticker';
+export { Switch } from './switch';
 export { Wordmark } from './wordmark';

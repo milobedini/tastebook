@@ -26,13 +26,15 @@ const preview: Preview = {
   afterEach: ({ canvasElement }) => {
     const shortControls = [
       ...canvasElement.ownerDocument.body.querySelectorAll<HTMLElement>(
-        'button, a[href], input, select, [role="checkbox"]'
+        'button, a[href], input, select, [role="checkbox"], [role="switch"]'
       )
     ]
       .filter((control) => control.checkVisibility())
       .map((control) => {
-        // A checkbox's target is its whole row, the label around it.
-        const target = control.getAttribute('role') === 'checkbox' ? (control.closest('label') ?? control) : control;
+        // A checkbox's or switch's target is its whole row, the label around it.
+        const target = ['checkbox', 'switch'].includes(control.getAttribute('role') ?? '')
+          ? (control.closest('label') ?? control)
+          : control;
         return {
           name: control.getAttribute('aria-label') ?? control.textContent ?? control.outerHTML,
           // The layout height, so a pressed control's shrink doesn't count.
