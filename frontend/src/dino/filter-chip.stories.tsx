@@ -58,7 +58,7 @@ const TiltedChip = ({ label, tilt, on = false }: { label: string; tilt: 'left' |
 
 export const Tilted = {
   render: () => (
-    <div className="flex gap-2">
+    <div className="flex flex-wrap gap-2">
       <TiltedChip label="Quick" tilt="left" on />
       <TiltedChip label="Veggie" tilt="right" />
       <TiltedChip label="One-pot" tilt="left" />
