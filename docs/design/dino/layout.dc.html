@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Dino in Picnic: layout</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}
+.pn{--ground:#1c1233;--surface:#2a1d47;--ink:#fff4ea;--muted:#cbbfe0;--pop:#ffb38a;--field:#8f7fb0;--line:#3a2c5c;--peach:#ffb38a;--mint:#8fe3c0;--butter:#ffe08a;--pink:#ff9fc6;--on-pastel:#2a1440;--paper:#fff8ef;--tape:rgb(255 224 138 / 0.85);--lift:0 12px 28px rgb(0 0 0 / 0.35);color-scheme:dark}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--muted)}
+.frame{position:relative;overflow:hidden;background:var(--ground);border:1px solid var(--line);border-radius:20px;flex-shrink:0}
+.top{display:flex;align-items:center;justify-content:space-between;gap:24px;height:76px;padding:0 32px;border-bottom:1px solid var(--line)}
+.wm{font-size:30px;line-height:32px;font-style:italic}
+.ib{width:44px;height:44px;border-radius:999px;border:2px solid transparent;box-sizing:border-box;background:var(--surface);color:var(--ink);display:inline-flex;align-items:center;justify-content:center}
+.search{position:relative;width:360px}
+.search input{width:100%;height:48px;border-radius:999px;border:2px solid var(--field);background:transparent;color:var(--ink);padding:0 18px 0 46px;box-sizing:border-box;font:700 16px/24px Nunito,system-ui,sans-serif}
+.search input::placeholder{color:var(--muted);font-weight:600}
+.search svg{position:absolute;left:16px;top:14px;color:var(--muted)}
+.h1{margin:0;font-size:46px;line-height:44px;position:relative;align-self:flex-start}
+.chip{height:44px;padding:0 14px;border-radius:999px;border:2px solid var(--field);box-sizing:border-box;background:transparent;color:var(--ink);font:800 15px/20px Nunito,system-ui,sans-serif;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.chip-on{background:var(--mint);color:var(--on-pastel);border-color:transparent;padding-left:10px}
+.grp{margin:0;padding:0;border:0;display:flex;flex-direction:column;gap:10px}
+.grp legend{padding:0;margin-bottom:10px;font-size:15px;line-height:20px;font-weight:800}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.card{display:flex;flex-direction:column;gap:12px;text-decoration:none;color:var(--ink);min-width:0}
+.pol{position:relative;display:block;background:var(--paper);color:var(--on-pastel);box-shadow:var(--lift);padding:8px 8px 0;box-sizing:border-box}
+.pol img,.pol .ph{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.pol .c{display:block;padding:4px 2px 8px;font-size:21px;line-height:22px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{font-size:13px;line-height:17px;font-weight:700;color:var(--muted);padding-left:4px}
+.gingham{background-color:var(--paper);background-image:repeating-linear-gradient(0deg,rgb(42 20 64 / 0.13) 0 10px,transparent 10px 20px),repeating-linear-gradient(90deg,rgb(42 20 64 / 0.13) 0 10px,transparent 10px 20px);display:flex;align-items:center;justify-content:center}
+.setting{background:var(--paper);border:2px dashed rgb(42 20 64 / 0.28);box-sizing:border-box;display:flex;align-items:center;justify-content:center}
+.btn{height:44px;padding:0 18px;border-radius:999px;border:2px solid var(--field);box-sizing:border-box;background:transparent;color:var(--ink);font:800 15px/20px Nunito,system-ui,sans-serif;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.ghost{border-color:transparent}
+.tape{position:absolute;top:-11px;left:50%;width:72px;height:22px;margin-left:-36px;background:var(--tape)}
+.stk{position:absolute;font:800 13px/16px Nunito,system-ui,sans-serif;color:var(--on-pastel);padding:8px 12px;border-radius:18px}
+.blob{color:var(--on-pastel);padding:12px 8px;display:flex;flex-direction:column-reverse;align-items:center;margin:0}
+.blob dt{font-size:12px;font-weight:700}
+.blob dd{margin:0;font-size:26px;line-height:28px}
+.ing{list-style:none;margin:0;padding:0}
+.ing li{display:flex;align-items:baseline;gap:8px;padding:7px 0;font-size:16px;font-weight:600}
+.ing .dots{flex-grow:1;border-bottom:2px dotted var(--field);transform:translateY(-4px)}
+.ing .amt{font-weight:800;font-variant-numeric:tabular-nums}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.steps li{display:grid;grid-template-columns:44px minmax(0, 1fr);gap:8px;padding:16px 0;border-top:1px solid var(--line)}
+.steps .n{font-size:38px;line-height:30px;font-style:italic;color:var(--pop)}
+.steps p{margin:0;font-size:17px;line-height:27px;font-weight:600;max-width:62ch}
+.seg{margin:0;padding:3px;border:0;border-radius:999px;background:var(--surface);display:inline-flex;gap:2px}
+.seg span{height:44px;padding:0 16px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;font:800 15px/20px Nunito,system-ui,sans-serif;color:var(--muted)}
+.seg .on{background:var(--mint);color:var(--on-pastel);padding-left:10px}
+.st{width:44px;height:44px;border-radius:999px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center}
+.lnk{color:var(--ink);text-decoration:underline;text-decoration-color:var(--field);text-decoration-thickness:2px;text-underline-offset:3px}
+</style>
+</helmet>
+<div class="pn" style="width: 2300px; height: 2400px; box-sizing: border-box; padding: 56px; background: var(--ground); color: var(--ink); font-family: Nunito, system-ui, sans-serif; display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">Dino in Picnic · layout</span>
+    <h1 class="serif" style="margin: 0; font-size: 46px; line-height: 44px">The page at every width</h1>
+    <div style="display: flex; gap: 40px; margin-top: 10px">
+      <span class="cap"><b style="color: var(--ink)">Phone</b>, under 640 px: 20 px gutters, two polaroids a row after an optional featured one, filters in a sheet</span>
+      <span class="cap"><b style="color: var(--ink)">Tablet</b>, 640 to 1024 px: 32 px gutters, three polaroids a row, filters in a sheet</span>
+      <span class="cap"><b style="color: var(--ink)">Laptop</b>, 1024 px and up: 32 px gutters, content up to 1200 px, filters beside the list</span>
+      <span class="cap">With a second tab: tabs in the top bar from tablet up, the dock on phones</span>
+    </div>
+  </header>
+
+  <!-- Row 1: browse -->
+  <div style="display: flex; gap: 48px; align-items: flex-start">
+
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <span class="cap">Recipe list · laptop, 1280 px</span>
+      <div class="frame" style="width: 1280px; height: 840px">
+        <div class="top">
+          <span class="serif wm">Tastebook</span>
+          <div class="search"><label for="lq" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search recipes</label><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><input id="lq" type="search" placeholder="Search recipes"></div>
+        </div>
+        <div style="max-width: 1200px; margin: 0 auto; padding: 36px 32px 0; display: flex; flex-direction: column; gap: 28px">
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <h1 class="serif h1">What shall we <span style="position: relative; font-style: italic; color: var(--pop)">cook<svg aria-hidden="true" width="86" height="12" viewBox="0 0 86 12" style="position: absolute; left: -2px; bottom: -8px"><path d="M2 7c7-5 12-5 19 0s12 5 19 0 12-5 19 0 12 5 19 0 6-4 6-4" fill="none" stroke="var(--pop)" stroke-width="3" stroke-linecap="round"></path></svg></span> tonight?</h1>
+            <span class="cap">24 recipes</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 48px; align-items: start">
+            <aside aria-label="Filters" style="display: flex; flex-direction: column; gap: 22px">
+              <fieldset class="grp"><legend>Total time</legend><div class="row"><span class="chip">15 min</span><span class="chip chip-on"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>30 min</span><span class="chip">1 hr</span></div></fieldset>
+              <fieldset class="grp"><legend>Diet</legend><div class="row"><span class="chip">Vegan</span><span class="chip chip-on"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Vegetarian</span><span class="chip">Gluten-free</span></div></fieldset>
+              <fieldset class="grp"><legend>Difficulty</legend><div class="row"><span class="chip">Easy</span><span class="chip">Medium</span><span class="chip">Hard</span></div></fieldset>
+              <fieldset class="grp"><legend>Ingredients</legend><div class="search" style="width: 100%"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"></path></svg><input type="text" placeholder="Include an ingredient" aria-label="Include an ingredient"></div></fieldset>
+              <span class="cap">Prep and cook time, course, cuisine and one-pot follow</span>
+            </aside>
+            <div style="display: flex; flex-direction: column; gap: 28px">
+              <div class="row" style="align-items: center"><span class="chip chip-on">30 min<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></span><span class="chip chip-on">Vegetarian<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></span><span class="btn ghost">Clear filters</span></div>
+              <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 44px 36px">
+                <sc-for list="{{wide}}" as="c" hint-placeholder-count="8">
+                  <a href="#" class="card">
+                    <span class="pol" style="transform: rotate({{c.tilt}}deg)">
+                      <sc-if value="{{c.photo}}" hint-placeholder-val="{{true}}"><img src="{{c.img}}" alt=""></sc-if>
+                      <sc-if value="{{c.setting}}" hint-placeholder-val="{{false}}"><span class="ph setting" aria-hidden="true"><svg width="80" height="54" viewBox="0 0 96 64" fill="none" stroke="var(--on-pastel)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="48" cy="34" r="22"></circle><circle cx="48" cy="34" r="14" stroke-opacity="0.45"></circle><path d="M14 12v12a5 5 0 0 0 10 0V12M19 12v44M80 12c-5 3-6 12-6 18h6v26"></path></svg></span></sc-if>
+                      <sc-if value="{{c.rug}}" hint-placeholder-val="{{false}}"><span class="ph gingham" aria-hidden="true"><span style="width: 64px; height: 64px; border-radius: 50%; background: var(--paper); box-shadow: 0 3px 8px rgb(42 20 64 / 0.25), inset 0 0 0 8px rgb(42 20 64 / 0.06)"></span></span></sc-if>
+                      <span class="c serif">{{c.name}}</span>
+                    </span>
+                    <span class="meta">{{c.meta}}</span>
+                  </a>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <span class="cap">Recipe list · tablet, 834 px</span>
+      <div class="frame" style="width: 834px; height: 840px">
+        <div class="top">
+          <span class="serif wm">Tastebook</span>
+          <span class="ib" role="img" aria-label="Search recipes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></span>
+        </div>
+        <div style="padding: 32px 32px 0; display: flex; flex-direction: column; gap: 26px">
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <h1 class="serif h1">What shall we <span style="position: relative; font-style: italic; color: var(--pop)">cook<svg aria-hidden="true" width="86" height="12" viewBox="0 0 86 12" style="position: absolute; left: -2px; bottom: -8px"><path d="M2 7c7-5 12-5 19 0s12 5 19 0 12-5 19 0 12 5 19 0 6-4 6-4" fill="none" stroke="var(--pop)" stroke-width="3" stroke-linecap="round"></path></svg></span> tonight?</h1>
+            <span class="cap">24 recipes</span>
+          </div>
+          <div class="row" style="align-items: center">
+            <span class="btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4"></path></svg>Filters · 2</span>
+            <span class="chip chip-on">30 min<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></span>
+            <span class="chip chip-on">Vegetarian<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 44px 32px">
+            <sc-for list="{{mid}}" as="c" hint-placeholder-count="6">
+              <a href="#" class="card">
+                <span class="pol" style="transform: rotate({{c.tilt}}deg)">
+                  <sc-if value="{{c.photo}}" hint-placeholder-val="{{true}}"><img src="{{c.img}}" alt=""></sc-if>
+                  <sc-if value="{{c.setting}}" hint-placeholder-val="{{false}}"><span class="ph setting" aria-hidden="true"><svg width="80" height="54" viewBox="0 0 96 64" fill="none" stroke="var(--on-pastel)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="48" cy="34" r="22"></circle><circle cx="48" cy="34" r="14" stroke-opacity="0.45"></circle><path d="M14 12v12a5 5 0 0 0 10 0V12M19 12v44M80 12c-5 3-6 12-6 18h6v26"></path></svg></span></sc-if>
+                  <sc-if value="{{c.rug}}" hint-placeholder-val="{{false}}"><span class="ph gingham" aria-hidden="true"><span style="width: 64px; height: 64px; border-radius: 50%; background: var(--paper); box-shadow: 0 3px 8px rgb(42 20 64 / 0.25), inset 0 0 0 8px rgb(42 20 64 / 0.06)"></span></span></sc-if>
+                  <span class="c serif">{{c.name}}</span>
+                </span>
+                <span class="meta">{{c.meta}}</span>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <span class="cap">Filters · 2 opens the filters in a sheet, with “Show 24 recipes” at its foot</span>
+    </div>
+  </div>
+
+  <!-- Row 2: recipe -->
+  <div style="display: flex; gap: 48px; align-items: flex-start">
+
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <span class="cap">Recipe · laptop, 1280 px</span>
+      <div class="frame" style="width: 1280px; height: 1060px">
+        <div class="top">
+          <span class="serif wm">Tastebook</span>
+          <div class="search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><input type="search" placeholder="Search recipes" aria-label="Search recipes"></div>
+        </div>
+        <div style="max-width: 1200px; margin: 0 auto; padding: 16px 32px 0; display: flex; flex-direction: column; gap: 24px">
+          <a href="#" style="display: inline-flex; align-items: center; gap: 4px; min-height: 44px; align-self: flex-start; text-decoration: none; font-weight: 800; font-size: 15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>All recipes</a>
+          <div style="display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 64px; align-items: start">
+
+            <div style="display: flex; flex-direction: column; gap: 40px">
+              <div style="position: relative; padding: 8px 24px 0">
+                <div class="pol" style="padding: 12px 12px 30px; transform: rotate(-2deg)">
+                  <span class="tape" aria-hidden="true"></span>
+                  <img src="/_blob/bb238c60919831b3e8d405fc7954f64b" alt="Chana masala in a pan, topped with tomato and coriander" style="aspect-ratio: 7/5">
+                  <span style="position: absolute; left: 14px; bottom: 8px; font: 700 11px Nunito, sans-serif; color: #5d4a73">Photo: Simon Law, CC BY-SA 2.0</span>
+                </div>
+                <span class="stk" style="left: 0; bottom: 40px; background: var(--pink); transform: rotate(-12deg)">Vegan</span>
+                <span class="stk" style="right: 0; top: 36px; background: var(--mint); transform: rotate(9deg)">Gluten-free</span>
+              </div>
+              <section aria-labelledby="ing-w" style="display: flex; flex-direction: column; gap: 8px">
+                <h2 id="ing-w" class="serif" style="margin: 0; font-size: 28px; line-height: 30px; font-style: italic">Ingredients</h2>
+                <ul class="ing">
+                  <sc-for list="{{ingredients}}" as="i" hint-placeholder-count="10">
+                    <li><span>{{i.name}}</span><span class="dots" aria-hidden="true"></span><span class="amt">{{i.amount}}</span></li>
+                  </sc-for>
+                </ul>
+                <span class="cap">Stays in view while the method scrolls</span>
+              </section>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 26px">
+              <div style="display: flex; flex-direction: column; gap: 14px">
+                <h1 class="serif h1">Chana masala<svg aria-hidden="true" width="150" height="12" viewBox="0 0 150 12" style="position: absolute; left: 0; bottom: -8px"><path d="M2 7c7-5 12-5 19 0s12 5 19 0 12-5 19 0 12 5 19 0 12-5 19 0 12 5 19 0 12-5 19 0" fill="none" stroke="var(--pop)" stroke-width="3" stroke-linecap="round"></path></svg></h1>
+                <p style="margin: 6px 0 0; font-size: 17px; line-height: 27px; font-weight: 600; color: var(--muted); max-width: 62ch">Punjabi chickpeas in a thick tomato and whole-spice sauce. Indian, and easy. From <a href="#" class="lnk">BBC Good Food</a>, adapted.</p>
+              </div>
+              <dl style="margin: 0; display: grid; grid-template-columns: repeat(3, 150px); gap: 12px">
+                <div class="blob" style="background: var(--peach); border-radius: 46% 54% 42% 58% / 55% 45% 55% 45%"><dt>prep</dt><dd class="serif">15 min</dd></div>
+                <div class="blob" style="background: var(--butter); border-radius: 58% 42% 55% 45% / 45% 55% 45% 55%"><dt>cook</dt><dd class="serif">1 hr 30</dd></div>
+                <div class="blob" style="background: var(--mint); border-radius: 42% 58% 48% 52% / 52% 48% 52% 48%"><dt>soak first</dt><dd class="serif">12 hrs</dd></div>
+              </dl>
+              <div style="display: flex; align-items: center; gap: 24px">
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <span class="st" style="border: 2px solid var(--field)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></span>
+                  <span style="min-width: 62px; text-align: center; font-weight: 800; font-size: 15px">Serves 4</span>
+                  <span class="st" style="background: var(--mint); color: var(--on-pastel)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"></path></svg></span>
+                </div>
+                <span class="seg"><span class="on"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Metric</span><span>US</span></span>
+              </div>
+              <section aria-labelledby="m-w" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px">
+                <h2 id="m-w" class="serif" style="margin: 0 0 6px; font-size: 28px; line-height: 30px; font-style: italic">Method</h2>
+                <ol class="steps">
+                  <sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+                    <li><span class="serif n" aria-hidden="true">{{s.n}}</span><p>{{s.text}}</p></li>
+                  </sc-for>
+                </ol>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <span class="cap">Recipe · phone, 390 px, scrolled to the method</span>
+      <div class="frame" style="width: 390px; height: 844px; border-radius: 44px">
+        <div style="padding: 24px 20px 0; display: flex; flex-direction: column; gap: 10px">
+          <ul class="ing" style="opacity: 1">
+            <sc-for list="{{tail}}" as="i" hint-placeholder-count="3">
+              <li><span>{{i.name}}</span><span class="dots" aria-hidden="true"></span><span class="amt">{{i.amount}}</span></li>
+            </sc-for>
+          </ul>
+          <h2 class="serif" style="margin: 18px 0 4px; font-size: 28px; line-height: 30px; font-style: italic">Method</h2>
+          <ol class="steps">
+            <sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+              <li style="grid-template-columns: 34px minmax(0, 1fr); padding: 14px 0"><span class="serif n" aria-hidden="true" style="font-size: 32px; line-height: 26px">{{s.n}}</span><p style="font-size: 16px; line-height: 24px">{{s.text}}</p></li>
+            </sc-for>
+          </ol>
+        </div>
+      </div>
+      <span class="cap">Numbers in Pop, as in cooking mode; the list is a real ordered list</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2300,"height":2400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const chana = '/_blob/bb238c60919831b3e8d405fc7954f64b';
+    const bibimbap = '/_blob/f11c4f513acb075940f8d79ec1caaa0d';
+    const baklava = '/_blob/4c27369d05456b8d7596f4683c3ce713';
+    const card = (name, meta, kind, img, tilt) => ({ name, meta, img, tilt, photo: kind === 'photo', setting: kind === 'setting', rug: kind === 'rug' });
+    const cards = [
+      card('Chana masala', '1 hr 45 · Easy · Indian', 'photo', chana, -3),
+      card('Bibimbap', '35 min · Easy · Korean', 'photo', bibimbap, 2),
+      card('Shakshuka', '30 min · Easy · Tunisian', 'setting', '', -2),
+      card('Baklava', '1 hr 20 · Medium · Turkish', 'photo', baklava, 3),
+      card('Ribollita', '1 hr · Easy · Italian', 'rug', '', 2),
+      card('Dal makhani', '50 min · Medium · Indian', 'setting', '', -3),
+      card('Spanakopita', '1 hr · Medium · Greek', 'rug', '', -2),
+      card('Mushroom risotto', '40 min · Medium · Italian', 'setting', '', 3)
+    ];
+    const ingredients = [
+      { name: 'Dried chickpeas', amount: '250 g' },
+      { name: 'Water', amount: '500 ml' },
+      { name: 'Vegetable oil', amount: '1 tbsp' },
+      { name: 'Coriander seeds', amount: '1 tsp' },
+      { name: 'Cumin seeds', amount: '1 tsp' },
+      { name: 'Nigella seeds', amount: '½ tsp' },
+      { name: 'Onion', amount: '1 large' },
+      { name: 'Garlic', amount: '3 cloves' },
+      { name: 'Tinned tomatoes', amount: '400 g' },
+      { name: 'Ginger', amount: '3 cm' }
+    ];
+    return {
+      wide: cards,
+      mid: cards.slice(0, 6),
+      ingredients,
+      tail: ingredients.slice(7),
+      steps: [
+        { n: '1', text: 'Put the chickpeas in a large bowl, cover with plenty of cold water and leave to soak overnight.' },
+        { n: '2', text: 'The next day, drain the chickpeas and put them in a large pan with the 500 ml of fresh water and salt to taste. Bring to the boil, then simmer for 60 to 90 minutes until tender.' },
+        { n: '3', text: 'Heat the oil in a heavy-based pan. Add the coriander, cumin and nigella seeds and cook briefly until they crackle. Quickly add the onion and garlic, lower the heat to medium and fry until the onion is translucent.' },
+        { n: '4', text: 'Add the tomatoes and ginger and cook for 10 minutes until thick. Stir in the drained chickpeas and simmer for 15 minutes more.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
