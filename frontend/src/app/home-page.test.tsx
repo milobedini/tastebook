@@ -121,7 +121,7 @@ describe('HomePage', () => {
 
     await userEvent.click(screen.getByRole('link', { name: 'Browse recipes' }));
 
-    expect(await screen.findByRole('heading', { name: 'Recipes' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'What shall we cook tonight?' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Tastebook' })).not.toBeInTheDocument();
   });
 });

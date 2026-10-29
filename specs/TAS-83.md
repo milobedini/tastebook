@@ -215,7 +215,7 @@ The path repeats the board's `c7-5 12-5 19 0s12 5 19 0` wave (38 px a period) up
    recipes/
      recipes-page.tsx           title, grid, filter column or sheet
      recipe-filter-panel.tsx    tilted prop
-     recipe-filters.ts          countFilters
+     active-filters.tsx         useActiveFilters, countActiveFilters
 +    use-media-query.ts         useMediaQuery, isLaptopQuery
    test/setup.ts                matchMedia stub
 +  test/media.ts               setLaptop(matches)
@@ -239,8 +239,8 @@ The path repeats the board's `c7-5 12-5 19 0s12 5 19 0` wave (38 px a period) up
 - **Below laptop.** A `flex flex-wrap items-center gap-2` row holds the Filters button and then `<ActiveFilters>`. Under it is `<RecipeList>`. The Filters button is the `trigger` of a controlled `<Sheet title="Filters" open={isPanelOpen} onOpenChange={setIsPanelOpen}>`. The sheet's children are `<RecipeFilterPanel id={FILTER_PANEL_ID} tilted={false} … />` and then a full-width primary `Button` that closes it.
   - The button's label comes from the list query: "Show 24 recipes", or "Show 1 recipe", or "Show recipes" while `data` is undefined or `isPlaceholderData`.
   - `RecipesPage` calls `useRecipes({ searchTerm, filters })` for the count. It's the same query key `RecipeList` uses, so there's no second request.
-- **Filters button.** `variant="secondary"`, with the `SlidersHorizontal` icon. Its label is `Filters` when `countFilters(filters) === 0`, and `Filters · ${count}` otherwise. Drop `aria-expanded` and `aria-controls`, since Radix's trigger sets `aria-haspopup="dialog"` and `aria-expanded` itself.
-- **countFilters** (`recipe-filters.ts`, exported): the number of values the filters hold. It counts each time limit set, each difficulty, course, cuisine, diet, included and excluded ingredient, and one-pot when on. `includeMatch` isn't a filter of its own.
+- **Filters button.** `variant="secondary"`, with the `SlidersHorizontal` icon. Its label is `Filters` when `countActiveFilters` gives 0, and `Filters · ${count}` otherwise. Drop `aria-expanded` and `aria-controls`, since Radix's trigger sets `aria-haspopup="dialog"` and `aria-expanded` itself.
+- **countActiveFilters** (`active-filters.tsx`, exported): the number of chips under Filters on, from `useActiveFilters`, so a slug the loaded lists don't know is counted no more than it gets a chip. "With all of these" isn't counted: `includeMatch` isn't a filter of its own. (Review round 1 replaced `countFilters`, which counted unknown slugs: `/recipes?cuisine=bogus` read "Filters · 1" with no chip.)
 - **Focus after removing a chip.** The removed chip or "Clear filters" disappears, so `removeFilters` focuses `filtersHome.current`. That's the Filters button below laptop and the `<aside>` on a laptop. Both attach the same ref.
 - **Tilt.** `RecipeFilterPanel` takes `tilted: boolean`. When true, every `FilterChip` in it gets `tilt={index % 2 === 0 ? 'left' : 'right'}`, by its index within its group. The sheet is a dialog, and `docs/design.md` (Tilt) never tilts dialogs, so the sheet passes `false`.
 - **Grid.** `<ul className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-9 lg:gap-y-11 large-text:grid-cols-1">`. The lean still alternates by index. `FIRST_ROW_LENGTH` becomes 4, the longest first row.
@@ -470,7 +470,7 @@ Where the boards and `docs/design.md` disagree, this spec builds to the doc (`sp
 **Part 2 (sub-issue)**
 
 1. `use-media-query.ts`, the `matchMedia` stub and `test/media.ts`. Done when: a test with `setLaptop(true)` renders the aside.
-2. `countFilters` in `recipe-filters.ts`, with its table test. Done when: `recipe-filters.test.ts` passes.
+2. `useActiveFilters` and `countActiveFilters` in `active-filters.tsx`. Done when: the Filters button test passes for an unknown cuisine.
 3. `RecipeFilterPanel`'s `tilted` prop. Done when: `pnpm lint` passes.
 4. `recipes-page.tsx`: the title, the laptop column, the sheet, the Filters count and focus after removal. Done when: `recipes-page.test.tsx` passes.
 5. The grid classes, `FIRST_ROW_LENGTH` and the card `sizes`. Done when: the photo test asserts the new `sizes`.
@@ -517,8 +517,6 @@ Where the boards and `docs/design.md` disagree, this spec builds to the doc (`sp
 
 **Part 2**
 
-- `frontend/src/recipes/recipe-filters.test.ts` (edit)
-  - `it.each` for `countFilters`, asserts: `noFilters` → 0. One cuisine → 1. Two cuisines, a total limit and one-pot → 4. Two included ingredients with `includeMatch: 'all'` → 2.
 - `frontend/src/recipes/recipes-page.test.tsx` (edit)
   - The title, asserts: `getByRole('heading', { level: 1, name: 'What shall we cook tonight?' })`.
   - Laptop column, asserts: with `setLaptop(true)`, the `complementary` landmark "Filters" holds the group "Cuisine". There's no button named "Filters", and no dialog.

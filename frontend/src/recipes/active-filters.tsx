@@ -15,7 +15,7 @@ type NamedLists = { courses?: Named[]; cuisines?: Named[]; ingredients?: Named[]
 
 type ChipLook = ComponentProps<typeof RemovableChip>['look'];
 
-type ActiveFilter = { key: string; label: string; without: RecipeFilters; look?: ChipLook };
+export type ActiveFilter = { key: string; label: string; without: RecipeFilters; look?: ChipLook };
 
 // While the list loads or has failed, a chip shows its slug so it stays removable; once loaded, the API ignores a slug
 // that isn't in it, so it gets no chip.
@@ -31,8 +31,10 @@ const namedChips = (
     return name === undefined ? [] : [{ key: `${kind}-${slug}`, label: toLabel(name), without: without(slug) }];
   });
 
+const INCLUDE_MATCH_KEY = 'include-match';
+
 const includeMatchChip = (filters: RecipeFilters): ActiveFilter => ({
-  key: 'include-match',
+  key: INCLUDE_MATCH_KEY,
   label: 'With all of these',
   without: { ...filters, includeMatch: 'any' },
   look: 'outline'
@@ -88,13 +90,20 @@ const toActiveFilters = (filters: RecipeFilters, { courses, cuisines, ingredient
   )
 ];
 
-type ActiveFiltersProps = { filters: RecipeFilters; onChange: (filters: RecipeFilters) => void };
-
-export const ActiveFilters = ({ filters, onChange }: ActiveFiltersProps) => {
+export const useActiveFilters = (filters: RecipeFilters) => {
   const { data: courses } = useCourses();
   const { data: cuisines } = useCuisines();
   const { data: ingredients } = useIngredients();
-  const activeFilters = toActiveFilters(filters, { courses, cuisines, ingredients });
+  return toActiveFilters(filters, { courses, cuisines, ingredients });
+};
+
+// The Filters button counts the chips, but not "With all of these": on its own it filters nothing.
+export const countActiveFilters = (activeFilters: ActiveFilter[]) =>
+  activeFilters.filter(({ key }) => key !== INCLUDE_MATCH_KEY).length;
+
+type ActiveFiltersProps = { activeFilters: ActiveFilter[]; onChange: (filters: RecipeFilters) => void };
+
+export const ActiveFilters = ({ activeFilters, onChange }: ActiveFiltersProps) => {
   if (activeFilters.length === 0) {
     return null;
   }

@@ -659,9 +659,9 @@ describe('RecipePage', () => {
   });
 
   it.each([
-    ['/recipes/apple-tart', 'All recipes', 'Recipes'],
-    ['/recipes/no-such-recipe', 'All recipes', 'Recipes']
-  ])('from %s, follows "%s" to the %s page', async (path, linkName, headingName) => {
+    ['/recipes/apple-tart', 'All recipes', 'What shall we cook tonight?'],
+    ['/recipes/no-such-recipe', 'All recipes', 'What shall we cook tonight?']
+  ])('from %s, follows "%s" to the list headed "%s"', async (path, linkName, headingName) => {
     renderRoute(path);
 
     await userEvent.click(screen.getByRole('link', { name: linkName }));
