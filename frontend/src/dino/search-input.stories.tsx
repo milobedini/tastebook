@@ -42,3 +42,11 @@ export const IsFocus = {
   args: { value: 'dahl' },
   parameters: { pseudo: { focusVisible: ['input'], focusWithin: ['.group'] } }
 } satisfies Story;
+export const IsDisabled = {
+  args: { value: 'dahl', 'aria-disabled': true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('searchbox', { name: 'Search recipes' })).toHaveValue('dahl');
+    await expect(canvas.queryByRole('button', { name: 'Clear search' })).not.toBeInTheDocument();
+  }
+} satisfies Story;

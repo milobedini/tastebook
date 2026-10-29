@@ -25,14 +25,17 @@ export const Input = ({ className, type = 'text', readOnly, ...props }: InputPro
   />
 );
 
-type SearchInputProps = Omit<InputProps, 'type' | 'value' | 'onChange'> & {
+// The label is usually hidden, so the placeholder is the only text the empty field shows.
+type SearchInputProps = Omit<InputProps, 'type' | 'value' | 'onChange' | 'placeholder'> & {
   value: string;
   onValueChange: (value: string) => void;
+  placeholder: string;
 };
 
 export const SearchInput = ({ className, value, onValueChange, ...props }: SearchInputProps) => {
   const input = useRef<HTMLInputElement>(null);
   const hasValue = value !== '';
+  const canClear = hasValue && !isAriaDisabled(props['aria-disabled']);
 
   const clear = () => {
     onValueChange('');
@@ -54,7 +57,7 @@ export const SearchInput = ({ className, value, onValueChange, ...props }: Searc
         className={cn('pl-11.5 [&::-webkit-search-cancel-button]:appearance-none', hasValue && 'pr-12.5', className)}
         {...props}
       />
-      {hasValue && (
+      {canClear && (
         <button
           type="button"
           aria-label="Clear search"

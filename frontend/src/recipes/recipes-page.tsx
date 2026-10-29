@@ -44,7 +44,7 @@ type RecipeSearchProps = {
 
 const RecipeSearch = ({ value, onValueChange }: RecipeSearchProps) => (
   <Field label="Search recipes" hideLabel>
-    {(control) => <SearchInput {...control} value={value} onValueChange={onValueChange} />}
+    {(control) => <SearchInput {...control} value={value} onValueChange={onValueChange} placeholder="Search recipes" />}
   </Field>
 );
 
