@@ -30,11 +30,25 @@ export const WithError = {
   args: {
     label: 'Servings',
     error: 'Enter a number, like 4.',
-    children: (control) => <Input {...control} defaultValue="four" />
+    children: (control) => <Input {...control} inputMode="numeric" defaultValue="four" />
   },
   play: async ({ canvasElement }) => {
     const servings = within(canvasElement).getByRole('textbox', { name: 'Servings' });
     await expect(servings).toHaveAttribute('aria-invalid', 'true');
     await expect(servings).toHaveAccessibleDescription('Enter a number, like 4.');
+  }
+} satisfies Story;
+export const IsDisabled = {
+  args: {
+    label: 'Recipe link',
+    help: 'Imported recipes keep their link.',
+    children: (control) => (
+      <Input {...control} type="url" aria-disabled defaultValue="bbcgoodfood.com/recipes/chana-masala" />
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const link = within(canvasElement).getByRole('textbox', { name: 'Recipe link' });
+    await expect(link).toHaveAccessibleDescription('Imported recipes keep their link.');
+    await expect(link).toHaveAttribute('aria-disabled', 'true');
   }
 } satisfies Story;

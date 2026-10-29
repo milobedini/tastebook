@@ -11,6 +11,8 @@ type FieldProps = {
   label: string;
   help?: string;
   error?: string;
+  // For a field whose purpose shows without it, like search: the label still names the control.
+  hideLabel?: boolean;
   children: (control: FieldControlProps) => ReactNode;
 };
 
@@ -23,8 +25,8 @@ const FieldHelp = ({ id, children }: FieldTextProps) => (
 );
 
 const FieldError = ({ id, children }: FieldTextProps) => (
-  <p id={id} className="flex items-center gap-1.5 text-danger text-small">
-    <CircleAlert aria-hidden="true" className="size-4 shrink-0" />
+  <p id={id} className="flex items-start gap-1.5 text-danger text-small">
+    <CircleAlert aria-hidden="true" className="mt-px size-4 shrink-0" strokeWidth={2.5} />
     {children}
   </p>
 );
@@ -39,13 +41,13 @@ const FieldDescription = ({ id, help, error }: { id: string; help?: string; erro
   return null;
 };
 
-export const Field = ({ label, help, error, children }: FieldProps) => {
+export const Field = ({ label, help, error, hideLabel = false, children }: FieldProps) => {
   const id = useId();
   const descriptionId = `${id}-description`;
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-label">
+      <label htmlFor={id} className={hideLabel ? 'sr-only' : 'text-label'}>
         {label}
       </label>
       {children({
