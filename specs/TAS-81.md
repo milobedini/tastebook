@@ -1,8 +1,8 @@
 ---
 issue: TAS-81
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tastebook/tas-81-show-recipes-as-polaroids-with-stickers-and-a-fallback-for
-pr:
+pr: 84
 ---
 
 # Show recipes as polaroids, with stickers and a fallback for no photo
