@@ -33,5 +33,6 @@ export const BrokenPhoto = {
   args: { photo: { thumbnails: [{ width: 640, url: '/missing-photo.jpg' }] } },
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(canvasElement.querySelector('img')).toBeNull());
+    await expect(canvasElement.querySelector('svg')).not.toBeNull();
   }
 } satisfies Story;
