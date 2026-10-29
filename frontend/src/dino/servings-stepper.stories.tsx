@@ -35,7 +35,9 @@ export const Default = {
     await userEvent.click(fewer);
     await userEvent.click(fewer);
     await expect(canvas.getByText('Serves 1')).toBeVisible();
-    await expect(fewer).toBeDisabled();
+    await expect(fewer).toHaveAttribute('aria-disabled', 'true');
+    await userEvent.click(fewer);
+    await expect(canvas.getByText('Serves 1')).toBeVisible();
   }
 } satisfies Story;
 export const Yield = {
