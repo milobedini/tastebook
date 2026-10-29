@@ -57,7 +57,19 @@ const facts = () => {
 
 const paragraphs = () => screen.queryAllByRole('paragraph').map((paragraph) => paragraph.textContent);
 
-const tags = () => screen.getAllByRole('listitem').map((item) => item.textContent);
+// The stickers are spans with no role, read in order between the photo's figure and the title.
+const stickers = () => {
+  const figure = screen.getByRole('figure');
+  const title = screen.getByRole('heading', { level: 1 });
+  return [...document.querySelectorAll('span')]
+    .filter(
+      (span) =>
+        figure.compareDocumentPosition(span) & Node.DOCUMENT_POSITION_FOLLOWING &&
+        span.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING &&
+        span.children.length === 0
+    )
+    .map((span) => span.textContent);
+};
 
 const line = (id: number, name: string, fields: Partial<IngredientLine> = {}): IngredientLine => ({
   id,
@@ -138,8 +150,8 @@ describe('RecipePage', () => {
   });
 
   it.each([
-    ['apple-tart', 'Apple tart', ['Sharp apples on buttery pastry.']],
-    ['banana-bread', 'Banana bread', []]
+    ['apple-tart', 'Apple tart', ['Medium', 'Sharp apples on buttery pastry.']],
+    ['banana-bread', 'Banana bread', ['Easy']]
   ])('shows a description line only when the recipe has one (%s)', async (slug, title, descriptions) => {
     renderRoute(`/recipes/${slug}`);
 
@@ -209,7 +221,7 @@ describe('RecipePage', () => {
     renderRoute('/recipes/shakshuka');
 
     expect(await screen.findByRole('heading', { name: 'Shakshuka' })).toBeInTheDocument();
-    expect(tags()).toEqual(['Easy', 'One-pot']);
+    expect(paragraphs()[0]).toBe('Easy · One-pot');
     expect(facts()).toEqual([
       ['Cuisine', 'French'],
       ['Course', 'Main'],
@@ -243,12 +255,18 @@ describe('RecipePage', () => {
   );
 
   it.each<[Recipe['diet_tags'], Recipe['diet_tag_conflicts'], string[], string[]]>([
-    [[], [], ['Easy', 'One-pot'], []],
+    [[], [], [], []],
     [
       ['vegetarian', 'vegan', 'dairy_free'],
       [{ ingredient: { slug: 'parmesan', name: 'parmesan' }, diet_tags: ['vegan', 'dairy_free'] }],
-      ['Easy', 'One-pot', 'Vegetarian', 'Vegan', 'Dairy-free'],
+      ['Vegan'],
       ['Leave out the parmesan to keep it vegan and dairy-free.']
+    ],
+    [
+      ['vegetarian', 'gluten_free', 'dairy_free'],
+      [{ ingredient: { slug: 'butter', name: 'butter' }, diet_tags: ['dairy_free'] }],
+      ['Vegetarian', 'Gluten-free', 'Dairy-free'],
+      ['Leave out the butter to keep it dairy-free.']
     ],
     [
       ['vegetarian', 'vegan', 'gluten_free', 'dairy_free'],
@@ -257,7 +275,7 @@ describe('RecipePage', () => {
         { ingredient: { slug: 'eggs', name: 'eggs' }, diet_tags: ['vegan'] },
         { ingredient: { slug: 'croutons', name: 'butter croutons' }, diet_tags: ['vegan', 'gluten_free', 'dairy_free'] }
       ],
-      ['Easy', 'One-pot', 'Vegetarian', 'Vegan', 'Gluten-free', 'Dairy-free'],
+      ['Vegan', 'Gluten-free'],
       [
         'Leave out the bacon to keep it vegetarian and vegan.',
         'Leave out the eggs to keep it vegan.',
@@ -269,17 +287,29 @@ describe('RecipePage', () => {
     async (dietTags, conflicts, shownTags, sentences) => {
       server.use(
         http.get('/api/recipes/:slug/', () =>
-          HttpResponse.json<Recipe>({ ...shakshuka, diet_tags: dietTags, diet_tag_conflicts: conflicts })
+          HttpResponse.json<Recipe>({ ...shakshuka, photo, diet_tags: dietTags, diet_tag_conflicts: conflicts })
         )
       );
 
       renderRoute('/recipes/shakshuka');
 
       expect(await screen.findByRole('heading', { name: 'Shakshuka' })).toBeInTheDocument();
-      expect(tags()).toEqual(shownTags);
-      expect(paragraphs()).toEqual(['Eggs in spiced tomatoes.', ...sentences]);
+      expect(stickers()).toEqual(shownTags);
+      expect(paragraphs()).toEqual(['Easy · One-pot', 'Eggs in spiced tomatoes.', ...sentences]);
     }
   );
+
+  it('shows no sticker as a button or a link', async () => {
+    server.use(
+      http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>({ ...shakshuka, diet_tags: ['vegan'] }))
+    );
+
+    renderRoute('/recipes/shakshuka');
+
+    expect(await screen.findByText('Vegan')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Vegan' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Vegan' })).not.toBeInTheDocument();
+  });
 
   it('shows extra time with its label, a yield, and several cuisines, courses and pieces of equipment', async () => {
     server.use(
@@ -316,7 +346,7 @@ describe('RecipePage', () => {
     renderRoute('/recipes/shakshuka');
 
     expect(await screen.findByRole('heading', { name: 'Shakshuka' })).toBeInTheDocument();
-    expect(tags()).toEqual(['Hard']);
+    expect(paragraphs()[0]).toBe('Hard');
     expect(facts()).toEqual([
       ['Cuisines', 'Japanese, Mexican'],
       ['Courses', 'Baking, Dessert'],
