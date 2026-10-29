@@ -7,7 +7,7 @@ type StoryIndex = { entries: Record<string, { id: string; type: 'story' | 'docs'
 
 if (process.platform !== 'linux' || process.env.GITHUB_ACTIONS !== 'true') {
   console.error(
-    "Baselines are made on CI's Linux image only, so they match the check. Run the Update screenshots workflow on your branch."
+    "Baselines are made on CI's Linux image only, so they match the check. Run the Update screenshots workflow on your branch, then pnpm --filter frontend screenshots:commit <PR number>."
   );
   process.exit(1);
 }
