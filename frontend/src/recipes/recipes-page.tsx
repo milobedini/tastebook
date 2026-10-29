@@ -167,24 +167,27 @@ export const RecipesPage = () => {
 
   return (
     <Page>
-      <title>Recipes · Tastebook</title>
-      <h1>Recipes</h1>
-      <div className="flex flex-col gap-4">
-        <Button
-          ref={filtersButton}
-          variant="secondary"
-          className="self-start"
-          aria-expanded={isPanelOpen}
-          aria-controls={FILTER_PANEL_ID}
-          onClick={() => setIsPanelOpen(!isPanelOpen)}
-        >
-          <SlidersHorizontal aria-hidden="true" />
-          Filters
-        </Button>
-        {isPanelOpen && <RecipeFilterPanel id={FILTER_PANEL_ID} filters={filters} onChange={changeFilters} />}
+      {/* A 672 px column until TAS-83's part 2 lays the list out to the full page width. */}
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+        <title>Recipes · Tastebook</title>
+        <h1>Recipes</h1>
+        <div className="flex flex-col gap-4">
+          <Button
+            ref={filtersButton}
+            variant="secondary"
+            className="self-start"
+            aria-expanded={isPanelOpen}
+            aria-controls={FILTER_PANEL_ID}
+            onClick={() => setIsPanelOpen(!isPanelOpen)}
+          >
+            <SlidersHorizontal aria-hidden="true" />
+            Filters
+          </Button>
+          {isPanelOpen && <RecipeFilterPanel id={FILTER_PANEL_ID} filters={filters} onChange={changeFilters} />}
+        </div>
+        <ActiveFilters filters={filters} onChange={removeFilters} />
+        <RecipeList query={{ searchTerm, filters }} onClearFilters={clearFilters} />
       </div>
-      <ActiveFilters filters={filters} onChange={removeFilters} />
-      <RecipeList query={{ searchTerm, filters }} onClearFilters={clearFilters} />
     </Page>
   );
 };

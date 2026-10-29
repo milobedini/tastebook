@@ -145,9 +145,12 @@ const RecipeContent = () => {
 
 export const RecipePage = () => (
   <Page>
-    <RecipeContent />
-    <Button asChild variant="ghost" className="self-start">
-      <Link to="/recipes">All recipes</Link>
-    </Button>
+    {/* A 672 px column until TAS-83's part 3 lays the recipe out to the full page width. */}
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+      <RecipeContent />
+      <Button asChild variant="ghost" className="self-start">
+        <Link to="/recipes">All recipes</Link>
+      </Button>
+    </div>
   </Page>
 );
