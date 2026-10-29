@@ -1,8 +1,8 @@
 ---
 issue: TAS-77
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tastebook/tas-77-restyle-fields-search-and-select-in-picnic-and-add-a
-pr:
+pr: 81
 ---
 
 # Restyle fields, search and select in Picnic and add a combobox
