@@ -8,6 +8,7 @@ export { Field, type FieldControlProps } from './field';
 export { FilterChip } from './filter-chip';
 export { IconButton } from './icon-button';
 export { Input, SearchInput } from './input';
+export { matchRange } from './match-range';
 export { NativeSelect } from './native-select';
 export { Page } from './page';
 export { RecipeCard } from './recipe-card';
