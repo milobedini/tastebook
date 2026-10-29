@@ -2,7 +2,16 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 
 import type { components } from '../api/schema';
-import { Banner, Button, Page, Polaroid, RecipePhoto, SegmentedControl, StickeredPhoto } from '../dino';
+import {
+  Button,
+  ErrorWithRetry,
+  Loading,
+  Page,
+  Polaroid,
+  RecipePhoto,
+  SegmentedControl,
+  StickeredPhoto
+} from '../dino';
 import type { UnitSystem } from './convert';
 import { describeDietTagConflict, dietTagLabels, stickerTags } from './diet-tags';
 import { difficultyLabels } from './difficulty';
@@ -90,28 +99,27 @@ const RecipeNotFound = () => (
 const RecipeLoading = () => (
   <>
     <title>Recipe · Tastebook</title>
-    <p>Loading recipe…</p>
+    <Loading>Opening the recipe…</Loading>
   </>
 );
 
 type RecipeUnavailableProps = {
-  onRetry: () => void;
+  onRetry: () => Promise<unknown>;
 };
 
 const RecipeUnavailable = ({ onRetry }: RecipeUnavailableProps) => (
   <>
     <title>Recipe · Tastebook</title>
-    <Banner tone="danger" title="The recipe couldn't be loaded." />
-    <Button variant="secondary" className="self-start" onClick={onRetry}>
-      Try again
-    </Button>
+    <ErrorWithRetry title="Couldn't load the recipe" onRetry={onRetry}>
+      Check your connection, then try again.
+    </ErrorWithRetry>
   </>
 );
 
 type RecipeForSlugProps = { slug: string };
 
 const RecipeForSlug = ({ slug }: RecipeForSlugProps) => {
-  const { data, isPending, refetch } = useRecipe(slug);
+  const { data, errorUpdatedAt, refetch } = useRecipe(slug);
   if (data === null) {
     return <RecipeNotFound />;
   }
@@ -119,11 +127,11 @@ const RecipeForSlug = ({ slug }: RecipeForSlugProps) => {
   if (data !== undefined) {
     return <RecipeDetails recipe={data} />;
   }
-  // Refetching a query that has never succeeded resets it to pending, so "Try again" shows this too.
-  if (isPending) {
-    return <RecipeLoading />;
+  // A refetch resets a never-successful query to pending but leaves errorUpdatedAt, so the error stays up through its retry.
+  if (errorUpdatedAt > 0) {
+    return <RecipeUnavailable onRetry={refetch} />;
   }
-  return <RecipeUnavailable onRetry={() => void refetch()} />;
+  return <RecipeLoading />;
 };
 
 const RecipeContent = () => {

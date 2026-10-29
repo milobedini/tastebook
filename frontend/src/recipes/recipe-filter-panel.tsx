@@ -1,7 +1,7 @@
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 
-import { Banner, Button, FilterChip, SegmentedControl } from '../dino';
+import { ErrorWithRetry, FilterChip, SegmentedControl } from '../dino';
 import { useCourses } from './courses-api';
 import { useCuisines } from './cuisines-api';
 import { dietTagLabels, dietTags } from './diet-tags';
@@ -34,17 +34,6 @@ const ChoiceChips = <T extends string>({ choices, selected, onChange }: ChoiceCh
       {label}
     </FilterChip>
   ));
-
-type GroupUnavailableProps = { title: string; retryLabel: string; onRetry: () => void };
-
-const GroupUnavailable = ({ title, retryLabel, onRetry }: GroupUnavailableProps) => (
-  <div className="flex w-full flex-col gap-2">
-    <Banner tone="danger" title={title} />
-    <Button variant="secondary" className="self-start" onClick={onRetry}>
-      {retryLabel}
-    </Button>
-  </div>
-);
 
 type FilterChangeProps = { filters: RecipeFilters; onChange: (filters: RecipeFilters) => void };
 
@@ -87,33 +76,30 @@ type QueryGroupProps<T> = {
   query: UseQueryResult<T>;
   loading: string;
   errorTitle: string;
-  retryLabel: string;
   children: (data: T) => ReactNode;
 };
 
-const QueryGroup = <T,>({ legend, query, loading, errorTitle, retryLabel, children }: QueryGroupProps<T>) => {
-  const { data, isPending, refetch } = query;
+const QueryGroup = <T,>({ legend, query, loading, errorTitle, children }: QueryGroupProps<T>) => {
+  const { data, errorUpdatedAt, refetch } = query;
   const content = () => {
     if (data !== undefined) {
       return children(data);
     }
-    // Refetching a query that has never succeeded resets it to pending, so the retry shows the loading text too.
-    if (isPending) {
-      return <p>{loading}</p>;
+    // A refetch resets a never-successful query to pending but leaves errorUpdatedAt, so the error stays up through its retry.
+    if (errorUpdatedAt > 0) {
+      return (
+        <ErrorWithRetry title={errorTitle} onRetry={refetch}>
+          Check your connection, then try again.
+        </ErrorWithRetry>
+      );
     }
-    return <GroupUnavailable title={errorTitle} retryLabel={retryLabel} onRetry={() => void refetch()} />;
+    return <p>{loading}</p>;
   };
   return <FilterGroup legend={legend}>{content()}</FilterGroup>;
 };
 
 const CourseGroup = ({ filters, onChange }: FilterChangeProps) => (
-  <QueryGroup
-    legend="Course"
-    query={useCourses()}
-    loading="Loading courses…"
-    errorTitle="The courses couldn't be loaded."
-    retryLabel="Load courses again"
-  >
+  <QueryGroup legend="Course" query={useCourses()} loading="Loading courses…" errorTitle="Couldn't load courses">
     {(courses) => (
       <ChoiceChips
         choices={courses.map(({ slug, name }) => ({ value: slug, label: name }))}
@@ -125,13 +111,7 @@ const CourseGroup = ({ filters, onChange }: FilterChangeProps) => (
 );
 
 const CuisineGroup = ({ filters, onChange }: FilterChangeProps) => (
-  <QueryGroup
-    legend="Cuisine"
-    query={useCuisines()}
-    loading="Loading cuisines…"
-    errorTitle="The cuisines couldn't be loaded."
-    retryLabel="Load cuisines again"
-  >
+  <QueryGroup legend="Cuisine" query={useCuisines()} loading="Loading cuisines…" errorTitle="Couldn't load cuisines">
     {(cuisines) => (
       <ChoiceChips
         choices={cuisines.map(({ slug, name }) => ({ value: slug, label: name }))}
@@ -176,8 +156,7 @@ const IngredientFilterGroup = ({ filters, onChange }: FilterChangeProps) => {
       legend="Ingredients"
       query={useIngredients()}
       loading="Loading ingredients…"
-      errorTitle="The ingredients couldn't be loaded."
-      retryLabel="Load ingredients again"
+      errorTitle="Couldn't load ingredients"
     >
       {(ingredients) => {
         const unpicked = ingredients.filter(({ slug }) => !picked.includes(slug));
