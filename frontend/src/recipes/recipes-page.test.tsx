@@ -628,6 +628,19 @@ describe('RecipesPage', () => {
     expect(filtersButton()).toHaveFocus();
   });
 
+  it('keeps the filters sheet closed when a tablet turns to landscape and back', async () => {
+    renderRoute('/recipes');
+    await userEvent.click(filtersButton());
+    expect(filtersSheet()).toBeInTheDocument();
+
+    act(() => setLaptop(true));
+    expect(screen.getByRole('complementary', { name: 'Filters' })).toBeInTheDocument();
+    act(() => setLaptop(false));
+
+    expect(filtersButton()).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
   it('shows the filters in a column beside the list on a laptop', async () => {
     setLaptop(true);
 

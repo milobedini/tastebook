@@ -1,4 +1,5 @@
 import { SlidersHorizontal } from 'lucide-react';
+import type { RefObject } from 'react';
 import { useCallback, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
@@ -151,6 +152,37 @@ const showRecipesLabel = ({ data, isPlaceholderData }: RecipesResult) => {
   return `Show ${count} ${count === 1 ? 'recipe' : 'recipes'}`;
 };
 
+type FiltersSheetProps = {
+  filters: RecipeFilters;
+  onChange: (filters: RecipeFilters) => void;
+  filterCount: number;
+  result: RecipesResult;
+  buttonRef: RefObject<HTMLButtonElement | null>;
+};
+
+// Its own component, so whether it's open goes with it when the layout turns to the laptop column.
+const FiltersSheet = ({ filters, onChange, filterCount, result, buttonRef }: FiltersSheetProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <Sheet
+      title="Filters"
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      trigger={
+        <Button ref={buttonRef} variant="secondary">
+          <SlidersHorizontal aria-hidden="true" />
+          {filterCount === 0 ? 'Filters' : `Filters · ${filterCount}`}
+        </Button>
+      }
+    >
+      <RecipeFilterPanel id={FILTER_PANEL_ID} filters={filters} onChange={onChange} tilted={false} />
+      <Button className="w-full" onClick={() => setIsOpen(false)}>
+        {showRecipesLabel(result)}
+      </Button>
+    </Sheet>
+  );
+};
+
 export const RecipesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   // The top bar's field writes q (useRecipeSearch); the list searches once the typing pauses.
@@ -172,7 +204,6 @@ export const RecipesPage = () => {
   const shown = shownRecipes(result);
   const isLaptop = useMediaQuery(isLaptopQuery);
 
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
   // One of them is on screen: the Filters button below a laptop, the filters' column on one.
   const filtersButton = useRef<HTMLButtonElement>(null);
   const filtersColumn = useRef<HTMLElement>(null);
@@ -212,22 +243,13 @@ export const RecipesPage = () => {
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-2">
-            <Sheet
-              title="Filters"
-              open={isPanelOpen}
-              onOpenChange={setIsPanelOpen}
-              trigger={
-                <Button ref={filtersButton} variant="secondary">
-                  <SlidersHorizontal aria-hidden="true" />
-                  {filterCount === 0 ? 'Filters' : `Filters · ${filterCount}`}
-                </Button>
-              }
-            >
-              <RecipeFilterPanel id={FILTER_PANEL_ID} filters={filters} onChange={changeFilters} tilted={false} />
-              <Button className="w-full" onClick={() => setIsPanelOpen(false)}>
-                {showRecipesLabel(result)}
-              </Button>
-            </Sheet>
+            <FiltersSheet
+              filters={filters}
+              onChange={changeFilters}
+              filterCount={filterCount}
+              result={result}
+              buttonRef={filtersButton}
+            />
             {activeFilters}
           </div>
           {recipeList}
