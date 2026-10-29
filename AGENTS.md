@@ -98,7 +98,7 @@ frontend/
   src/lib/          shared code with at least three users (none yet)
   src/test/         MSW server and default handlers, render helpers
   e2e/              Playwright specs (run against the real backend)
-  visual/           Playwright screenshot of every story (one baseline each in visual/baselines/), run against storybook-static
+  visual/           Playwright screenshot of every story, as it looks and under forced colours (visual/baselines/ and visual/baselines/forced-colours/), run against storybook-static
 backend/
   config/           settings, root URLs
   <app>/            one Django app per domain area (health/ is the example)
