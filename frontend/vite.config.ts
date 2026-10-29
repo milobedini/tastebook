@@ -8,13 +8,8 @@ import { defineConfig } from 'vite';
 // three the browser needs are passed in by name; nothing else under SENTRY_ reaches it.
 const { SENTRY_AUTH_TOKEN, SENTRY_DSN = '', VERCEL_ENV = '', VERCEL_GIT_COMMIT_SHA = '' } = process.env;
 
-// Previews and production are both Vercel builds; only VERCEL_ENV tells them apart.
-// Anything on Vercel that isn't a preview counts as production, so a missing variable hides the page.
-const showStyleguide = process.env.VERCEL !== '1' || VERCEL_ENV === 'preview';
-
 export default defineConfig({
   define: {
-    'import.meta.env.VITE_SHOW_STYLEGUIDE': JSON.stringify(showStyleguide),
     'import.meta.env.VITE_SENTRY_DSN': JSON.stringify(SENTRY_DSN),
     'import.meta.env.VITE_SENTRY_ENVIRONMENT': JSON.stringify(VERCEL_ENV),
     'import.meta.env.VITE_SENTRY_RELEASE': JSON.stringify(VERCEL_GIT_COMMIT_SHA)

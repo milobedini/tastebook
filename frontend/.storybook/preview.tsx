@@ -26,7 +26,6 @@ const preview: Preview = {
     }
   },
   afterEach: ({ canvasElement }) => {
-    // Same query and rule as the 44 px test in e2e/styleguide.spec.ts.
     const shortControls = [
       ...canvasElement.ownerDocument.body.querySelectorAll<HTMLElement>(
         'button, a[href], input, select, [role="checkbox"]'
