@@ -1,3 +1,4 @@
+export { Avatar } from './avatar';
 export { Banner } from './banner';
 export { Button } from './button';
 export { CheckboxRow } from './checkbox-row';
