@@ -18,3 +18,9 @@ const joinWithAnd = (words: string[]) =>
 
 export const describeDietTagConflict = ({ ingredient, diet_tags }: DietTagConflict) =>
   `Leave out the ${ingredient.name} to keep it ${joinWithAnd(diet_tags.map((tag) => dietTagLabels[tag].toLowerCase()))}.`;
+
+// Vegan implies vegetarian and dairy-free, so a vegan recipe's sticker says it alone.
+const impliedByVegan: DietTag[] = ['vegetarian', 'dairy_free'];
+
+export const stickerTags = (tags: DietTag[]): DietTag[] =>
+  tags.includes('vegan') ? tags.filter((tag) => !impliedByVegan.includes(tag)) : tags;
