@@ -29,7 +29,14 @@ const shapeImages: Record<Shape, { className: string; sizes: string; loading: 'l
       '(min-width: 40rem) calc(33.3vw - 3.4rem), calc(50vw - 2.75rem)',
     loading: 'lazy'
   },
-  hero: { className: 'aspect-7/5', sizes: '(min-width: 42rem) 38.75rem, calc(100vw - 3.25rem)', loading: 'eager' }
+  // A hero fills the laptop's left column (5 parts of 12) less its 24 px padding, or the one column, at most 42rem.
+  hero: {
+    className: 'aspect-7/5',
+    sizes:
+      '(min-width: 75rem) 23.7rem, (min-width: 64rem) calc(41.7vw - 7.6rem), (min-width: 46rem) 40.75rem, ' +
+      '(min-width: 40rem) calc(100vw - 5.25rem), calc(100vw - 3.75rem)',
+    loading: 'eager'
+  }
 };
 
 export const RecipePhoto = ({ photo, recipeId, shape, alt, caption, eager = false }: RecipePhotoProps) => {

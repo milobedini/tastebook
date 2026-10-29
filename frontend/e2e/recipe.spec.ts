@@ -24,21 +24,21 @@ test('changing the servings scales a catalogue recipe through the real API', asy
   await page.goto('/recipes/spanish-tortilla');
 
   const ingredients = page.getByRole('region', { name: 'Ingredients' });
-  await expect(ingredients.getByRole('status')).toHaveText('Serves 6');
+  await expect(page.getByRole('status')).toHaveText('Serves 6');
   await accessibility.check();
 
-  const more = ingredients.getByRole('button', { name: 'More servings' });
+  const more = page.getByRole('button', { name: 'More servings' });
   await more.click();
   await more.click();
   await more.click();
 
-  await expect(ingredients.getByRole('status')).toHaveText('Serves 9');
+  await expect(page.getByRole('status')).toHaveText('Serves 9');
   await expect(ingredients.getByRole('listitem')).toHaveText([
-    '225 ml olive oil',
-    '900 g potatoes, floury, peeled and thinly sliced',
-    '1–2 onion, thinly sliced',
-    '9 eggs',
-    '1.5 tsp salt'
+    'Olive oil 225 ml',
+    'Potatoes, floury, peeled and thinly sliced 900 g',
+    'Onion, thinly sliced 1–2',
+    'Eggs 9',
+    'Salt 1.5 tsp'
   ]);
 });
 
@@ -51,15 +51,15 @@ test('switching to US customary converts a catalogue recipe through the real API
   await units.getByRole('radio', { name: 'US' }).check();
 
   await expect(page.getByRole('region', { name: 'Ingredients' }).getByRole('listitem')).toHaveText([
-    '4.5 oz unsalted butter, softened',
-    '5.25 oz light brown soft sugar',
-    '2 tbsp golden syrup',
-    '4.5 oz plain flour',
-    '0.5 tsp bicarbonate of soda',
-    '1 tsp ground cinnamon (optional)',
-    '1 pinch salt',
-    '5.25 oz porridge oats',
-    '3.5 oz raisins'
+    'Unsalted butter, softened 4.5 oz',
+    'Light brown soft sugar 5.25 oz',
+    'Golden syrup 2 tbsp',
+    'Plain flour 4.5 oz',
+    'Bicarbonate of soda 0.5 tsp',
+    'Ground cinnamon (optional) 1 tsp',
+    'Salt 1 pinch',
+    'Porridge oats 5.25 oz',
+    'Raisins 3.5 oz'
   ]);
   await expect(page.getByRole('region', { name: 'Method' }).getByRole('listitem').nth(3)).toContainText(
     'Heat the oven to 355°F (320°F fan)'
@@ -83,5 +83,19 @@ test('a Wikibooks recipe credits and links to its original page through the real
       exact: true
     })
   ).toHaveAttribute('href', recipe.source_url ?? '');
+  await accessibility.check();
+});
+
+test('on a laptop the ingredients stay in view while the method scrolls', async ({ page, accessibility }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/recipes/oat-and-raisin-cookies');
+
+  const lastStep = page.getByRole('region', { name: 'Method' }).getByRole('listitem').last();
+  await lastStep.scrollIntoViewIfNeeded();
+
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  const heading = await page.getByRole('heading', { level: 2, name: 'Ingredients' }).boundingBox();
+  expect(heading?.y).toBeGreaterThanOrEqual(0);
+  expect(heading?.y).toBeLessThan(800);
   await accessibility.check();
 });
