@@ -53,15 +53,20 @@ Token names follow Tailwind's `--color-*` convention, so `--color-peach` is `bg-
 | --- | --- | --- | --- |
 | `--color-ground` | `#1c1233` | Page background | |
 | `--color-surface` | `#2a1d47` | Quiet panels (a step's ingredients, icon buttons), sheets and dialogs | |
+| `--color-surface-pressed` | `color-mix(in oklab, var(--color-surface) 70%, var(--color-field))` | An icon button while pressed | |
 | `--color-ink` | `#fff4ea` | Text | 16.4 (14.2 on Surface) |
 | `--color-muted` | `#cbbfe0` | Secondary text | 10.2 (8.8 on Surface) |
 | `--color-pop` | `#ffb38a` | An emphasised word in a heading, its squiggle, the step number | 10.2 |
 | `--color-field` | `#8f7fb0` | Borders of fields, outlined chips and checkboxes | 4.9 (4.3 on Surface) |
 | `--color-line` | `#3a2c5c` | Hairlines between rows (decorative) | |
 | `--color-peach` | `#ffb38a` | The main action; where you are (the current tab, the current step) | |
+| `--color-peach-hover` | `color-mix(in oklab, var(--color-peach) 80%, var(--color-ink))` | A peach control under the pointer | |
+| `--color-peach-pressed` | `color-mix(in oklab, var(--color-peach) 86%, var(--color-on-pastel))` | A peach control while pressed | |
 | `--color-mint` | `#8fe3c0` | Chosen and done: filters that are on, ticked boxes, finished steps, add buttons, the ingredients a step names | |
 | `--color-butter` | `#ffe08a` | Time and heads-ups: timers, durations, "start the night before" notes | |
 | `--color-pink` | `#ff9fc6` | Favourites and diet stickers | |
+| `--color-pink-hover` | `color-mix(in oklab, var(--color-pink) 80%, var(--color-ink))` | A pink control under the pointer | |
+| `--color-pink-pressed` | `color-mix(in oklab, var(--color-pink) 86%, var(--color-on-pastel))` | A pink control while pressed | |
 | `--color-on-pastel` | `#2a1440` | All text and icons on a pastel or on Paper | 9.5 peach, 10.9 mint, 12.8 butter, 8.7 pink |
 | `--color-paper` | `#fff8ef` | Polaroid frames | 15.7 with On pastel |
 | `--color-tape` | `rgb(255 224 138 / 0.85)` | The tape on a polaroid (decorative) | |
@@ -70,6 +75,8 @@ Token names follow Tailwind's `--color-*` convention, so `--color-peach` is `bg-
 | `--color-success` | `#8fe3c0` | Status: done, saved | 11.8 |
 | `--color-warning` | `#ffe08a` | Status: needs a look | 13.8 |
 | `--color-danger` | `#ff9a8a` | Status: errors, destructive actions | 8.7 |
+| `--color-danger-hover` | `color-mix(in oklab, var(--color-danger) 80%, var(--color-ink))` | A danger control under the pointer | |
+| `--color-danger-pressed` | `color-mix(in oklab, var(--color-danger) 86%, var(--color-on-pastel))` | A danger control while pressed | |
 | `--color-on-danger` | `#1c1233` | Text on danger | 8.7 |
 | `--color-scrim` | `rgb(8 4 18 / 0.66)` | The backdrop behind a sheet or dialog | |
 
@@ -91,6 +98,7 @@ The page is Ground; panels, sheets and dialogs are Surface. Selected text is Pop
 | Body | Nunito | 16 / 24 px | 600 |
 | Small | Nunito | 13 / 17 px | 700 |
 | Label (buttons, chips) | Nunito | 15 / 20 px | 800 |
+| Label L (large buttons) | Nunito | 19 / 24 px | 800 |
 
 Both faces are under the SIL Open Font License and are **bundled with the app**: never loaded from Google Fonts, which would send every visitor's IP address to Google (see UK GDPR in `AGENTS.md`, Standards) and fail offline. Instrument Serif has one weight, so hierarchy comes from size and italics, never bold serif. Numbers that line up (amounts, times, timers) use tabular figures. The sizes hold at every width: a title is Display XL on a laptop too. Reading text stays under about 68 characters a line.
 
@@ -100,7 +108,7 @@ Both faces are under the SIL Open Font License and are **bundled with the app**:
 
 - **Spacing:** a 4 px base: 4, 8, 12, 16, 20, 24, 32, 48. Space siblings with `gap`, not margins. Side gutters are 20 px on phones and 32 px from tablets up ([Layout](#layout)).
 - **Corners:** pill (999 px) for controls (buttons, chips, fields, steppers) and the dock; 32 px for a sheet's top corners; 28 px for the timer card; 24 px for cards and panels; 20 px for notes and banners; 10 px for checkboxes; 14 px for a checkbox row's hover fill and focus ring; square for polaroids. Something inside a rounded panel (a list's options) takes the panel's corner less its padding, never a pill inside a rounded box.
-- **Shadows:** the **press shadow** (`0 5px 0` in On pastel) sits under the screen's main action and the timer card, so they look pressable; pressed, they sink 3 px and the shadow shrinks to match. The **lift** (`0 12px 28px rgb(0 0 0 / 0.35)`) sits under polaroids, the dock and sheets. Nothing else has a shadow.
+- **Shadows:** the **press shadow** (`0 5px 0` in On pastel) sits under the screen's main action and the timer card, so they look pressable; pressed, they sink 3 px and the shadow shrinks to match (the sunk shadow, `0 2px 0` in On pastel). The **lift** (`0 12px 28px rgb(0 0 0 / 0.35)`) sits under polaroids, the dock and sheets. Nothing else has a shadow.
 - **Photos:** in a polaroid (below), 4:3 in lists and 7:5 at the top of a recipe, always with the credit. **No photo:** the polaroid keeps its frame and caption, and the photo's place shows one of two fillers: a hand-drawn place setting (a plate, fork and knife in On pastel on Paper, inside a dashed edge) or the rug (On pastel gingham on Paper with an empty plate). A recipe always gets the same one, picked from its ID, so neighbours tend to differ. Neither uses a pastel, which would claim a meaning. Enamel's cuisine plate goes.
 - **Motion:** 120 ms ease-out for a control's state changes; 150 ms ease-out fades and slides for sheets, dialogs and toasts; never over 200 ms. Nothing moves on its own except a running timer and the spinner of something that's working. `prefers-reduced-motion` turns it all off, the spinner included.
 

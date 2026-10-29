@@ -5,9 +5,21 @@ import { extendTailwindMerge } from 'tailwind-merge';
 const twMerge = extendTailwindMerge({
   extend: {
     theme: {
-      text: ['display-xl', 'display-l', 'title', 'caption', 'step-number', 'step', 'timer', 'body', 'small', 'label'],
+      text: [
+        'display-xl',
+        'display-l',
+        'title',
+        'caption',
+        'step-number',
+        'step',
+        'timer',
+        'body',
+        'small',
+        'label',
+        'label-l'
+      ],
       radius: ['pill', 'sheet', 'timer', 'card', 'note', 'check'],
-      shadow: ['press', 'lift']
+      shadow: ['press', 'press-sunk', 'lift']
     }
   }
 });

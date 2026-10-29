@@ -35,7 +35,8 @@ const preview: Preview = {
         const target = control.getAttribute('role') === 'checkbox' ? (control.closest('label') ?? control) : control;
         return {
           name: control.getAttribute('aria-label') ?? control.textContent ?? control.outerHTML,
-          height: target.getBoundingClientRect().height
+          // The layout height, so a pressed control's shrink doesn't count.
+          height: target.offsetHeight
         };
       })
       .filter((control) => control.height < 44);
