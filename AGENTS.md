@@ -50,6 +50,7 @@ What the product does and won't do is in the Linear team's Vision document; each
 
 - [n] add a repository secret that can do more than get past previews' sign-in. A workflow triggered by `deployment_status` (or `pull_request_target`) runs a fork's code with the repository's secrets; a high-value secret goes in an environment limited to `main`, like `factory`.
 - [a] give a secret only to the steps that use it, in their own `env`, never the job's or the workflow's.
+- [n] run repo or dependency code (`pnpm install`, a build, tests, a repo script) in a job that holds a write token. It can reach the token through `$GITHUB_ENV`, `$GITHUB_PATH` or `.git/hooks` whatever `persist-credentials` says; render in a read-only job, pass the result as an artefact and let the writing job run only git and gh.
 
 **Tests**
 
@@ -64,6 +65,8 @@ Tests are black box: they go through a public interface and assert what a user o
 - [a] call the subject the way a user or caller does, with a concrete input, and assert a literal, observable result: rendered text, a role's state, a response body, a row in the database.
 - [a] add a failing test first when fixing a bug, and run it against the unchanged code to prove it fails.
 - [a] use `it.each` / `pytest.mark.parametrize` for cases that differ only by input.
+- [a] when a change alters a story's look on purpose, commit its updated baselines (`frontend/visual/baselines/`) in the same PR, so the diff shows the old and new images.
+- [n] make baselines anywhere but a GitHub Actions Linux runner: fonts and anti-aliasing differ, and every shot would fail.
 
 ## Domain areas
 
@@ -95,6 +98,7 @@ frontend/
   src/lib/          shared code with at least three users (none yet)
   src/test/         MSW server and default handlers, render helpers
   e2e/              Playwright specs (run against the real backend)
+  visual/           Playwright screenshot of every story (one baseline each in visual/baselines/), run against storybook-static
 backend/
   config/           settings, root URLs
   <app>/            one Django app per domain area (health/ is the example)
@@ -122,6 +126,7 @@ From the repo root unless noted.
 | Lint backend                 | `uv run ruff check . && uv run ruff format --check .` (in `backend/`)                       |
 | Frontend tests               | `pnpm test` (runs every story in Chromium too: install it once with `pnpm --filter frontend exec playwright install chromium`) |
 | Storybook                    | `pnpm --filter frontend storybook`                                                          |
+| Story screenshots            | `pnpm --filter frontend test:visual` (after `build-storybook`); new baselines: `pnpm --filter frontend test:visual:update` on a GitHub Actions runner, or the **Update screenshots** workflow on your branch |
 | Backend tests                | `uv run pytest` (in `backend/`)                                                             |
 | End-to-end tests             | `pnpm test:e2e` (starts both servers; needs Postgres)                                       |
 | Regenerate the API contract  | `uv run --env-file .env python manage.py spectacular --file schema.yml` (in `backend/`), then `pnpm generate:api` |

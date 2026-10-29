@@ -1,0 +1,23 @@
+// Each story title's board, as a path from the repo root. The visual spec checks this against the built index.
+export const boardByTitle: Record<string, `docs/design/${string}.dc.png`> = {
+  'Dino/Button': 'docs/design/dino/buttons.dc.png',
+  'Dino/IconButton': 'docs/design/dino/controls.dc.png',
+  'Dino/FilterChip': 'docs/design/dino/controls.dc.png',
+  'Dino/RemovableChip': 'docs/design/dino/controls.dc.png',
+  'Dino/SegmentedControl': 'docs/design/dino/controls.dc.png',
+  'Dino/ServingsStepper': 'docs/design/dino/controls.dc.png',
+  'Dino/Banner': 'docs/design/dino/feedback.dc.png',
+  'Dino/Toast': 'docs/design/dino/feedback.dc.png',
+  'Dino/ConfirmDialog': 'docs/design/dino/feedback.dc.png',
+  'Dino/EmptyState': 'docs/design/dino/feedback.dc.png',
+  'Dino/Field': 'docs/design/dino/fields.dc.png',
+  'Dino/Input': 'docs/design/dino/fields.dc.png',
+  'Dino/NativeSelect': 'docs/design/dino/fields.dc.png',
+  'Dino/SearchInput': 'docs/design/dino/fields.dc.png',
+  'Dino/CheckboxRow': 'docs/design/dino/fields.dc.png',
+  'Dino/RecipeCard': 'docs/design/dino/polaroids.dc.png',
+  'Dino/RecipePhoto': 'docs/design/dino/polaroids.dc.png',
+  'Dino/CuisinePlate': 'docs/design/dino/polaroids.dc.png',
+  'Dino/Tag': 'docs/design/dino/polaroids.dc.png',
+  'Dino/Page': 'docs/design/dino/layout.dc.png'
+};

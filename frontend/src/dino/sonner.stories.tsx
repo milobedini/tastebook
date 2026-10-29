@@ -4,7 +4,12 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { Button } from '@/dino/button';
 import { Toaster, toast } from '@/dino/sonner';
 
-const showToast = () => toast('Saved to Favourites', { action: { label: 'Undo', onClick: () => undefined } });
+const showToast = () =>
+  toast('Saved to Favourites', {
+    action: { label: 'Undo', onClick: () => undefined },
+    // Stays until dismissed, so the screenshot doesn't race Sonner's 4 s timer.
+    duration: Number.POSITIVE_INFINITY
+  });
 
 const meta = {
   title: 'Dino/Toast',
