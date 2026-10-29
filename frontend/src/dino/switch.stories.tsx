@@ -51,6 +51,8 @@ export const IsOn = {
 } satisfies Story;
 export const IsHover = { parameters: isHover } satisfies Story;
 export const IsPressed = { parameters: isPressed } satisfies Story;
+export const IsOnAndHover = { args: { checked: true }, parameters: isHover } satisfies Story;
+export const IsOnAndPressed = { args: { checked: true }, parameters: isPressed } satisfies Story;
 export const IsFocus = { parameters: { pseudo: { focusVisible: ['button[role="switch"]'] } } } satisfies Story;
 export const IsDisabled = {
   args: { disabled: true, disabledReason },
