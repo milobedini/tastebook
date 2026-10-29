@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Dino in Picnic: controls</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.pn{--ground:#1c1233;--surface:#2a1d47;--ink:#fff4ea;--muted:#cbbfe0;--pop:#ffb38a;--field:#8f7fb0;--line:#3a2c5c;--peach:#ffb38a;--mint:#8fe3c0;--butter:#ffe08a;--pink:#ff9fc6;--on-pastel:#2a1440;color-scheme:dark}
+.pn{--mint-hover:color-mix(in oklab,var(--mint) 80%,var(--ink));--mint-pressed:color-mix(in oklab,var(--mint) 86%,var(--on-pastel));--pink-hover:color-mix(in oklab,var(--pink) 80%,var(--ink));--surface-pressed:color-mix(in oklab,var(--surface) 70%,var(--field))}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--muted)}
+.h2{margin:0;font-size:28px;line-height:30px;font-style:italic}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.spec{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:28px 32px;align-items:flex-start}
+.ib{width:44px;height:44px;border-radius:999px;border:2px solid transparent;box-sizing:border-box;background:var(--surface);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background-color 120ms ease-out,transform 120ms ease-out}
+.ib:hover,.ib.is-hover{background:var(--line)}
+.ib:active,.ib.is-pressed{background:var(--surface-pressed);transform:scale(0.94)}
+.ib[aria-pressed="true"]{background:var(--pink);color:var(--on-pastel)}
+.ib[aria-pressed="true"] svg{fill:currentColor}
+.ib[aria-pressed="true"]:hover{background:var(--pink-hover)}
+.ib-lg{width:48px;height:48px}
+.ib.is-disabled{background:transparent;border:2px dashed var(--field);color:var(--muted);transform:none;cursor:not-allowed}
+.ib:focus-visible,.ib.is-focus,.chip:focus-visible,.chip.is-focus,.st:focus-visible,.st.is-focus{outline:3px solid var(--ink);outline-offset:0}
+.chip{height:44px;padding:0 16px;border-radius:999px;border:2px solid var(--field);box-sizing:border-box;background:transparent;color:var(--ink);font:800 15px/20px Nunito,system-ui,sans-serif;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;cursor:pointer;transition:background-color 120ms ease-out,transform 120ms ease-out,border-color 120ms ease-out}
+.chip:hover,.chip.is-hover{background:var(--surface);border-color:var(--ink)}
+.chip:active,.chip.is-pressed{background:var(--line);border-color:var(--ink);transform:scale(0.96)}
+.chip[aria-pressed="true"],.chip.is-on{background:var(--mint);color:var(--on-pastel);border-color:transparent;padding-left:12px}
+.chip[aria-pressed="true"]:hover,.chip.is-on.is-hover{background:var(--mint-hover);border-color:transparent}
+.chip[aria-pressed="true"]:active,.chip.is-on.is-pressed{background:var(--mint-pressed);border-color:transparent}
+.seg{margin:0;padding:3px;border:0;border-radius:999px;background:var(--surface);display:inline-flex;gap:2px}
+.seg-opt{position:relative;height:44px;padding:0 18px;border-radius:999px;border:2px solid transparent;box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;font:800 15px/20px Nunito,system-ui,sans-serif;color:var(--muted);cursor:pointer;transition:background-color 120ms ease-out}
+.seg-opt:hover,.seg-opt.is-hover{color:var(--ink);background:var(--line)}
+.seg-opt:has(input:checked){background:var(--mint);color:var(--on-pastel);padding-left:12px}
+.seg:has(input:focus-visible),.seg.is-focus{outline:3px solid var(--ink);outline-offset:0}
+.stp{display:inline-flex;align-items:center;gap:8px}
+.st{width:44px;height:44px;border-radius:999px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background-color 120ms ease-out,transform 120ms ease-out}
+.st-minus{border:2px solid var(--field);background:transparent;color:var(--ink)}
+.st-minus:hover,.st-minus.is-hover{background:var(--surface);border-color:var(--ink)}
+.st-plus{border:2px solid transparent;background:var(--mint);color:var(--on-pastel)}
+.st-plus:hover,.st-plus.is-hover{background:var(--mint-hover)}
+.st:active,.st.is-pressed{transform:scale(0.92)}
+.st-plus.is-pressed{background:var(--mint-pressed)}
+.st[aria-disabled="true"]{background:transparent;border:2px dashed var(--field);color:var(--muted);cursor:not-allowed;transform:none}
+.stp-val{min-width:62px;text-align:center;font-weight:800;font-size:15px;line-height:20px;font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion: reduce){.ib,.chip,.seg-opt,.st{transition:none}}
+</style>
+</helmet>
+<div class="pn" style="width: 1320px; height: 1180px; box-sizing: border-box; padding: 56px; background: var(--ground); color: var(--ink); font-family: Nunito, system-ui, sans-serif; display: flex; flex-direction: column; gap: 44px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">Dino in Picnic · 2 of 7</span>
+    <h1 class="serif" style="margin: 0; font-size: 46px; line-height: 44px">Controls</h1>
+  </header>
+
+  <section aria-labelledby="ib" style="display: flex; flex-direction: column; gap: 18px">
+    <h2 id="ib" class="serif h2">Icon button</h2>
+    <div class="row">
+      <div class="spec"><button type="button" class="ib" aria-label="Search recipes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></button><span class="cap">Default</span></div>
+      <div class="spec"><button type="button" class="ib is-hover" aria-label="Search recipes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></button><span class="cap">Hover</span></div>
+      <div class="spec"><button type="button" class="ib is-pressed" aria-label="Search recipes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></button><span class="cap">Pressed</span></div>
+      <div class="spec"><button type="button" class="ib is-focus" aria-label="Search recipes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></button><span class="cap">Focus</span></div>
+      <div class="spec"><button type="button" class="ib is-disabled" aria-label="Share recipe" aria-disabled="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"></path></svg></button><span class="cap">Disabled</span></div>
+      <div class="spec"><button type="button" class="ib" aria-label="Favourite" aria-pressed="false"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></button><span class="cap">Toggle off</span></div>
+      <div class="spec"><button type="button" class="ib" aria-label="Favourite" aria-pressed="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></button><span class="cap">Toggle on · filled heart</span></div>
+      <div class="spec"><button type="button" class="ib ib-lg" aria-label="Leave cooking mode"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button><span class="cap">48 px · cooking mode</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="chips" style="display: flex; flex-direction: column; gap: 18px">
+    <h2 id="chips" class="serif h2">Filter chip and removable chip</h2>
+    <div class="row">
+      <div class="spec"><button type="button" class="chip" aria-pressed="false">Veggie</button><span class="cap">Off</span></div>
+      <div class="spec"><button type="button" class="chip is-hover" aria-pressed="false">Veggie</button><span class="cap">Off · hover</span></div>
+      <div class="spec"><button type="button" class="chip is-pressed" aria-pressed="false">Veggie</button><span class="cap">Off · pressed</span></div>
+      <div class="spec"><button type="button" class="chip" aria-pressed="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Quick</button><span class="cap">On · check and mint</span></div>
+      <div class="spec"><button type="button" class="chip is-on is-hover" aria-pressed="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Quick</button><span class="cap">On · hover</span></div>
+      <div class="spec"><button type="button" class="chip is-on is-pressed" aria-pressed="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Quick</button><span class="cap">On · pressed</span></div>
+      <div class="spec"><button type="button" class="chip is-focus" aria-pressed="false">Veggie</button><span class="cap">Focus</span></div>
+      <div class="spec"><button type="button" class="chip is-on" aria-label="Remove filter: Chickpeas">Chickpeas<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button><span class="cap">Removable · names what it removes</span></div>
+    </div>
+    <div class="spec" style="margin-top: 8px">
+      <div style="display: flex; gap: 8px">
+        <button type="button" class="chip" aria-pressed="true" style="transform: rotate(-2deg)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Quick</button>
+        <button type="button" class="chip" aria-pressed="false" style="transform: rotate(1.5deg)">Veggie</button>
+        <button type="button" class="chip" aria-pressed="false" style="transform: rotate(-1deg)">One-pot</button>
+        <button type="button" class="chip" aria-pressed="false" style="transform: rotate(2deg)">Sweet</button>
+      </div>
+      <span class="cap">On browse only: tilted 1 to 2 degrees, alternating</span>
+    </div>
+  </section>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; align-items: start">
+    <section aria-labelledby="segs" style="display: flex; flex-direction: column; gap: 18px">
+      <h2 id="segs" class="serif h2">Segmented control</h2>
+      <div class="row">
+        <div class="spec">
+          <fieldset class="seg"><legend class="sr">Units</legend>
+            <label class="seg-opt"><input type="radio" name="u1" class="sr" checked><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Metric</label>
+            <label class="seg-opt"><input type="radio" name="u1" class="sr">US</label>
+          </fieldset>
+          <span class="cap">Default</span>
+        </div>
+        <div class="spec">
+          <fieldset class="seg"><legend class="sr">Units</legend>
+            <label class="seg-opt"><input type="radio" name="u2" class="sr" checked><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Metric</label>
+            <label class="seg-opt is-hover"><input type="radio" name="u2" class="sr">US</label>
+          </fieldset>
+          <span class="cap">Hover on US</span>
+        </div>
+        <div class="spec">
+          <fieldset class="seg is-focus"><legend class="sr">Units</legend>
+            <label class="seg-opt"><input type="radio" name="u3" class="sr" checked><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Metric</label>
+            <label class="seg-opt"><input type="radio" name="u3" class="sr">US</label>
+          </fieldset>
+          <span class="cap">Focus on the group · arrows move the choice</span>
+        </div>
+      </div>
+      <div class="spec">
+        <fieldset class="seg"><legend class="sr">Included ingredients</legend>
+          <label class="seg-opt"><input type="radio" name="m1" class="sr">With any</label>
+          <label class="seg-opt"><input type="radio" name="m1" class="sr" checked><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>With all</label>
+        </fieldset>
+        <span class="cap">A radio group of native radios: "Metric, 1 of 2, selected"</span>
+      </div>
+    </section>
+
+    <section aria-labelledby="stp" style="display: flex; flex-direction: column; gap: 18px">
+      <h2 id="stp" class="serif h2">Stepper</h2>
+      <div class="row">
+        <div class="spec">
+          <div class="stp"><button type="button" class="st st-minus" aria-label="Fewer servings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button><output class="stp-val" aria-live="polite">Serves 4</output><button type="button" class="st st-plus" aria-label="More servings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"></path></svg></button></div>
+          <span class="cap">Default</span>
+        </div>
+        <div class="spec">
+          <div class="stp"><button type="button" class="st st-minus" aria-label="Fewer servings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button><output class="stp-val" aria-live="polite">Serves 5</output><button type="button" class="st st-plus is-pressed is-focus" aria-label="More servings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"></path></svg></button></div>
+          <span class="cap">Plus pressed, with focus</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="spec">
+          <div class="stp"><button type="button" class="st st-minus" aria-label="Fewer servings" aria-disabled="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button><output class="stp-val" aria-live="polite">Serves 1</output><button type="button" class="st st-plus" aria-label="More servings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"></path></svg></button></div>
+          <span class="cap">At its limit · minus dashed</span>
+        </div>
+        <div class="spec">
+          <div class="stp"><button type="button" class="st st-minus" aria-label="Make fewer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button><output class="stp-val" aria-live="polite">Makes 16 cookies</output><button type="button" class="st st-plus" aria-label="Make more"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"></path></svg></button></div>
+          <span class="cap">A yield</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section aria-labelledby="try" style="display: flex; flex-direction: column; gap: 18px">
+    <h2 id="try" class="serif h2">Try it</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 24px 40px; align-items: center">
+      <div style="display: flex; gap: 8px">
+        <sc-for list="{{chips}}" as="c" hint-placeholder-count="4">
+          <sc-if value="{{c.on}}" hint-placeholder-val="{{false}}">
+            <button type="button" class="chip" aria-pressed="true" onClick="{{c.toggle}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>{{c.label}}</button>
+          </sc-if>
+          <sc-if value="{{c.off}}" hint-placeholder-val="{{true}}">
+            <button type="button" class="chip" aria-pressed="false" onClick="{{c.toggle}}">{{c.label}}</button>
+          </sc-if>
+        </sc-for>
+      </div>
+      <div class="stp">
+        <button type="button" class="st st-minus" aria-label="Fewer servings" aria-disabled="{{atMin}}" onClick="{{fewer}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
+        <output class="stp-val" aria-live="polite">Serves {{serves}}</output>
+        <button type="button" class="st st-plus" aria-label="More servings" aria-disabled="{{atMax}}" onClick="{{more}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"></path></svg></button>
+      </div>
+      <fieldset class="seg"><legend class="sr">Units</legend>
+        <label class="seg-opt"><input type="radio" name="try-units" class="sr" checked>Metric</label>
+        <label class="seg-opt"><input type="radio" name="try-units" class="sr">US</label>
+      </fieldset>
+      <button type="button" class="ib" aria-label="Favourite" aria-pressed="{{fav}}" onClick="{{toggleFav}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></button>
+    </div>
+    <span class="cap">Hover, press, Tab and arrow keys work in Play</span>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":1180}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { on: { Quick: true }, serves: 4, fav: false };
+  }
+  renderVals() {
+    const labels = ['Quick', 'Veggie', 'One-pot', 'Sweet'];
+    const serves = this.state.serves;
+    return {
+      chips: labels.map((label) => ({
+        label,
+        on: Boolean(this.state.on[label]),
+        off: !this.state.on[label],
+        toggle: () => this.setState({ on: { ...this.state.on, [label]: !this.state.on[label] } })
+      })),
+      serves,
+      atMin: serves <= 1 ? 'true' : 'false',
+      atMax: serves >= 12 ? 'true' : 'false',
+      fewer: () => this.setState({ serves: Math.max(1, serves - 1) }),
+      more: () => this.setState({ serves: Math.min(12, serves + 1) }),
+      fav: this.state.fav ? 'true' : 'false',
+      toggleFav: () => this.setState({ fav: !this.state.fav })
+    };
+  }
+}
+</script>
+</body>
+</html>

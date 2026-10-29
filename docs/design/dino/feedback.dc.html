@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Dino in Picnic: feedback</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.pn{--ground:#1c1233;--surface:#2a1d47;--ink:#fff4ea;--muted:#cbbfe0;--field:#8f7fb0;--line:#3a2c5c;--butter:#ffe08a;--on-pastel:#2a1440;--dock:#fff4ea;--on-dock:#2a1440;--success:#8fe3c0;--warning:#ffe08a;--danger:#ff9a8a;--on-danger:#1c1233;--scrim:rgb(8 4 18 / 0.66);--lift:0 12px 28px rgb(0 0 0 / 0.35);color-scheme:dark}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--muted)}
+.h2{margin:0;font-size:28px;line-height:30px;font-style:italic}
+.col{display:flex;flex-direction:column;gap:20px;min-width:0}
+.spec{display:flex;flex-direction:column;gap:8px}
+.btn{height:44px;padding:0 20px;border-radius:999px;border:2px solid transparent;box-sizing:border-box;font:800 15px/20px Nunito,system-ui,sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;cursor:pointer}
+.btn-secondary{background:transparent;color:var(--ink);border-color:var(--field)}
+.btn-secondary:hover{background:var(--surface);border-color:var(--ink)}
+.btn-danger{background:var(--danger);color:var(--on-danger)}
+.btn:focus-visible{outline:3px solid var(--ink);outline-offset:0}
+.btn-on-pastel{background:transparent;color:var(--on-pastel);border-color:var(--on-pastel);flex-shrink:0}
+.btn-on-pastel:focus-visible,.btn-on-pastel.is-focus{outline:3px solid var(--on-pastel);outline-offset:0}
+.note{border-radius:20px;background:var(--butter);color:var(--on-pastel);padding:10px 12px 10px 16px;display:flex;align-items:center;gap:12px;font-size:14px;line-height:19px;font-weight:700}
+.banner{border-radius:20px;border:2px solid;background:var(--surface);padding:14px 14px 14px 16px;display:grid;grid-template-columns:22px minmax(0, 1fr);gap:4px 12px;align-items:start}
+.banner p{margin:0}
+.banner .t{font-weight:800;font-size:16px;line-height:22px}
+.banner .b{font-size:14px;line-height:20px;font-weight:600;color:var(--muted)}
+.toast{height:56px;border-radius:999px;background:var(--dock);color:var(--on-dock);box-shadow:var(--lift);display:flex;align-items:center;gap:12px;padding:0 6px 0 20px;font-size:15px;line-height:20px;font-weight:800}
+.toast .msg{flex-grow:1;display:flex;align-items:center;gap:10px}
+.toast-act{height:44px;padding:0 16px;border-radius:999px;border:2px solid var(--on-dock);background:transparent;color:var(--on-dock);font:800 15px/20px Nunito,system-ui,sans-serif;cursor:pointer}
+.toast-act:focus-visible,.toast-act.is-focus{outline:3px solid var(--on-dock);outline-offset:0}
+.spin{animation:spin 900ms linear infinite;transform-origin:50% 50%}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.spin{animation:none}}
+</style>
+</helmet>
+<div class="pn" style="width: 1320px; height: 1440px; box-sizing: border-box; padding: 56px; background: var(--ground); color: var(--ink); font-family: Nunito, system-ui, sans-serif; display: flex; flex-direction: column; gap: 44px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">Dino in Picnic · 4 of 7</span>
+    <h1 class="serif" style="margin: 0; font-size: 46px; line-height: 44px">Feedback</h1>
+  </header>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; align-items: start">
+
+    <!-- Notes and banners -->
+    <div class="col">
+      <h2 class="serif h2">Note</h2>
+      <div class="spec">
+        <div class="note"><span style="flex-grow: 1">Left out salt, water and vegetable oil: you probably have them.</span><button type="button" class="btn btn-on-pastel">Add them</button></div>
+        <span class="cap">One action at most</span>
+      </div>
+      <div class="spec">
+        <div class="note" style="padding: 12px 16px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2M10 2h4"></path></svg><span>Start the night before: the chickpeas soak for 12 hours.</span></div>
+        <span class="cap">A heads-up, no action</span>
+      </div>
+
+      <h2 class="serif h2" style="margin-top: 12px">Banner</h2>
+      <div role="status" class="banner" style="border-color: var(--success)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+        <p class="t">Imported</p>
+        <span></span>
+        <p class="b">All 9 ingredients and 6 steps came across.</p>
+      </div>
+      <div role="status" class="banner" style="border-color: var(--warning)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3M12 9v4M12 17h.01"></path></svg>
+        <p class="t">Imported, with 2 gaps</p>
+        <span></span>
+        <div style="display: flex; flex-direction: column; gap: 12px; align-items: flex-start">
+          <p class="b">Two ingredients had no amount. Add them before you cook.</p>
+          <button type="button" class="btn btn-secondary">Fill the gaps</button>
+        </div>
+      </div>
+      <div role="alert" class="banner" style="border-color: var(--danger)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>
+        <p class="t">Couldn’t reach that page</p>
+        <span></span>
+        <div style="display: flex; flex-direction: column; gap: 12px; align-items: flex-start">
+          <p class="b">Check the link is a recipe page, like bbcgoodfood.com/recipes/…, then try again.</p>
+          <button type="button" class="btn btn-secondary">Try again</button>
+        </div>
+      </div>
+      <span class="cap">New: an action slot, one action at most</span>
+    </div>
+
+    <!-- Toasts and dialog -->
+    <div class="col">
+      <h2 class="serif h2">Toast</h2>
+      <div class="spec">
+        <div class="toast" role="status"><span class="msg">Saved to Favourites</span><button type="button" class="toast-act">Undo</button></div>
+        <span class="cap">Undo rather than asking first</span>
+      </div>
+      <div class="spec">
+        <div class="toast" role="status"><span class="msg">Removed 3 things</span><button type="button" class="toast-act is-focus">Undo</button></div>
+        <span class="cap">Action focused · the ring turns on-dock</span>
+      </div>
+      <div class="spec">
+        <div class="toast" role="alert"><span class="msg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>Couldn’t save. You’re offline.</span><button type="button" class="toast-act">Try again</button></div>
+        <span class="cap">An error · icon, no colour change on the dock · 150 ms in</span>
+      </div>
+
+      <h2 class="serif h2" style="margin-top: 12px">Dialog</h2>
+      <div class="spec">
+        <div style="position: relative; height: 380px; border-radius: 28px; overflow: hidden; background: var(--ground); border: 1px solid var(--line)">
+          <div aria-hidden="true" style="position: absolute; left: 60px; top: 30px; width: 240px; height: 200px; background: #fff8ef; transform: rotate(-2deg)"></div>
+          <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--scrim)"></div>
+          <section role="alertdialog" aria-modal="true" aria-labelledby="dlg-t" aria-describedby="dlg-d" style="position: absolute; left: 20px; right: 20px; top: 50%; transform: translateY(-50%); border-radius: 24px; background: var(--surface); padding: 24px; display: flex; flex-direction: column; gap: 12px">
+            <h3 id="dlg-t" class="serif" style="margin: 0; font-size: 34px; line-height: 36px; font-style: italic">Delete this recipe?</h3>
+            <p id="dlg-d" style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--muted)">Chana masala and its 2 notes will be deleted for everyone in your household. The 6 things it put on the shopping list stay.</p>
+            <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 8px">
+              <button type="button" class="btn btn-secondary">Cancel</button>
+              <button type="button" class="btn btn-danger">Delete recipe</button>
+            </div>
+          </section>
+        </div>
+        <span class="cap">Only for what can’t be undone · focus starts on Cancel</span>
+      </div>
+    </div>
+
+    <!-- Empty, error, loading -->
+    <div class="col">
+      <h2 class="serif h2">Empty state</h2>
+      <div style="position: relative; border-radius: 24px; border: 1px solid var(--line); padding: 28px 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center">
+        <span aria-hidden="true" style="width: 96px; height: 92px; border: 2.5px dashed var(--field); box-sizing: border-box; transform: rotate(-4deg); display: flex; align-items: flex-start; justify-content: center; padding-top: 8px"><span style="width: 74px; height: 54px; border: 2px dashed var(--line)"></span></span>
+        <h3 class="serif" style="margin: 4px 0 0; font-size: 28px; line-height: 30px; font-style: italic">No recipes match</h3>
+        <p style="margin: 0; max-width: 30ch; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--muted)">Nothing is vegetarian, one-pot and under 30 minutes yet. Try removing a filter.</p>
+        <button type="button" class="btn btn-secondary" style="margin-top: 4px">Clear filters</button>
+        <svg aria-hidden="true" width="56" height="48" viewBox="0 0 70 60" style="position: absolute; right: 26px; bottom: 34px; color: var(--muted); transform: scaleX(-1) rotate(20deg)"><path d="M8 6c20 4 38 18 44 40M44 40l8 8 6-11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <span aria-hidden="true" class="serif" style="position: absolute; right: 18px; bottom: 86px; font-size: 19px; line-height: 20px; font-style: italic; color: var(--muted); transform: rotate(-5deg)">one fewer?</span>
+      </div>
+
+      <h2 class="serif h2" style="margin-top: 12px">Error with retry</h2>
+      <div role="alert" style="border-radius: 24px; border: 1px solid var(--line); padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>
+        <h3 class="serif" style="margin: 0; font-size: 28px; line-height: 30px; font-style: italic">Couldn’t load recipes</h3>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--muted)">Check your connection, then try again.</p>
+        <div style="display: flex; gap: 12px; margin-top: 4px">
+          <button type="button" class="btn btn-secondary">Try again</button>
+          <button type="button" class="btn btn-secondary" aria-busy="true" aria-disabled="true" style="cursor: progress"><svg class="spin" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-opacity="0.25" stroke-width="3"></circle><path d="M12 3a9 9 0 0 1 9 9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg>Trying…</button>
+        </div>
+        <span class="cap">Shared by the four places that need it</span>
+      </div>
+
+      <h2 class="serif h2" style="margin-top: 12px">Loading</h2>
+      <div aria-busy="true" style="display: flex; flex-direction: column; gap: 16px">
+        <div aria-hidden="true" style="display: flex; gap: 18px; padding: 6px 4px 0">
+          <span style="width: 120px; height: 112px; background: var(--surface); padding: 8px 8px 0; box-sizing: border-box; transform: rotate(-3deg)"><span style="display: block; height: 72px; background: var(--line)"></span><span style="display: block; width: 64px; height: 10px; margin-top: 9px; border-radius: 5px; background: var(--line)"></span></span>
+          <span style="width: 120px; height: 112px; background: var(--surface); padding: 8px 8px 0; box-sizing: border-box; transform: rotate(2.5deg)"><span style="display: block; height: 72px; background: var(--line)"></span><span style="display: block; width: 80px; height: 10px; margin-top: 9px; border-radius: 5px; background: var(--line)"></span></span>
+        </div>
+        <p role="status" style="margin: 0; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 800"><svg class="spin" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-opacity="0.25" stroke-width="3"></circle><path d="M12 3a9 9 0 0 1 9 9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg>Finding recipes…</p>
+        <span class="cap">Blank polaroids that don’t shimmer, shown only after half a second</span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":1440}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Dino in Picnic: fields and checkbox rows</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.pn{--ground:#1c1233;--surface:#2a1d47;--ink:#fff4ea;--muted:#cbbfe0;--field:#8f7fb0;--line:#3a2c5c;--mint:#8fe3c0;--on-pastel:#2a1440;--danger:#ff9a8a;color-scheme:dark}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--muted)}
+.h2{margin:0;font-size:28px;line-height:30px;font-style:italic}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.lbl{font-size:15px;line-height:20px;font-weight:800}
+.help{margin:0;font-size:13px;line-height:17px;font-weight:700;color:var(--muted)}
+.err{margin:0;display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:17px;font-weight:700;color:var(--danger)}
+.in{width:100%;height:48px;border-radius:999px;border:2px solid var(--field);background:transparent;color:var(--ink);padding:0 18px;box-sizing:border-box;font:700 16px/24px Nunito,system-ui,sans-serif;outline:0;transition:border-color 120ms ease-out}
+.in::placeholder{color:var(--muted);font-weight:600}
+.in:hover,.in.is-hover{border-color:var(--muted)}
+.in:focus-visible,.in.is-focus{border-color:var(--ink);outline:1px solid var(--ink);outline-offset:0}
+.in[aria-invalid="true"]{border-color:var(--danger)}
+.in:disabled{background:var(--surface);border-style:dashed;color:var(--muted);cursor:not-allowed}
+.wrap{position:relative}
+.wrap .lead{position:absolute;left:16px;top:14px;color:var(--muted);pointer-events:none}
+.wrap .trail{position:absolute;right:16px;top:14px;color:var(--muted);pointer-events:none}
+.clear{position:absolute;right:2px;top:2px;width:44px;height:44px;border-radius:999px;border:0;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.clear:hover{color:var(--muted)}
+.clear:focus-visible{outline:0;color:var(--muted)}
+select.in{appearance:none;cursor:pointer;padding-right:46px}
+.list{margin:0;padding:6px;list-style:none;border:2px solid var(--field);border-radius:24px;background:var(--surface);display:flex;flex-direction:column;gap:2px}
+.opt{min-height:48px;padding:0 14px;border-radius:16px;display:flex;align-items:center;justify-content:space-between;font-size:16px;font-weight:600}
+.opt[aria-selected="true"]{background:var(--line);outline:3px solid var(--ink);outline-offset:-3px}
+.opt b{font-weight:800}
+.chk{min-height:48px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--line);font-size:16px;line-height:24px;font-weight:600;cursor:pointer;padding:0 8px;margin:0 -8px;border-radius:14px}
+.chk:hover,.chk.is-hover{background:var(--surface)}
+.chk:has(input:focus-visible),.chk.is-focus{outline:3px solid var(--ink);outline-offset:-1px}
+.box{width:28px;height:28px;flex-shrink:0;border-radius:10px;border:2.5px solid var(--field);box-sizing:border-box;display:flex;align-items:center;justify-content:center;color:var(--on-pastel);transition:transform 120ms ease-out}
+.chk:active .box,.chk.is-pressed .box{transform:scale(0.88)}
+.chk:has(input:checked) .box{background:var(--mint);border-color:transparent}
+.chk .name{flex-grow:1}
+.chk .amt{font-weight:800;font-variant-numeric:tabular-nums}
+.chk:has(input:checked) .name{color:var(--muted);text-decoration:line-through;text-decoration-thickness:2px}
+.chk:has(input:checked) .amt{color:var(--muted);font-weight:700}
+.chip{height:44px;padding:0 12px 0 14px;border-radius:999px;border:2px solid transparent;box-sizing:border-box;background:var(--mint);color:var(--on-pastel);font:800 15px/20px Nunito,system-ui,sans-serif;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+@media (prefers-reduced-motion: reduce){.in,.box{transition:none}}
+</style>
+</helmet>
+<div class="pn" style="width: 1320px; height: 1180px; box-sizing: border-box; padding: 56px; background: var(--ground); color: var(--ink); font-family: Nunito, system-ui, sans-serif; display: flex; flex-direction: column; gap: 44px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">Dino in Picnic · 3 of 7</span>
+    <h1 class="serif" style="margin: 0; font-size: 46px; line-height: 44px">Fields and checkbox rows</h1>
+  </header>
+
+  <section aria-labelledby="tf" style="display: flex; flex-direction: column; gap: 20px">
+    <h2 id="tf" class="serif h2">Text field</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 40px">
+      <div class="fld">
+        <label class="lbl" for="f1">Recipe name</label>
+        <input id="f1" class="in" type="text" placeholder="Like “Nonna’s lasagne”" aria-describedby="f1-h">
+        <p id="f1-h" class="help">Default · help text below</p>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="f2">Recipe name</label>
+        <input id="f2" class="in is-hover" type="text" placeholder="Like “Nonna’s lasagne”">
+        <p class="help">Hover · border lightens</p>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="f3">Recipe name</label>
+        <input id="f3" class="in is-focus" type="text" value="Chana mas">
+        <p class="help">Focus · the border turns ink and thickens to 3 px</p>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="f4">Servings</label>
+        <input id="f4" class="in" type="text" inputmode="numeric" value="4" aria-describedby="f4-h">
+        <p id="f4-h" class="help">Filled · numbers open the number keyboard</p>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="f5">Servings</label>
+        <input id="f5" class="in" type="text" inputmode="numeric" value="four" aria-invalid="true" aria-describedby="f5-e">
+        <p id="f5-e" class="err"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>Enter a number, like 4.</p>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="f6">Recipe link</label>
+        <input id="f6" class="in" type="url" value="bbcgoodfood.com/recipes/chana-masala" disabled aria-describedby="f6-h">
+        <p id="f6-h" class="help">Disabled · says why: “Imported recipes keep their link.”</p>
+      </div>
+    </div>
+  </section>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; align-items: start">
+
+    <section aria-labelledby="ss" style="display: flex; flex-direction: column; gap: 20px">
+      <h2 id="ss" class="serif h2">Search and select</h2>
+      <div class="fld">
+        <label class="sr" for="s1">Search recipes</label>
+        <div class="wrap">
+          <svg class="lead" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          <input id="s1" class="in" type="search" placeholder="Search recipes" style="padding-left: 46px">
+        </div>
+        <p class="help">Label visually hidden: search only</p>
+      </div>
+      <div class="fld">
+        <label class="sr" for="s2">Search recipes</label>
+        <div class="wrap">
+          <svg class="lead" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: var(--ink)"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          <input id="s2" class="in is-focus" type="search" value="dahl" style="padding-left: 46px; padding-right: 50px">
+          <button type="button" class="clear" aria-label="Clear search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+        </div>
+        <p class="help">Typing · a 44 px clear button</p>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="s3">Cuisine</label>
+        <div class="wrap">
+          <select id="s3" class="in"><option>Indian</option><option>Italian</option><option>Korean</option></select>
+          <svg class="trail" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+        </div>
+        <p class="help">Native select, so phones show their own picker</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="cb" style="display: flex; flex-direction: column; gap: 20px">
+      <h2 id="cb" class="serif h2">Combobox</h2>
+      <div class="fld">
+        <span class="lbl" id="cb-l">Ingredients</span>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px">
+          <button type="button" class="chip" aria-label="Remove ingredient: Onion">Onion<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+          <button type="button" class="chip" aria-label="Remove ingredient: Garlic">Garlic<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+        </div>
+        <input class="in is-focus" type="text" value="chick" role="combobox" aria-labelledby="cb-l" aria-expanded="true" aria-controls="cb-list" aria-activedescendant="cb-o1" aria-autocomplete="list">
+        <ul id="cb-list" class="list" role="listbox" aria-labelledby="cb-l" style="margin-top: 8px">
+          <li id="cb-o1" class="opt" role="option" aria-selected="true"><span><b>Chick</b>peas</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 10-5 5 5 5M20 4v7a4 4 0 0 1-4 4H4"></path></svg></li>
+          <li class="opt" role="option" aria-selected="false"><span><b>Chick</b>en thighs</span></li>
+          <li class="opt" role="option" aria-selected="false"><span><b>Chick</b>pea flour</span></li>
+        </ul>
+        <p class="help">The active option: fill and the focus outline, and Enter picks it</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="ck" style="display: flex; flex-direction: column; gap: 20px">
+      <h2 id="ck" class="serif h2">Checkbox row</h2>
+      <div style="display: flex; flex-direction: column">
+        <label class="chk"><input type="checkbox" class="sr"><span class="box"></span><span class="name">Dried chickpeas</span><span class="amt">250 g</span></label>
+        <label class="chk is-hover"><input type="checkbox" class="sr"><span class="box"></span><span class="name">Onions</span><span class="amt">2</span></label>
+        <label class="chk is-focus"><input type="checkbox" class="sr"><span class="box"></span><span class="name">Garlic</span><span class="amt">4 cloves</span></label>
+        <label class="chk is-pressed"><input type="checkbox" class="sr"><span class="box"></span><span class="name">Ginger</span><span class="amt">5 cm</span></label>
+        <label class="chk"><input type="checkbox" class="sr" checked><span class="box"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span><span class="name">Tinned tomatoes</span><span class="amt">400 g</span></label>
+        <label class="chk"><input type="checkbox" class="sr" checked><span class="box"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span><span class="name">Coriander</span><span class="amt">1 bunch</span></label>
+      </div>
+      <p class="help">Default, hover, focus, pressed, then ticked: mint and a check, struck through, moved to the end of its group</p>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":1180}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Dino in Picnic: the mark</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.pn{--ground:#1c1233;--surface:#2a1d47;--ink:#fff4ea;--muted:#cbbfe0;--line:#3a2c5c;--peach:#ffb38a;--on-pastel:#2a1440;--paper:#fff8ef;--tape:rgb(255 224 138 / 0.85);color-scheme:dark}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--muted)}
+.h2{margin:0;font-size:28px;line-height:30px;font-style:italic}
+.ico{position:relative;display:block;width:180px;height:180px;border-radius:40px;overflow:hidden;flex-shrink:0;transform-origin:0 0}
+.tile{position:relative;display:block;overflow:hidden;flex-shrink:0}
+.strip{display:flex;align-items:center;gap:20px;padding:14px 18px;border-radius:20px}
+.opt{display:flex;flex-direction:column;gap:24px;align-items:flex-start}
+</style>
+</helmet>
+<div class="pn" style="width: 1320px; height: 960px; box-sizing: border-box; padding: 56px; background: var(--ground); color: var(--ink); font-family: Nunito, system-ui, sans-serif; display: flex; flex-direction: column; gap: 52px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">Dino in Picnic · 6 of 7</span>
+    <h1 class="serif" style="margin: 0; font-size: 46px; line-height: 44px">The mark: three options</h1>
+  </header>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px">
+
+    <!-- A: the polaroid -->
+    <section class="opt" aria-labelledby="ma">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <h2 id="ma" class="serif h2">A · The polaroid</h2>
+        <span class="cap">A taped polaroid with a T on peach</span>
+      </div>
+      <span class="ico" role="img" aria-label="Option A at 180 pixels" style="background: #1c1233; outline: 1px solid var(--line); outline-offset: -1px">
+        <span style="position: absolute; left: 36px; top: 30px; width: 108px; padding: 8px 8px 28px; box-sizing: border-box; background: #fff8ef; transform: rotate(-6deg); box-shadow: 0 6px 14px rgb(0 0 0 / 0.35)"><span style="display: flex; height: 80px; background: #ffb38a; align-items: center; justify-content: center"><span class="serif" style="font-size: 76px; line-height: 1; font-style: italic; color: #2a1440; transform: translateY(-3px)">T</span></span></span>
+        <span style="position: absolute; left: 68px; top: 22px; width: 46px; height: 15px; background: rgb(255 224 138 / 0.9); transform: rotate(-6deg)"></span>
+      </span>
+      <div class="strip" style="background: var(--surface)">
+        <sc-for list="{{small}}" as="s" hint-placeholder-count="3">
+          <span class="tile" style="width: {{s.px}}px; height: {{s.px}}px"><span class="ico" aria-hidden="true" style="background: #1c1233; transform: scale({{s.k}})">
+            <span style="position: absolute; left: 36px; top: 30px; width: 108px; padding: 8px 8px 28px; box-sizing: border-box; background: #fff8ef; transform: rotate(-6deg)"><span style="display: flex; height: 80px; background: #ffb38a; align-items: center; justify-content: center"><span class="serif" style="font-size: 76px; line-height: 1; font-style: italic; color: #2a1440; transform: translateY(-3px)">T</span></span></span>
+            <span style="position: absolute; left: 68px; top: 22px; width: 46px; height: 15px; background: rgb(255 224 138 / 0.9); transform: rotate(-6deg)"></span>
+          </span></span>
+        </sc-for>
+      </div>
+      <div class="strip" style="background: #fff4ea">
+        <sc-for list="{{tabs}}" as="s" hint-placeholder-count="2">
+          <span class="tile" style="width: {{s.px}}px; height: {{s.px}}px"><span class="ico" aria-hidden="true" style="background: #1c1233; transform: scale({{s.k}})">
+            <span style="position: absolute; left: 36px; top: 30px; width: 108px; padding: 8px 8px 28px; box-sizing: border-box; background: #fff8ef; transform: rotate(-6deg)"><span style="display: flex; height: 80px; background: #ffb38a; align-items: center; justify-content: center"><span class="serif" style="font-size: 76px; line-height: 1; font-style: italic; color: #2a1440; transform: translateY(-3px)">T</span></span></span>
+          </span></span>
+        </sc-for>
+        <span style="font-size: 13px; font-weight: 700; color: #2a1440">a light browser tab</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px">
+        <span class="tile" style="width: 44px; height: 44px"><span class="ico" aria-hidden="true" style="background: #1c1233; transform: scale(0.2444)">
+          <span style="position: absolute; left: 36px; top: 30px; width: 108px; padding: 8px 8px 28px; box-sizing: border-box; background: #fff8ef; transform: rotate(-6deg)"><span style="display: flex; height: 80px; background: #ffb38a; align-items: center; justify-content: center"><span class="serif" style="font-size: 76px; line-height: 1; font-style: italic; color: #2a1440; transform: translateY(-3px)">T</span></span></span>
+        </span></span>
+        <span class="serif" style="font-size: 32px; line-height: 34px; font-style: italic">Tastebook</span>
+      </div>
+    </section>
+
+    <!-- B: the t -->
+    <section class="opt" aria-labelledby="mb">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <h2 id="mb" class="serif h2">B · The t</h2>
+        <span class="cap">The wordmark’s italic t, underlined with the squiggle</span>
+      </div>
+      <span class="ico" role="img" aria-label="Option B at 180 pixels" style="background: #ffb38a">
+        <span class="serif" style="position: absolute; left: 0; right: 0; top: 4px; text-align: center; font-size: 160px; line-height: 160px; font-style: italic; color: #2a1440">t</span>
+        <svg aria-hidden="true" width="96" height="20" viewBox="0 0 96 20" style="position: absolute; left: 44px; top: 140px"><path d="M4 11c8-7 14-7 22 0s14 7 22 0 14-7 22 0 14 7 22 0" fill="none" stroke="#2a1440" stroke-width="7" stroke-linecap="round"></path></svg>
+      </span>
+      <div class="strip" style="background: var(--surface)">
+        <sc-for list="{{small}}" as="s" hint-placeholder-count="3">
+          <span class="tile" style="width: {{s.px}}px; height: {{s.px}}px"><span class="ico" aria-hidden="true" style="background: #ffb38a; transform: scale({{s.k}})">
+            <span class="serif" style="position: absolute; left: 0; right: 0; top: 4px; text-align: center; font-size: 160px; line-height: 160px; font-style: italic; color: #2a1440">t</span>
+            <svg aria-hidden="true" width="96" height="20" viewBox="0 0 96 20" style="position: absolute; left: 44px; top: 140px"><path d="M4 11c8-7 14-7 22 0s14 7 22 0 14-7 22 0 14 7 22 0" fill="none" stroke="#2a1440" stroke-width="7" stroke-linecap="round"></path></svg>
+          </span></span>
+        </sc-for>
+      </div>
+      <div class="strip" style="background: #fff4ea">
+        <sc-for list="{{tabs}}" as="s" hint-placeholder-count="2">
+          <span class="tile" style="width: {{s.px}}px; height: {{s.px}}px"><span class="ico" aria-hidden="true" style="background: #ffb38a; transform: scale({{s.k}})">
+            <span class="serif" style="position: absolute; left: 0; right: 0; top: 4px; text-align: center; font-size: 160px; line-height: 160px; font-style: italic; color: #2a1440">t</span>
+            <svg aria-hidden="true" width="96" height="20" viewBox="0 0 96 20" style="position: absolute; left: 44px; top: 140px"><path d="M4 11c8-7 14-7 22 0s14 7 22 0 14-7 22 0 14 7 22 0" fill="none" stroke="#2a1440" stroke-width="7" stroke-linecap="round"></path></svg>
+          </span></span>
+        </sc-for>
+        <span style="font-size: 13px; font-weight: 700; color: #2a1440">a light browser tab</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px">
+        <span class="tile" style="width: 44px; height: 44px"><span class="ico" aria-hidden="true" style="background: #ffb38a; transform: scale(0.2444)">
+          <span class="serif" style="position: absolute; left: 0; right: 0; top: 4px; text-align: center; font-size: 160px; line-height: 160px; font-style: italic; color: #2a1440">t</span>
+          <svg aria-hidden="true" width="96" height="20" viewBox="0 0 96 20" style="position: absolute; left: 44px; top: 140px"><path d="M4 11c8-7 14-7 22 0s14 7 22 0 14-7 22 0 14 7 22 0" fill="none" stroke="#2a1440" stroke-width="7" stroke-linecap="round"></path></svg>
+        </span></span>
+        <span class="serif" style="font-size: 32px; line-height: 34px; font-style: italic">Tastebook</span>
+      </div>
+    </section>
+
+    <!-- C: the blob -->
+    <section class="opt" aria-labelledby="mc">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <h2 id="mc" class="serif h2">C · The blob</h2>
+        <span class="cap">A T in one of the time blobs, on plum</span>
+      </div>
+      <span class="ico" role="img" aria-label="Option C at 180 pixels" style="background: #1c1233; outline: 1px solid var(--line); outline-offset: -1px">
+        <span style="position: absolute; left: 22px; top: 26px; width: 136px; height: 128px; background: #ffb38a; border-radius: 46% 54% 42% 58% / 55% 45% 55% 45%; transform: rotate(-8deg)"></span>
+        <span class="serif" style="position: absolute; left: 0; right: 0; top: 36px; text-align: center; font-size: 112px; line-height: 112px; font-style: italic; color: #2a1440">T</span>
+      </span>
+      <div class="strip" style="background: var(--surface)">
+        <sc-for list="{{small}}" as="s" hint-placeholder-count="3">
+          <span class="tile" style="width: {{s.px}}px; height: {{s.px}}px"><span class="ico" aria-hidden="true" style="background: #1c1233; transform: scale({{s.k}})">
+            <span style="position: absolute; left: 22px; top: 26px; width: 136px; height: 128px; background: #ffb38a; border-radius: 46% 54% 42% 58% / 55% 45% 55% 45%; transform: rotate(-8deg)"></span>
+            <span class="serif" style="position: absolute; left: 0; right: 0; top: 36px; text-align: center; font-size: 112px; line-height: 112px; font-style: italic; color: #2a1440">T</span>
+          </span></span>
+        </sc-for>
+      </div>
+      <div class="strip" style="background: #fff4ea">
+        <sc-for list="{{tabs}}" as="s" hint-placeholder-count="2">
+          <span class="tile" style="width: {{s.px}}px; height: {{s.px}}px"><span class="ico" aria-hidden="true" style="background: #1c1233; transform: scale({{s.k}})">
+            <span style="position: absolute; left: 22px; top: 26px; width: 136px; height: 128px; background: #ffb38a; border-radius: 46% 54% 42% 58% / 55% 45% 55% 45%; transform: rotate(-8deg)"></span>
+            <span class="serif" style="position: absolute; left: 0; right: 0; top: 36px; text-align: center; font-size: 112px; line-height: 112px; font-style: italic; color: #2a1440">T</span>
+          </span></span>
+        </sc-for>
+        <span style="font-size: 13px; font-weight: 700; color: #2a1440">a light browser tab</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px">
+        <span class="tile" style="width: 44px; height: 44px"><span class="ico" aria-hidden="true" style="background: #1c1233; transform: scale(0.2444)">
+          <span style="position: absolute; left: 22px; top: 26px; width: 136px; height: 128px; background: #ffb38a; border-radius: 46% 54% 42% 58% / 55% 45% 55% 45%; transform: rotate(-8deg)"></span>
+          <span class="serif" style="position: absolute; left: 0; right: 0; top: 36px; text-align: center; font-size: 112px; line-height: 112px; font-style: italic; color: #2a1440">T</span>
+        </span></span>
+        <span class="serif" style="font-size: 32px; line-height: 34px; font-style: italic">Tastebook</span>
+      </div>
+    </section>
+  </div>
+
+  <div style="display: flex; gap: 32px">
+    <span class="cap">Each at 180 (home screen), then 64, 32 and 16 on Surface, then 32 and 16 on a light tab, then beside the wordmark at 44.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":960}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const at = (px) => ({ px, k: px / 180 });
+    return {
+      small: [at(64), at(32), at(16)],
+      tabs: [at(32), at(16)]
+    };
+  }
+}
+</script>
+</body>
+</html>
