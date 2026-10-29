@@ -11,6 +11,20 @@
     <meta name="theme-color" content="#1c1233" />
     <meta name="description" content="Tastebook: keep, share and cook your recipes." />
     <title>Tastebook</title>
+    <!-- Photos come from Wikimedia Commons without credentials, so the connection is opened the same way. -->
+    <link rel="preconnect" href="https://upload.wikimedia.org" crossorigin />
+    <script>
+      // The unfiltered recipe list is the usual first page: its photos wait on this request, so it starts with the HTML
+      // rather than once the app has loaded. The app's own fetch of the same address picks the response up.
+      if (location.pathname === '/recipes' && location.search === '') {
+        const preload = document.createElement('link');
+        preload.rel = 'preload';
+        preload.as = 'fetch';
+        preload.href = '/api/recipes/';
+        preload.crossOrigin = 'anonymous';
+        document.head.append(preload);
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
