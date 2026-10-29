@@ -38,15 +38,18 @@ test('the recipe list on a laptop under forced colours keeps a border on a chose
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/recipes?cuisine=italian');
 
-  const italian = page
-    .getByRole('complementary', { name: 'Filters' })
-    .getByRole('group', { name: 'Cuisine' })
-    .getByRole('button', { name: 'Italian' });
+  const cuisine = page.getByRole('complementary', { name: 'Filters' }).getByRole('group', { name: 'Cuisine' });
+  const italian = cuisine.getByRole('button', { name: 'Italian' });
   await expect(italian).toHaveAttribute('aria-pressed', 'true');
   expect(await italian.evaluate((chip) => getComputedStyle(chip).borderTopColor)).not.toBe('rgba(0, 0, 0, 0)');
 
   await testInfo.attach('recipe list under forced colours', {
     body: await page.screenshot({ fullPage: true }),
+    contentType: 'image/png'
+  });
+  // The column sits below the fold, so the pressed chip gets a shot of its own.
+  await testInfo.attach('pressed cuisine chip under forced colours', {
+    body: await cuisine.screenshot(),
     contentType: 'image/png'
   });
 });
