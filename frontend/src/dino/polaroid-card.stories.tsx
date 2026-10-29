@@ -48,4 +48,7 @@ export const IsPressed = { parameters: isPressed } satisfies Story;
 export const IsFocus = { parameters: { pseudo: { focusVisible: ['a'] } } } satisfies Story;
 export const PlaceSetting = { args: { photo: null, recipeId: 2, title: 'Shakshuka' } } satisfies Story;
 export const Rug = { args: { photo: null, recipeId: 1, title: 'Ribollita' } } satisfies Story;
+export const LongTitle = {
+  args: { title: 'Slow-roasted pork shoulder with crackling, apple sauce and Yorkshire puddings' }
+} satisfies Story;
 export const LargeText = {} satisfies Story;
