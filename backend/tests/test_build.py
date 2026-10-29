@@ -1,8 +1,20 @@
+from collections.abc import Iterator
+
 import pytest
 from django.contrib.auth import get_user_model
+from django.db import connection
 
 import build
 from recipes.models import Recipe
+
+
+@pytest.fixture
+def an_empty_database() -> Iterator[None]:
+    with connection.cursor() as cursor:
+        cursor.execute('DROP SCHEMA public CASCADE; CREATE SCHEMA public;')
+    yield
+    with connection.cursor() as cursor:
+        cursor.execute('COMMENT ON SCHEMA public IS NULL')
 
 
 @pytest.mark.django_db
@@ -40,3 +52,16 @@ def test_a_build_loads_the_catalogue_unless_it_is_a_preview_holding_accounts(
     build.main()
 
     assert (Recipe.objects.count(), get_user_model().objects.count()) == (305, accounts)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_a_preview_born_empty_keeps_its_own_accounts_on_the_next_build(
+    monkeypatch: pytest.MonkeyPatch, an_empty_database: None
+) -> None:
+    monkeypatch.setenv('VERCEL_ENV', 'preview')
+    build.main()
+    get_user_model().objects.create_user(username='someone', email='someone@example.com')
+
+    build.main()
+
+    assert (Recipe.objects.count(), get_user_model().objects.count()) == (305, 1)
