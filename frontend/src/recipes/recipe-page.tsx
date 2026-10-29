@@ -2,9 +2,18 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 
 import type { components } from '../api/schema';
-import { Button, ErrorWithRetry, Loading, Page, Polaroid, RecipePhoto, SegmentedControl, Tag } from '../dino';
+import {
+  Button,
+  ErrorWithRetry,
+  Loading,
+  Page,
+  Polaroid,
+  RecipePhoto,
+  SegmentedControl,
+  StickeredPhoto
+} from '../dino';
 import type { UnitSystem } from './convert';
-import { describeDietTagConflict, dietTagLabels } from './diet-tags';
+import { describeDietTagConflict, dietTagLabels, stickerTags } from './diet-tags';
 import { difficultyLabels } from './difficulty';
 import { RecipeFacts } from './recipe-facts';
 import { hasIngredients, RecipeIngredients } from './recipe-ingredients';
@@ -52,32 +61,24 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => (
   <>
     {/* React 19 needs <title> to have a single string child. */}
     <title>{`${recipe.title} · Tastebook`}</title>
-    <Polaroid frame="large" lean="left">
-      <RecipePhoto
-        shape="hero"
-        photo={recipe.photo}
-        recipeId={recipe.id}
-        alt={recipe.title}
-        caption={recipe.photo && <RecipePhotoCredit photo={recipe.photo} />}
-      />
-    </Polaroid>
+    <StickeredPhoto
+      stickers={stickerTags(recipe.diet_tags).map((tag) => ({ label: dietTagLabels[tag], kind: 'diet' }))}
+    >
+      <Polaroid frame="large" lean="left">
+        <RecipePhoto
+          shape="hero"
+          photo={recipe.photo}
+          recipeId={recipe.id}
+          alt={recipe.title}
+          caption={recipe.photo && <RecipePhotoCredit photo={recipe.photo} />}
+        />
+      </Polaroid>
+    </StickeredPhoto>
     <h1>{recipe.title}</h1>
+    <p className="text-muted">
+      {[difficultyLabels[recipe.difficulty], ...(recipe.one_pot ? ['One-pot'] : [])].join(' · ')}
+    </p>
     {recipe.description !== '' && <p>{recipe.description}</p>}
-    <ul className="flex flex-wrap gap-2">
-      <li>
-        <Tag>{difficultyLabels[recipe.difficulty]}</Tag>
-      </li>
-      {recipe.one_pot && (
-        <li>
-          <Tag>One-pot</Tag>
-        </li>
-      )}
-      {recipe.diet_tags.map((tag) => (
-        <li key={tag}>
-          <Tag>{dietTagLabels[tag]}</Tag>
-        </li>
-      ))}
-    </ul>
     {recipe.diet_tag_conflicts.map((conflict) => (
       <p key={conflict.ingredient.slug}>{describeDietTagConflict(conflict)}</p>
     ))}
