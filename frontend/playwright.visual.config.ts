@@ -10,7 +10,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCi,
   retries: 0, // a flaky shot is a bug to fix, not to retry
-  updateSnapshots: 'none', // a missing baseline fails; only --update-snapshots=all writes them
+  updateSnapshots: 'none', // a missing baseline fails; only test:visual:update writes them
   reporter: isCi ? [['list'], ['html', { outputFolder: 'playwright-report/visual', open: 'never' }]] : 'list',
   use: {
     baseURL: 'http://localhost:6007',
@@ -18,7 +18,11 @@ export default defineConfig({
     screenshot: 'off',
     trace: 'off'
   },
-  expect: { toHaveScreenshot: { animations: 'disabled', caret: 'hide', scale: 'css' } },
+  expect: {
+    // A few antialiased edge pixels can vary between runs of the same image; keep this under 8, the pixels a 2px
+    // change to the smallest corner token (--radius-check) moves, so a real change still fails.
+    toHaveScreenshot: { animations: 'disabled', caret: 'hide', scale: 'css', maxDiffPixels: 4 }
+  },
   projects: [
     {
       name: 'phone',
