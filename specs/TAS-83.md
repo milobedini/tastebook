@@ -1,8 +1,8 @@
 ---
 issue: TAS-83
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tastebook/tas-83-lay-out-the-home-recipe-list-and-recipe-pages-as-on-the
-pr:
+pr: 92
 ---
 
 # Lay out the home, recipe list and recipe pages as on the Picnic boards
