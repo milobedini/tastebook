@@ -62,7 +62,7 @@ describe('HomePage', () => {
 
     renderRoute('/');
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('The API is unreachable.');
+    expect(await screen.findByRole('alert')).toHaveTextContent("Couldn't reach the API");
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
     expect(screen.queryByText(/API version/)).not.toBeInTheDocument();
   });
@@ -75,8 +75,9 @@ describe('HomePage', () => {
     const release = holdHealth(() => HttpResponse.json<Health>({ status: 'ok', database: 'ok', version: '0.1.0' }));
     await userEvent.click(tryAgain);
 
-    expect(await screen.findByText('Checking the API…')).toBeInTheDocument();
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Trying…' })).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't reach the API");
+    expect(screen.queryByText('Checking the API…')).not.toBeInTheDocument();
 
     release();
 
@@ -92,13 +93,13 @@ describe('HomePage', () => {
     const release = holdHealth(() => new HttpResponse(null, { status: 503 }));
     await userEvent.click(tryAgain);
 
-    expect(await screen.findByText('Checking the API…')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Trying…' })).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't reach the API");
 
     release();
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('The API is unreachable.');
-    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Try again' })).not.toHaveAttribute('aria-busy');
+    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't reach the API");
   });
   it('opens the recipes page from the "Browse recipes" link', async () => {
     renderRoute('/');
@@ -155,7 +156,7 @@ describe('HomePage status checks', () => {
 
     await vi.advanceTimersByTimeAsync(1_000);
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('The API is unreachable.');
+    expect(await screen.findByRole('alert')).toHaveTextContent("Couldn't reach the API");
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
     expect(screen.queryByText('API: ok, database: ok')).not.toBeInTheDocument();
     expect(screen.getByText('Last checked at 15:43.')).toBeInTheDocument();
@@ -169,8 +170,8 @@ describe('HomePage status checks', () => {
     const release = holdHealth(() => HttpResponse.json<Health>({ status: 'ok', database: 'ok', version: '0.1.0' }));
     await vi.advanceTimersByTimeAsync(60_000);
 
-    expect(screen.getByRole('alert')).toHaveTextContent('The API is unreachable.');
-    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't reach the API");
+    expect(screen.getByRole('button', { name: 'Try again' })).not.toHaveAttribute('aria-busy');
     expect(screen.queryByText('Checking the API…')).not.toBeInTheDocument();
 
     release();
@@ -192,6 +193,6 @@ describe('HomePage status checks', () => {
 
     setTabVisibility('visible');
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('The API is unreachable.');
+    expect(await screen.findByRole('alert')).toHaveTextContent("Couldn't reach the API");
   });
 });

@@ -1,21 +1,7 @@
-import { useCallback, useState } from 'react';
 import { Link } from 'react-router';
 
-import { Banner, Button, Page, Wordmark } from '../dino';
+import { Button, ErrorWithRetry, Page, Wordmark } from '../dino';
 import { useHealth } from './health-api';
-
-type ApiUnreachableProps = {
-  onRetry: () => void;
-};
-
-const ApiUnreachable = ({ onRetry }: ApiUnreachableProps) => (
-  <>
-    <Banner tone="danger" title="The API is unreachable." />
-    <Button variant="secondary" className="self-start" onClick={onRetry}>
-      Try again
-    </Button>
-  </>
-);
 
 // en-GB pins the 24-hour "15:42" shape; the time zone stays the visitor's own.
 const checkTime = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
@@ -28,24 +14,18 @@ const LastChecked = ({ at }: LastCheckedProps) => (
 
 const ApiStatus = () => {
   const { data, dataUpdatedAt, errorUpdatedAt, refetch } = useHealth();
-  const [isRetrying, setIsRetrying] = useState(false);
-  const retry = useCallback(async () => {
-    setIsRetrying(true);
-    await refetch();
-    setIsRetrying(false);
-  }, [refetch]);
 
   const lastCheckedAt = Math.max(dataUpdatedAt, errorUpdatedAt);
-  // Re-checking a query that has never succeeded resets it to pending and clears its error, so the
-  // timestamps, which a re-check leaves alone, say what the last check found. Only a visitor's retry
-  // shows the checking message; automatic checks leave the current status up until they finish.
-  if (lastCheckedAt === 0 || isRetrying) {
+  // The timestamps, which a re-check leaves alone, say what the last check found.
+  if (lastCheckedAt === 0) {
     return <p className="text-muted text-small">Checking the API…</p>;
   }
   if (data === undefined || errorUpdatedAt > dataUpdatedAt) {
     return (
       <>
-        <ApiUnreachable onRetry={() => void retry()} />
+        <ErrorWithRetry title="Couldn't reach the API" onRetry={refetch}>
+          Check your connection, then try again.
+        </ErrorWithRetry>
         <LastChecked at={lastCheckedAt} />
       </>
     );
