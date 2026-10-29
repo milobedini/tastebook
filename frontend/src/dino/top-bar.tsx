@@ -62,7 +62,11 @@ export const TopBar = ({ searchLabel, searchValue, onSearchValueChange }: TopBar
               <SearchInput
                 {...control}
                 value={searchValue}
-                onValueChange={onSearchValueChange}
+                onValueChange={(text) => {
+                  // An edit keeps the field open, so clearing a search from the address doesn't hide it while focused.
+                  setIsSearchOpen(true);
+                  onSearchValueChange(text);
+                }}
                 placeholder={searchLabel}
               />
             )}

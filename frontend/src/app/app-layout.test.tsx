@@ -97,4 +97,23 @@ describe('AppLayout', () => {
     expect(searchButton()).toHaveAttribute('aria-expanded', 'true');
     expect(searchBox()).toHaveFocus();
   });
+
+  it.each([
+    ['pressing Clear search', () => userEvent.click(screen.getByRole('button', { name: 'Clear search' }))],
+    [
+      'deleting the last character',
+      async () => {
+        await userEvent.click(searchBox());
+        await userEvent.keyboard('{Backspace>4/}');
+      }
+    ]
+  ])('keeps the field open and focused after %s on a search from the address', async (_, clear) => {
+    renderRoute('/recipes?q=tart');
+
+    await clear();
+
+    expect(searchBox()).toHaveValue('');
+    expect(searchButton()).toHaveAttribute('aria-expanded', 'true');
+    expect(searchBox()).toHaveFocus();
+  });
 });
