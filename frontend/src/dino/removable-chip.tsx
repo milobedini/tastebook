@@ -3,8 +3,8 @@ import { X } from 'lucide-react';
 import { cn } from '@/dino/cn';
 
 const looks = {
-  filled: 'border-cobalt bg-cobalt text-on-cobalt',
-  outline: 'border-cobalt bg-surface text-cobalt'
+  filled: 'border-mint bg-mint text-on-pastel',
+  outline: 'border-field bg-surface text-ink'
 };
 
 type RemovableChipProps = { children: string; onRemove: () => void; look?: keyof typeof looks };

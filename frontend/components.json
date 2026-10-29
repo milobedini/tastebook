@@ -5,7 +5,7 @@
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "src/dino/enamel.css",
+    "css": "src/dino/picnic.css",
     "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""

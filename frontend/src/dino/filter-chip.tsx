@@ -10,7 +10,7 @@ export const FilterChip = ({ children, pressed, onPressedChange }: FilterChipPro
   <Toggle.Root
     pressed={pressed}
     onPressedChange={onPressedChange}
-    className="inline-flex min-h-11 cursor-pointer items-center rounded-pill border border-field bg-surface px-3.5 font-bold text-ink text-small transition-colors data-[state=on]:border-cobalt data-[state=on]:bg-cobalt data-[state=on]:text-on-cobalt"
+    className="inline-flex min-h-11 cursor-pointer items-center rounded-pill border border-field bg-surface px-3.5 font-bold text-ink text-small transition-colors data-[state=on]:border-mint data-[state=on]:bg-mint data-[state=on]:text-on-pastel"
   >
     {children}
   </Toggle.Root>

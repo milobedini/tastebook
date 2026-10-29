@@ -25,7 +25,7 @@ export const SegmentedControl = <Value extends string>({
         key={option.value}
         pressed={option.value === value}
         onPressedChange={() => onValueChange(option.value)}
-        className="min-h-11 cursor-pointer rounded-pill px-4 text-label text-muted transition-colors data-[state=on]:bg-cobalt data-[state=on]:text-on-cobalt"
+        className="min-h-11 cursor-pointer rounded-pill px-4 text-label text-muted transition-colors data-[state=on]:bg-mint data-[state=on]:text-on-pastel"
       >
         {option.label}
       </Toggle.Root>

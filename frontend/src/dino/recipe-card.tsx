@@ -14,7 +14,7 @@ type RecipeCardProps = {
 
 // The link's ::after covers the card, so the whole card is the target and focus rings the card.
 export const RecipeCard = ({ title, to, cuisineSlug, photo = null, children }: RecipeCardProps) => (
-  <article className="relative grid grid-cols-[5.75rem_minmax(0,1fr)] items-center gap-3 rounded-card border-3 border-cobalt bg-surface p-2.5 has-focus-visible:outline-2 has-focus-visible:outline-cobalt has-focus-visible:outline-offset-2">
+  <article className="relative grid grid-cols-[5.75rem_minmax(0,1fr)] items-center gap-3 rounded-card border-3 border-transparent bg-surface p-2.5 has-focus-visible:outline-2 has-focus-visible:outline-ink has-focus-visible:outline-offset-2">
     {/* The title names the link, so the photo adds nothing for a screen reader. */}
     <RecipePhoto shape="card" photo={photo} cuisineSlug={cuisineSlug} alt="" />
     <div className="flex min-w-0 flex-col gap-1">

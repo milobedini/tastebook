@@ -32,6 +32,12 @@ export const Default = {
 export const IsHover = { parameters: isHover } satisfies Story;
 export const IsPressed = { parameters: isPressed } satisfies Story;
 export const IsFocus = { parameters: isFocus } satisfies Story;
-export const IsOn = { args: { pressed: true } } satisfies Story;
+export const IsOn = {
+  args: { pressed: true },
+  play: async ({ canvasElement }) => {
+    const chip = within(canvasElement).getByRole('button', { name: 'Under 30 min' });
+    await expect(chip).toHaveStyle({ backgroundColor: 'rgb(143, 227, 192)' });
+  }
+} satisfies Story;
 export const IsOnIsHover = { args: { pressed: true }, parameters: isHover } satisfies Story;
 export const IsOnIsPressed = { args: { pressed: true }, parameters: isPressed } satisfies Story;

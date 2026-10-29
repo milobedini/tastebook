@@ -7,7 +7,7 @@ export const NativeSelect = ({ className, ...props }: ComponentProps<'select'>) 
   <div className="relative">
     <select
       className={cn(
-        'h-11 w-full min-w-0 cursor-pointer appearance-none rounded-field border border-field bg-surface pr-10 pl-3 text-body text-ink disabled:cursor-not-allowed disabled:bg-chip disabled:text-muted aria-invalid:border-2 aria-invalid:border-danger',
+        'h-11 w-full min-w-0 cursor-pointer appearance-none rounded-pill border border-field bg-surface pr-10 pl-3 text-body text-ink disabled:cursor-not-allowed disabled:bg-surface disabled:text-muted aria-invalid:border-2 aria-invalid:border-danger',
         className
       )}
       {...props}

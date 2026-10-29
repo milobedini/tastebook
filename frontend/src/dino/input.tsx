@@ -7,7 +7,7 @@ export const Input = ({ className, type = 'text', ...props }: ComponentProps<'in
   <input
     type={type}
     className={cn(
-      'h-11 w-full min-w-0 rounded-field border border-field bg-surface px-3 text-body text-ink placeholder:text-muted disabled:cursor-not-allowed disabled:bg-chip disabled:text-muted aria-invalid:border-2 aria-invalid:border-danger',
+      'h-11 w-full min-w-0 rounded-pill border border-field bg-surface px-3 text-body text-ink placeholder:text-muted disabled:cursor-not-allowed disabled:bg-surface disabled:text-muted aria-invalid:border-2 aria-invalid:border-danger',
       className
     )}
     {...props}

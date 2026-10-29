@@ -19,11 +19,11 @@ export const CuisinePlate = ({ cuisineSlug, shape }: CuisinePlateProps) => {
   return (
     <div
       aria-hidden="true"
-      className={cn('grid place-items-center rounded-photo', shapeStyles[shape])}
+      className={cn('grid place-items-center', shapeStyles[shape])}
       style={{ backgroundColor: colour, color: colour }}
     >
       <svg viewBox="0 0 60 60" aria-hidden="true" className="h-auto w-[62%]">
-        <circle cx="30" cy="30" r="27" fill="var(--plate)" opacity="0.95" />
+        <circle cx="30" cy="30" r="27" fill="var(--color-paper)" opacity="0.95" />
         <circle cx="30" cy="30" r="18" fill="none" stroke="currentColor" strokeOpacity="0.35" strokeWidth="2" />
         <circle cx="24" cy="27" r="2" fill="currentColor" opacity="0.7" />
         <circle cx="34" cy="33" r="3" fill="currentColor" opacity="0.7" />

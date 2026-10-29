@@ -1,8 +1,8 @@
 ---
 issue: TAS-73
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tastebook/tas-73-move-the-tokens-and-fonts-to-picnic-dark-only
-pr:
+pr: 69
 ---
 
 # Move the tokens and fonts to Picnic, dark only

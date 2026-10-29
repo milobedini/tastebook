@@ -64,7 +64,7 @@ const ApiStatus = () => {
 export const HomePage = () => (
   <Page>
     <title>Tastebook</title>
-    <h1 className="font-extrabold text-cobalt text-display-xl">Tastebook</h1>
+    <h1 className="italic">Tastebook</h1>
     <Button asChild className="self-start">
       <Link to="/recipes">Browse recipes</Link>
     </Button>

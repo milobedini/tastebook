@@ -24,7 +24,7 @@ export const Banner = ({ tone, title, children }: BannerProps) => {
     <div
       role={role}
       className={cn(
-        'grid grid-cols-[1.375rem_minmax(0,1fr)] gap-2.5 rounded-field border-2 bg-surface px-3.5 py-3',
+        'grid grid-cols-[1.375rem_minmax(0,1fr)] gap-2.5 rounded-note border-2 bg-surface px-3.5 py-3',
         border
       )}
     >

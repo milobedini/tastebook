@@ -5,13 +5,13 @@ import type { ComponentProps } from 'react';
 import { cn } from '@/dino/cn';
 
 const buttonVariants = cva(
-  'inline-flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-pill border-2 border-transparent px-5 font-bold text-body no-underline transition-colors disabled:cursor-not-allowed disabled:border-transparent disabled:bg-chip disabled:text-muted [&_svg]:pointer-events-none [&_svg]:size-4.5 [&_svg]:shrink-0',
+  'inline-flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-pill border-2 border-transparent px-5 font-bold text-body no-underline transition-colors disabled:cursor-not-allowed disabled:border-transparent disabled:bg-surface disabled:text-muted [&_svg]:pointer-events-none [&_svg]:size-4.5 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
-        primary: 'bg-cobalt text-on-cobalt',
-        secondary: 'border-cobalt bg-transparent text-cobalt',
-        ghost: 'bg-transparent text-ink hover:bg-chip',
+        primary: 'bg-peach text-on-pastel',
+        secondary: 'border-field bg-transparent text-ink',
+        ghost: 'bg-transparent text-ink hover:bg-surface',
         danger: 'bg-danger text-on-danger'
       }
     },

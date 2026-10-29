@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Bookmark, CalendarPlus } from 'lucide-react';
-import { fn } from 'storybook/test';
+import { expect, fn, within } from 'storybook/test';
 
 import { Button } from '@/dino/button';
 import { isFocus, isHover, isPressed } from '@/dino/story-states';
@@ -24,6 +24,10 @@ export const Primary = {
         Save recipe
       </>
     )
+  },
+  play: async ({ canvasElement }) => {
+    const button = within(canvasElement).getByRole('button', { name: 'Save recipe' });
+    await expect(button).toHaveStyle({ backgroundColor: 'rgb(255, 179, 138)', color: 'rgb(42, 20, 64)' });
   }
 } satisfies Story;
 export const PrimaryIsHover = { ...Primary, parameters: isHover } satisfies Story;

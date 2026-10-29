@@ -16,7 +16,7 @@ export const IconButton = ({ icon: Icon, label, pressed, className, ...props }: 
     aria-label={label}
     aria-pressed={pressed}
     className={cn(
-      'inline-grid size-11 shrink-0 cursor-pointer place-items-center rounded-pill border border-field bg-surface text-ink transition-colors disabled:cursor-not-allowed disabled:border-transparent disabled:bg-chip disabled:text-muted aria-pressed:border-cobalt aria-pressed:bg-cobalt aria-pressed:text-on-cobalt',
+      'inline-grid size-11 shrink-0 cursor-pointer place-items-center rounded-pill border border-field bg-surface text-ink transition-colors disabled:cursor-not-allowed disabled:border-transparent disabled:bg-surface disabled:text-muted aria-pressed:border-pink aria-pressed:bg-pink aria-pressed:text-on-pastel',
       className
     )}
     {...props}

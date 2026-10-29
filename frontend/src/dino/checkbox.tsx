@@ -7,7 +7,7 @@ import { cn } from '@/dino/cn';
 export const Checkbox = ({ className, ...props }: ComponentProps<typeof CheckboxPrimitive.Root>) => (
   <CheckboxPrimitive.Root
     className={cn(
-      'grid size-6 shrink-0 cursor-pointer place-items-center rounded-check border-2 border-field bg-surface text-on-cobalt transition-colors disabled:cursor-not-allowed data-[state=checked]:border-cobalt data-[state=checked]:bg-cobalt',
+      'grid size-6 shrink-0 cursor-pointer place-items-center rounded-check border-2 border-field bg-surface text-on-pastel transition-colors disabled:cursor-not-allowed data-[state=checked]:border-mint data-[state=checked]:bg-mint',
       className
     )}
     {...props}

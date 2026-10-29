@@ -28,7 +28,7 @@ export const ServingsStepper = ({ value, min, max, onValueChange, yieldUnit }: S
         label={labels.fewer}
         disabled={value <= min}
         onClick={() => onValueChange(value - 1)}
-        className="border-0 bg-chip"
+        className="border-0 bg-line"
       />
       <output aria-live="polite" className="min-w-24 break-words px-2 text-center font-bold tabular-nums">
         {labels.text(value)}
@@ -38,7 +38,7 @@ export const ServingsStepper = ({ value, min, max, onValueChange, yieldUnit }: S
         label={labels.more}
         disabled={value >= max}
         onClick={() => onValueChange(value + 1)}
-        className="border-0 bg-chip"
+        className="border-0 bg-line"
       />
     </div>
   );
