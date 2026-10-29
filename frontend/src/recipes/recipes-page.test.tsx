@@ -777,28 +777,23 @@ describe('RecipesPage', () => {
   });
 
   it.each([
-    ['cuisines', failCuisines, 'Cuisine', 'Load cuisines again', 'button', ['French', 'Italian', 'Japanese']],
-    ['courses', failCourses, 'Course', 'Load courses again', 'button', ['Dessert', 'Main']],
-    [
-      'ingredients',
-      failIngredients,
-      'Ingredients',
-      'Load ingredients again',
-      'combobox',
-      ['Include an ingredient', 'Exclude an ingredient']
-    ]
+    ['cuisines', failCuisines, 'Cuisine', 'button', ['French', 'Italian', 'Japanese']],
+    ['courses', failCourses, 'Course', 'button', ['Dessert', 'Main']],
+    ['ingredients', failIngredients, 'Ingredients', 'combobox', ['Include an ingredient', 'Exclude an ingredient']]
   ] as const)(
     'keeps the list when the %s fail, and loads them again on request',
-    async (noun, fail, group, retry, role, names) => {
+    async (noun, fail, group, role, names) => {
       fail();
       renderRoute('/recipes');
       await userEvent.click(filtersButton());
 
-      expect(await within(filterGroup(group)).findByRole('alert')).toHaveTextContent(`The ${noun} couldn't be loaded.`);
+      expect(await within(filterGroup(group)).findByRole('alert')).toHaveTextContent(`Couldn't load ${noun}`);
       await waitFor(() => expect(headings()).toEqual(['Apple tart', 'Banana bread']));
+      const tryAgain = within(filterGroup(group)).getByRole('button', { name: 'Try again' });
+      expect(tryAgain).toHaveAccessibleDescription(`Couldn't load ${noun}`);
 
       server.resetHandlers();
-      await userEvent.click(screen.getByRole('button', { name: retry }));
+      await userEvent.click(tryAgain);
 
       await waitFor(() => expect(within(filterGroup(group)).getAllByRole(role)).toHaveLength(names.length));
       within(filterGroup(group))
