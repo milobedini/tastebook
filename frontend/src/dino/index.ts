@@ -22,5 +22,7 @@ export { SegmentedControl } from './segmented-control';
 export { ServingsStepper } from './servings-stepper';
 export { Sheet } from './sheet';
 export { Toaster, toast } from './sonner';
+export { Squiggle } from './squiggle';
 export { Sticker, StickeredPhoto, type StickerItem } from './sticker';
+export { TopBar } from './top-bar';
 export { Wordmark } from './wordmark';
