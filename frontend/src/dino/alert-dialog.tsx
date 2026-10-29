@@ -4,14 +4,14 @@ import type { ComponentProps } from 'react';
 import { cn } from '@/dino/cn';
 
 const fade =
-  'duration-150 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0';
+  'duration-150 ease-out data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0';
 
 export const AlertDialogContent = ({ className, ...props }: ComponentProps<typeof AlertDialogPrimitive.Content>) => (
   <AlertDialogPrimitive.Portal>
     <AlertDialogPrimitive.Overlay className={cn('fixed inset-0 z-50 bg-scrim', fade)} />
     <AlertDialogPrimitive.Content
       className={cn(
-        'fixed top-1/2 left-1/2 z-50 flex w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 flex-col gap-3 rounded-card bg-surface p-5 text-ink',
+        'fixed top-1/2 left-1/2 z-50 flex w-[calc(100%-2.5rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 flex-col gap-3 rounded-card border-2 border-transparent bg-surface p-5.5 text-ink',
         fade,
         className
       )}
@@ -21,7 +21,7 @@ export const AlertDialogContent = ({ className, ...props }: ComponentProps<typeo
 );
 
 export const AlertDialogTitle = ({ className, ...props }: ComponentProps<typeof AlertDialogPrimitive.Title>) => (
-  <AlertDialogPrimitive.Title className={cn('text-title', className)} {...props} />
+  <AlertDialogPrimitive.Title className={cn('text-display-l', className)} {...props} />
 );
 
 export const AlertDialogDescription = ({

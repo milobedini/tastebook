@@ -4,8 +4,6 @@ on:
   pull_request:
   push:
     branches: [main]
-  # The Update screenshots workflow starts CI on its commit, since a push with GITHUB_TOKEN starts none.
-  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}

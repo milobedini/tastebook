@@ -126,7 +126,7 @@ From the repo root unless noted.
 | Lint backend                 | `uv run ruff check . && uv run ruff format --check .` (in `backend/`)                       |
 | Frontend tests               | `pnpm test` (runs every story in Chromium too: install it once with `pnpm --filter frontend exec playwright install chromium`) |
 | Storybook                    | `pnpm --filter frontend storybook`                                                          |
-| Story screenshots            | `pnpm --filter frontend test:visual` (after `build-storybook`); new baselines: `pnpm --filter frontend test:visual:update` on a GitHub Actions runner, or the **Update screenshots** workflow on your branch |
+| Story screenshots            | `pnpm --filter frontend test:visual` (after `build-storybook`); new baselines: a factory run makes them on its own runner with `pnpm --filter frontend test:visual:update`; a person runs the **Update screenshots** workflow on their branch, then `pnpm --filter frontend screenshots:commit <PR number>` to commit them as themselves |
 | Backend tests                | `uv run pytest` (in `backend/`)                                                             |
 | End-to-end tests             | `pnpm test:e2e` (starts both servers; needs Postgres)                                       |
 | Regenerate the API contract  | `uv run --env-file .env python manage.py spectacular --file schema.yml` (in `backend/`), then `pnpm generate:api` |

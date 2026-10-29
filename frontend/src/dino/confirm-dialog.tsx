@@ -18,9 +18,9 @@ export const ConfirmDialog = ({ trigger, title, description, confirmLabel, onCon
     <AlertDialogContent>
       <AlertDialogTitle>{title}</AlertDialogTitle>
       <AlertDialogDescription>{description}</AlertDialogDescription>
-      <div className="flex flex-wrap justify-end gap-2">
+      <div className="mt-2 flex flex-wrap justify-end gap-2.5">
         <AlertDialog.Cancel asChild>
-          <Button variant="ghost">Cancel</Button>
+          <Button variant="secondary">Cancel</Button>
         </AlertDialog.Cancel>
         <AlertDialog.Action asChild>
           <Button variant="danger" onClick={onConfirm}>
