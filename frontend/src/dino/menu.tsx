@@ -16,7 +16,7 @@ type MenuProps = {
 // Radix highlights an item by focusing it, so the ring keys on focus-visible: a keyboard user sees it, a pointer
 // doesn't. Forced colours drops the Line fill, so there the highlighted item takes the ring too.
 const itemClassName =
-  'flex min-h-11 cursor-pointer items-center rounded-option px-3.5 py-2.5 text-body text-ink no-underline data-highlighted:bg-line focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-ink active:bg-surface-pressed forced-colors:data-highlighted:outline-3 forced-colors:data-highlighted:-outline-offset-3 forced-colors:data-highlighted:outline-[Highlight]';
+  'flex min-h-11 cursor-pointer items-center rounded-option px-3.5 py-2.5 text-body text-ink no-underline data-highlighted:bg-line focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-ink data-highlighted:active:bg-surface-pressed forced-colors:data-highlighted:outline-3 forced-colors:data-highlighted:-outline-offset-3 forced-colors:data-highlighted:outline-[Highlight]';
 
 const MenuLinkItem = ({ item }: { item: Extract<MenuItem, { kind: 'link' }> }) => (
   <DropdownMenu.Item asChild className={itemClassName}>

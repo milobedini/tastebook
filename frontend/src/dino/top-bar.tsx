@@ -36,7 +36,7 @@ const AccountMenu = ({ name, menuItems }: { name: string; menuItems: MenuItem[] 
           type="button"
           aria-label={trimmedName === '' ? 'Account' : `Account for ${trimmedName}`}
           className={cn(
-            'inline-grid size-11 shrink-0 cursor-pointer place-items-center rounded-pill transition active:scale-94 hover:*:bg-line active:*:bg-surface-pressed aria-expanded:*:border-ink aria-expanded:*:bg-line',
+            'inline-grid size-11 shrink-0 cursor-pointer place-items-center rounded-pill transition active:scale-94 hover:*:bg-line active:*:bg-surface-pressed aria-expanded:*:border-ink aria-expanded:*:bg-line aria-expanded:active:*:bg-surface-pressed',
             accountEnd
           )}
         >
