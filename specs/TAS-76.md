@@ -261,7 +261,7 @@ Commit per step: tokens, filter chip, removable chip, segmented control (with it
 - `frontend/src/recipes/recipes-page.test.tsx`
   - The any or all cases: as before, through radios, asserts: `toBeChecked()`, the URL search and the `filtersOn()` names unchanged.
 - `frontend/e2e/recipe.spec.ts`, `frontend/e2e/recipes.spec.ts`: as before, through radios; axe passes on each page.
-- `frontend/visual/stories.spec.ts`: unchanged; it compares all 27 baselines.
+- `frontend/visual/stories.spec.ts`: compares all 27 baselines, and (added in review round 1) a `forced-colours` project in `playwright.visual.config.ts` shoots every story with `forcedColors: 'active'` against `frontend/visual/baselines/forced-colours/`, which checks criterion 12.
 
 Commands: `pnpm lint`, `pnpm test`, `pnpm test:e2e`, `pnpm --filter frontend build-storybook && pnpm --filter frontend test:visual` (in CI).
 
@@ -277,6 +277,7 @@ Commands: `pnpm lint`, `pnpm test`, `pnpm test:e2e`, `pnpm --filter frontend bui
 - **No extra text at a stepper limit**, because docs/design.md (States) says the count says why.
 - **Chip labels may wrap**, because they come from data and must reflow at 320 px; the board's `white-space: nowrap` is dropped.
 - **The filter chip's and removable chip's classes are written twice, not shared**, because `AGENTS.md` abstracts on the third use.
+- **Every story is also screenshotted under forced colours**, because review round 1 found criterion 12 had no check behind it; a project over every story guards the whole class, not only these four components.
 - **Design: skip**, because the controls board draws every component and state this changes.
 
 ## Blast radius
@@ -307,5 +308,6 @@ Commands: `pnpm lint`, `pnpm test`, `pnpm test:e2e`, `pnpm --filter frontend bui
 - [ ] `pnpm test` passes, including every story's play, axe and the 44 px check.
 - [ ] `pnpm test:e2e` passes, with axe on the recipe and recipe list pages.
 - [ ] CI's `test:visual` passes with the 27 refreshed or new baselines, each matching `controls.dc.png`.
+- [ ] CI's `test:visual` passes under forced colours too, with each chosen state's check and each control's outline in its `forced-colours/` baseline.
 - [ ] By keyboard on a recipe page: Tab reaches Units once, arrow keys switch Metric and US, and Tab leaves.
 - Evidence: feature: the recipe page's units, servings and Show original, and the recipe list's filter panel and active filters, on a phone and a laptop, and a walkthrough.
