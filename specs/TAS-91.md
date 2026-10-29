@@ -1,8 +1,8 @@
 ---
 issue: TAS-91
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tastebook/tas-91-make-update-screenshots-satisfy-a-prs-required-checks
-pr:
+pr: 85
 ---
 
 # Make Update screenshots satisfy a PR's required checks without an approval click
@@ -164,11 +164,11 @@ No automated test. The script wraps `gh` and `git` against a live PR, the repo's
 
 ## Validation criteria
 
-- [ ] `pnpm lint` passes.
-- [ ] `pnpm test` passes (nothing in it changes; it proves the reworded script still type-checks with the rest).
-- [ ] `pnpm --filter frontend screenshots:commit abc` prints the usage line and exits 1.
-- [ ] Against a merged PR (for example `81`), the command prints `PR #81 is merged, so there's nothing to update.` and exits 1.
-- [ ] On this PR's branch, before any Update screenshots run, the command prints `No successful Update screenshots run on tastebook/tas-91-make-update-screenshots-satisfy-a-prs-required-checks. Run the workflow on that branch first.`
+- [x] `pnpm lint` passes.
+- [x] `pnpm test` passes (nothing in it changes; it proves the reworded script still type-checks with the rest).
+- [x] `pnpm --filter frontend screenshots:commit abc` prints the usage line and exits 1.
+- [x] Against a merged PR (for example `81`), the command prints `PR #81 is merged, so there's nothing to update.` and exits 1.
+- [x] On this PR's branch, before any Update screenshots run, the command prints `No successful Update screenshots run on tastebook/tas-91-make-update-screenshots-satisfy-a-prs-required-checks. Run the workflow on that branch first.`
 - [ ] After a person runs the workflow on this PR's branch (the factory's token can't dispatch it), the command, run by that person, prints `No story's look changed.`, exits 0, and `git status` in the checkout is as it was before.
 - [ ] After merge: on a hand-made PR with a look change, run Update screenshots, then the command. The PR gets one commit authored by the person, one `pull_request` CI run with no approval click, and its four required checks green. Then push another commit and run the command again: it refuses with the head-mismatch message.
 - Evidence: chore — "No visible change."
