@@ -7,18 +7,23 @@
   --color-*: initial;
   --color-ground: #1c1233;
   --color-surface: #2a1d47;
+  --color-surface-pressed: color-mix(in oklab, var(--color-surface) 70%, var(--color-field));
   --color-ink: #fff4ea;
   --color-muted: #cbbfe0;
   --color-pop: #ffb38a;
   --color-field: #8f7fb0;
   --color-line: #3a2c5c;
   --color-peach: #ffb38a;
+  --color-peach-hover: color-mix(in oklab, var(--color-peach) 80%, var(--color-ink));
+  --color-peach-pressed: color-mix(in oklab, var(--color-peach) 86%, var(--color-on-pastel));
   --color-mint: #8fe3c0;
   /* docs/design.md, States: hover moves a pastel 20% towards Ink; pressed, 14% towards On pastel. */
   --color-mint-hover: color-mix(in oklab, var(--color-mint) 80%, var(--color-ink));
   --color-mint-pressed: color-mix(in oklab, var(--color-mint) 86%, var(--color-on-pastel));
   --color-butter: #ffe08a;
   --color-pink: #ff9fc6;
+  --color-pink-hover: color-mix(in oklab, var(--color-pink) 80%, var(--color-ink));
+  --color-pink-pressed: color-mix(in oklab, var(--color-pink) 86%, var(--color-on-pastel));
   --color-on-pastel: #2a1440;
   --color-paper: #fff8ef;
   --color-tape: rgb(255 224 138 / 0.85);
@@ -27,6 +32,8 @@
   --color-success: #8fe3c0;
   --color-warning: #ffe08a;
   --color-danger: #ff9a8a;
+  --color-danger-hover: color-mix(in oklab, var(--color-danger) 80%, var(--color-ink));
+  --color-danger-pressed: color-mix(in oklab, var(--color-danger) 86%, var(--color-on-pastel));
   --color-on-danger: #1c1233;
   --color-scrim: rgb(8 4 18 / 0.66);
 
@@ -67,6 +74,9 @@
   --text-label: 0.9375rem;
   --text-label--line-height: 1.25rem;
   --text-label--font-weight: 800;
+  --text-label-l: 1.1875rem;
+  --text-label-l--line-height: 1.5rem;
+  --text-label-l--font-weight: 800;
 
   /* Picnic's 4 px base; its steps (4 to 48 px) are spacing 1, 2, 3, 4, 5, 6, 8 and 12. */
   --spacing: 0.25rem;
@@ -83,6 +93,7 @@
   /* Nothing else has a shadow (docs/design.md, Space and shape). */
   --shadow-*: initial;
   --shadow-press: 0 5px 0 var(--color-on-pastel);
+  --shadow-press-sunk: 0 2px 0 var(--color-on-pastel);
   --shadow-lift: 0 12px 28px rgb(0 0 0 / 0.35);
   --inset-shadow-*: initial;
   --drop-shadow-*: initial;
