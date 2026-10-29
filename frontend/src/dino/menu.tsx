@@ -30,8 +30,10 @@ const MenuActionItem = ({ item }: { item: Extract<MenuItem, { kind: 'action' }> 
   </DropdownMenu.Item>
 );
 
+// Not modal: a modal menu hides the page from screen readers with aria-hidden while its trigger stays focusable, which
+// axe fails (aria-hidden-focus). Escape, Tab and a click outside still close it.
 export const Menu = ({ trigger, heading, items }: MenuProps) => (
-  <DropdownMenu.Root>
+  <DropdownMenu.Root modal={false}>
     <DropdownMenu.Trigger asChild>{trigger}</DropdownMenu.Trigger>
     <DropdownMenu.Portal>
       <DropdownMenu.Content
