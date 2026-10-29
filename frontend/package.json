@@ -13,6 +13,7 @@
     "test:e2e": "playwright test",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "dino:bundle": "node scripts/dino-bundle.ts",
     "generate:api": "pnpm --filter @tastebook/openapi generate",
     "ui:add": "shadcn add"
   },
