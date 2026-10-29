@@ -15,23 +15,26 @@ type BannerProps = {
   tone: Tone;
   title: string;
   children?: ReactNode;
+  // At most one, under the text: a Dino Button, usually secondary (docs/design.md, Components).
+  action?: ReactNode;
 };
 
-export const Banner = ({ tone, title, children }: BannerProps) => {
+export const Banner = ({ tone, title, children, action }: BannerProps) => {
   const { icon: Icon, role, border, text } = toneStyles[tone];
 
   return (
     <div
       role={role}
       className={cn(
-        'grid grid-cols-[1.375rem_minmax(0,1fr)] gap-2.5 rounded-note border-2 bg-surface px-3.5 py-3',
+        'grid grid-cols-[1.375rem_minmax(0,1fr)] gap-x-3 rounded-note border-2 bg-surface py-3.5 pr-3.5 pl-4',
         border
       )}
     >
-      <Icon aria-hidden="true" className={cn('size-5.5', text)} />
-      <div className="flex flex-col">
-        <p className="font-bold">{title}</p>
-        {children}
+      <Icon aria-hidden="true" strokeWidth={2.5} className={cn('size-5.5', text)} />
+      <div className="flex flex-col items-start gap-1">
+        <p className="font-extrabold">{title}</p>
+        {children && <div className="text-muted">{children}</div>}
+        {action && <div className="mt-2">{action}</div>}
       </div>
     </div>
   );
