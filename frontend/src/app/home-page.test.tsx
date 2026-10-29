@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -37,6 +37,21 @@ describe('HomePage', () => {
     renderRoute('/');
 
     await waitFor(() => expect(document.title).toBe('Tastebook'));
+  });
+
+  it('heads the page with the wordmark, underlined by the squiggle', () => {
+    renderRoute('/');
+
+    const heading = screen.getByRole('heading', { level: 1, name: 'Tastebook' });
+    expect(heading.querySelector('svg[aria-hidden="true"]')?.parentElement).toHaveTextContent(/^Tastebook$/);
+  });
+
+  it("marks the top bar's wordmark as the current page", () => {
+    renderRoute('/');
+
+    const wordmark = within(screen.getByRole('banner')).getByRole('link', { name: 'Tastebook' });
+    expect(wordmark).toHaveAttribute('href', '/');
+    expect(wordmark).toHaveAttribute('aria-current', 'page');
   });
 
   it('shows the API and database status from the health endpoint, with no retry button', async () => {

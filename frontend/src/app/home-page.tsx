@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 
-import { Button, ErrorWithRetry, Page, Wordmark } from '../dino';
+import { Button, ErrorWithRetry, Page, Squiggle, Wordmark } from '../dino';
 import { useHealth } from './health-api';
 
 // en-GB pins the 24-hour "15:42" shape; the time zone stays the visitor's own.
@@ -45,8 +45,11 @@ export const HomePage = () => (
   <Page>
     <title>Tastebook</title>
     <h1>
-      <Wordmark />
+      <Squiggle>
+        <Wordmark />
+      </Squiggle>
     </h1>
+    <p className="text-muted">Every recipe in the catalogue, ready to cook.</p>
     <Button asChild className="self-start">
       <Link to="/recipes">Browse recipes</Link>
     </Button>
