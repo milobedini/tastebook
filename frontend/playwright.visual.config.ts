@@ -27,11 +27,21 @@ export default defineConfig({
   projects: [
     {
       name: 'phone',
+      grepInvert: /› Large Text$/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 }
+    },
+    {
+      // The large-text variant answers to the viewport's width in em, so a story can't fake it: this is a 390 × 844
+      // phone at 200% text, shot at the phone's own pixels.
+      name: 'phone at 200% text',
+      grep: /› Large Text$/,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 195, height: 422 }, deviceScaleFactor: 2 },
+      expect: { toHaveScreenshot: { animations: 'disabled', caret: 'hide', scale: 'device', maxDiffPixels: 4 } }
     },
     {
       // docs/design.md (Rules: Shape, State) says chosen states keep their icon and controls their outline here.
       name: 'forced-colours',
+      grepInvert: /› Large Text$/,
       snapshotPathTemplate: '{testDir}/baselines/forced-colours/{arg}{ext}',
       use: {
         ...devices['Desktop Chrome'],
