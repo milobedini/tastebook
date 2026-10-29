@@ -472,7 +472,7 @@ describe('RecipePage', () => {
     const amounts = () => itemsOf(within(ingredients).getByRole('list'));
     const steps = () => itemsOf(within(screen.getByRole('region', { name: 'Method' })).getByRole('list'));
     const units = screen.getByRole('group', { name: 'Units' });
-    expect(within(units).getByRole('button', { name: 'Metric' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(units).getByRole('radio', { name: 'Metric' })).toBeChecked();
     expect(amounts()).toEqual([
       '1 tsp vanilla extract',
       '240 ml plain flour',
@@ -484,9 +484,9 @@ describe('RecipePage', () => {
     // Written by hand, so there's no original that differs.
     expect(within(ingredients).queryByRole('button', { name: 'Show original' })).not.toBeInTheDocument();
 
-    await userEvent.click(within(units).getByRole('button', { name: 'US' }));
+    await userEvent.click(within(units).getByRole('radio', { name: 'US' }));
 
-    expect(within(units).getByRole('button', { name: 'US' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(units).getByRole('radio', { name: 'US' })).toBeChecked();
     expect(amounts()).toEqual([
       '1 tsp vanilla extract',
       '1 cup plain flour',
@@ -506,7 +506,7 @@ describe('RecipePage', () => {
       '1–2 pinches salt'
     ]);
 
-    await userEvent.click(within(units).getByRole('button', { name: 'Metric' }));
+    await userEvent.click(within(units).getByRole('radio', { name: 'Metric' }));
 
     expect(amounts()).toEqual([
       '1.5 tsp vanilla extract',
@@ -550,7 +550,7 @@ describe('RecipePage', () => {
     expect(steps()).toEqual(['Heat the oven to 350°F.']);
 
     // US customary reads the same as the original, so there's nothing different to show.
-    await userEvent.click(screen.getByRole('button', { name: 'US' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'US' }));
 
     expect(amounts()).toEqual(['1 cup plain flour', '2 eggs', 'chives (optional)']);
     expect(steps()).toEqual(['Heat the oven to 350°F.']);

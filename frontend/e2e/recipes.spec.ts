@@ -82,7 +82,7 @@ test('lists recipes with any or all of the included ingredients through the real
   await expect(page.getByRole('heading', { name: 'Spaghetti aglio e olio' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Filters', exact: true }).click();
-  await page.getByRole('group', { name: 'Included ingredients' }).getByRole('button', { name: 'With all' }).click();
+  await page.getByRole('group', { name: 'Included ingredients' }).getByRole('radio', { name: 'With all' }).check();
 
   await expect(page).toHaveURL(/\/recipes\?include_ingredient=garlic&include_ingredient=onion&include_match=all$/);
   await expect(page.getByRole('heading', { name: 'Chicken tikka masala' })).toBeVisible();
