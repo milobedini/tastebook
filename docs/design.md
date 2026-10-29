@@ -63,8 +63,8 @@ Token names follow Tailwind's `--color-*` convention, so `--color-peach` is `bg-
 | `--color-peach-hover` | `color-mix(in oklab, var(--color-peach) 80%, var(--color-ink))` | A peach control under the pointer | |
 | `--color-peach-pressed` | `color-mix(in oklab, var(--color-peach) 86%, var(--color-on-pastel))` | A peach control while pressed | |
 | `--color-mint` | `#8fe3c0` | Chosen and done: filters that are on, ticked boxes, finished steps, add buttons, the ingredients a step names | |
-| `--color-mint-hover` | Mint 80%, Ink 20% (`color-mix` in oklab) | A mint control under the pointer | |
-| `--color-mint-pressed` | Mint 86%, On pastel 14% (`color-mix` in oklab) | A mint control while pressed | |
+| `--color-mint-hover` | `color-mix(in oklab, var(--color-mint) 80%, var(--color-ink))` | A mint control under the pointer | |
+| `--color-mint-pressed` | `color-mix(in oklab, var(--color-mint) 86%, var(--color-on-pastel))` | A mint control while pressed | |
 | `--color-butter` | `#ffe08a` | Time and heads-ups: timers, durations, "start the night before" notes | |
 | `--color-pink` | `#ff9fc6` | Favourites and diet stickers | |
 | `--color-pink-hover` | `color-mix(in oklab, var(--color-pink) 80%, var(--color-ink))` | A pink control under the pointer | |
