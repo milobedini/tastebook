@@ -78,7 +78,7 @@ The code is organised by domain area, the same areas on both sides, named in the
 | `planning`    | the meal plan, the shopping list                                                           |
 | `importing`   | importing from a web address, pasted text and the Tastebook format                         |
 
-- The backend has one Django app per area. The frontend has one folder per area, `src/<area>/`, with that area's pages, components and API hooks together; `src/ui/` holds the design-system components, `src/app/` the router and providers, `src/lib/` shared code with at least three users.
+- The backend has one Django app per area. The frontend has one folder per area, `src/<area>/`, with that area's pages, components and API hooks together; `src/dino/` holds the design-system components, `src/app/` the router and providers, `src/lib/` shared code with at least three users.
 - [a] reach another area's behaviour through its public surface: its `services.py` (and querysets) in the backend, its `index.ts` exports in the frontend. Foreign keys to another area's models are fine.
 - [n] import another area's internals (views, serializers, private helpers, components it doesn't export).
 - Dependencies point one way: every area may depend on `households` (who owns what); `collections`, `kitchen` and `importing` depend on `recipes`; `planning` depends on `recipes` and `kitchen`; `households` depends on no other area. [n] add a dependency that points back.
@@ -91,7 +91,7 @@ frontend/
                     API hooks, each *.test.tsx beside its file; index.ts exports what other areas use
   src/app/          router, query client, and what belongs to no area (home and not-found pages, health check)
   src/api/          typed client (openapi-fetch) and generated schema.d.ts, shared by every area
-  src/ui/           Dino, the design-system components: shadcn/ui restyled, tokens in enamel.css until they move to Picnic; add one with pnpm --filter frontend ui:add <name>; each component's stories sit beside it (`*.stories.tsx`)
+  src/dino/         Dino, the design-system components: shadcn/ui restyled, tokens in enamel.css until they move to Picnic; add one with pnpm --filter frontend ui:add <name>; each component's stories sit beside it (`*.stories.tsx`)
   src/lib/          shared code with at least three users (none yet)
   src/test/         MSW server and default handlers, render helpers
   e2e/              Playwright specs (run against the real backend)
@@ -154,7 +154,7 @@ Review is adversarial: it checks work against these published standards and cite
 A Lighthouse accessibility score of 100 doesn't mean WCAG conformance: the review still applies.
 
 - [a] when you fix a problem found in review or a bug, propose in the same PR the cheapest guard that stops its whole class, in this order: a type or lint rule; an automated check (a test, axe, a CI step); a rule here or a lesson. Say in the PR which you chose and why.
-- A PR that changes Dino (`frontend/src/ui/`) gets the `dino` label from [`.github/labeler.yml`](.github/labeler.yml), and review also checks it with the design-system rubric against [`docs/design.md`](docs/design.md) and the Dino boards in `docs/design/dino/`.
+- A PR that changes Dino (`frontend/src/dino/`) gets the `dino` label from [`.github/labeler.yml`](.github/labeler.yml), and review also checks it with the design-system rubric against [`docs/design.md`](docs/design.md) and the Dino boards in `docs/design/dino/`.
 
 ## Specs and lessons
 

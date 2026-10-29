@@ -4,7 +4,7 @@ import { Popover } from 'radix-ui';
 import { useState } from 'react';
 
 import type { components } from '../api/schema';
-import { Button } from '../ui';
+import { Button } from '../dino';
 import { matchesIngredient } from './ingredient-match';
 
 type IngredientOption = components['schemas']['IngredientOption'];

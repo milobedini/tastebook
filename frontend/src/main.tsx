@@ -7,7 +7,7 @@ import { RouterProvider } from 'react-router/dom';
 import '@fontsource-variable/bricolage-grotesque';
 import '@fontsource/atkinson-hyperlegible/400.css';
 import '@fontsource/atkinson-hyperlegible/700.css';
-import './ui/enamel.css';
+import './dino/enamel.css';
 
 import { startErrorReporting } from './app/error-reporting';
 import { createQueryClient } from './app/query-client';

@@ -4,7 +4,7 @@ Tastebook's look, agreed on a design canvas on 2026-10-29; it replaces Enamel. W
 
 [`design/picnic/`](design/picnic/) holds the canvas's artboards: browse and recipe, cooking mode, and the shopping list. [`design/dino/`](design/dino/) holds the Dino redesign's: the foundations (colour, type, links, space, icons), the layout at phone, tablet and laptop widths, every component in each of its states, the polaroid with no photo, the mark and a forced-colours check. They're reference markup that renders only with the canvas's runtime, so each has a PNG of itself beside it (`buttons.dc.png` for `buttons.dc.html`); a PR that changes a board renders its PNG again. Where a board and this file disagree, this file wins. Change it through PRs like the code.
 
-**Moving from Enamel.** The code still runs Enamel's tokens and components (`frontend/src/ui/enamel.css`, shown in Storybook) until the Dino project moves them onto Picnic: Storybook first, then the tokens and fonts, then each component. Until a part has moved, build with the components as they are and add no new styling to them; anything that needs new visual work is designed in Picnic.
+**Moving from Enamel.** The code still runs Enamel's tokens and components (`frontend/src/dino/enamel.css`, shown in Storybook) until the Dino project moves them onto Picnic: Storybook first, then the tokens and fonts, then each component. Until a part has moved, build with the components as they are and add no new styling to them; anything that needs new visual work is designed in Picnic.
 
 ## Principles
 
@@ -143,7 +143,7 @@ Picnic works only while its playful parts stay rare. Review checks each screen a
 
 ## Components
 
-The set lives in `frontend/src/ui/` (Dino: shadcn/ui, restyled) and is exported from its `index.ts`. Build pages from these; add a component to `src/ui/` on its third use (`AGENTS.md`, rule of three). To add one from shadcn/ui, run `pnpm --filter frontend ui:add <name>`, restyle it to these tokens and export it from `index.ts`. Each component's states follow [States](#states) and are drawn on the Dino boards. Each has stories beside it (`<file>.stories.tsx`, run with `pnpm --filter frontend storybook`): one per variant and per state, named as on the boards (`is-hover`, `is-pressed`, `is-focus`, `is-disabled`, `is-on`), and every story passes axe and its interaction tests in CI.
+The set lives in `frontend/src/dino/` (Dino: shadcn/ui, restyled) and is exported from its `index.ts`. Build pages from these; add a component to `src/dino/` on its third use (`AGENTS.md`, rule of three). To add one from shadcn/ui, run `pnpm --filter frontend ui:add <name>`, restyle it to these tokens and export it from `index.ts`. Each component's states follow [States](#states) and are drawn on the Dino boards. Each has stories beside it (`<file>.stories.tsx`, run with `pnpm --filter frontend storybook`): one per variant and per state, named as on the boards (`is-hover`, `is-pressed`, `is-focus`, `is-disabled`, `is-on`), and every story passes axe and its interaction tests in CI.
 
 | Component | Notes |
 | --- | --- |

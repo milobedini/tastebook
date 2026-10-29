@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Link } from 'react-router';
 
-import { Banner, Button, Page } from '../ui';
+import { Banner, Button, Page } from '../dino';
 import { useHealth } from './health-api';
 
 type ApiUnreachableProps = {

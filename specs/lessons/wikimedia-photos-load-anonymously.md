@@ -1,7 +1,7 @@
 # Wikimedia Commons photos load without credentials
 
 - **Added:** 2026-10-28 · **Applies to:** spec | implement | review · **Issue:** TAS-48
-- **Paths:** `frontend/src/ui/recipe-photo.tsx`, `backend/recipes/catalogue.json`
+- **Paths:** `frontend/src/dino/recipe-photo.tsx`, `backend/recipes/catalogue.json`
 - **Rule:** `upload.wikimedia.org` sets a `WMF-Uniq` cookie (`SameSite=None`) on every image response. A photo loaded with credentials stores it as a third-party cookie, and Lighthouse's `third-party-cookies` and `inspector-issues` audits drop Best Practices on the page to 79. `RecipePhoto` sends `crossOrigin="anonymous"`; Commons answers `Access-Control-Allow-Origin: *`, so the photo still loads and the browser keeps no cookie. Any other `<img>` from a third-party host needs the same, and a PR that adds photos to the catalogue isn't done until its own preview checks comment has passed (see `vercel-preview-checks.md`).
 - **Why:** PR #54 was the first to give catalogue recipes photos, and its preview's Best Practices on `/recipes` fell to 79; the photo component had been built and tested against recipes without photos, so the cookie never showed.
 - **Re-check by:** 2027-01-28
