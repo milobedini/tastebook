@@ -52,6 +52,7 @@ export const Default = {
     await expect(canvas.getByRole('button', { name: 'Undo' })).toBeVisible();
     await expect(canvas.getByText('Saved to Favourites').closest('[data-sonner-toast]')).toHaveStyle({
       transitionDuration: '0.15s',
+      fontFamily: 'Nunito, ui-sans-serif, system-ui, sans-serif',
       backgroundColor: 'rgb(255, 244, 234)',
       borderTopWidth: '2px',
       borderTopColor: 'rgba(0, 0, 0, 0)'

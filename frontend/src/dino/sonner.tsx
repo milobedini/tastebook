@@ -1,10 +1,11 @@
 import { CircleAlert } from 'lucide-react';
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
 
-// Sonner injects 400 ms transitions at load, so the important modifier makes 150 ms win whatever the stylesheet order.
+// Sonner injects its own font and 400 ms transitions at load, so the important modifier makes Picnic's win whatever
+// the stylesheet order.
 export const Toaster = (props: ToasterProps) => (
   <Sonner
-    className="duration-150! ease-out!"
+    className="font-sans! duration-150! ease-out!"
     icons={{ error: <CircleAlert aria-hidden="true" strokeWidth={2.5} className="size-4.5" /> }}
     toastOptions={{
       unstyled: true,
