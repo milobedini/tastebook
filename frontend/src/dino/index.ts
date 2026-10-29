@@ -17,3 +17,4 @@ export { SegmentedControl } from './segmented-control';
 export { ServingsStepper } from './servings-stepper';
 export { Toaster, toast } from './sonner';
 export { Tag } from './tag';
+export { Wordmark } from './wordmark';

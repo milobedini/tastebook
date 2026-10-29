@@ -209,8 +209,8 @@ Review checks new UI against these.
 
 ## Brand
 
-- **Wordmark:** "Tastebook" in Instrument Serif italic, in ink.
-- **Mark:** the wordmark's italic "t" in On pastel on a Peach square, with the squiggle under it in On pastel ([`design/dino/mark.dc.html`](design/dino/mark.dc.html), option B). It's the home-screen and touch icon and the favicon, and it reads down to 16 px; the current favicon (an orange book) goes.
+- **Wordmark:** "Tastebook" in Instrument Serif italic, in ink (Dino's `Wordmark`).
+- **Mark:** the wordmark's italic "t" in On pastel on a Peach square, with the squiggle under it in On pastel ([`design/dino/mark.dc.html`](design/dino/mark.dc.html), option B). It's the home-screen and touch icon and the favicon, and it reads down to 16 px. The letter is outlined, so the icons never wait on the font.
 
 ## Still to settle
 
