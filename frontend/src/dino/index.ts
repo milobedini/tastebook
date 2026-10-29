@@ -12,6 +12,7 @@ export { IconButton } from './icon-button';
 export { Input, SearchInput } from './input';
 export { Loading } from './loading';
 export { matchRange } from './match-range';
+export { Menu, type MenuItem } from './menu';
 export { NativeSelect } from './native-select';
 export { Note } from './note';
 export { Page } from './page';
