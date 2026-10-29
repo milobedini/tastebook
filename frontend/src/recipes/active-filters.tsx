@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react';
 
-import { Button, RemovableChip } from '../ui';
+import { Button, RemovableChip } from '../dino';
 import { useCourses } from './courses-api';
 import { useCuisines } from './cuisines-api';
 import { dietTagLabels } from './diet-tags';

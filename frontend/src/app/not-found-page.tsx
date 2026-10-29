@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 
-import { Button, Page } from '../ui';
+import { Button, Page } from '../dino';
 
 export const NotFoundPage = () => (
   <Page>

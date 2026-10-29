@@ -4,10 +4,12 @@ import { createRoot } from 'react-dom/client';
 import { createBrowserRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 
-import '@fontsource-variable/bricolage-grotesque';
-import '@fontsource/atkinson-hyperlegible/400.css';
-import '@fontsource/atkinson-hyperlegible/700.css';
-import './ui/enamel.css';
+import '@fontsource/instrument-serif/400.css';
+import '@fontsource/instrument-serif/400-italic.css';
+import '@fontsource/nunito/600.css';
+import '@fontsource/nunito/700.css';
+import '@fontsource/nunito/800.css';
+import './dino/picnic.css';
 
 import { startErrorReporting } from './app/error-reporting';
 import { createQueryClient } from './app/query-client';

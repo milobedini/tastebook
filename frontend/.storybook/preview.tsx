@@ -1,19 +1,17 @@
 import type { Preview } from '@storybook/react-vite';
 import { expect } from 'storybook/test';
 
-import '@fontsource-variable/bricolage-grotesque';
-import '@fontsource/atkinson-hyperlegible/400.css';
-import '@fontsource/atkinson-hyperlegible/700.css';
-import '../src/ui/enamel.css';
+import '@fontsource/instrument-serif/400.css';
+import '@fontsource/instrument-serif/400-italic.css';
+import '@fontsource/nunito/600.css';
+import '@fontsource/nunito/700.css';
+import '@fontsource/nunito/800.css';
+import '../src/dino/picnic.css';
 
 // Same tags and extra rule as e2e/fixtures.ts, so a story and a page are held to one bar.
 const wcag22aaTags = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
 const preview: Preview = {
-  // Stories show Enamel's dark theme only; the app keeps both until TAS-73.
-  beforeAll: () => {
-    document.documentElement.dataset.theme = 'dark';
-  },
   parameters: {
     a11y: {
       test: 'error',

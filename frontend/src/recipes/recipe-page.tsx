@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 
 import type { components } from '../api/schema';
-import { Banner, Button, Page, RecipePhoto, SegmentedControl, Tag } from '../ui';
+import { Banner, Button, Page, RecipePhoto, SegmentedControl, Tag } from '../dino';
 import type { UnitSystem } from './convert';
 import { describeDietTagConflict, dietTagLabels } from './diet-tags';
 import { difficultyLabels } from './difficulty';
