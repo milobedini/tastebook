@@ -1,8 +1,8 @@
 ---
 issue: TAS-80
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tastebook/tas-80-restyle-the-empty-state-in-picnic-and-add-error-with-retry
-pr:
+pr: 90
 ---
 
 # Restyle the empty state in Picnic and add error-with-retry and loading states
