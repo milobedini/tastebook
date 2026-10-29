@@ -2,9 +2,9 @@
 
 Tastebook's look, agreed on a design canvas on 2026-10-29; it replaces Enamel. Warm and playful, like a picnic spread on a rug: a plum ground, pastels you can almost taste, photos as taped polaroids, and a serif with a little flourish over a rounded sans. The fun is rationed so the kitchen jobs (find a recipe, cook it, shop for it) stay calm and legible.
 
-[`design/picnic/`](design/picnic/) holds the canvas's artboards: browse and recipe, cooking mode, and the shopping list. [`design/dino/`](design/dino/) holds the Dino redesign's: the foundations (colour, type, links, space, icons), the layout at phone, tablet and laptop widths, every component in each of its states, the polaroid with no photo, the mark and a forced-colours check. They're reference markup: their photos load only on the canvas. Where a board and this file disagree, this file wins. Change it through PRs like the code.
+[`design/picnic/`](design/picnic/) holds the canvas's artboards: browse and recipe, cooking mode, and the shopping list. [`design/dino/`](design/dino/) holds the Dino redesign's: the foundations (colour, type, links, space, icons), the layout at phone, tablet and laptop widths, every component in each of its states, the polaroid with no photo, the mark and a forced-colours check. They're reference markup that renders only with the canvas's runtime, so each has a PNG of itself beside it (`buttons.dc.png` for `buttons.dc.html`); a PR that changes a board renders its PNG again. Where a board and this file disagree, this file wins. Change it through PRs like the code.
 
-**Moving from Enamel.** The code still runs Enamel's tokens and components (`frontend/src/ui/enamel.css`, the `/styleguide` page) until the Dino project moves them onto Picnic: Storybook first, then the tokens and fonts, then each component. Until a part has moved, build with the components as they are and add no new styling to them; anything that needs new visual work is designed in Picnic.
+**Moving from Enamel.** The code still runs Enamel's tokens and components (`frontend/src/ui/enamel.css`, shown in Storybook) until the Dino project moves them onto Picnic: Storybook first, then the tokens and fonts, then each component. Until a part has moved, build with the components as they are and add no new styling to them; anything that needs new visual work is designed in Picnic.
 
 ## Principles
 
