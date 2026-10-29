@@ -3,9 +3,9 @@ import { useCallback, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
 import type { components } from '../api/schema';
-import { Banner, Button, EmptyState, Field, Page, RecipeCard, SearchInput, Tag } from '../dino';
+import type { Lean } from '../dino';
+import { Banner, Button, EmptyState, Field, Page, PolaroidCard, SearchInput } from '../dino';
 import { ActiveFilters } from './active-filters';
-import { dietTagLabels } from './diet-tags';
 import { difficultyLabels } from './difficulty';
 import { formatMinutes } from './format-minutes';
 import { RecipeFilterPanel } from './recipe-filter-panel';
@@ -69,28 +69,19 @@ const RecipeMeta = ({ recipe }: RecipeMetaProps) => {
   return <p className="tabular-nums">{parts.filter((part) => part !== '').join(' · ')}</p>;
 };
 
-type RecipeItemProps = { recipe: RecipeSummary };
+type RecipeItemProps = { recipe: RecipeSummary; lean: Lean };
 
-const RecipeItem = ({ recipe }: RecipeItemProps) => (
+const RecipeItem = ({ recipe, lean }: RecipeItemProps) => (
   <li>
-    <RecipeCard
+    <PolaroidCard
       title={recipe.title}
       to={`/recipes/${recipe.slug}`}
-      cuisineSlug={recipe.cuisines[0]?.slug}
+      recipeId={recipe.id}
       photo={recipe.photo}
+      lean={lean}
     >
       <RecipeMeta recipe={recipe} />
-      {recipe.description !== '' && <p>{recipe.description}</p>}
-      {recipe.diet_tags.length > 0 && (
-        <ul className="flex flex-wrap gap-1">
-          {recipe.diet_tags.map((tag) => (
-            <li key={tag}>
-              <Tag>{dietTagLabels[tag]}</Tag>
-            </li>
-          ))}
-        </ul>
-      )}
-    </RecipeCard>
+    </PolaroidCard>
   </li>
 );
 
@@ -133,9 +124,9 @@ const Recipes = ({ recipes, query, onClearFilters }: RecipesProps) => (
     {recipes.length === 0 ? (
       <NoRecipes query={query} onClearFilters={onClearFilters} />
     ) : (
-      <ul className="grid gap-4">
-        {recipes.map((recipe) => (
-          <RecipeItem key={recipe.id} recipe={recipe} />
+      <ul className="grid grid-cols-2 gap-x-4 gap-y-8 large-text:grid-cols-1">
+        {recipes.map((recipe, index) => (
+          <RecipeItem key={recipe.id} recipe={recipe} lean={index % 2 === 0 ? 'left' : 'right'} />
         ))}
       </ul>
     )}

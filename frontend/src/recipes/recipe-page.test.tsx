@@ -172,7 +172,7 @@ describe('RecipePage', () => {
       'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Shakshuka.jpg/330px-Shakshuka.jpg 330w, ' +
         'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Shakshuka.jpg/1280px-Shakshuka.jpg 1280w'
     );
-    expect(image).toHaveAttribute('sizes', '(min-width: 42rem) 40rem, calc(100vw - 2rem)');
+    expect(image).toHaveAttribute('sizes', '(min-width: 42rem) 38.75rem, calc(100vw - 3.25rem)');
     expect(image).toHaveAttribute('loading', 'eager');
     expect(image).toHaveAttribute('crossorigin', 'anonymous');
     expect(within(figure).getByRole('link', { name: 'Wikimedia Commons' })).toHaveAttribute(
@@ -181,27 +181,21 @@ describe('RecipePage', () => {
     );
   });
 
-  it("shows the cuisine plate without a credit when the photo can't load", async () => {
-    server.use(
-      http.get('/api/recipes/:slug/', () =>
-        HttpResponse.json<Recipe>({ ...shakshuka, cuisines: [{ slug: 'french', name: 'French' }], photo })
-      )
-    );
+  it("shows the rug without a credit when the photo can't load", async () => {
+    server.use(http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>({ ...shakshuka, photo })));
 
     renderRoute('/recipes/shakshuka');
 
-    const heading = await screen.findByRole('heading', { level: 1, name: 'Shakshuka' });
-    expect(heading.previousElementSibling).toHaveRole('figure');
+    expect(await screen.findByRole('figure')).toBeInTheDocument();
+    expect(document.querySelectorAll('[data-filler]')).toHaveLength(0);
 
     fireEvent.error(screen.getByRole('img', { name: 'Shakshuka' }));
 
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
     expect(screen.queryByText(/Photo by/)).not.toBeInTheDocument();
-    // The plate is decorative, so it has no role: it's found by where the photo was and the cuisine's colour it takes.
-    expect(heading.previousElementSibling).toHaveAttribute('aria-hidden', 'true');
-    expect(heading.previousElementSibling).toHaveAttribute(
-      'style',
-      expect.stringContaining('background-color: var(--cuisine-french')
+    // The rug is decorative, so it has no role: its data-filler is the only handle on the drawing.
+    expect([...document.querySelectorAll('[data-filler]')].map((filler) => filler.getAttribute('data-filler'))).toEqual(
+      ['rug']
     );
   });
 

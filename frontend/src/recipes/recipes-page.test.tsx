@@ -214,7 +214,7 @@ describe('RecipesPage', () => {
 
     release();
 
-    expect(await screen.findByText('Eggs in spiced tomatoes.')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Shakshuka' })).toBeInTheDocument();
     expect(recipeCount()).toBe('2 recipes');
     expect(screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent)).toEqual([
       'Shakshuka',
@@ -227,11 +227,11 @@ describe('RecipesPage', () => {
     expect(screen.queryByText('No recipes yet.')).not.toBeInTheDocument();
   });
 
-  it("shows each recipe's total time, difficulty and cuisines on its card", async () => {
+  it("shows only each recipe's total time, difficulty and cuisines under its card", async () => {
     server.use(
       http.get('/api/recipes/', () =>
         HttpResponse.json<Recipe[]>([
-          appleTart,
+          { ...appleTart, diet_tags: ['vegetarian', 'gluten_free'] },
           {
             id: 4,
             slug: 'ramen-tacos',
@@ -253,7 +253,7 @@ describe('RecipesPage', () => {
     renderRoute('/recipes');
 
     expect((await screen.findByRole('heading', { name: 'Apple tart' })).closest('li')).toHaveTextContent(
-      /^Apple tart1 hr 40 min · Medium · FrenchSharp apples on buttery pastry\.$/
+      /^Apple tart1 hr 40 min · Medium · French$/
     );
     expect(screen.getByRole('heading', { name: 'Ramen tacos' }).closest('li')).toHaveTextContent(
       /^Ramen tacos25 min · Easy · Japanese, Mexican$/
@@ -299,7 +299,7 @@ describe('RecipesPage', () => {
           [
             'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Tart.jpg/330px-Tart.jpg 330w, ' +
               'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Tart.jpg/500px-Tart.jpg 500w',
-            '5.75rem',
+            '(width < 17.5em) calc(100vw - 3rem), (min-width: 42rem) 18.5rem, calc(50vw - 2.5rem)',
             'lazy'
           ]
         ]
@@ -308,25 +308,26 @@ describe('RecipesPage', () => {
     ]);
   });
 
-  it("shows each recipe's diet tags on its card, and none on a card without", async () => {
-    server.use(
-      http.get('/api/recipes/', () =>
-        HttpResponse.json<Recipe[]>([{ ...appleTart, diet_tags: ['vegetarian', 'gluten_free'] }, bananaBread])
-      )
-    );
+  it("names each card's link by the recipe and describes it by its meta", async () => {
+    renderRoute('/recipes');
+
+    const link = await screen.findByRole('link', { name: 'Apple tart' });
+
+    expect(link).toHaveAccessibleDescription('1 hr 40 min · Medium · French');
+    expect(link).toHaveAttribute('href', '/recipes/apple-tart');
+  });
+
+  it.each([
+    [1, 'rug'],
+    [2, 'place-setting'],
+    [4, 'place-setting']
+  ])('draws the place setting or the rug for a recipe without a photo, by its ID (%i: %s)', async (id, filler) => {
+    server.use(http.get('/api/recipes/', () => HttpResponse.json<Recipe[]>([{ ...appleTart, id }])));
 
     renderRoute('/recipes');
 
-    const cards = (await screen.findAllByRole('article')).map((card) => [
-      within(card).getByRole('heading').textContent,
-      within(card)
-        .queryAllByRole('listitem')
-        .map((item) => item.textContent)
-    ]);
-    expect(cards).toEqual([
-      ['Apple tart', ['Vegetarian', 'Gluten-free']],
-      ['Banana bread', []]
-    ]);
+    const card = (await screen.findByRole('heading', { name: 'Apple tart' })).closest('li');
+    expect(card?.querySelector('[data-filler]')).toHaveAttribute('data-filler', filler);
   });
 
   it.each([

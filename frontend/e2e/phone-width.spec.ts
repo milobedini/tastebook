@@ -138,7 +138,9 @@ test('the recipe list fits a 375 px phone screen without scrolling sideways', as
   await page.goto('/recipes');
 
   await expect(page.getByText('19 hr · Hard · British, French')).toBeVisible();
-  await expect(page.getByText('Dairy-free')).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Slow-roasted pork shoulder with crackling, apple sauce and Yorkshire puddings' })
+  ).toBeVisible();
   expect(await sidewaysScroll(page)).toBe(0);
 });
 
