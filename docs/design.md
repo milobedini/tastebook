@@ -133,7 +133,7 @@ Designed phone first, at three widths ([`design/dino/layout.dc.html`](design/din
 
 Every control has the same five, drawn on the Dino boards.
 
-- **Hover** (pointers only): a pastel fill moves 20% towards Ink (`color-mix(in oklab, var(--color-peach) 80%, var(--color-ink))`); an outlined control's border turns Ink and it fills with Surface; ghost and icon buttons fill with Surface or Line. A polaroid card straightens a little and lifts.
+- **Hover** (pointers only): a pastel fill moves 20% towards Ink (`color-mix(in oklab, var(--color-peach) 80%, var(--color-ink))`); an outlined control's border turns Ink and it fills with Surface; an outlined control on a pastel or the dock (a note's or a toast's action) keeps its border and fills with its text colour at 10% (20% while pressed); ghost and icon buttons fill with Surface or Line. A polaroid card straightens a little and lifts.
 - **Pressed:** the main action sinks 3 px and its press shadow shrinks to 2 px. Every other control shrinks a touch (97%; small round ones 92 to 94%), and a pastel fill moves 14% towards On pastel. A polaroid card settles.
 - **Focus:** a 3 px ring in Ink, flush against the control with no gap; on the dock it's On dock, on a butter note On pastel. A field's border turns Ink and thickens to 3 px. A radio group (the segmented control) takes one ring round the whole group, and arrow keys move the choice. Never a ring standing off a pill. A link in text takes the ring 2 px off the text, with 4 px corners.
 - **Disabled:** a Surface fill, a dashed Field border and Muted text. It stays focusable (`aria-disabled`, not `disabled`) and a line under it says why: "Tick at least one thing to add." A stepper at its limit needs no line, as its count says why. When the reason would be long, leave the control enabled and explain on press.
@@ -170,7 +170,7 @@ The set lives in `frontend/src/dino/` (Dino: shadcn/ui, restyled) and is exporte
 | Note | A butter panel for heads-ups ("Left out salt, water and vegetable oil: you probably have them"), with at most one action, an On pastel outlined button. |
 | Banner | A 2 px border in a status colour with its icon, on Surface: warning for an import's gaps, success for a clean import, danger for a failure. At most one action, under its text. |
 | Toast | Dock colours, pill, a short message and at most one action ("Saved to Favourites · Undo"). |
-| Sheet | Slides up over a scrim, Surface colour, 32 px top corners, a grab handle, a title in Display L, a close button. For light tasks (adding a recipe to the list, filters). |
+| Sheet | Slides up over a scrim, Surface colour, 32 px top corners, a grab handle, a title in Display L, a close button. Full width on a phone; from tablets up, centred and at most 576 px wide. Escape, the close button and the scrim close it. For light tasks (adding a recipe to the list, filters). |
 | Dialog | For anything that can't be undone: says exactly what happens; the danger button names the action ("Delete account"), the other is "Cancel". |
 | Empty state | A dashed empty polaroid, what's empty and why, the way out ("Clear filters"), and perhaps the screen's one doodle. |
 | Error with retry | What failed, how to fix it, and Try again beside it: "Couldn't load recipes. Check your connection, then try again." One component for every place a load can fail. |
