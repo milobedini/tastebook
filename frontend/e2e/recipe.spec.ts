@@ -88,7 +88,8 @@ test('a Wikibooks recipe credits and links to its original page through the real
 
 test('on a laptop the ingredients stay in view while the method scrolls', async ({ page, accessibility }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto('/recipes/oat-and-raisin-cookies');
+  // The baguette's method is much longer than its ingredients, so the page scrolls past where they'd sit unstuck.
+  await page.goto('/recipes/baguette');
 
   const lastStep = page.getByRole('region', { name: 'Method' }).getByRole('listitem').last();
   await lastStep.scrollIntoViewIfNeeded();
