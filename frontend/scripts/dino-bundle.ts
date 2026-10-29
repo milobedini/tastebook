@@ -1,5 +1,5 @@
 // Builds the files of the Dino Design System artifact that come from code: the components bundle and its CSS, their
-// types, the fonts and tokens.json. The artifact's guidelines and previews are written there, not here.
+// types, the fonts, tokens.json and tokens.css. The artifact's guidelines and previews are written there, not here.
 // Usage: pnpm dino:bundle, from the repo root. Writes frontend/dino-bundle/project/, laid out as the artifact's files.
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -246,7 +246,33 @@ const tokens = {
   }
 };
 
-// The artifact compiles tokens.json into tokens.css, so the bundle's CSS drops the declarations it would repeat.
+// The artifact's page recompiles tokens.css from tokens.json only when someone saves a change there, so it's written
+// here too, laid out as the page writes it.
+type CustomProperty = { name: string; value: string };
+
+const ruleOf = (selector: string, properties: CustomProperty[]) =>
+  `${selector} {\n${properties.map(({ name, value }) => `  --${name}: ${value};`).join('\n')}\n}`;
+
+const tokensCss = [
+  '/* Dino — generated from tokens.json */',
+  ruleOf(':root, [data-theme="dark"]', [...colours, ...shadow]),
+  ruleOf(':root', [
+    ...spacing,
+    ...radius,
+    ...timing,
+    ...Object.entries(families).map(([key, value]) => ({ name: `font-${key}`, value }))
+  ]),
+  ...typeStyles.map(
+    ({ family, style }) =>
+      `.${style.name} { font-family: var(--font-${family}); font-size: ${style.fontSize}; line-height: ${style.lineHeight}; font-weight: ${style.fontWeight};${style.fontStyle ? ` font-style: ${style.fontStyle};` : ''} }`
+  ),
+  ...fonts.map(
+    ({ family, file, weight, style }) =>
+      `@font-face { font-family: "${family}"; src: url("${file}") format("woff2"); font-weight: ${weight}; font-style: ${style}; font-display: swap; }`
+  )
+].join('\n');
+
+// The artifact declares the tokens in tokens.css, so the bundle's CSS drops the declarations it would repeat.
 const tokenNames = [
   ...[colours, spacing, radius, shadow, timing].flat().map(({ name }) => name),
   ...Object.keys(families).map((key) => `font-${key}`)
@@ -351,6 +377,7 @@ mkdirSync(join(project, 'fonts'));
 fonts.map(({ from, file }) => copyFileSync(from, join(project, file)));
 
 writeFileSync(join(project, 'tokens.json'), `${JSON.stringify(tokens, null, 2)}\n`);
+writeFileSync(join(project, 'tokens.css'), `${tokensCss}\n`);
 rmSync(join(out, 'tmp'), { recursive: true });
 
 const listing = (dir: string, prefix = ''): string[] =>
