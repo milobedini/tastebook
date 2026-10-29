@@ -1,6 +1,6 @@
 ---
 issue: TAS-72
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tastebook/tas-72-replace-the-styleguide-page-with-storybook
 pr:
 ---
@@ -229,9 +229,9 @@ Part 1 (this issue):
 3. **Run stories as tests.** `frontend/vitest.config.ts` (edit)
    Two projects as above.
    Done when: `pnpm --filter frontend test` reports the `unit` project with the same test count as on `main`, and the `storybook` project runs.
-4. **Write the Button stories and prove the states render.** `frontend/src/ui/button.stories.tsx` (new)
-   Twenty stories; the two `play` guards in Tests.
-   Done when: both guards pass. If the pseudo-states add-on can't force a state under the Vitest add-on, stop and report it on the PR rather than working round it.
+4. **Write the Button stories.** `frontend/src/ui/button.stories.tsx` (new)
+   Twenty stories, with no `play` guards on the forced states (see Decisions).
+   Done when: all twenty pass axe and the 44 px check.
 5. **Write the other control stories and their interaction tests.** The six other part 1 stories files (new)
    Done when: every case in Tests passes and no story fails axe or the 44 px check.
 6. **Run Storybook in CI.** `.github/workflows/ci.yml` (edit)
@@ -256,9 +256,6 @@ Every story is a test: it fails if the story throws, if axe finds a WCAG 2.2 A o
 
 Part 1:
 
-- `frontend/src/ui/button.stories.tsx`
-  - `PrimaryIsFocus`, asserts: the "Save recipe" button's computed `outline-style` is `solid` and `outline-color` is `rgb(138, 169, 255)`.
-  - `GhostIsHover`, asserts: the "Cancel" button's computed `background-color` is `rgb(30, 43, 74)`.
 - `frontend/src/ui/icon-button.stories.tsx`
   - `Default`, presses "Favourite", asserts: the button has `aria-pressed="true"` and its accessible name is still "Favourite".
 - `frontend/src/ui/filter-chip.stories.tsx`
@@ -299,6 +296,7 @@ Part 2:
 - The styleguide's colour, type and space sections are dropped, not moved, because TAS-73 replaces those tokens and the Dino foundations board documents them. Asked: drop or move to Storybook? → Drop them.
 - Stories show Enamel's dark theme only, set once in the preview's `beforeAll`, because Picnic is dark only and TAS-74 compares stories with dark boards; the app itself keeps both themes until TAS-73. Asked: which theme? → Dark only.
 - Storybook is built and tested in CI only, not published to previews or as an artifact, because nothing reads it outside CI yet and TAS-74 runs in CI too. Asked: where should it be available? → CI only.
+- The Button stories have no style guards on their forced states, because the pseudo-states add-on only rewrites stylesheets when the Storybook UI renders a story, so under the Vitest add-on a forced state renders like its default (checked: in a built Storybook, `ghost-is-hover` and `primary-is-focus` render the hover fill and focus outline). The states are proved by eye in Storybook now and by TAS-74's screenshots later. Asked: how to prove the state stories under Vitest? → Drop the two style guards.
 - States are forced with `storybook-addon-pseudo-states` rather than with `play` functions that hover or focus, because a forced state holds still in the Storybook UI and in a screenshot, and pressed (`:active`) can't be held any other way.
 - The 44 px check moves into the preview's `afterEach`, so every story is held to it without each file repeating it; the axe tags and `aria-dialog-name` rule are copied from `e2e/fixtures.ts` (two uses, so no shared module yet, per `AGENTS.md`).
 - Story tests run inside `pnpm test` as a second Vitest project, rather than a separate command, so the existing command and CI step stay the one way to run the frontend's tests.
@@ -308,7 +306,7 @@ Part 2:
 ## Assumptions
 
 - Storybook 10.6's add-ons work with this repo's Vite 8 and Vitest 5 as their peer ranges say (checked in the registry, not yet run). Confirm with: the implement stage, at step 3.
-- The pseudo-states add-on forces states in Tailwind 4's output (`@layer` and `@media (hover: hover)` rules) under the Vitest add-on; step 4's guards prove it. Confirm with: the implement stage, at step 4.
+- The pseudo-states add-on forces states in Tailwind 4's output in the Storybook UI. Checked by the implement stage in a built Storybook; under the Vitest add-on it doesn't, so story tests run forced-state stories in their default look.
 - Adding Chromium to the Frontend job adds about a minute to CI, which is acceptable. Confirm with: Milo, at approval.
 
 ## Out of scope
