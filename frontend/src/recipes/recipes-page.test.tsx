@@ -536,6 +536,27 @@ describe('RecipesPage', () => {
     expect(screen.getByRole('alert')).toHaveTextContent("Couldn't load recipes");
   });
 
+  it('keeps the alert up through a retry of a failed search once the list has shown', async () => {
+    renderRoute('/recipes');
+    await screen.findByText('Banana bread');
+    failRecipes();
+
+    await userEvent.type(searchBox(), 'tart');
+    const tryAgain = await screen.findByRole('button', { name: 'Try again' });
+
+    const { requested, release } = holdRecipes(() => new HttpResponse(null, { status: 503 }));
+    await userEvent.click(tryAgain);
+    await requested;
+
+    expect(screen.getByRole('button', { name: 'Trying…' })).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't load recipes");
+    expect(screen.queryByText('Banana bread')).not.toBeInTheDocument();
+
+    release();
+
+    expect(await screen.findByRole('button', { name: 'Try again' })).toHaveFocus();
+  });
+
   it('opens a recipe from its title in the list', async () => {
     renderRoute('/recipes');
 

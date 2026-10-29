@@ -140,13 +140,15 @@ const Recipes = ({ recipes, query, onClearFilters }: RecipesProps) => (
 type RecipeListProps = { query: RecipeQuery; onClearFilters: () => void };
 
 const RecipeList = ({ query, onClearFilters }: RecipeListProps) => {
-  const { data, errorUpdatedAt, refetch } = useRecipes(query);
+  const { data, isPlaceholderData, errorUpdatedAt, refetch } = useRecipes(query);
+  // A refetch resets a never-successful query to pending but leaves errorUpdatedAt, so the error stays up through its
+  // retry, even when an earlier query's list would otherwise stand in as placeholder data.
+  const hasFailed = errorUpdatedAt > 0;
   // A list already shown stays up if a background refetch fails.
-  if (data !== undefined) {
+  if (data !== undefined && !(isPlaceholderData && hasFailed)) {
     return <Recipes recipes={data.recipes} query={data.query} onClearFilters={onClearFilters} />;
   }
-  // A refetch resets a never-successful query to pending but leaves errorUpdatedAt, so the error stays up through its retry.
-  if (errorUpdatedAt > 0) {
+  if (hasFailed) {
     return (
       <ErrorWithRetry title="Couldn't load recipes" onRetry={refetch}>
         Check your connection, then try again.
