@@ -840,23 +840,23 @@ describe('RecipesPage', () => {
     await waitFor(() => expect(headings()).toEqual(['Apple tart', 'Banana bread']));
     await userEvent.click(filtersButton());
     const includeMatch = filterGroup('Included ingredients');
-    expect(within(includeMatch).getByRole('button', { name: 'With any' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(includeMatch).getByRole('radio', { name: 'With any' })).toBeChecked();
 
-    await userEvent.click(within(includeMatch).getByRole('button', { name: 'With all' }));
+    await userEvent.click(within(includeMatch).getByRole('radio', { name: 'With all' }));
 
     expect(router.state.location.search).toBe(
       '?include_ingredient=aubergine&include_ingredient=peanuts&include_match=all'
     );
     await waitFor(() => expect(headings()).toEqual(['Banana bread']));
     expect(queries.at(-1)).toBe('include_ingredient=aubergine&include_ingredient=peanuts&include_match=all');
-    expect(within(includeMatch).getByRole('button', { name: 'With all' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(includeMatch).getByRole('radio', { name: 'With all' })).toBeChecked();
     expect(filtersOn()).toEqual([
       'Remove filter: With aubergine',
       'Remove filter: With peanuts',
       'Remove filter: With all of these'
     ]);
 
-    await userEvent.click(within(includeMatch).getByRole('button', { name: 'With any' }));
+    await userEvent.click(within(includeMatch).getByRole('radio', { name: 'With any' }));
 
     expect(router.state.location.search).toBe('?include_ingredient=aubergine&include_ingredient=peanuts');
     await waitFor(() => expect(headings()).toEqual(['Apple tart', 'Banana bread']));
@@ -895,7 +895,7 @@ describe('RecipesPage', () => {
     await userEvent.click(screen.getByRole('option', { name: 'peanuts · also groundnuts' }));
 
     const includeMatch = filterGroup('Included ingredients');
-    expect(within(includeMatch).getByRole('button', { name: 'With all' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(includeMatch).getByRole('radio', { name: 'With all' })).toBeChecked();
     await waitFor(() =>
       expect(queries.at(-1)).toBe('include_ingredient=aubergine&include_ingredient=peanuts&include_match=all')
     );

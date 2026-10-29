@@ -28,29 +28,34 @@ export const Default = {
   },
   play: async ({ canvasElement, step }) => {
     const group = within(within(canvasElement).getByRole('group', { name: 'Units' }));
-    const metric = group.getByRole('button', { name: 'Metric' });
-    const us = group.getByRole('button', { name: 'US' });
+    const metric = group.getByRole('radio', { name: 'Metric' });
+    const us = group.getByRole('radio', { name: 'US' });
 
-    await step('Press US', async () => {
+    await step('Choose US', async () => {
       await userEvent.click(us);
-      await expect(us).toHaveAttribute('aria-pressed', 'true');
-      await expect(metric).toHaveAttribute('aria-pressed', 'false');
+      await expect(us).toBeChecked();
+      await expect(metric).not.toBeChecked();
+      await expect(us.closest('label')?.querySelector('svg')).not.toBeNull();
+      await expect(metric.closest('label')?.querySelector('svg')).toBeNull();
     });
 
-    // Today's keyboard model: two tab stops and no arrow keys.
     await step('Choose with the keyboard', async () => {
       await userEvent.click(metric);
-      us.blur();
       metric.blur();
       await userEvent.tab();
       await expect(metric).toHaveFocus();
-      await userEvent.tab();
+      await userEvent.keyboard('{ArrowRight}');
       await expect(us).toHaveFocus();
-      await userEvent.keyboard(' ');
-      await expect(us).toHaveAttribute('aria-pressed', 'true');
+      await expect(us).toBeChecked();
+      await userEvent.tab();
+      await expect(metric).not.toHaveFocus();
+      await expect(us).not.toHaveFocus();
     });
   }
 } satisfies Story;
-export const IsHover = { parameters: { pseudo: { hover: ['button[aria-pressed="false"]'] } } } satisfies Story;
-export const IsPressed = { parameters: { pseudo: { active: ['button[aria-pressed="false"]'] } } } satisfies Story;
-export const IsFocus = { parameters: { pseudo: { focusVisible: ['button[aria-pressed="true"]'] } } } satisfies Story;
+
+const otherSegment = 'label:not(:has(:checked))';
+
+export const IsHover = { parameters: { pseudo: { hover: [otherSegment] } } } satisfies Story;
+export const IsPressed = { parameters: { pseudo: { active: [otherSegment] } } } satisfies Story;
+export const IsFocus = { parameters: { pseudo: { focusVisible: ['input:checked'] } } } satisfies Story;

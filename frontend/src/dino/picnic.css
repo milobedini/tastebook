@@ -17,6 +17,9 @@
   --color-peach-hover: color-mix(in oklab, var(--color-peach) 80%, var(--color-ink));
   --color-peach-pressed: color-mix(in oklab, var(--color-peach) 86%, var(--color-on-pastel));
   --color-mint: #8fe3c0;
+  /* docs/design.md, States: hover moves a pastel 20% towards Ink; pressed, 14% towards On pastel. */
+  --color-mint-hover: color-mix(in oklab, var(--color-mint) 80%, var(--color-ink));
+  --color-mint-pressed: color-mix(in oklab, var(--color-mint) 86%, var(--color-on-pastel));
   --color-butter: #ffe08a;
   --color-pink: #ff9fc6;
   --color-pink-hover: color-mix(in oklab, var(--color-pink) 80%, var(--color-ink));

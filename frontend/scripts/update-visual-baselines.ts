@@ -25,10 +25,11 @@ const storyIds = new Set(
     .filter((entry) => entry.type === 'story')
     .map(({ id }) => id)
 );
-const orphans = readdirSync(baselinesDir, { withFileTypes: true })
+// Recursive, since the forced-colours project keeps its baselines in a folder of their own.
+const orphans = readdirSync(baselinesDir, { withFileTypes: true, recursive: true })
   .filter((file) => file.isFile() && file.name.endsWith('.png') && !storyIds.has(file.name.slice(0, -'.png'.length)))
-  .map(({ name }) => name);
-orphans.map((name) => rmSync(join(baselinesDir, name)));
+  .map((file) => join(file.parentPath, file.name));
+orphans.map((path) => rmSync(path));
 console.log(orphans.length ? `Removed orphan baselines: ${orphans.join(', ')}` : 'No orphan baselines.');
 
 // Rewriting every shot would churn the ones whose antialiasing varies; changed writes missing shots and rewrites

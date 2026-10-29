@@ -63,6 +63,8 @@ Token names follow Tailwind's `--color-*` convention, so `--color-peach` is `bg-
 | `--color-peach-hover` | `color-mix(in oklab, var(--color-peach) 80%, var(--color-ink))` | A peach control under the pointer | |
 | `--color-peach-pressed` | `color-mix(in oklab, var(--color-peach) 86%, var(--color-on-pastel))` | A peach control while pressed | |
 | `--color-mint` | `#8fe3c0` | Chosen and done: filters that are on, ticked boxes, finished steps, add buttons, the ingredients a step names | |
+| `--color-mint-hover` | `color-mix(in oklab, var(--color-mint) 80%, var(--color-ink))` | A mint control under the pointer | |
+| `--color-mint-pressed` | `color-mix(in oklab, var(--color-mint) 86%, var(--color-on-pastel))` | A mint control while pressed | |
 | `--color-butter` | `#ffe08a` | Time and heads-ups: timers, durations, "start the night before" notes | |
 | `--color-pink` | `#ff9fc6` | Favourites and diet stickers | |
 | `--color-pink-hover` | `color-mix(in oklab, var(--color-pink) 80%, var(--color-ink))` | A pink control under the pointer | |
@@ -151,7 +153,7 @@ Picnic works only while its playful parts stay rare. Review checks each screen a
 
 ## Components
 
-The set lives in `frontend/src/dino/` (Dino: shadcn/ui, restyled) and is exported from its `index.ts`. Build pages from these; add a component to `src/dino/` on its third use (`AGENTS.md`, rule of three). To add one from shadcn/ui, run `pnpm --filter frontend ui:add <name>`, restyle it to these tokens and export it from `index.ts`. Each component's states follow [States](#states) and are drawn on the Dino boards. Each has stories beside it (`<file>.stories.tsx`, run with `pnpm --filter frontend storybook`): one per variant and per state, named as on the boards (`is-hover`, `is-pressed`, `is-focus`, `is-disabled`, `is-on`), and every story passes axe and its interaction tests in CI. Every story also has a screenshot baseline in `frontend/visual/baselines/` that CI compares it with, and `frontend/src/dino/boards.ts` names each story's board image, so review can compare a changed baseline with its board.
+The set lives in `frontend/src/dino/` (Dino: shadcn/ui, restyled) and is exported from its `index.ts`. Build pages from these; add a component to `src/dino/` on its third use (`AGENTS.md`, rule of three). To add one from shadcn/ui, run `pnpm --filter frontend ui:add <name>`, restyle it to these tokens and export it from `index.ts`. Each component's states follow [States](#states) and are drawn on the Dino boards. Each has stories beside it (`<file>.stories.tsx`, run with `pnpm --filter frontend storybook`): one per variant and per state, named as on the boards (`is-hover`, `is-pressed`, `is-focus`, `is-disabled`, `is-on`), and every story passes axe and its interaction tests in CI. Every story also has two screenshot baselines that CI compares it with, one in `frontend/visual/baselines/` and one under forced colours in `frontend/visual/baselines/forced-colours/`, and `frontend/src/dino/boards.ts` names each story's board image, so review can compare a changed baseline with its board.
 
 | Component | Notes |
 | --- | --- |
