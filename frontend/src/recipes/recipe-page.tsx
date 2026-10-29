@@ -36,6 +36,7 @@ const maxServings = 99;
 
 type RecipeControlsProps = {
   recipe: Recipe;
+  original: number;
   reading: Reading;
   scaledTo: number;
   onScaledToChange: (scaledTo: number) => void;
@@ -45,6 +46,7 @@ type RecipeControlsProps = {
 
 const RecipeControls = ({
   recipe,
+  original,
   reading,
   scaledTo,
   onScaledToChange,
@@ -63,7 +65,7 @@ const RecipeControls = ({
         <ServingsStepper
           value={scaledTo}
           min={1}
-          max={Math.max(maxServings, recipe.servings ?? recipe.yield_amount ?? 1)}
+          max={Math.max(maxServings, original)}
           onValueChange={onScaledToChange}
           yieldUnit={recipe.servings === null ? recipe.yield_unit : undefined}
         />
@@ -116,6 +118,7 @@ const RecipeBody = ({ recipe }: RecipeProps) => {
         <RecipeIntro recipe={recipe} />
         <RecipeControls
           recipe={recipe}
+          original={original}
           reading={reading}
           scaledTo={scaledTo}
           onScaledToChange={setScaledTo}
