@@ -11,7 +11,7 @@ const meta = {
   component: RecipePhoto,
   args: {
     shape: 'card',
-    cuisineSlug: 'italian',
+    recipeId: 3,
     alt: 'Courgette and lemon orzo',
     photo: { thumbnails: [{ width: 640, url: photoUrl }] }
   }
@@ -21,18 +21,18 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const CardWithoutPhoto = { args: { photo: null } } satisfies Story;
+export const PlaceSetting = { args: { photo: null, recipeId: 2 } } satisfies Story;
+export const Rug = { args: { photo: null, recipeId: 1 } } satisfies Story;
 export const Card = {
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector('img')).toHaveAttribute('src', photoUrl);
   }
 } satisfies Story;
 export const Hero = { args: { shape: 'hero' } } satisfies Story;
-export const HeroWithCaption = { args: { shape: 'hero', caption: 'Photo: A. Cook, CC BY-SA 4.0' } } satisfies Story;
 export const BrokenPhoto = {
   args: { photo: { thumbnails: [{ width: 640, url: '/missing-photo.jpg' }] } },
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(canvasElement.querySelector('img')).toBeNull());
-    await expect(canvasElement.querySelector('svg')).not.toBeNull();
+    await expect(canvasElement.querySelector('[data-filler="rug"]')).not.toBeNull();
   }
 } satisfies Story;

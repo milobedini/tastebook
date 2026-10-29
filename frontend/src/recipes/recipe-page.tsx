@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 
 import type { components } from '../api/schema';
-import { Banner, Button, Page, RecipePhoto, SegmentedControl, Tag } from '../dino';
+import { Banner, Button, Page, Polaroid, RecipePhoto, SegmentedControl, Tag } from '../dino';
 import type { UnitSystem } from './convert';
 import { describeDietTagConflict, dietTagLabels } from './diet-tags';
 import { difficultyLabels } from './difficulty';
@@ -52,13 +52,15 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => (
   <>
     {/* React 19 needs <title> to have a single string child. */}
     <title>{`${recipe.title} · Tastebook`}</title>
-    <RecipePhoto
-      shape="hero"
-      photo={recipe.photo}
-      cuisineSlug={recipe.cuisines[0]?.slug}
-      alt={recipe.title}
-      caption={recipe.photo && <RecipePhotoCredit photo={recipe.photo} />}
-    />
+    <Polaroid frame="large" lean="left">
+      <RecipePhoto
+        shape="hero"
+        photo={recipe.photo}
+        recipeId={recipe.id}
+        alt={recipe.title}
+        caption={recipe.photo && <RecipePhotoCredit photo={recipe.photo} />}
+      />
+    </Polaroid>
     <h1>{recipe.title}</h1>
     {recipe.description !== '' && <p>{recipe.description}</p>}
     <ul className="flex flex-wrap gap-2">

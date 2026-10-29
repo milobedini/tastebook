@@ -214,7 +214,7 @@ describe('RecipesPage', () => {
 
     release();
 
-    expect(await screen.findByText('Eggs in spiced tomatoes.')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Shakshuka' })).toBeInTheDocument();
     expect(recipeCount()).toBe('2 recipes');
     expect(screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent)).toEqual([
       'Shakshuka',
@@ -227,11 +227,11 @@ describe('RecipesPage', () => {
     expect(screen.queryByText('No recipes yet.')).not.toBeInTheDocument();
   });
 
-  it("shows each recipe's total time, difficulty and cuisines on its card", async () => {
+  it("shows only each recipe's total time, difficulty and cuisines under its card", async () => {
     server.use(
       http.get('/api/recipes/', () =>
         HttpResponse.json<Recipe[]>([
-          appleTart,
+          { ...appleTart, diet_tags: ['vegetarian', 'gluten_free'] },
           {
             id: 4,
             slug: 'ramen-tacos',
@@ -253,33 +253,29 @@ describe('RecipesPage', () => {
     renderRoute('/recipes');
 
     expect((await screen.findByRole('heading', { name: 'Apple tart' })).closest('li')).toHaveTextContent(
-      /^Apple tart1 hr 40 min · Medium · FrenchSharp apples on buttery pastry\.$/
+      /^Apple tart1 hr 40 min · Medium · French$/
     );
     expect(screen.getByRole('heading', { name: 'Ramen tacos' }).closest('li')).toHaveTextContent(
       /^Ramen tacos25 min · Easy · Japanese, Mexican$/
     );
   });
 
-  it("lazy-loads a card's photo at its card width, and shows none on a card without one", async () => {
+  it("loads the first row's photos at once and the rest lazily, at the card width, and shows none on a card without one", async () => {
+    const photoOf = (name: string) => ({
+      thumbnails: [330, 500].map((width) => ({
+        width,
+        url: `https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/${name}.jpg/${width}px-${name}.jpg`
+      })),
+      author: 'Jane Doe',
+      licence: 'CC BY-SA 4.0',
+      source_url: `https://commons.wikimedia.org/wiki/File:${name}.jpg`
+    });
     server.use(
       http.get('/api/recipes/', () =>
         HttpResponse.json<Recipe[]>([
-          {
-            ...appleTart,
-            photo: {
-              thumbnails: [
-                {
-                  width: 330,
-                  url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Tart.jpg/330px-Tart.jpg'
-                },
-                { width: 500, url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Tart.jpg/500px-Tart.jpg' }
-              ],
-              author: 'Jane Doe',
-              licence: 'CC BY-SA 4.0',
-              source_url: 'https://commons.wikimedia.org/wiki/File:Tart.jpg'
-            }
-          },
-          bananaBread
+          { ...appleTart, photo: photoOf('Tart') },
+          bananaBread,
+          { ...appleTart, id: 3, slug: 'carrot-cake', title: 'Carrot cake', photo: photoOf('Cake') }
         ])
       )
     );
@@ -290,8 +286,14 @@ describe('RecipesPage', () => {
       within(card).getByRole('heading').textContent,
       within(card)
         .queryAllByRole('presentation')
-        .map((image) => [image.getAttribute('srcset'), image.getAttribute('sizes'), image.getAttribute('loading')])
+        .map((image) => [
+          image.getAttribute('srcset'),
+          image.getAttribute('sizes'),
+          image.getAttribute('loading'),
+          image.getAttribute('fetchpriority')
+        ])
     ]);
+    const cardSizes = '(width < 17.5em) calc(100vw - 3rem), (min-width: 42rem) 18.5rem, calc(50vw - 2.5rem)';
     expect(cards).toEqual([
       [
         'Apple tart',
@@ -299,34 +301,48 @@ describe('RecipesPage', () => {
           [
             'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Tart.jpg/330px-Tart.jpg 330w, ' +
               'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Tart.jpg/500px-Tart.jpg 500w',
-            '5.75rem',
-            'lazy'
+            cardSizes,
+            'eager',
+            'high'
           ]
         ]
       ],
-      ['Banana bread', []]
+      ['Banana bread', []],
+      [
+        'Carrot cake',
+        [
+          [
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Cake.jpg/330px-Cake.jpg 330w, ' +
+              'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Cake.jpg/500px-Cake.jpg 500w',
+            cardSizes,
+            'lazy',
+            'auto'
+          ]
+        ]
+      ]
     ]);
   });
 
-  it("shows each recipe's diet tags on its card, and none on a card without", async () => {
-    server.use(
-      http.get('/api/recipes/', () =>
-        HttpResponse.json<Recipe[]>([{ ...appleTart, diet_tags: ['vegetarian', 'gluten_free'] }, bananaBread])
-      )
-    );
+  it("names each card's link by the recipe and describes it by its meta", async () => {
+    renderRoute('/recipes');
+
+    const link = await screen.findByRole('link', { name: 'Apple tart' });
+
+    expect(link).toHaveAccessibleDescription('1 hr 40 min · Medium · French');
+    expect(link).toHaveAttribute('href', '/recipes/apple-tart');
+  });
+
+  it.each([
+    [1, 'rug'],
+    [2, 'place-setting'],
+    [4, 'place-setting']
+  ])('draws the place setting or the rug for a recipe without a photo, by its ID (%i: %s)', async (id, filler) => {
+    server.use(http.get('/api/recipes/', () => HttpResponse.json<Recipe[]>([{ ...appleTart, id }])));
 
     renderRoute('/recipes');
 
-    const cards = (await screen.findAllByRole('article')).map((card) => [
-      within(card).getByRole('heading').textContent,
-      within(card)
-        .queryAllByRole('listitem')
-        .map((item) => item.textContent)
-    ]);
-    expect(cards).toEqual([
-      ['Apple tart', ['Vegetarian', 'Gluten-free']],
-      ['Banana bread', []]
-    ]);
+    const card = (await screen.findByRole('heading', { name: 'Apple tart' })).closest('li');
+    expect(card?.querySelector('[data-filler]')).toHaveAttribute('data-filler', filler);
   });
 
   it.each([
