@@ -181,12 +181,22 @@ const IngredientFilterGroup = ({ filters, onChange }: FilterChangeProps) => {
     >
       {(ingredients) => {
         const unpicked = ingredients.filter(({ slug }) => !picked.includes(slug));
+        // A slug the API doesn't know gets no chip, as in Filters on.
+        const known = (slugs: string[]) =>
+          slugs.flatMap((slug) => ingredients.filter((ingredient) => ingredient.slug === slug));
         return (
           <>
             <IngredientPicker
               label="Include an ingredient"
-              ingredients={unpicked}
+              offered={unpicked}
+              chosen={known(filters.includedIngredients)}
               onPick={(slug) => onChange({ ...filters, includedIngredients: [...filters.includedIngredients, slug] })}
+              onRemove={(slug) =>
+                onChange({
+                  ...filters,
+                  includedIngredients: filters.includedIngredients.filter((item) => item !== slug)
+                })
+              }
             />
             {/* With one included ingredient, any and all are the same, so the choice waits for a second. */}
             {filters.includedIngredients.length > 1 && (
@@ -199,8 +209,15 @@ const IngredientFilterGroup = ({ filters, onChange }: FilterChangeProps) => {
             )}
             <IngredientPicker
               label="Exclude an ingredient"
-              ingredients={unpicked}
+              offered={unpicked}
+              chosen={known(filters.excludedIngredients)}
               onPick={(slug) => onChange({ ...filters, excludedIngredients: [...filters.excludedIngredients, slug] })}
+              onRemove={(slug) =>
+                onChange({
+                  ...filters,
+                  excludedIngredients: filters.excludedIngredients.filter((item) => item !== slug)
+                })
+              }
             />
           </>
         );
