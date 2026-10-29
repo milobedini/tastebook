@@ -2,7 +2,7 @@
 
 Tastebook's look, agreed on a design canvas on 2026-10-29; it replaces Enamel. Warm and playful, like a picnic spread on a rug: a plum ground, pastels you can almost taste, photos as taped polaroids, and a serif with a little flourish over a rounded sans. The fun is rationed so the kitchen jobs (find a recipe, cook it, shop for it) stay calm and legible.
 
-[`design/picnic/`](design/picnic/) holds the canvas's artboards: browse and recipe, cooking mode, and the shopping list, They're reference markup: their photos load only on the canvas. This file stays the rules. Change it through PRs like the code.
+[`design/picnic/`](design/picnic/) holds the canvas's artboards: browse and recipe, cooking mode, and the shopping list. [`design/dino/`](design/dino/) holds the Dino redesign's: every component in each of its states, the polaroid with no photo, the mark and a forced-colours check. They're reference markup: their photos load only on the canvas. Where a board and this file disagree, this file wins. Change it through PRs like the code.
 
 **Moving from Enamel.** The code still runs Enamel's tokens and components (`frontend/src/ui/enamel.css`, the `/styleguide` page) until the Dino project moves them onto Picnic: Storybook first, then the tokens and fonts, then each component. Until a part has moved, build with the components as they are and add no new styling to them; anything that needs new visual work is designed in Picnic.
 
@@ -95,17 +95,27 @@ Both faces are under the SIL Open Font License and are **bundled with the app**:
 ## Space and shape
 
 - **Spacing:** a 4 px base: 4, 8, 12, 16, 20, 24, 32, 48. Space siblings with `gap`, not margins. Screens have 20 px side gutters.
-- **Corners:** pill (999 px) for controls (buttons, chips, fields, steppers) and the dock; 32 px for a sheet's top corners; 28 px for the timer card; 24 px for cards and panels; 20 px for notes; 10 px for checkboxes; square for polaroids.
+- **Corners:** pill (999 px) for controls (buttons, chips, fields, steppers) and the dock; 32 px for a sheet's top corners; 28 px for the timer card; 24 px for cards and panels; 20 px for notes and banners; 10 px for checkboxes; square for polaroids. Something inside a rounded panel (a list's options) takes the panel's corner less its padding, never a pill inside a rounded box.
 - **Shadows:** the **press shadow** (`0 5px 0` in On pastel) sits under the screen's main action and the timer card, so they look pressable; pressed, they sink 3 px and the shadow shrinks to match. The **lift** (`0 12px 28px rgb(0 0 0 / 0.35)`) sits under polaroids, the dock and sheets. Nothing else has a shadow.
-- **Photos:** in a polaroid (below), 4:3 in lists and 7:5 at the top of a recipe, always with the credit. No photo: still to design (Enamel's cuisine plate goes).
-- **Motion:** 150 ms ease-out fades and slides for sheets, dialogs and toasts; never over 200 ms. Nothing moves on its own except a running timer. `prefers-reduced-motion` turns it all off.
+- **Photos:** in a polaroid (below), 4:3 in lists and 7:5 at the top of a recipe, always with the credit. **No photo:** the polaroid keeps its frame and caption, and the photo's place shows one of two fillers: a hand-drawn place setting (a plate, fork and knife in On pastel on Paper, inside a dashed edge) or the rug (On pastel gingham on Paper with an empty plate). A recipe always gets the same one, picked from its ID, so neighbours tend to differ. Neither uses a pastel, which would claim a meaning. Enamel's cuisine plate goes.
+- **Motion:** 120 ms ease-out for a control's state changes; 150 ms ease-out fades and slides for sheets, dialogs and toasts; never over 200 ms. Nothing moves on its own except a running timer and the spinner of something that's working. `prefers-reduced-motion` turns it all off, the spinner included.
+
+## States
+
+Every control has the same five, drawn on the Dino boards.
+
+- **Hover** (pointers only): a pastel fill moves 20% towards Ink (`color-mix(in oklab, var(--color-peach) 80%, var(--color-ink))`); an outlined control's border turns Ink and it fills with Surface; ghost and icon buttons fill with Surface or Line. A polaroid card straightens a little and lifts.
+- **Pressed:** the main action sinks 3 px and its press shadow shrinks to 2 px. Every other control shrinks a touch (97%; small round ones 92 to 94%), and a pastel fill moves 14% towards On pastel. A polaroid card settles.
+- **Focus:** a 3 px ring in Ink, flush against the control with no gap; on the dock it's On dock, on a butter note On pastel. A field's border turns Ink and thickens to 3 px. A radio group (the segmented control) takes one ring round the whole group, and arrow keys move the choice. Never a ring standing off a pill.
+- **Disabled:** a Surface fill, a dashed Field border and Muted text. It stays focusable (`aria-disabled`, not `disabled`) and a line under it says why: "Tick at least one thing to add." A stepper at its limit needs no line, as its count says why. When the reason would be long, leave the control enabled and explain on press.
+- **Loading:** the control keeps its size, its label turns to the "-ing" form ("Saving…") beside a spinner, it takes `aria-busy` and ignores presses. A region that loads shows blank polaroids that don't shimmer and a line saying what's happening ("Finding recipes…"), and only after half a second.
 
 ## The fun, rationed
 
 Picnic works only while its playful parts stay rare. Review checks each screen against these.
 
 - **Polaroids** frame photos in lists and at the top of a recipe: a Paper frame (10 px, 8 px on small ones) with a Caption underneath, tilted 2 to 4 degrees, alternating direction. A featured polaroid may carry tape. The recipe's photo credit sits inside its frame.
-- **Tilt** is for polaroids, stickers and browse's filter chips (1 to 2 degrees) only. Never tilt text you read for more than a glance, anything you type into, the method, ingredient lists, dialogs, or any control in cooking mode.
+- **Tilt** is for polaroids, stickers and browse's filter chips (1 to 2 degrees) only. Never tilt text you read for more than a glance, anything you type into, the method, ingredient lists, dialogs, or any control in cooking mode. Above about 150% text, tilt turns off everywhere: filter chips wrap, polaroids sit straight at full width, and stickers move below the photo instead of overlapping it.
 - **Stickers** carry a recipe's diet tags or a featured recipe's time, in pink, mint or butter, tilted 6 to 12 degrees; two at most on one photo. They describe and are never buttons.
 - **The squiggle** goes under one word of a screen's title, a recipe's name or a step number, in Pop. One per screen.
 - **Doodles** (a hand-drawn arrow and a note in italic serif, like "start it tonight!") go on browse and empty states only, one per screen, and repeat nothing the screen doesn't already say in words: they're hidden from screen readers.
@@ -114,25 +124,28 @@ Picnic works only while its playful parts stay rare. Review checks each screen a
 
 ## Components
 
-The set lives in `frontend/src/ui/` (Dino: shadcn/ui, restyled) and is exported from its `index.ts`. Build pages from these; add a component to `src/ui/` on its third use (`AGENTS.md`, rule of three). To add one from shadcn/ui, run `pnpm --filter frontend ui:add <name>`, restyle it to these tokens and export it from `index.ts`. The Dino project designs each component's states (hover, pressed, focus, disabled, loading) before it's built; the notes below are the direction.
+The set lives in `frontend/src/ui/` (Dino: shadcn/ui, restyled) and is exported from its `index.ts`. Build pages from these; add a component to `src/ui/` on its third use (`AGENTS.md`, rule of three). To add one from shadcn/ui, run `pnpm --filter frontend ui:add <name>`, restyle it to these tokens and export it from `index.ts`. Each component's states follow [States](#states) and are drawn on the Dino boards.
 
 | Component | Notes |
 | --- | --- |
-| Button | Primary: peach fill, the press shadow, one per screen. Secondary: a 2 px field outline. Ghost: no fill. Danger: danger fill. 44 px tall; 64 px in cooking mode. |
-| Icon button | A 44 px circle on Surface (48 px in cooking mode); a toggle that's on fills with its colour (pink for Favourite). Always has an accessible name, and a toggle keeps one name while `aria-pressed` says whether it's on. |
-| Field | Pill, a 2 px field border, visible label above (visually hidden only for search), help text below, error replaces help in danger with an icon and says how to fix it. |
+| Button | Primary: peach fill, the press shadow, one per screen. Secondary: a 2 px field outline. Ghost: no fill. Danger: danger fill. 44 px tall; 64 px in cooking mode and for a main action pinned to a screen's foot. |
+| Icon button | A 44 px circle on Surface (48 px in cooking mode), never peach (the Picnic boards' peach Back and Search buttons are superseded); a toggle that's on fills with its colour (pink for Favourite, with a filled heart). Always has an accessible name, and a toggle keeps one name while `aria-pressed` says whether it's on. |
+| Field | Pill, 48 px, a 2 px field border on the ground (no fill), visible label above (visually hidden only for search), help text below, error replaces help in danger with an icon and says how to fix it. Numbers use `inputmode="numeric"`. Search has a 44 px clear button with no fill of its own. |
+| Combobox | The ingredient picker: a field over a list on Surface with a 2 px field border and no shadow. The active option (the one Enter picks) has a Line fill and the focus outline on its own edge; matched letters are bold. Chosen items show as removable chips above. |
 | Filter chip | A toggle (`aria-pressed`), pill. Off: field outline. On: mint fill with a check icon, so the state never rests on colour alone. A removable chip names what it removes in its label. |
 | Sticker | Replaces Tag: describes a recipe (Vegan, Gluten-free) on its photo. Not interactive. |
 | Stepper | Servings: minus (outlined), "Serves 4", plus (mint), or a yield: "Makes 16 cookies"; the count is announced (`aria-live="polite"`). |
-| Segmented control | Two to four options, one chosen, as a radio group that answers to arrow keys. |
+| Segmented control | Two to four options, one chosen, as native radios in a Surface track: the chosen one is mint with a check. One tab stop; arrow keys move the choice. |
 | Checkbox row | Shopping list rows: 48 px tall, a 28 px box with 10 px corners; ticked, the box fills mint with a check and the row is struck through in muted and moves to the end of its group. |
-| Polaroid card | Replaces Recipe card: a polaroid with the recipe's name as its caption; meta below it in Small muted where the list needs it. |
-| Note | A butter panel for heads-ups ("Left out salt, water and vegetable oil: you probably have them"), with at most one action. |
-| Banner | A 2 px border in a status colour with its icon: warning for an import's gaps, success for a clean import. |
+| Polaroid card | Replaces Recipe card: a polaroid with the recipe's name as its caption; meta below it in Small muted where the list needs it. The focus ring is square round the card and its meta, untilted. |
+| Note | A butter panel for heads-ups ("Left out salt, water and vegetable oil: you probably have them"), with at most one action, an On pastel outlined button. |
+| Banner | A 2 px border in a status colour with its icon, on Surface: warning for an import's gaps, success for a clean import, danger for a failure. At most one action, under its text. |
 | Toast | Dock colours, pill, a short message and at most one action ("Saved to Favourites · Undo"). |
 | Sheet | Slides up over a scrim, Surface colour, 32 px top corners, a grab handle, a title in Display L, a close button. For light tasks (adding a recipe to the list, filters). |
 | Dialog | For anything that can't be undone: says exactly what happens; the danger button names the action ("Delete account"), the other is "Cancel". |
-| Empty state | What's empty and why, the way out ("Clear filters"), and perhaps the screen's one doodle. |
+| Empty state | A dashed empty polaroid, what's empty and why, the way out ("Clear filters"), and perhaps the screen's one doodle. |
+| Error with retry | What failed, how to fix it, and Try again beside it: "Couldn't load recipes. Check your connection, then try again." One component for every place a load can fail. |
+| Loading | See [States](#states): blank polaroids and a line saying what's happening, after half a second. |
 | Dock | The tab bar: a floating pill in dock colours, 62 px tall; the current tab is a peach pill with its label, the others are icons with accessible names. |
 
 **Cooking mode** keeps the screen awake and drops the playful parts that get in the way: a progress bar of segments (mint done, peach current), the step number in Step number type with its squiggle, the step in Step type with the ingredients it names in mint, and Back and Next at 64 px. A duration in a step ("60 to 90 minutes") is a butter button that starts a timer; a running timer shows as a butter card with a ring and a pause button, and follows you to later steps as a small pill. A range counts to its first check, then says how much longer it may need. A step's own ingredients sit below it with their amounts.
@@ -153,30 +166,32 @@ Review checks new UI against these.
 
 - Pills for controls, 24 px for cards, 32 px for sheets, 10 px for checkboxes, square for polaroids.
 - The press shadow only under the main action and the timer; the lift only under polaroids, the dock and sheets.
-- Every pastel control has a 2 px transparent border, for forced colours.
+- Every pastel control, every filled panel (notes, toasts, sheets, dialogs) and the dock's current tab has a 2 px transparent border, which forced colours draws.
 
 **Type and icons**
 
 - Instrument Serif for headings, captions, the step number and the wordmark only; Nunito for everything else.
 - Fonts bundled with the app, never loaded from Google.
 - [Lucide](https://lucide.dev) icons at a 2 to 2.5 px stroke. An icon on its own always has a label for screen readers.
+- Icons, ticks and the timer's ring are drawn in `currentColor`, never a fixed colour, so forced colours can recolour them.
 
 **State**
 
 - A chosen or ticked state shows an icon as well as its fill, so it survives forced colours and colour blindness.
 - A list's active option (the one Enter picks while focus stays in a search field) carries the focus outline beside its fill.
+- Under `forced-colors: active`, cooking mode's finished segments fill with `CanvasText` and the current one with `Highlight`, and the ingredients a step names are underlined.
 
 **Touch and motion**
 
 - Every control at least 44 px tall (WCAG 2.5.8 asks for 24); 48 px or more in cooking mode.
-- Motion under 200 ms, for sheets, dialogs and toasts only; respect "reduce motion".
+- Motion under 200 ms, for state changes, sheets, dialogs and toasts only; respect "reduce motion".
 - Dark only: no light theme, no theme toggle.
 
 ## Brand
 
 - **Wordmark:** "Tastebook" in Instrument Serif italic, in ink.
-- **Mark:** still to design, for the home-screen icon; the current favicon (an orange book) goes.
+- **Mark:** the wordmark's italic "t" in On pastel on a Peach square, with the squiggle under it in On pastel ([`design/dino/mark.dc.html`](design/dino/mark.dc.html), option B). It's the home-screen and touch icon and the favicon, and it reads down to 16 px; the current favicon (an orange book) goes.
 
 ## Still to settle
 
-Decided in the Dino project, then written here: the pressed, focus, disabled and loading states of each component; a recipe with no photo; the mark; how tilted parts behave at the largest text sizes; and a check of every screen in forced colours.
+Designed when a project needs them: the Accounts and households components (avatar, menu, text area, switch, tabs, app bar), and cooking mode's timer and step view beyond the Picnic board. Each built screen still gets its own forced-colours check; the Dino boards checked the components.

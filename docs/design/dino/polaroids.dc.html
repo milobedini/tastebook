@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Dino in Picnic: polaroids</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.pn{--ground:#1c1233;--surface:#2a1d47;--ink:#fff4ea;--muted:#cbbfe0;--field:#8f7fb0;--line:#3a2c5c;--mint:#8fe3c0;--butter:#ffe08a;--pink:#ff9fc6;--on-pastel:#2a1440;--paper:#fff8ef;--tape:rgb(255 224 138 / 0.85);--lift:0 12px 28px rgb(0 0 0 / 0.35);color-scheme:dark}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--muted)}
+.h2{margin:0;font-size:28px;line-height:30px;font-style:italic}
+.card{display:flex;flex-direction:column;gap:12px;width:180px;text-decoration:none;color:var(--ink);border-radius:4px}
+.pol{position:relative;display:block;background:var(--paper);color:var(--on-pastel);box-shadow:var(--lift);padding:8px 8px 0;box-sizing:border-box;transition:transform 150ms ease-out,box-shadow 150ms ease-out}
+.pol img,.pol .ph{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.pol .c{display:block;padding:4px 2px 8px;font-size:21px;line-height:22px;font-style:italic}
+.meta{font-size:13px;line-height:17px;font-weight:700;color:var(--muted);padding-left:4px}
+.card:hover .pol,.card.is-hover .pol{transform:rotate(-1deg) translateY(-4px);box-shadow:0 18px 36px rgb(0 0 0 / 0.42)}
+.card:active .pol,.card.is-pressed .pol{transform:rotate(-2deg) scale(0.98);box-shadow:0 6px 14px rgb(0 0 0 / 0.35)}
+.card:focus-visible,.card.is-focus{outline:3px solid var(--ink);outline-offset:8px}
+.tape{position:absolute;top:-11px;left:50%;width:60px;height:20px;margin-left:-30px;background:var(--tape)}
+.stk{display:inline-flex;align-items:center;justify-content:center;font:800 13px/16px Nunito,system-ui,sans-serif;color:var(--on-pastel);padding:8px 12px;border-radius:18px;white-space:nowrap}
+.gingham{background-color:var(--paper);background-image:repeating-linear-gradient(0deg,rgb(42 20 64 / 0.13) 0 10px,transparent 10px 20px),repeating-linear-gradient(90deg,rgb(42 20 64 / 0.13) 0 10px,transparent 10px 20px)}
+.chip{height:44px;padding:0 14px;border-radius:999px;border:2px solid var(--field);box-sizing:border-box;background:transparent;color:var(--ink);font:800 15px/20px Nunito,system-ui,sans-serif;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.chip-on{background:var(--mint);color:var(--on-pastel);border-color:transparent;padding-left:10px}
+@media (prefers-reduced-motion: reduce){.pol{transition:none}}
+</style>
+</helmet>
+<div class="pn" style="width: 1320px; height: 1600px; box-sizing: border-box; padding: 56px; background: var(--ground); color: var(--ink); font-family: Nunito, system-ui, sans-serif; display: flex; flex-direction: column; gap: 52px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">Dino in Picnic · 5 of 7</span>
+    <h1 class="serif" style="margin: 0; font-size: 46px; line-height: 44px">Polaroids</h1>
+  </header>
+
+  <div style="display: flex; gap: 72px; align-items: flex-start">
+    <section aria-labelledby="pc" style="display: flex; flex-direction: column; gap: 28px">
+      <h2 id="pc" class="serif h2">Polaroid card</h2>
+      <div style="display: flex; gap: 40px; align-items: flex-start">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <a href="#" class="card"><span class="pol" style="transform: rotate(-3deg)"><img src="/_blob/f11c4f513acb075940f8d79ec1caaa0d" alt=""><span class="c serif">Bibimbap</span></span><span class="meta">35 min · Easy · Korean</span></a>
+          <span class="cap">Default</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <a href="#" class="card is-hover"><span class="pol"><img src="/_blob/f11c4f513acb075940f8d79ec1caaa0d" alt=""><span class="c serif">Bibimbap</span></span><span class="meta">35 min · Easy · Korean</span></a>
+          <span class="cap">Hover · straightens a little, lifts</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <a href="#" class="card is-pressed"><span class="pol"><img src="/_blob/f11c4f513acb075940f8d79ec1caaa0d" alt=""><span class="c serif">Bibimbap</span></span><span class="meta">35 min · Easy · Korean</span></a>
+          <span class="cap">Pressed · settles</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <a href="#" class="card is-focus"><span class="pol" style="transform: rotate(-3deg)"><img src="/_blob/f11c4f513acb075940f8d79ec1caaa0d" alt=""><span class="c serif">Bibimbap</span></span><span class="meta">35 min · Easy · Korean</span></a>
+          <span class="cap">Focus · the ring stays square</span>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="st" style="display: flex; flex-direction: column; gap: 28px">
+      <h2 id="st" class="serif h2">Sticker</h2>
+      <div style="position: relative; width: 260px; height: 230px">
+        <div class="pol" style="position: absolute; left: 30px; top: 16px; width: 200px; padding: 8px 8px 22px; transform: rotate(-2deg)">
+          <span class="tape" aria-hidden="true"></span>
+          <img src="/_blob/bb238c60919831b3e8d405fc7954f64b" alt="Chana masala in a pan">
+        </div>
+        <span class="stk" style="position: absolute; left: 4px; bottom: 34px; background: var(--pink); transform: rotate(-10deg)">Vegan</span>
+        <span class="stk" style="position: absolute; right: 0; top: 30px; background: var(--mint); transform: rotate(8deg)">Gluten-free</span>
+      </div>
+      <div style="display: flex; gap: 14px; align-items: center">
+        <span class="stk" style="background: var(--pink); transform: rotate(-8deg)">Vegan</span>
+        <span class="stk" style="background: var(--mint); transform: rotate(6deg)">Gluten-free</span>
+        <span class="stk" style="background: var(--butter); width: 64px; height: 64px; padding: 0; border-radius: 32px; transform: rotate(10deg); flex-direction: column; text-align: center">25<br>min</span>
+      </div>
+      <span class="cap">Two at most on a photo · describe, never buttons</span>
+    </section>
+  </div>
+
+  <section aria-labelledby="np" style="display: flex; flex-direction: column; gap: 28px">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h2 id="np" class="serif h2">No photo: B and C, taking turns</h2>
+      <span class="cap">Picked by recipe, so a recipe always gets the same one and neighbours tend to differ</span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; max-width: 760px">
+
+      <div style="display: flex; flex-direction: column; gap: 22px">
+        <div style="display: flex; gap: 28px; align-items: flex-start">
+          <a href="#" class="card"><span class="pol" style="transform: rotate(-2deg)"><span class="ph" aria-hidden="true" style="background: var(--paper); border: 2px dashed rgb(42 20 64 / 0.28); box-sizing: border-box; display: flex; align-items: center; justify-content: center"><svg width="96" height="64" viewBox="0 0 96 64" fill="none" stroke="var(--on-pastel)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="48" cy="34" r="22"></circle><circle cx="48" cy="34" r="14" stroke-opacity="0.45"></circle><path d="M14 12v12a5 5 0 0 0 10 0V12M19 12v44M80 12c-5 3-6 12-6 18h6v26"></path></svg></span><span class="c serif">Shakshuka</span></span></a>
+          <span class="pol" style="width: 92px; padding: 6px 6px 0; transform: rotate(3deg)"><span class="ph" aria-hidden="true" style="background: var(--paper); border: 2px dashed rgb(42 20 64 / 0.28); box-sizing: border-box; display: flex; align-items: center; justify-content: center"><svg width="48" height="32" viewBox="0 0 96 64" fill="none" stroke="var(--on-pastel)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><circle cx="48" cy="34" r="22"></circle><path d="M14 12v12a5 5 0 0 0 10 0V12M19 12v44M80 12c-5 3-6 12-6 18h6v26"></path></svg></span><span class="c serif" style="font-size: 15px; line-height: 16px; padding: 3px 0 5px">Shakshuka</span></span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <span style="font-weight: 800; font-size: 16px">B · The place setting</span>
+          <span class="cap">A hand-drawn plate waiting for its photo</span>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 22px">
+        <div style="display: flex; gap: 28px; align-items: flex-start">
+          <a href="#" class="card"><span class="pol" style="transform: rotate(3deg)"><span class="ph gingham" aria-hidden="true" style="display: flex; align-items: center; justify-content: center"><span style="width: 74px; height: 74px; border-radius: 50%; background: var(--paper); box-shadow: 0 3px 8px rgb(42 20 64 / 0.25), inset 0 0 0 9px rgb(42 20 64 / 0.06)"></span></span><span class="c serif">Ribollita</span></span></a>
+          <span class="pol" style="width: 92px; padding: 6px 6px 0; transform: rotate(-2deg)"><span class="ph gingham" aria-hidden="true" style="display: flex; align-items: center; justify-content: center"><span style="width: 36px; height: 36px; border-radius: 50%; background: var(--paper); box-shadow: 0 2px 4px rgb(42 20 64 / 0.25)"></span></span><span class="c serif" style="font-size: 15px; line-height: 16px; padding: 3px 0 5px">Ribollita</span></span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <span style="font-weight: 800; font-size: 16px">C · The rug</span>
+          <span class="cap">Plum gingham with an empty plate: the picnic, laid</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="lt" style="display: flex; flex-direction: column; gap: 28px">
+    <h2 id="lt" class="serif h2">At the largest text sizes</h2>
+    <div style="display: flex; gap: 48px; align-items: flex-start">
+
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <div style="width: 390px; height: 440px; border-radius: 32px; overflow: hidden; background: var(--ground); border: 1px solid var(--line); position: relative">
+          <div style="padding: 24px 20px 0; display: flex; gap: 8px">
+            <span class="chip chip-on" style="transform: rotate(-2deg)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Quick</span>
+            <span class="chip" style="transform: rotate(1.5deg)">Veggie</span>
+            <span class="chip" style="transform: rotate(-1deg)">One-pot</span>
+            <span class="chip" style="transform: rotate(2deg)">Sweet</span>
+          </div>
+          <div class="pol" style="position: absolute; left: 30px; top: 110px; width: 250px; padding: 10px 10px 0; transform: rotate(-3deg)">
+            <span class="tape" aria-hidden="true"></span>
+            <img src="/_blob/bb238c60919831b3e8d405fc7954f64b" alt="">
+            <span class="c serif" style="font-size: 28px; line-height: 30px; padding: 6px 2px 10px">Chana masala</span>
+          </div>
+          <span class="stk" style="position: absolute; left: 252px; top: 104px; width: 84px; height: 84px; padding: 0; border-radius: 42px; background: var(--butter); transform: rotate(10deg); flex-direction: column; text-align: center">1 h 45<br>+ soak</span>
+        </div>
+        <span class="cap">100% · as drawn</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <div style="width: 390px; height: 440px; border-radius: 32px; overflow: hidden; background: var(--ground); border: 1px solid var(--line)">
+          <div style="padding: 24px 20px 0; display: flex; flex-direction: column; gap: 20px">
+            <div style="display: flex; flex-wrap: wrap; gap: 10px">
+              <span class="chip chip-on" style="height: auto; min-height: 64px; font-size: 28px; line-height: 34px; padding: 0 20px 0 16px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Quick</span>
+              <span class="chip" style="height: auto; min-height: 64px; font-size: 28px; line-height: 34px; padding: 0 20px">Veggie</span>
+              <span class="chip" style="height: auto; min-height: 64px; font-size: 28px; line-height: 34px; padding: 0 20px">One-pot</span>
+            </div>
+            <div class="pol" style="width: 100%; padding: 10px 10px 0">
+              <img src="/_blob/bb238c60919831b3e8d405fc7954f64b" alt="" style="aspect-ratio: 16/9">
+              <span class="c serif" style="font-size: 52px; line-height: 54px; padding: 8px 2px 10px">Chana masala</span>
+            </div>
+          </div>
+        </div>
+        <span class="cap">200% · tilt off, chips wrap, stickers move below the photo</span>
+      </div>
+
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":1600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

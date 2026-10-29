@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Dino in Picnic: forced colours</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.pn{--ground:#1c1233;--surface:#2a1d47;--ink:#fff4ea;--muted:#cbbfe0;--line:#3a2c5c;--on-pastel:#2a1440;--success:#8fe3c0;--warning:#ffe08a;color-scheme:dark}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--muted)}
+.hc{--canvas:#000000;--text:#ffffff;--hl:#1aebff;--gray:#3ff23f;background:var(--canvas);color:var(--text);border-radius:16px;padding:16px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family:Nunito,system-ui,sans-serif;font-weight:800;font-size:15px;line-height:20px;min-height:52px}
+.hc .b{height:44px;padding:0 16px;border-radius:999px;border:2px solid var(--text);box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;background:transparent;color:var(--text);font:inherit;white-space:nowrap}
+.hc .b-off{border-style:dashed;border-color:var(--gray);color:var(--gray)}
+.hc .nb{border-color:transparent}
+.hc .ring{outline:3px solid var(--hl);outline-offset:0}
+.row{display:grid;grid-template-columns:minmax(0, 1fr) 220px;gap:18px;align-items:start}
+.txt{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.name{font-weight:800;font-size:16px;line-height:22px}
+.v{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:13px;font-size:13px;font-weight:800;color:var(--on-pastel)}
+.ok{background:var(--success)}
+.fix{background:var(--warning)}
+.note{margin:0;font-size:13px;line-height:18px;font-weight:700;color:var(--muted)}
+.pair{display:flex;flex-direction:column;gap:8px;min-width:0}
+.tag{font-size:12px;line-height:16px;font-weight:800;color:var(--muted)}
+.seg{flex-grow:1;height:10px;border-radius:5px;box-sizing:border-box}
+</style>
+</helmet>
+<div class="pn" style="width: 1320px; height: 1180px; box-sizing: border-box; padding: 56px; background: var(--ground); color: var(--ink); font-family: Nunito, system-ui, sans-serif; display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">Dino in Picnic · 7 of 7</span>
+    <h1 class="serif" style="margin: 0; font-size: 46px; line-height: 44px">Forced colours</h1>
+    <span class="cap">Simulated in Windows’ High Contrast Black: fills and shadows drop, text, borders and outlines take the system’s colours.</span>
+  </header>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 56px">
+
+    <div class="row">
+      <div class="hc"><span class="b">Save recipe</span><span class="b">Add to list</span><span class="b b-off">Add 0 things</span></div>
+      <div class="txt"><span class="name">Buttons</span><span class="v ok">Holds</span><p class="note">Every control has a 2 px border, so its shape stays. The press shadow goes; disabled stays dashed.</p></div>
+    </div>
+
+    <div class="row">
+      <div class="pair">
+        <span class="tag">Now</span>
+        <div class="hc"><span class="b nb" style="background: transparent">Recipes</span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"></path></svg><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="7" r="4"></circle><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path></svg></div>
+        <span class="tag">Fixed</span>
+        <div class="hc"><span class="b">Recipes</span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"></path></svg><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="7" r="4"></circle><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path></svg></div>
+      </div>
+      <div class="txt"><span class="name">Dock</span><span class="v fix">Needs a fix</span><p class="note">The peach pill vanishes. Give the current tab a 2 px transparent border, so it’s drawn.</p></div>
+    </div>
+
+    <div class="row">
+      <div class="hc"><span class="b"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Quick</span><span class="b">Veggie</span><span class="b"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Metric</span><span style="display: inline-flex; align-items: center; gap: 10px"><span style="width: 28px; height: 28px; border-radius: 10px; border: 2.5px solid #fff; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span><span style="text-decoration: line-through; font-weight: 600">Coriander</span></span></div>
+      <div class="txt"><span class="name">Chips, segments, checkboxes</span><span class="v ok">Holds</span><p class="note">The chosen state carries a check as well as mint, so it survives.</p></div>
+    </div>
+
+    <div class="row">
+      <div class="pair">
+        <span class="tag">Now</span>
+        <div class="hc" style="flex-wrap: nowrap"><span class="seg"></span><span class="seg"></span><span class="seg" style="border: 2px solid #fff"></span><span class="seg" style="border: 2px solid #fff"></span><span class="seg" style="border: 2px solid #fff"></span></div>
+        <span class="tag">Fixed</span>
+        <div class="hc" style="flex-wrap: nowrap"><span class="seg" style="background: #fff"></span><span class="seg" style="background: #1aebff"></span><span class="seg" style="border: 2px solid #fff"></span><span class="seg" style="border: 2px solid #fff"></span><span class="seg" style="border: 2px solid #fff"></span></div>
+      </div>
+      <div class="txt"><span class="name">Cooking progress</span><span class="v fix">Needs a fix</span><p class="note">Done and current disappear. Under forced-colors, fill done with CanvasText and the current step with Highlight.</p></div>
+    </div>
+
+    <div class="row">
+      <div class="hc"><span class="b ring">Next step</span></div>
+      <div class="txt"><span class="name">Focus</span><span class="v ok">Holds</span><p class="note">The ink ring becomes the system highlight.</p></div>
+    </div>
+
+    <div class="row">
+      <div class="pair">
+        <span class="tag">Now</span>
+        <div class="hc" style="font-weight: 700">Heat the oil in a heavy pan, then add the cumin.</div>
+        <span class="tag">Fixed</span>
+        <div class="hc" style="font-weight: 700"><span>Heat the <u style="text-decoration-thickness: 2px; text-underline-offset: 3px">oil</u> in a heavy pan, then add the <u style="text-decoration-thickness: 2px; text-underline-offset: 3px">cumin</u>.</span></div>
+      </div>
+      <div class="txt"><span class="name">A step’s ingredients</span><span class="v fix">Needs a fix</span><p class="note">The mint highlight drops, so they read as plain words. Underline them under forced-colors.</p></div>
+    </div>
+
+    <div class="row">
+      <div class="hc" style="font-weight: 700"><span style="display: inline-flex; align-items: center; gap: 10px"><svg width="40" height="40" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" stroke-opacity="0.3" stroke-width="7"></circle><circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="114.4" transform="rotate(-90 32 32)"></circle></svg><span style="font-size: 26px; font-weight: 800">41:48</span></span></div>
+      <div class="txt"><span class="name">Timer and icons</span><span class="v ok">Holds</span><p class="note">As long as rings and icons are drawn in currentColor, never a fixed colour.</p></div>
+    </div>
+
+    <div class="row">
+      <div class="pair">
+        <span class="tag">Now</span>
+        <div class="hc" style="font-weight: 700">Left out salt, water and oil.</div>
+        <span class="tag">Fixed</span>
+        <div class="hc" style="font-weight: 700"><span style="border: 2px solid #fff; border-radius: 16px; padding: 8px 12px">Left out salt, water and oil.</span></div>
+      </div>
+      <div class="txt"><span class="name">Notes, toasts, sheets</span><span class="v fix">Needs a fix</span><p class="note">Their fill drops and they float. Give every filled panel a 2 px transparent border, like the controls.</p></div>
+    </div>
+
+    <div class="row">
+      <div class="hc" style="font-weight: 800"><span style="font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-style: italic; font-size: 24px">Chana masala</span><span>Vegan</span><span>15 min prep</span></div>
+      <div class="txt"><span class="name">Polaroids, stickers, blobs</span><span class="v ok">Holds</span><p class="note">The frames and fills are decoration; the words stay.</p></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":1180}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
