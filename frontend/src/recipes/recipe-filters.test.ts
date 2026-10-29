@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { RecipeFilters } from './recipe-filters';
-import { countFilters, noFilters, readFilters, writeFilters } from './recipe-filters';
+import { noFilters, readFilters, writeFilters } from './recipe-filters';
 
 describe('readFilters', () => {
   it.each<[string, RecipeFilters]>([
@@ -69,39 +69,5 @@ describe('writeFilters', () => {
     ]
   ])('from "%s", writes "%s"', (query, written, filters) => {
     expect(writeFilters(new URLSearchParams(query), filters).toString()).toBe(written);
-  });
-});
-
-describe('countFilters', () => {
-  it.each<[string, RecipeFilters, number]>([
-    ['no filters', noFilters, 0],
-    ['one cuisine', { ...noFilters, cuisines: ['italian'] }, 1],
-    [
-      'two cuisines, a total limit and one-pot',
-      { ...noFilters, cuisines: ['italian', 'thai'], times: { total: 30, prep: null, cook: null }, onePot: true },
-      4
-    ],
-    [
-      'two included ingredients with all of them',
-      { ...noFilters, includedIngredients: ['aubergine', 'peanuts'], includeMatch: 'all' },
-      2
-    ],
-    [
-      'one of everything',
-      {
-        cuisines: ['british'],
-        courses: ['main'],
-        difficulties: ['hard'],
-        times: { total: 60, prep: 45, cook: 30 },
-        onePot: true,
-        diets: ['vegan'],
-        includedIngredients: ['aubergine'],
-        includeMatch: 'any',
-        excludedIngredients: ['peanuts']
-      },
-      10
-    ]
-  ])('counts %s', (_, filters, count) => {
-    expect(countFilters(filters)).toBe(count);
   });
 });

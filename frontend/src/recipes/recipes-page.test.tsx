@@ -656,11 +656,14 @@ describe('RecipesPage', () => {
   it.each([
     ['/recipes', 'Filters'],
     ['/recipes?cuisine=italian&max_total=30', 'Filters · 2'],
-    ['/recipes?q=tart&include_ingredient=aubergine&include_ingredient=peanuts&include_match=all', 'Filters · 2']
-  ])('at %s, names the button "%s"', async (path, name) => {
+    ['/recipes?q=tart&include_ingredient=aubergine&include_ingredient=peanuts&include_match=all', 'Filters · 2'],
+    ['/recipes?max_total=30&max_prep=15&one_pot=true&diet=vegan', 'Filters · 4'],
+    ['/recipes?cuisine=klingon&cuisine=italian', 'Filters · 1'],
+    ['/recipes?cuisine=klingon', 'Filters']
+  ])('at %s, names the button "%s" once the lists load', async (path, name) => {
     renderRoute(path);
 
-    expect(screen.getByRole('button', { name: /^Filters/ })).toHaveAccessibleName(name);
+    await waitFor(() => expect(screen.getByRole('button', { name: /^Filters/ })).toHaveAccessibleName(name));
   });
 
   it.each([

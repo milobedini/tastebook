@@ -114,16 +114,5 @@ export const hasFilters = (filters: RecipeFilters) =>
   filters.includedIngredients.length > 0 ||
   filters.excludedIngredients.length > 0;
 
-// The number of values the filters hold; includeMatch isn't counted, as in hasFilters.
-export const countFilters = (filters: RecipeFilters) =>
-  filters.cuisines.length +
-  filters.courses.length +
-  filters.difficulties.length +
-  Object.values(filters.times).filter((limit) => limit !== null).length +
-  (filters.onePot ? 1 : 0) +
-  filters.diets.length +
-  filters.includedIngredients.length +
-  filters.excludedIngredients.length;
-
 export const toggled = <T>(values: T[], value: T) =>
   values.includes(value) ? values.filter((item) => item !== value) : [...values, value];

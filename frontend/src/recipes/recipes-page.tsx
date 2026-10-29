@@ -6,12 +6,12 @@ import { useSearchParams } from 'react-router';
 import type { components } from '../api/schema';
 import type { Lean } from '../dino';
 import { Button, EmptyState, ErrorWithRetry, Loading, Page, PolaroidCard, Sheet, Squiggle } from '../dino';
-import { ActiveFilters } from './active-filters';
+import { ActiveFilters, countActiveFilters, useActiveFilters } from './active-filters';
 import { difficultyLabels } from './difficulty';
 import { formatMinutes } from './format-minutes';
 import { RecipeFilterPanel } from './recipe-filter-panel';
 import type { RecipeFilters } from './recipe-filters';
-import { countFilters, hasFilters, noFilters, readFilters, writeFilters } from './recipe-filters';
+import { hasFilters, noFilters, readFilters, writeFilters } from './recipe-filters';
 import type { RecipeQuery } from './recipes-api';
 import { useRecipes } from './recipes-api';
 import { useDebouncedValue } from './use-debounced-value';
@@ -217,8 +217,9 @@ export const RecipesPage = () => {
   );
   const clearFilters = useCallback(() => removeFilters(noFilters), [removeFilters]);
 
-  const filterCount = countFilters(filters);
-  const activeFilters = <ActiveFilters filters={filters} onChange={removeFilters} />;
+  const shownFilters = useActiveFilters(filters);
+  const filterCount = countActiveFilters(shownFilters);
+  const activeFilters = <ActiveFilters activeFilters={shownFilters} onChange={removeFilters} />;
   const recipeList = <RecipeList result={result} onClearFilters={clearFilters} />;
 
   return (
