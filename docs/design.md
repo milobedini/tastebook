@@ -60,6 +60,8 @@ Token names follow Tailwind's `--color-*` convention, so `--color-peach` is `bg-
 | `--color-line` | `#3a2c5c` | Hairlines between rows (decorative) | |
 | `--color-peach` | `#ffb38a` | The main action; where you are (the current tab, the current step) | |
 | `--color-mint` | `#8fe3c0` | Chosen and done: filters that are on, ticked boxes, finished steps, add buttons, the ingredients a step names | |
+| `--color-mint-hover` | Mint 80%, Ink 20% (`color-mix` in oklab) | A mint control under the pointer | |
+| `--color-mint-pressed` | Mint 86%, On pastel 14% (`color-mix` in oklab) | A mint control while pressed | |
 | `--color-butter` | `#ffe08a` | Time and heads-ups: timers, durations, "start the night before" notes | |
 | `--color-pink` | `#ff9fc6` | Favourites and diet stickers | |
 | `--color-on-pastel` | `#2a1440` | All text and icons on a pastel or on Paper | 9.5 peach, 10.9 mint, 12.8 butter, 8.7 pink |

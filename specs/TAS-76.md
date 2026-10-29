@@ -1,8 +1,8 @@
 ---
 issue: TAS-76
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tastebook/tas-76-restyle-chips-the-segmented-control-and-the-servings-stepper
-pr:
+pr: 80
 ---
 
 # Restyle chips, the segmented control and the servings stepper in Picnic
