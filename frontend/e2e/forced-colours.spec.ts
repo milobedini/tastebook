@@ -53,3 +53,28 @@ test('the recipe list on a laptop under forced colours keeps a border on a chose
     contentType: 'image/png'
   });
 });
+
+test('a recipe on a laptop under forced colours keeps its blobs and leaders drawn', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/recipes/spanish-tortilla');
+
+  const firstBlob = page.getByRole('term').first().locator('..');
+  await expect(firstBlob).toBeVisible();
+  const blobBorder = await firstBlob.evaluate((blob) => {
+    const style = getComputedStyle(blob);
+    return { style: style.borderTopStyle, colour: style.borderTopColor };
+  });
+  expect(blobBorder.style).toBe('solid');
+  expect(blobBorder.colour).not.toBe('rgba(0, 0, 0, 0)');
+  const firstLeader = page
+    .getByRole('region', { name: 'Ingredients' })
+    .getByRole('listitem')
+    .first()
+    .locator('span[aria-hidden="true"]');
+  expect(await firstLeader.evaluate((leader) => getComputedStyle(leader).borderBottomStyle)).toBe('dotted');
+
+  await testInfo.attach('recipe under forced colours', {
+    body: await page.screenshot({ fullPage: true }),
+    contentType: 'image/png'
+  });
+});

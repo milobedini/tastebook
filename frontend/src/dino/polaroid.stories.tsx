@@ -7,8 +7,10 @@ import { RecipePhoto } from '@/dino/recipe-photo';
 const photoUrl =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='480'%3E%3Crect width='640' height='480' fill='%23e2583e'/%3E%3C/svg%3E";
 
-const HeroPolaroid = (props: ComponentProps<typeof RecipePhoto>) => (
-  <Polaroid frame="large" lean="left">
+type HeroPolaroidProps = ComponentProps<typeof RecipePhoto> & { tape?: boolean };
+
+const HeroPolaroid = ({ tape, ...props }: HeroPolaroidProps) => (
+  <Polaroid frame="large" lean="left" tape={tape}>
     <RecipePhoto {...props} />
   </Polaroid>
 );
@@ -32,3 +34,4 @@ type Story = StoryObj<typeof meta>;
 export const Hero = {} satisfies Story;
 export const HeroWithoutPhoto = { args: { photo: null, recipeId: 2, caption: undefined } } satisfies Story;
 export const LargeText = {} satisfies Story;
+export const LargeTaped = { args: { tape: true } } satisfies Story;

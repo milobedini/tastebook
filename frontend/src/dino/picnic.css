@@ -90,6 +90,10 @@
   --radius-check: 10px;
   --radius-row: 14px;
   --radius-option: 16px;
+  /* The three fixed blob shapes that hold a recipe's times, in the order TimeBlobs uses them. */
+  --radius-blob-1: 46% 54% 42% 58% / 55% 45% 55% 45%;
+  --radius-blob-2: 58% 42% 55% 45% / 45% 55% 45% 55%;
+  --radius-blob-3: 42% 58% 48% 52% / 52% 48% 52% 48%;
 
   /* Nothing else has a shadow (docs/design.md, Space and shape). */
   --shadow-*: initial;
