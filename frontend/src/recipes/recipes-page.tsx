@@ -1,10 +1,10 @@
-import { CookingPot, SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
 import type { components } from '../api/schema';
 import type { Lean } from '../dino';
-import { Banner, Button, EmptyState, Field, Page, PolaroidCard, SearchInput } from '../dino';
+import { Button, EmptyState, ErrorWithRetry, Field, Loading, Page, PolaroidCard, SearchInput } from '../dino';
 import { ActiveFilters } from './active-filters';
 import { difficultyLabels } from './difficulty';
 import { formatMinutes } from './format-minutes';
@@ -48,19 +48,6 @@ const RecipeSearch = ({ value, onValueChange }: RecipeSearchProps) => (
   </Field>
 );
 
-type RecipesUnavailableProps = {
-  onRetry: () => void;
-};
-
-const RecipesUnavailable = ({ onRetry }: RecipesUnavailableProps) => (
-  <>
-    <Banner tone="danger" title="The recipes couldn't be loaded." />
-    <Button variant="secondary" className="self-start" onClick={onRetry}>
-      Try again
-    </Button>
-  </>
-);
-
 type RecipeMetaProps = { recipe: RecipeSummary };
 
 const RecipeMeta = ({ recipe }: RecipeMetaProps) => {
@@ -90,21 +77,29 @@ type NoRecipesProps = { query: RecipeQuery; onClearFilters: () => void };
 
 const NoRecipes = ({ query: { searchTerm, filters }, onClearFilters }: NoRecipesProps) => {
   if (!hasFilters(filters)) {
-    const title = searchTerm === '' ? 'No recipes yet.' : `No recipes match “${searchTerm}”.`;
-    return <EmptyState icon={CookingPot} title={title} />;
+    if (searchTerm === '') {
+      return <EmptyState title="No recipes yet.">Recipes show here once they're in the catalogue.</EmptyState>;
+    }
+    return (
+      <EmptyState title={`No recipes match “${searchTerm}”.`}>
+        Nothing in the catalogue mentions it. Try another word.
+      </EmptyState>
+    );
   }
   const title =
     searchTerm === '' ? 'No recipes match these filters.' : `No recipes match “${searchTerm}” with these filters.`;
   return (
     <EmptyState
-      icon={CookingPot}
       title={title}
       action={
         <Button variant="secondary" onClick={onClearFilters}>
           Clear filters
         </Button>
       }
-    />
+      doodle="one fewer?"
+    >
+      Nothing in the catalogue has all of them. Try removing a filter.
+    </EmptyState>
   );
 };
 
@@ -145,16 +140,20 @@ const Recipes = ({ recipes, query, onClearFilters }: RecipesProps) => (
 type RecipeListProps = { query: RecipeQuery; onClearFilters: () => void };
 
 const RecipeList = ({ query, onClearFilters }: RecipeListProps) => {
-  const { data, isPending, refetch } = useRecipes(query);
+  const { data, errorUpdatedAt, refetch } = useRecipes(query);
   // A list already shown stays up if a background refetch fails.
   if (data !== undefined) {
     return <Recipes recipes={data.recipes} query={data.query} onClearFilters={onClearFilters} />;
   }
-  // Refetching a query that has never succeeded resets it to pending, so "Try again" shows this too.
-  if (isPending) {
-    return <p>Loading recipes…</p>;
+  // A refetch resets a never-successful query to pending but leaves errorUpdatedAt, so the error stays up through its retry.
+  if (errorUpdatedAt > 0) {
+    return (
+      <ErrorWithRetry title="Couldn't load recipes" onRetry={refetch}>
+        Check your connection, then try again.
+      </ErrorWithRetry>
+    );
   }
-  return <RecipesUnavailable onRetry={() => void refetch()} />;
+  return <Loading>Finding recipes…</Loading>;
 };
 
 const FILTER_PANEL_ID = 'recipe-filters';

@@ -209,7 +209,7 @@ describe('RecipesPage', () => {
 
     renderRoute('/recipes');
 
-    expect(await screen.findByText('Loading recipes…')).toBeInTheDocument();
+    expect((await screen.findByText('Finding recipes…')).closest('[aria-busy="true"]')).not.toBeNull();
     expect(recipeCount()).toBeUndefined();
 
     release();
@@ -223,7 +223,7 @@ describe('RecipesPage', () => {
     expect(screen.getByRole('heading', { name: 'Apple tart' }).closest('li')).toHaveTextContent(
       /^Apple tart1 hr 30 min · Hard$/
     );
-    expect(screen.queryByText('Loading recipes…')).not.toBeInTheDocument();
+    expect(screen.queryByText('Finding recipes…')).not.toBeInTheDocument();
     expect(screen.queryByText('No recipes yet.')).not.toBeInTheDocument();
   });
 
@@ -346,15 +346,22 @@ describe('RecipesPage', () => {
   });
 
   it.each([
-    ['/recipes', 'No recipes yet.', 'No recipes match “xyzzy”.'],
-    ['/recipes?q=xyzzy', 'No recipes match “xyzzy”.', 'No recipes yet.']
-  ])('at %s, says %s when there are no recipes', async (path, shown, absent) => {
+    ['/recipes', 'No recipes yet.', "Recipes show here once they're in the catalogue.", 'No recipes match “xyzzy”.'],
+    [
+      '/recipes?q=xyzzy',
+      'No recipes match “xyzzy”.',
+      'Nothing in the catalogue mentions it. Try another word.',
+      'No recipes yet.'
+    ]
+  ])('at %s, says %s and why when there are no recipes', async (path, shown, why, absent) => {
     server.use(http.get('/api/recipes/', () => HttpResponse.json<Recipe[]>([])));
 
     renderRoute(path);
 
     expect(await screen.findByText(shown)).toBeInTheDocument();
+    expect(screen.getByText(why)).toBeInTheDocument();
     expect(screen.queryByText(absent)).not.toBeInTheDocument();
+    expect(screen.queryByText('one fewer?')).not.toBeInTheDocument();
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('0 recipes');
   });
@@ -376,8 +383,10 @@ describe('RecipesPage', () => {
 
     renderRoute(path);
 
-    expect(await screen.findByRole('alert')).toHaveTextContent("The recipes couldn't be loaded.");
-    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent("Couldn't load recipes");
+    expect(alert).toHaveTextContent('Check your connection, then try again.');
+    expect(within(alert).getByRole('button', { name: 'Try again' })).toBeInTheDocument();
     expect(screen.queryByText('No recipes yet.')).not.toBeInTheDocument();
     expect(recipeCount()).toBeUndefined();
   });
@@ -457,7 +466,7 @@ describe('RecipesPage', () => {
     await search.requested;
 
     expect(headings()).toEqual(['Apple tart', 'Banana bread']);
-    expect(screen.queryByText('Loading recipes…')).not.toBeInTheDocument();
+    expect(screen.queryByText('Finding recipes…')).not.toBeInTheDocument();
 
     search.release();
 
@@ -501,13 +510,14 @@ describe('RecipesPage', () => {
     );
     await userEvent.click(tryAgain);
 
-    expect(await screen.findByText('Loading recipes…')).toBeInTheDocument();
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Trying…' })).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't load recipes");
+    expect(screen.queryByText('Finding recipes…')).not.toBeInTheDocument();
 
     release();
 
     expect(await screen.findByRole('heading', { name: 'Shakshuka' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('brings the alert back when the retry fails again', async () => {
@@ -518,12 +528,12 @@ describe('RecipesPage', () => {
     const { release } = holdRecipes(() => new HttpResponse(null, { status: 503 }));
     await userEvent.click(tryAgain);
 
-    expect(await screen.findByText('Loading recipes…')).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Trying…' })).toBeInTheDocument();
 
     release();
 
-    expect(await screen.findByRole('alert')).toHaveTextContent("The recipes couldn't be loaded.");
-    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Try again' })).not.toHaveAttribute('aria-busy');
+    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't load recipes");
   });
 
   it('opens a recipe from its title in the list', async () => {
@@ -749,6 +759,8 @@ describe('RecipesPage', () => {
 
     const emptyState = (await screen.findByRole('heading', { name: title })).parentElement;
     expect(screen.queryByText('No recipes yet.')).not.toBeInTheDocument();
+    expect(screen.getByText('Nothing in the catalogue has all of them. Try removing a filter.')).toBeInTheDocument();
+    expect(screen.getByText('one fewer?').closest('[aria-hidden="true"]')).not.toBeNull();
     await userEvent.click(within(emptyState ?? document.body).getByRole('button', { name: 'Clear filters' }));
 
     expect(router.state.location.search).toBe(cleared);
