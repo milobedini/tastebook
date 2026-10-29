@@ -1,7 +1,7 @@
 import { useId, useState } from 'react';
 
 import type { components } from '../api/schema';
-import { FilterChip, ServingsStepper } from '../ui';
+import { FilterChip, ServingsStepper } from '../dino';
 import { convert, type UnitSystem } from './convert';
 import { formatQuantity } from './format-quantity';
 

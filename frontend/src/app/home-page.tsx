@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Link } from 'react-router';
 
-import { Banner, Button, Page } from '../ui';
+import { Banner, Button, Page } from '../dino';
 import { useHealth } from './health-api';
 
 type ApiUnreachableProps = {
@@ -64,7 +64,7 @@ const ApiStatus = () => {
 export const HomePage = () => (
   <Page>
     <title>Tastebook</title>
-    <h1 className="font-extrabold text-cobalt text-display-xl">Tastebook</h1>
+    <h1 className="italic">Tastebook</h1>
     <Button asChild className="self-start">
       <Link to="/recipes">Browse recipes</Link>
     </Button>

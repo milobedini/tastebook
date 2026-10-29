@@ -27,19 +27,16 @@ test('bundles both typefaces and loads nothing from Google', async ({ baseURL, c
       .filter((font) => font.status === 'loaded')
       .map((font) => font.family.replaceAll('"', ''));
   });
-  expect(loadedFamilies).toEqual(expect.arrayContaining(['Bricolage Grotesque Variable', 'Atkinson Hyperlegible']));
+  expect(loadedFamilies).toEqual(expect.arrayContaining(['Instrument Serif', 'Nunito']));
   expect(requested.filter((url) => /fonts\.(googleapis|gstatic)\.com/.test(url))).toEqual([]);
 });
 
-test('follows the phone between dark and light', async ({ page }) => {
+test('stays dark whatever colour scheme the phone asks for', async ({ page }) => {
   await page.goto('/');
-  const body = page.locator('body');
 
-  for (const [colorScheme, background] of [
-    ['dark', 'rgb(13, 20, 36)'],
-    ['light', 'rgb(243, 245, 248)']
-  ] as const) {
+  for (const colorScheme of ['dark', 'light'] as const) {
     await page.emulateMedia({ colorScheme });
-    await expect(body).toHaveCSS('background-color', background);
+    await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(28, 18, 51)');
+    await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
   }
 });

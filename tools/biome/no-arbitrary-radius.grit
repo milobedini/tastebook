@@ -6,5 +6,5 @@ or {
   JsTemplateChunkElement()
 } as $s where {
   $s <: r".*rounded[-a-z]*-[\[(].*",
-  register_diagnostic(span=$s, message="Use one of Enamel's corner tokens (rounded-pill, -card, -photo, -field, -check), not an arbitrary radius.")
+  register_diagnostic(span=$s, message="Use one of Picnic's corner tokens (rounded-pill, -sheet, -timer, -card, -note, -check), not an arbitrary radius.")
 }

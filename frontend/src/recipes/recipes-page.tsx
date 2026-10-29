@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
 import type { components } from '../api/schema';
-import { Banner, Button, EmptyState, Field, Page, RecipeCard, SearchInput, Tag } from '../ui';
+import { Banner, Button, EmptyState, Field, Page, RecipeCard, SearchInput, Tag } from '../dino';
 import { ActiveFilters } from './active-filters';
 import { dietTagLabels } from './diet-tags';
 import { difficultyLabels } from './difficulty';

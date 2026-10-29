@@ -5,17 +5,17 @@
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "src/ui/enamel.css",
+    "css": "src/dino/picnic.css",
     "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
   },
   "iconLibrary": "lucide",
   "aliases": {
-    "components": "@/ui",
-    "ui": "@/ui",
-    "utils": "@/ui/cn",
-    "lib": "@/ui",
-    "hooks": "@/ui"
+    "components": "@/dino",
+    "ui": "@/dino",
+    "utils": "@/dino/cn",
+    "lib": "@/dino",
+    "hooks": "@/dino"
   }
 }

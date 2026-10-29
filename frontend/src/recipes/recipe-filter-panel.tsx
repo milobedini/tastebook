@@ -1,7 +1,7 @@
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 
-import { Banner, Button, FilterChip, SegmentedControl } from '../ui';
+import { Banner, Button, FilterChip, SegmentedControl } from '../dino';
 import { useCourses } from './courses-api';
 import { useCuisines } from './cuisines-api';
 import { dietTagLabels, dietTags } from './diet-tags';
