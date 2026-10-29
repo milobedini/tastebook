@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Dino in Picnic: foundations</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.pn{--ground:#1c1233;--surface:#2a1d47;--ink:#fff4ea;--muted:#cbbfe0;--pop:#ffb38a;--field:#8f7fb0;--line:#3a2c5c;--peach:#ffb38a;--mint:#8fe3c0;--butter:#ffe08a;--pink:#ff9fc6;--on-pastel:#2a1440;--paper:#fff8ef;--tape:rgb(255 224 138 / 0.85);--lift:0 12px 28px rgb(0 0 0 / 0.35);color-scheme:dark}
+.pn ::selection{background:rgb(255 179 138 / 0.4);color:var(--ink)}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--muted)}
+.h2{margin:0;font-size:28px;line-height:30px;font-style:italic}
+.sec{display:flex;flex-direction:column;gap:20px;min-width:0}
+.sw{display:flex;flex-direction:column;gap:8px;min-width:0}
+.chipc{height:84px;border-radius:20px;display:flex;align-items:flex-end;padding:10px 12px;box-sizing:border-box;font:800 22px/1 Nunito,system-ui,sans-serif;border:1px solid var(--line)}
+.sw b{font-size:14px;line-height:18px;font-weight:800}
+.ty{display:grid;grid-template-columns:150px minmax(0, 1fr);gap:16px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line)}
+.lnk{color:var(--ink);text-decoration:underline;text-decoration-color:var(--field);text-decoration-thickness:2px;text-underline-offset:3px;border-radius:4px}
+.lnk:hover,.lnk.is-hover{text-decoration-color:var(--ink)}
+.lnk:focus-visible,.lnk.is-focus{outline:3px solid var(--ink);outline-offset:2px}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;color:var(--ink);text-decoration:none;font:800 15px/20px Nunito,system-ui,sans-serif;border-radius:4px}
+.back:hover{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+.bar{height:20px;background:var(--peach);border-radius:4px}
+.ic{display:flex;flex-direction:column;align-items:center;gap:8px;width:84px}
+</style>
+</helmet>
+<div class="pn" style="width: 1320px; height: 2060px; box-sizing: border-box; padding: 56px; background: var(--ground); color: var(--ink); font-family: Nunito, system-ui, sans-serif; display: flex; flex-direction: column; gap: 52px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">Dino in Picnic · foundations</span>
+    <h1 class="serif" style="margin: 0; font-size: 46px; line-height: 44px">Colour, type and the rest</h1>
+  </header>
+
+  <section class="sec" aria-labelledby="col">
+    <h2 id="col" class="serif h2">Colour</h2>
+    <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 28px 20px">
+      <sc-for list="{{swatches}}" as="s" hint-placeholder-count="18">
+        <div class="sw">
+          <span class="chipc" style="background: {{s.hex}}; color: {{s.fg}}">{{s.sample}}</span>
+          <b>{{s.name}}</b>
+          <span class="cap">{{s.hex}} · {{s.use}}</span>
+          <span class="cap" style="color: var(--ink); font-weight: 700">{{s.contrast}}</span>
+        </div>
+      </sc-for>
+    </div>
+    <span class="cap">The page is Ground; panels, sheets and dialogs are Surface. Text is Ink, secondary text Muted. Selected text: Pop at 40% under Ink.</span>
+  </section>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 64px; align-items: start">
+
+    <section class="sec" aria-labelledby="type">
+      <h2 id="type" class="serif h2">Type</h2>
+      <div>
+        <div class="ty"><span class="cap">Display XL<br>Serif 46/44</span><span class="serif" style="font-size: 46px; line-height: 44px">What shall we <i style="color: var(--pop)">cook</i> tonight?</span></div>
+        <div class="ty"><span class="cap">Display L<br>Serif italic 34/36</span><span class="serif" style="font-size: 34px; line-height: 36px; font-style: italic">Add to the list</span></div>
+        <div class="ty"><span class="cap">Title<br>Serif italic 28/30</span><span class="serif" style="font-size: 28px; line-height: 30px; font-style: italic">Ingredients</span></div>
+        <div class="ty"><span class="cap">Caption<br>Serif italic 21/22</span><span class="serif" style="font-size: 21px; line-height: 22px; font-style: italic">Chana masala</span></div>
+        <div class="ty"><span class="cap">Step number<br>Serif italic 96/80</span><span class="serif" style="font-size: 96px; line-height: 80px; font-style: italic; color: var(--pop)">2</span></div>
+        <div class="ty"><span class="cap">Step<br>Nunito 700 23/34</span><span style="font-size: 23px; line-height: 34px; font-weight: 700">Drain the chickpeas and bring them to the boil.</span></div>
+        <div class="ty"><span class="cap">Timer<br>Nunito 800 38/40</span><span style="font-size: 38px; line-height: 40px; font-weight: 800; font-variant-numeric: tabular-nums">41:48</span></div>
+        <div class="ty"><span class="cap">Body<br>Nunito 600 16/24</span><span style="font-size: 16px; line-height: 24px; font-weight: 600">Punjabi chickpeas in a thick tomato and whole-spice sauce. Soak them the night before.</span></div>
+        <div class="ty"><span class="cap">Label<br>Nunito 800 15/20</span><span style="font-size: 15px; line-height: 20px; font-weight: 800">Add to list</span></div>
+        <div class="ty"><span class="cap">Small<br>Nunito 700 13/17</span><span style="font-size: 13px; line-height: 17px; font-weight: 700; color: var(--muted)">35 min · Easy · Korean</span></div>
+      </div>
+      <span class="cap">Reading text stays under 68 characters a line, at every width</span>
+    </section>
+
+    <div style="display: flex; flex-direction: column; gap: 48px">
+      <section class="sec" aria-labelledby="links">
+        <h2 id="links" class="serif h2">Links</h2>
+        <p style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600">From <a href="#" class="lnk">BBC Good Food</a>, adapted. Photo by <a href="#" class="lnk is-hover">Simon Law</a>, <a href="#" class="lnk is-focus">CC BY-SA 2.0</a>.</p>
+        <span class="cap">In text: Ink, underlined in Field · hover: the underline turns Ink · focus: the ring, 2 px off the text</span>
+        <a href="#" class="back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>All recipes</a>
+        <span class="cap">Standing alone: Label type with its icon, 44 px tall, underlined on hover</span>
+      </section>
+
+      <section class="sec" aria-labelledby="space">
+        <h2 id="space" class="serif h2">Space</h2>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <sc-for list="{{space}}" as="s" hint-placeholder-count="8">
+            <div style="display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; align-items: center">
+              <span class="cap" style="font-variant-numeric: tabular-nums">{{s.px}}</span>
+              <span class="bar" style="width: {{s.px}}px"></span>
+            </div>
+          </sc-for>
+        </div>
+        <span class="cap">Gutters: 20 px on phones, 32 px from tablets up</span>
+      </section>
+
+      <section class="sec" aria-labelledby="shape">
+        <h2 id="shape" class="serif h2">Corners and shadows</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 18px 14px; align-items: flex-end">
+          <div class="sw" style="align-items: center"><span style="width: 76px; height: 40px; border-radius: 999px; background: var(--surface); border: 2px solid var(--field)"></span><span class="cap">Pill</span></div>
+          <div class="sw" style="align-items: center"><span style="width: 64px; height: 56px; border-radius: 32px 32px 0 0; background: var(--surface)"></span><span class="cap">32 sheet</span></div>
+          <div class="sw" style="align-items: center"><span style="width: 56px; height: 56px; border-radius: 24px; background: var(--surface)"></span><span class="cap">24 card</span></div>
+          <div class="sw" style="align-items: center"><span style="width: 56px; height: 56px; border-radius: 20px; background: var(--surface)"></span><span class="cap">20 note</span></div>
+          <div class="sw" style="align-items: center"><span style="width: 28px; height: 28px; border-radius: 10px; border: 2.5px solid var(--field); box-sizing: border-box"></span><span class="cap">10 box</span></div>
+          <div class="sw" style="align-items: center"><span style="width: 48px; height: 56px; background: var(--paper)"></span><span class="cap">Square</span></div>
+        </div>
+        <div style="display: flex; gap: 28px; align-items: flex-end; margin-top: 8px">
+          <div class="sw" style="align-items: flex-start"><span style="width: 150px; height: 44px; border-radius: 999px; background: var(--peach); border: 2px solid var(--on-pastel); box-sizing: border-box; box-shadow: 0 5px 0 var(--on-pastel)"></span><span class="cap">Press shadow</span></div>
+          <div class="sw" style="align-items: flex-start"><span style="width: 92px; height: 84px; background: var(--paper); box-shadow: var(--lift)"></span><span class="cap">Lift</span></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 64px; align-items: start">
+    <section class="sec" aria-labelledby="icons">
+      <h2 id="icons" class="serif h2">Icons</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 20px 4px">
+        <sc-for list="{{icons}}" as="i" hint-placeholder-count="16">
+          <div class="ic">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{i.d}}"></path></svg>
+            <span class="cap" style="text-align: center">{{i.name}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <span class="cap">Lucide, 2 to 2.5 px stroke, 20 px in controls and 24 px alone, always in currentColor</span>
+    </section>
+
+    <section class="sec" aria-labelledby="marks">
+      <h2 id="marks" class="serif h2">The playful marks</h2>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 20px; align-items: end">
+        <div class="sw"><svg aria-hidden="true" width="120" height="14" viewBox="0 0 120 14"><path d="M2 8c7-5 12-5 19 0s12 5 19 0 12-5 19 0 12 5 19 0 12-5 19 0 12 5 19 0" fill="none" stroke="var(--pop)" stroke-width="3" stroke-linecap="round"></path></svg><span class="cap">Squiggle · one per screen</span></div>
+        <div class="sw"><div style="display: flex; align-items: flex-end; gap: 6px"><svg aria-hidden="true" width="50" height="44" viewBox="0 0 70 60" style="color: var(--muted)"><path d="M8 6c20 4 38 18 44 40M44 40l8 8 6-11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="serif" style="font-size: 19px; font-style: italic; color: var(--muted)">start it tonight!</span></div><span class="cap">Doodle · browse and empty states</span></div>
+        <div class="sw"><div style="display: flex; gap: 6px"><span style="width: 52px; height: 44px; background: var(--peach); border-radius: 46% 54% 42% 58% / 55% 45% 55% 45%"></span><span style="width: 52px; height: 44px; background: var(--butter); border-radius: 58% 42% 55% 45% / 45% 55% 45% 55%"></span><span style="width: 52px; height: 44px; background: var(--mint); border-radius: 42% 58% 48% 52% / 52% 48% 52% 48%"></span></div><span class="cap">Blobs · prep, cook, soak</span></div>
+        <div class="sw"><div style="display: flex; align-items: baseline; gap: 8px; font-size: 15px; font-weight: 600"><span>Garlic</span><span aria-hidden="true" style="flex-grow: 1; border-bottom: 2px dotted var(--field); transform: translateY(-4px)"></span><span style="font-weight: 800">4 cloves</span></div><span class="cap">Dotted leader · ingredient to amount</span></div>
+        <div class="sw"><div style="position: relative; width: 120px; height: 40px"><span style="position: absolute; left: 24px; top: 12px; width: 72px; height: 22px; background: var(--tape); transform: rotate(-4deg)"></span></div><span class="cap">Tape · featured polaroids</span></div>
+        <div class="sw"><span style="align-self: flex-start; background: var(--pink); color: var(--on-pastel); font: 800 13px/16px Nunito, sans-serif; padding: 8px 12px; border-radius: 18px; transform: rotate(-8deg)">Vegan</span><span class="cap">Sticker · describes, never a button</span></div>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":2060}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const sw = (name, hex, use, contrast, pastel) => ({ name, hex, use, contrast, sample: 'Aa', fg: pastel ? '#2a1440' : '#fff4ea' });
+    const ring = (cx, cy, r) => 'M' + cx + ' ' + (cy - r) + 'a' + r + ' ' + r + ' 0 1 0 0 ' + 2 * r + 'a' + r + ' ' + r + ' 0 1 0 0 -' + 2 * r + 'z';
+    return {
+      swatches: [
+        sw('Ground', '#1c1233', 'the page', 'Ink 16.4', false),
+        sw('Surface', '#2a1d47', 'panels, sheets', 'Ink 14.2', false),
+        sw('Line', '#3a2c5c', 'hairlines', 'decorative', false),
+        sw('Ink', '#fff4ea', 'text', '16.4 on Ground', true),
+        sw('Muted', '#cbbfe0', 'secondary text', '10.2 on Ground', true),
+        sw('Field', '#8f7fb0', 'borders, underlines', '4.9 on Ground', true),
+        sw('Peach', '#ffb38a', 'main action, you are here', 'On pastel 9.5', true),
+        sw('Mint', '#8fe3c0', 'chosen and done', 'On pastel 10.9', true),
+        sw('Butter', '#ffe08a', 'time and heads-ups', 'On pastel 12.8', true),
+        sw('Pink', '#ff9fc6', 'favourites, diet stickers', 'On pastel 8.7', true),
+        sw('Pop', '#ffb38a', 'a heading’s word, squiggle', '10.2 on Ground', true),
+        sw('On pastel', '#2a1440', 'text on pastel and Paper', 'on Paper 15.7', false),
+        sw('Paper', '#fff8ef', 'polaroid frames', 'On pastel 15.7', true),
+        sw('Dock', '#fff4ea', 'tab bar, toasts', 'On dock 15.2', true),
+        sw('Success', '#8fe3c0', 'done, saved', '11.8 on Ground', true),
+        sw('Warning', '#ffe08a', 'needs a look', '13.8 on Ground', true),
+        sw('Danger', '#ff9a8a', 'errors, destructive', '8.7 on Ground', true),
+        sw('Scrim', '#080412', 'behind sheets, 66%', 'decorative', false)
+      ],
+      space: [4, 8, 12, 16, 20, 24, 32, 48].map((px) => ({ px })),
+      icons: [
+        { name: 'search', d: ring(11, 11, 8) + 'M21 21l-4.3-4.3' },
+        { name: 'heart', d: 'M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z' },
+        { name: 'plus', d: 'M5 12h14M12 5v14' },
+        { name: 'minus', d: 'M5 12h14' },
+        { name: 'x', d: 'M18 6 6 18M6 6l12 12' },
+        { name: 'check', d: 'M20 6 9 17l-5-5' },
+        { name: 'chevron-left', d: 'm15 18-6-6 6-6' },
+        { name: 'chevron-down', d: 'm6 9 6 6 6-6' },
+        { name: 'book-open', d: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z' },
+        { name: 'list-checks', d: 'm3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8' },
+        { name: 'users', d: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2' + ring(9, 7, 4) + 'M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75' },
+        { name: 'timer', d: ring(12, 13, 8) + 'M12 9v4l2 2M10 2h4' },
+        { name: 'sliders', d: 'M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4' },
+        { name: 'share', d: 'M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13' },
+        { name: 'circle-alert', d: ring(12, 12, 10) + 'M12 8v4M12 16h.01' },
+        { name: 'info', d: ring(12, 12, 10) + 'M12 16v-4M12 8h.01' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

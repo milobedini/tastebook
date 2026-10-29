@@ -2,7 +2,7 @@
 
 Tastebook's look, agreed on a design canvas on 2026-10-29; it replaces Enamel. Warm and playful, like a picnic spread on a rug: a plum ground, pastels you can almost taste, photos as taped polaroids, and a serif with a little flourish over a rounded sans. The fun is rationed so the kitchen jobs (find a recipe, cook it, shop for it) stay calm and legible.
 
-[`design/picnic/`](design/picnic/) holds the canvas's artboards: browse and recipe, cooking mode, and the shopping list. [`design/dino/`](design/dino/) holds the Dino redesign's: every component in each of its states, the polaroid with no photo, the mark and a forced-colours check. They're reference markup: their photos load only on the canvas. Where a board and this file disagree, this file wins. Change it through PRs like the code.
+[`design/picnic/`](design/picnic/) holds the canvas's artboards: browse and recipe, cooking mode, and the shopping list. [`design/dino/`](design/dino/) holds the Dino redesign's: the foundations (colour, type, links, space, icons), the layout at phone, tablet and laptop widths, every component in each of its states, the polaroid with no photo, the mark and a forced-colours check. They're reference markup: their photos load only on the canvas. Where a board and this file disagree, this file wins. Change it through PRs like the code.
 
 **Moving from Enamel.** The code still runs Enamel's tokens and components (`frontend/src/ui/enamel.css`, the `/styleguide` page) until the Dino project moves them onto Picnic: Storybook first, then the tokens and fonts, then each component. Until a part has moved, build with the components as they are and add no new styling to them; anything that needs new visual work is designed in Picnic.
 
@@ -75,6 +75,8 @@ Token names follow Tailwind's `--color-*` convention, so `--color-peach` is `bg-
 
 The pastels stand out from the ground (9:1 and more), so they need no outline. Every pastel control still has a 2 px transparent border, which forced colours draws, so they stay outlined there.
 
+The page is Ground; panels, sheets and dialogs are Surface. Selected text is Pop at 40% under Ink.
+
 ## Type
 
 | Role | Face | Size / line height | Weight |
@@ -90,15 +92,32 @@ The pastels stand out from the ground (9:1 and more), so they need no outline. E
 | Small | Nunito | 13 / 17 px | 700 |
 | Label (buttons, chips) | Nunito | 15 / 20 px | 800 |
 
-Both faces are under the SIL Open Font License and are **bundled with the app**: never loaded from Google Fonts, which would send every visitor's IP address to Google (see UK GDPR in `AGENTS.md`, Standards) and fail offline. Instrument Serif has one weight, so hierarchy comes from size and italics, never bold serif. Numbers that line up (amounts, times, timers) use tabular figures.
+Both faces are under the SIL Open Font License and are **bundled with the app**: never loaded from Google Fonts, which would send every visitor's IP address to Google (see UK GDPR in `AGENTS.md`, Standards) and fail offline. Instrument Serif has one weight, so hierarchy comes from size and italics, never bold serif. Numbers that line up (amounts, times, timers) use tabular figures. The sizes hold at every width: a title is Display XL on a laptop too. Reading text stays under about 68 characters a line.
+
+**Links** in text are Ink, underlined 2 px in Field, 3 px below the text; on hover the underline turns Ink. A link standing alone ("All recipes") is Label type with its icon, 44 px tall, and underlined on hover.
 
 ## Space and shape
 
-- **Spacing:** a 4 px base: 4, 8, 12, 16, 20, 24, 32, 48. Space siblings with `gap`, not margins. Screens have 20 px side gutters.
+- **Spacing:** a 4 px base: 4, 8, 12, 16, 20, 24, 32, 48. Space siblings with `gap`, not margins. Side gutters are 20 px on phones and 32 px from tablets up ([Layout](#layout)).
 - **Corners:** pill (999 px) for controls (buttons, chips, fields, steppers) and the dock; 32 px for a sheet's top corners; 28 px for the timer card; 24 px for cards and panels; 20 px for notes and banners; 10 px for checkboxes; square for polaroids. Something inside a rounded panel (a list's options) takes the panel's corner less its padding, never a pill inside a rounded box.
 - **Shadows:** the **press shadow** (`0 5px 0` in On pastel) sits under the screen's main action and the timer card, so they look pressable; pressed, they sink 3 px and the shadow shrinks to match. The **lift** (`0 12px 28px rgb(0 0 0 / 0.35)`) sits under polaroids, the dock and sheets. Nothing else has a shadow.
 - **Photos:** in a polaroid (below), 4:3 in lists and 7:5 at the top of a recipe, always with the credit. **No photo:** the polaroid keeps its frame and caption, and the photo's place shows one of two fillers: a hand-drawn place setting (a plate, fork and knife in On pastel on Paper, inside a dashed edge) or the rug (On pastel gingham on Paper with an empty plate). A recipe always gets the same one, picked from its ID, so neighbours tend to differ. Neither uses a pastel, which would claim a meaning. Enamel's cuisine plate goes.
 - **Motion:** 120 ms ease-out for a control's state changes; 150 ms ease-out fades and slides for sheets, dialogs and toasts; never over 200 ms. Nothing moves on its own except a running timer and the spinner of something that's working. `prefers-reduced-motion` turns it all off, the spinner included.
+
+## Layout
+
+Designed phone first, at three widths ([`design/dino/layout.dc.html`](design/dino/layout.dc.html)).
+
+| Width | Gutters | Recipe list | Filters |
+| --- | --- | --- | --- |
+| Phone, under 640 px | 20 px | Two polaroids a row, after an optional featured one | In a sheet |
+| Tablet, 640 to 1024 px | 32 px | Three a row | In a sheet, from a "Filters · 2" button that counts what's on |
+| Laptop, 1024 px and up | 32 px, content up to 1200 px wide | Four a row | In a 260 px column beside the list |
+
+- **Top bar:** the wordmark on the left. On a laptop, the search field (360 px) on the right; narrower, a search icon button.
+- **Navigation:** while Recipes is the only tab, there is none. With a second tab, the tabs go in the top bar from tablets up (the current one a peach pill), and phones get the dock.
+- **Active filters** sit above the list as removable chips, with Clear filters beside them.
+- **A recipe on a laptop** has two columns, 5 to 7: the photo with the ingredients under it on the left, the ingredients staying in view while the page scrolls; the title, description, blobs, servings, units and method on the right. Narrower, one column in that order: photo, title, blobs, servings, ingredients, method.
 
 ## States
 
@@ -106,7 +125,7 @@ Every control has the same five, drawn on the Dino boards.
 
 - **Hover** (pointers only): a pastel fill moves 20% towards Ink (`color-mix(in oklab, var(--color-peach) 80%, var(--color-ink))`); an outlined control's border turns Ink and it fills with Surface; ghost and icon buttons fill with Surface or Line. A polaroid card straightens a little and lifts.
 - **Pressed:** the main action sinks 3 px and its press shadow shrinks to 2 px. Every other control shrinks a touch (97%; small round ones 92 to 94%), and a pastel fill moves 14% towards On pastel. A polaroid card settles.
-- **Focus:** a 3 px ring in Ink, flush against the control with no gap; on the dock it's On dock, on a butter note On pastel. A field's border turns Ink and thickens to 3 px. A radio group (the segmented control) takes one ring round the whole group, and arrow keys move the choice. Never a ring standing off a pill.
+- **Focus:** a 3 px ring in Ink, flush against the control with no gap; on the dock it's On dock, on a butter note On pastel. A field's border turns Ink and thickens to 3 px. A radio group (the segmented control) takes one ring round the whole group, and arrow keys move the choice. Never a ring standing off a pill. A link in text takes the ring 2 px off the text, with 4 px corners.
 - **Disabled:** a Surface fill, a dashed Field border and Muted text. It stays focusable (`aria-disabled`, not `disabled`) and a line under it says why: "Tick at least one thing to add." A stepper at its limit needs no line, as its count says why. When the reason would be long, leave the control enabled and explain on press.
 - **Loading:** the control keeps its size, its label turns to the "-ing" form ("Saving…") beside a spinner, it takes `aria-busy` and ignores presses. A region that loads shows blank polaroids that don't shimmer and a line saying what's happening ("Finding recipes…"), and only after half a second.
 
@@ -146,7 +165,8 @@ The set lives in `frontend/src/ui/` (Dino: shadcn/ui, restyled) and is exported 
 | Empty state | A dashed empty polaroid, what's empty and why, the way out ("Clear filters"), and perhaps the screen's one doodle. |
 | Error with retry | What failed, how to fix it, and Try again beside it: "Couldn't load recipes. Check your connection, then try again." One component for every place a load can fail. |
 | Loading | See [States](#states): blank polaroids and a line saying what's happening, after half a second. |
-| Dock | The tab bar: a floating pill in dock colours, 62 px tall; the current tab is a peach pill with its label, the others are icons with accessible names. |
+| Method | A real ordered list: each step's number in the serif italic in Pop (38 px on a laptop, 32 px on a phone) beside Body text (17/27 on a laptop), a hairline between steps, under about 62 characters a line. Ingredients aren't highlighted here; cooking mode does that. |
+| Dock | Phones only, once there's a second tab. The tab bar: a floating pill in dock colours, 62 px tall; the current tab is a peach pill with its label, the others are icons with accessible names. |
 
 **Cooking mode** keeps the screen awake and drops the playful parts that get in the way: a progress bar of segments (mint done, peach current), the step number in Step number type with its squiggle, the step in Step type with the ingredients it names in mint, and Back and Next at 64 px. A duration in a step ("60 to 90 minutes") is a butter button that starts a timer; a running timer shows as a butter card with a ring and a pause button, and follows you to later steps as a small pill. A range counts to its first check, then says how much longer it may need. A step's own ingredients sit below it with their amounts.
 
