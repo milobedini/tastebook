@@ -1,8 +1,8 @@
 ---
 issue: TAS-75
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tastebook/tas-75-restyle-buttons-and-icon-buttons-in-picnic
-pr:
+pr: 79
 ---
 
 # Restyle buttons and icon buttons in Picnic
