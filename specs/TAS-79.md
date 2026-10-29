@@ -1,8 +1,8 @@
 ---
 issue: TAS-79
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tastebook/tas-79-restyle-banners-toasts-and-dialogs-in-picnic-and-add-notes
-pr:
+pr: 86
 ---
 
 # Restyle banners, toasts and dialogs in Picnic and add notes and sheets
