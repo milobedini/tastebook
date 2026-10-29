@@ -1,8 +1,8 @@
 ---
 issue: TAS-74
-status: draft # draft | approved | building | done
+status: building # draft | approved | building | done
 branch: tastebook/tas-74-screenshot-every-story-so-a-look-cant-change-unapproved
-pr:
+pr: 72
 ---
 
 # Screenshot every story so a look can't change unapproved
