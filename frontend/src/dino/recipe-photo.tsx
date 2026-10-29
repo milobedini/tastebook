@@ -16,9 +16,10 @@ type RecipePhotoProps = {
   shape: Shape;
   alt: string;
   caption?: ReactNode;
+  eager?: boolean;
 };
 
-// A card's photo loads as it scrolls into view; a recipe's photo is the first thing on its page, so it loads at once.
+// A card's photo loads as it scrolls into view unless it's eager; a recipe's photo is the first thing on its page, so it loads at once.
 // Each size is the page's content less its polaroid's frame: two cards a row, one at large text.
 const shapeImages: Record<Shape, { className: string; sizes: string; loading: 'lazy' | 'eager' }> = {
   card: {
@@ -29,7 +30,7 @@ const shapeImages: Record<Shape, { className: string; sizes: string; loading: 'l
   hero: { className: 'aspect-7/5', sizes: '(min-width: 42rem) 38.75rem, calc(100vw - 3.25rem)', loading: 'eager' }
 };
 
-export const RecipePhoto = ({ photo, recipeId, shape, alt, caption }: RecipePhotoProps) => {
+export const RecipePhoto = ({ photo, recipeId, shape, alt, caption, eager = false }: RecipePhotoProps) => {
   // Kept by address, so a recipe whose photo can't load shows its filler without hiding the next recipe's photo.
   const [failedSrc, setFailedSrc] = useState<string>();
   const src = photo?.thumbnails[0]?.url;
@@ -37,7 +38,8 @@ export const RecipePhoto = ({ photo, recipeId, shape, alt, caption }: RecipePhot
     return <PhotoFiller recipeId={recipeId} shape={shape} />;
   }
 
-  const { className, sizes, loading } = shapeImages[shape];
+  const { className, sizes } = shapeImages[shape];
+  const loading = eager ? 'eager' : shapeImages[shape].loading;
   const image = (
     <img
       src={src}

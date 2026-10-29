@@ -168,7 +168,7 @@ type RecipePhotoProps = {
 
 - `cuisineSlug` goes; `recipeId` picks the filler. The fallback renders `<PhotoFiller recipeId={recipeId} shape={shape} />`.
 - `hero` becomes `aspect-7/5`. The `sizes` follow the polaroid's photo width (the page's content less the frame):
-  - `card`: `'(width < 17.5em) calc(100vw - 3rem), (min-width: 42rem) 18.5rem, calc(50vw - 2.5rem)'`, loading `lazy`.
+  - `card`: `'(width < 17.5em) calc(100vw - 3rem), (min-width: 42rem) 18.5rem, calc(50vw - 2.5rem)'`, loading `lazy`, or `eager` with `fetchPriority="high"` when `eager` is set: the list sets it on its first row (the first two cards).
   - `hero`: `'(min-width: 42rem) 38.75rem, calc(100vw - 3.25rem)'`, loading `eager`.
 - The `figcaption` loses `text-muted` (Muted on Paper fails 1.4.3) and becomes `break-words pt-2 text-small`, inheriting On pastel from the frame. The `figure` loses its `gap-2`. A caption still shows only beside a loaded photo, so a failed photo drops its credit.
 
@@ -320,6 +320,7 @@ Export `Sticker`, `StickeredPhoto` and `type StickerItem` from `index.ts`; delet
 - **Difficulty and one-pot become a muted line under the title**, because stickers are only for diet tags and time; TAS-83 (page layouts) folds them into the description as drawn. Asked: Where do difficulty and one-pot go? → A line under the title.
 - **A list polaroid shows only its meta**, as drawn; the description and diet tags stay on the recipe's page and in the Diet filter. Asked: What does a list polaroid show? → Meta only, as drawn.
 - **Large text is a CSS media query on width in em (`width < 17.5em`)**, because zoom narrows the viewport in CSS px and em follows the browser's text size, with no script. A laptop at 200% zoom keeps its tilt. Asked: How is large text detected? → Width in em (CSS only).
+- **The list's first row of photos loads eagerly, with high fetch priority**, because lazy loading held back the list's largest paint and the preview's Lighthouse performance fell to 87. Asked: review → Load the first row eagerly: fix the cause now rather than re-running.
 - **The whole Polaroid card is the link, named by `aria-labelledby` from its caption**, because the board draws the card as one link, and a link round only the 22 px caption would fail the 44 px target check or stretch the caption. (agent)
 - **The link wraps only the polaroid, and its `::after` stretches over the meta**, because axe's label in name rule (`label-content-name-mismatch`) fails a link named by `aria-labelledby` when it also holds the meta's visible text. The card is still one link named by its caption and described by its meta, and the ring sits on the card's wrapper (`has-focus-visible`). Found during the build. (agent)
 - **The focus ring stands 8 px off the card, square**, as the board draws it, so it clears the tilted corners; the flush-ring rule is about pills. (agent)
@@ -390,7 +391,7 @@ Export `Sticker`, `StickeredPhoto` and `type StickerItem` from `index.ts`; delet
 
 - `frontend/src/recipes/recipes-page.test.tsx`
   - Replace "shows each recipe's total time, difficulty and cuisines on its card" and "shows each recipe's diet tags on its card": with `appleTart` given `diet_tags: ['vegetarian', 'gluten_free']`, and Ramen tacos, asserts: Apple tart's `li` has the text `/^Apple tart1 hr 40 min · Medium · French$/` (no description, no diet tags) and Ramen tacos' `/^Ramen tacos25 min · Easy · Japanese, Mexican$/`.
-  - "lazy-loads a card's photo at its card width", asserts: the `sizes` is `(width < 17.5em) calc(100vw - 3rem), (min-width: 42rem) 18.5rem, calc(50vw - 2.5rem)`, with the same `srcset` and `lazy`.
+  - "loads the first row's photos at once and the rest lazily, at the card width", asserts: the `sizes` is `(width < 17.5em) calc(100vw - 3rem), (min-width: 42rem) 18.5rem, calc(50vw - 2.5rem)`, with the same `srcset`; the first card's photo is `eager` and `fetchpriority="high"`, the third's `lazy` and `auto`.
   - New: "names each card's link by the recipe and describes it by its meta", asserts: `getByRole('link', { name: 'Apple tart' })` has the accessible description `1 hr 40 min · Medium · French` and `href="/recipes/apple-tart"`.
   - New, `it.each`: "draws the place setting or the rug for a recipe without a photo, by its ID", cases `[1, 'rug']`, `[2, 'place-setting']`, `[4, 'place-setting']`, asserts: the card's `[data-filler]` has that value.
 - `frontend/src/recipes/recipe-page.test.tsx`

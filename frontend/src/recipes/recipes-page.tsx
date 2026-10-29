@@ -69,9 +69,9 @@ const RecipeMeta = ({ recipe }: RecipeMetaProps) => {
   return <p className="tabular-nums">{parts.filter((part) => part !== '').join(' · ')}</p>;
 };
 
-type RecipeItemProps = { recipe: RecipeSummary; lean: Lean };
+type RecipeItemProps = { recipe: RecipeSummary; lean: Lean; eager: boolean };
 
-const RecipeItem = ({ recipe, lean }: RecipeItemProps) => (
+const RecipeItem = ({ recipe, lean, eager }: RecipeItemProps) => (
   <li>
     <PolaroidCard
       title={recipe.title}
@@ -79,6 +79,7 @@ const RecipeItem = ({ recipe, lean }: RecipeItemProps) => (
       recipeId={recipe.id}
       photo={recipe.photo}
       lean={lean}
+      eager={eager}
     >
       <RecipeMeta recipe={recipe} />
     </PolaroidCard>
@@ -116,6 +117,9 @@ const RecipeCount = ({ count }: RecipeCountProps) => (
   </p>
 );
 
+// The first row is in view as the list opens and holds its largest paint, so its photos skip lazy loading.
+const FIRST_ROW_LENGTH = 2;
+
 type RecipesProps = { recipes: RecipeSummary[]; query: RecipeQuery; onClearFilters: () => void };
 
 const Recipes = ({ recipes, query, onClearFilters }: RecipesProps) => (
@@ -126,7 +130,12 @@ const Recipes = ({ recipes, query, onClearFilters }: RecipesProps) => (
     ) : (
       <ul className="grid grid-cols-2 gap-x-4 gap-y-8 large-text:grid-cols-1">
         {recipes.map((recipe, index) => (
-          <RecipeItem key={recipe.id} recipe={recipe} lean={index % 2 === 0 ? 'left' : 'right'} />
+          <RecipeItem
+            key={recipe.id}
+            recipe={recipe}
+            lean={index % 2 === 0 ? 'left' : 'right'}
+            eager={index < FIRST_ROW_LENGTH}
+          />
         ))}
       </ul>
     )}

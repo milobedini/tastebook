@@ -260,26 +260,22 @@ describe('RecipesPage', () => {
     );
   });
 
-  it("lazy-loads a card's photo at its card width, and shows none on a card without one", async () => {
+  it("loads the first row's photos at once and the rest lazily, at the card width, and shows none on a card without one", async () => {
+    const photoOf = (name: string) => ({
+      thumbnails: [330, 500].map((width) => ({
+        width,
+        url: `https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/${name}.jpg/${width}px-${name}.jpg`
+      })),
+      author: 'Jane Doe',
+      licence: 'CC BY-SA 4.0',
+      source_url: `https://commons.wikimedia.org/wiki/File:${name}.jpg`
+    });
     server.use(
       http.get('/api/recipes/', () =>
         HttpResponse.json<Recipe[]>([
-          {
-            ...appleTart,
-            photo: {
-              thumbnails: [
-                {
-                  width: 330,
-                  url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Tart.jpg/330px-Tart.jpg'
-                },
-                { width: 500, url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Tart.jpg/500px-Tart.jpg' }
-              ],
-              author: 'Jane Doe',
-              licence: 'CC BY-SA 4.0',
-              source_url: 'https://commons.wikimedia.org/wiki/File:Tart.jpg'
-            }
-          },
-          bananaBread
+          { ...appleTart, photo: photoOf('Tart') },
+          bananaBread,
+          { ...appleTart, id: 3, slug: 'carrot-cake', title: 'Carrot cake', photo: photoOf('Cake') }
         ])
       )
     );
@@ -290,8 +286,14 @@ describe('RecipesPage', () => {
       within(card).getByRole('heading').textContent,
       within(card)
         .queryAllByRole('presentation')
-        .map((image) => [image.getAttribute('srcset'), image.getAttribute('sizes'), image.getAttribute('loading')])
+        .map((image) => [
+          image.getAttribute('srcset'),
+          image.getAttribute('sizes'),
+          image.getAttribute('loading'),
+          image.getAttribute('fetchpriority')
+        ])
     ]);
+    const cardSizes = '(width < 17.5em) calc(100vw - 3rem), (min-width: 42rem) 18.5rem, calc(50vw - 2.5rem)';
     expect(cards).toEqual([
       [
         'Apple tart',
@@ -299,12 +301,25 @@ describe('RecipesPage', () => {
           [
             'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Tart.jpg/330px-Tart.jpg 330w, ' +
               'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Tart.jpg/500px-Tart.jpg 500w',
-            '(width < 17.5em) calc(100vw - 3rem), (min-width: 42rem) 18.5rem, calc(50vw - 2.5rem)',
-            'lazy'
+            cardSizes,
+            'eager',
+            'high'
           ]
         ]
       ],
-      ['Banana bread', []]
+      ['Banana bread', []],
+      [
+        'Carrot cake',
+        [
+          [
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Cake.jpg/330px-Cake.jpg 330w, ' +
+              'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Cake.jpg/500px-Cake.jpg 500w',
+            cardSizes,
+            'lazy',
+            'auto'
+          ]
+        ]
+      ]
     ]);
   });
 
