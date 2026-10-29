@@ -22,6 +22,11 @@ export default mergeConfig(
         {
           extends: true,
           plugins: [storybookTest({ configDir: fileURLToPath(new URL('./.storybook', import.meta.url)) })],
+          // Vite finds these only once a story imports them, then re-bundles and reloads the page mid-run, which can
+          // leave a story's iframe never ready.
+          optimizeDeps: {
+            include: ['@sentry/react', '@tanstack/react-query', 'cmdk', 'openapi-fetch', 'react-router/dom']
+          },
           test: {
             name: 'storybook',
             browser: {
