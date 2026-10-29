@@ -1,6 +1,7 @@
 export { Banner } from './banner';
 export { Button } from './button';
 export { CheckboxRow } from './checkbox-row';
+export { Combobox, type ComboboxOption } from './combobox';
 export { ConfirmDialog } from './confirm-dialog';
 export { CuisinePlate } from './cuisine-plate';
 export { EmptyState } from './empty-state';
