@@ -37,6 +37,8 @@ stories.map(({ id, title, name }) =>
     // The phase reaches finished after play and the preview's afterEach; a story that errors never does.
     await page.waitForFunction(() => window.__STORYBOOK_PREVIEW__?.currentRender?.phase === 'finished');
     await page.evaluate(() => document.fonts.ready);
+    // Play's clicks leave real focus on a control; Is Focus stories force their ring with a class instead.
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
 
     // The whole page, not the story root, so portalled dialogs and toasts are in the shot.
     await expect(page).toHaveScreenshot(`${id}.png`, { fullPage: true });
