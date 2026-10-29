@@ -10,6 +10,7 @@ describe('NotFoundPage', () => {
 
     expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Back to Tastebook' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('searchbox', { name: 'Search recipes' })).toBeInTheDocument();
   });
 
   it('titles the tab "Page not found · Tastebook" and resets it on the way home', async () => {

@@ -146,13 +146,8 @@ const RecipeContent = () => {
 export const RecipePage = () => (
   <Page>
     <RecipeContent />
-    <div className="flex flex-wrap gap-2">
-      <Button asChild variant="ghost">
-        <Link to="/recipes">All recipes</Link>
-      </Button>
-      <Button asChild variant="ghost">
-        <Link to="/">Back to Tastebook</Link>
-      </Button>
-    </div>
+    <Button asChild variant="ghost" className="self-start">
+      <Link to="/recipes">All recipes</Link>
+    </Button>
   </Page>
 );

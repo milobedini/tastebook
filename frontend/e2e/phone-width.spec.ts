@@ -196,3 +196,19 @@ test('a recipe page fits a 375 px phone screen without scrolling sideways', asyn
   await expect(page.getByRole('button', { name: 'Show original' })).toBeVisible();
   expect(await sidewaysScroll(page)).toBe(0);
 });
+
+test('searches from the top bar on a 375 px phone screen', async ({ page }) => {
+  await routeRecipeList(page);
+  await page.goto('/');
+  const searchBox = page.getByRole('searchbox', { name: 'Search recipes' });
+  await expect(searchBox).toBeHidden();
+
+  await page.getByRole('button', { name: 'Search recipes' }).click();
+
+  await expect(searchBox).toBeVisible();
+  await expect(searchBox).toBeFocused();
+  await searchBox.fill('xyzzy');
+  await expect(page).toHaveURL(/\/recipes\?q=xyzzy$/);
+  await expect(page.getByText('19 hr · Hard · British, French')).toBeVisible();
+  expect(await sidewaysScroll(page)).toBe(0);
+});

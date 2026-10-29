@@ -660,9 +660,7 @@ describe('RecipePage', () => {
 
   it.each([
     ['/recipes/apple-tart', 'All recipes', 'Recipes'],
-    ['/recipes/apple-tart', 'Back to Tastebook', 'Tastebook'],
-    ['/recipes/no-such-recipe', 'All recipes', 'Recipes'],
-    ['/recipes/no-such-recipe', 'Back to Tastebook', 'Tastebook']
+    ['/recipes/no-such-recipe', 'All recipes', 'Recipes']
   ])('from %s, follows "%s" to the %s page', async (path, linkName, headingName) => {
     renderRoute(path);
 
