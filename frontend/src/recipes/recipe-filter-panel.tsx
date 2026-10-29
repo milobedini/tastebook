@@ -1,5 +1,5 @@
 import type { UseQueryResult } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
 import { ErrorWithRetry, FilterChip, SegmentedControl } from '../dino';
 import { useCourses } from './courses-api';
@@ -20,14 +20,30 @@ const FilterGroup = ({ legend, children }: FilterGroupProps) => (
   </fieldset>
 );
 
+type Tilt = ComponentProps<typeof FilterChip>['tilt'];
+
+// Alternates by the chip's place in its group; untilted in the sheet, since dialogs never tilt (docs/design.md, Tilt).
+const tiltOf = (tilted: boolean, index: number): Tilt => {
+  if (!tilted) {
+    return undefined;
+  }
+  return index % 2 === 0 ? 'left' : 'right';
+};
+
 type Choice<T> = { value: T; label: string };
 
-type ChoiceChipsProps<T> = { choices: Choice<T>[]; selected: T[]; onChange: (selected: T[]) => void };
+type ChoiceChipsProps<T> = {
+  choices: Choice<T>[];
+  selected: T[];
+  onChange: (selected: T[]) => void;
+  tilted: boolean;
+};
 
-const ChoiceChips = <T extends string>({ choices, selected, onChange }: ChoiceChipsProps<T>) =>
-  choices.map(({ value, label }) => (
+const ChoiceChips = <T extends string>({ choices, selected, onChange, tilted }: ChoiceChipsProps<T>) =>
+  choices.map(({ value, label }, index) => (
     <FilterChip
       key={value}
+      tilt={tiltOf(tilted, index)}
       pressed={selected.includes(value)}
       onPressedChange={() => onChange(toggled(selected, value))}
     >
@@ -37,14 +53,17 @@ const ChoiceChips = <T extends string>({ choices, selected, onChange }: ChoiceCh
 
 type FilterChangeProps = { filters: RecipeFilters; onChange: (filters: RecipeFilters) => void };
 
-type TimeGroupProps = FilterChangeProps & { name: TimeFilterName; legend: string };
+type ChipGroupProps = FilterChangeProps & { tilted: boolean };
+
+type TimeGroupProps = ChipGroupProps & { name: TimeFilterName; legend: string };
 
 // One limit at a time: "up to 30" already contains "up to 15".
-const TimeGroup = ({ name, legend, filters, onChange }: TimeGroupProps) => (
+const TimeGroup = ({ name, legend, filters, onChange, tilted }: TimeGroupProps) => (
   <FilterGroup legend={legend}>
-    {timeLimits.map((limit) => (
+    {timeLimits.map((limit, index) => (
       <FilterChip
         key={limit}
+        tilt={tiltOf(tilted, index)}
         pressed={filters.times[name] === limit}
         onPressedChange={(pressed) =>
           onChange({ ...filters, times: { ...filters.times, [name]: pressed ? limit : null } })
@@ -61,12 +80,13 @@ const difficultyChoices = difficulties.map((difficulty) => ({
   label: difficultyLabels[difficulty]
 }));
 
-const DifficultyGroup = ({ filters, onChange }: FilterChangeProps) => (
+const DifficultyGroup = ({ filters, onChange, tilted }: ChipGroupProps) => (
   <FilterGroup legend="Difficulty">
     <ChoiceChips
       choices={difficultyChoices}
       selected={filters.difficulties}
       onChange={(selected) => onChange({ ...filters, difficulties: selected })}
+      tilted={tilted}
     />
   </FilterGroup>
 );
@@ -98,33 +118,39 @@ const QueryGroup = <T,>({ legend, query, loading, errorTitle, children }: QueryG
   return <FilterGroup legend={legend}>{content()}</FilterGroup>;
 };
 
-const CourseGroup = ({ filters, onChange }: FilterChangeProps) => (
+const CourseGroup = ({ filters, onChange, tilted }: ChipGroupProps) => (
   <QueryGroup legend="Course" query={useCourses()} loading="Loading courses…" errorTitle="Couldn't load courses">
     {(courses) => (
       <ChoiceChips
         choices={courses.map(({ slug, name }) => ({ value: slug, label: name }))}
         selected={filters.courses}
         onChange={(selected) => onChange({ ...filters, courses: selected })}
+        tilted={tilted}
       />
     )}
   </QueryGroup>
 );
 
-const CuisineGroup = ({ filters, onChange }: FilterChangeProps) => (
+const CuisineGroup = ({ filters, onChange, tilted }: ChipGroupProps) => (
   <QueryGroup legend="Cuisine" query={useCuisines()} loading="Loading cuisines…" errorTitle="Couldn't load cuisines">
     {(cuisines) => (
       <ChoiceChips
         choices={cuisines.map(({ slug, name }) => ({ value: slug, label: name }))}
         selected={filters.cuisines}
         onChange={(selected) => onChange({ ...filters, cuisines: selected })}
+        tilted={tilted}
       />
     )}
   </QueryGroup>
 );
 
-const OnePotGroup = ({ filters, onChange }: FilterChangeProps) => (
+const OnePotGroup = ({ filters, onChange, tilted }: ChipGroupProps) => (
   <FilterGroup legend="One-pot">
-    <FilterChip pressed={filters.onePot} onPressedChange={(pressed) => onChange({ ...filters, onePot: pressed })}>
+    <FilterChip
+      tilt={tiltOf(tilted, 0)}
+      pressed={filters.onePot}
+      onPressedChange={(pressed) => onChange({ ...filters, onePot: pressed })}
+    >
       One-pot only
     </FilterChip>
   </FilterGroup>
@@ -133,12 +159,13 @@ const OnePotGroup = ({ filters, onChange }: FilterChangeProps) => (
 const dietChoices = dietTags.map((tag) => ({ value: tag, label: dietTagLabels[tag] }));
 
 // Every diet picked must hold, so the chips toggle independently.
-const DietGroup = ({ filters, onChange }: FilterChangeProps) => (
+const DietGroup = ({ filters, onChange, tilted }: ChipGroupProps) => (
   <FilterGroup legend="Diet">
     <ChoiceChips
       choices={dietChoices}
       selected={filters.diets}
       onChange={(selected) => onChange({ ...filters, diets: selected })}
+      tilted={tilted}
     />
   </FilterGroup>
 );
@@ -205,18 +232,18 @@ const IngredientFilterGroup = ({ filters, onChange }: FilterChangeProps) => {
   );
 };
 
-type RecipeFilterPanelProps = FilterChangeProps & { id: string };
+type RecipeFilterPanelProps = ChipGroupProps & { id: string };
 
-export const RecipeFilterPanel = ({ id, filters, onChange }: RecipeFilterPanelProps) => (
+export const RecipeFilterPanel = ({ id, filters, onChange, tilted }: RecipeFilterPanelProps) => (
   <div id={id} className="flex flex-col gap-4">
     {timeFilters.map(({ name, legend }) => (
-      <TimeGroup key={name} name={name} legend={legend} filters={filters} onChange={onChange} />
+      <TimeGroup key={name} name={name} legend={legend} filters={filters} onChange={onChange} tilted={tilted} />
     ))}
-    <DifficultyGroup filters={filters} onChange={onChange} />
-    <CourseGroup filters={filters} onChange={onChange} />
-    <CuisineGroup filters={filters} onChange={onChange} />
-    <OnePotGroup filters={filters} onChange={onChange} />
-    <DietGroup filters={filters} onChange={onChange} />
+    <DifficultyGroup filters={filters} onChange={onChange} tilted={tilted} />
+    <CourseGroup filters={filters} onChange={onChange} tilted={tilted} />
+    <CuisineGroup filters={filters} onChange={onChange} tilted={tilted} />
+    <OnePotGroup filters={filters} onChange={onChange} tilted={tilted} />
+    <DietGroup filters={filters} onChange={onChange} tilted={tilted} />
     <IngredientFilterGroup filters={filters} onChange={onChange} />
   </div>
 );

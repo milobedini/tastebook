@@ -20,11 +20,13 @@ type RecipePhotoProps = {
 };
 
 // A card's photo loads as it scrolls into view unless it's eager; a recipe's photo is the first thing on its page, so it loads at once.
-// Each size is the page's content less its polaroid's frame: two cards a row, one at large text.
+// Each size is the page's content less its polaroid's frame: a card is one of 2, 3 or 4 a row, or one at large text.
 const shapeImages: Record<Shape, { className: string; sizes: string; loading: 'lazy' | 'eager' }> = {
   card: {
     className: 'aspect-4/3',
-    sizes: '(width < 17.5em) calc(100vw - 3rem), (min-width: 42rem) 18.5rem, calc(50vw - 2.5rem)',
+    sizes:
+      '(width < 17.5em) calc(100vw - 3.5rem), (min-width: 75rem) 10.25rem, (min-width: 64rem) calc(25vw - 8.5rem), ' +
+      '(min-width: 40rem) calc(33.3vw - 3.4rem), calc(50vw - 2.75rem)',
     loading: 'lazy'
   },
   hero: { className: 'aspect-7/5', sizes: '(min-width: 42rem) 38.75rem, calc(100vw - 3.25rem)', loading: 'eager' }

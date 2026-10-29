@@ -17,7 +17,7 @@ test('an unknown recipe shows "not found" through the real API', async ({ page, 
 
   await page.getByRole('link', { name: 'All recipes' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Recipes' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'What shall we cook tonight?' })).toBeVisible();
 });
 
 test('changing the servings scales a catalogue recipe through the real API', async ({ page, accessibility }) => {

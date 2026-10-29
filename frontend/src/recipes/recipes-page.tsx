@@ -1,11 +1,12 @@
 import { SlidersHorizontal } from 'lucide-react';
+import type { RefObject } from 'react';
 import { useCallback, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
 import type { components } from '../api/schema';
 import type { Lean } from '../dino';
-import { Button, EmptyState, ErrorWithRetry, Loading, Page, PolaroidCard } from '../dino';
-import { ActiveFilters } from './active-filters';
+import { Button, EmptyState, ErrorWithRetry, Loading, Page, PolaroidCard, Sheet, Squiggle } from '../dino';
+import { ActiveFilters, countActiveFilters, useActiveFilters } from './active-filters';
 import { difficultyLabels } from './difficulty';
 import { formatMinutes } from './format-minutes';
 import { RecipeFilterPanel } from './recipe-filter-panel';
@@ -14,6 +15,7 @@ import { hasFilters, noFilters, readFilters, writeFilters } from './recipe-filte
 import type { RecipeQuery } from './recipes-api';
 import { useRecipes } from './recipes-api';
 import { useDebouncedValue } from './use-debounced-value';
+import { isLaptopQuery, useMediaQuery } from './use-media-query';
 
 type RecipeSummary = components['schemas']['RecipeSummary'];
 
@@ -91,44 +93,47 @@ const RecipeCount = ({ count }: RecipeCountProps) => (
 );
 
 // The first row is in view as the list opens and holds its largest paint, so its photos skip lazy loading.
-const FIRST_ROW_LENGTH = 2;
+// Four is the longest row, on a laptop.
+const FIRST_ROW_LENGTH = 4;
 
 type RecipesProps = { recipes: RecipeSummary[]; query: RecipeQuery; onClearFilters: () => void };
 
-const Recipes = ({ recipes, query, onClearFilters }: RecipesProps) => (
-  <>
-    <RecipeCount count={recipes.length} />
-    {recipes.length === 0 ? (
-      <NoRecipes query={query} onClearFilters={onClearFilters} />
-    ) : (
-      <ul className="grid grid-cols-2 gap-x-4 gap-y-8 large-text:grid-cols-1">
-        {recipes.map((recipe, index) => (
-          <RecipeItem
-            key={recipe.id}
-            recipe={recipe}
-            lean={index % 2 === 0 ? 'left' : 'right'}
-            eager={index < FIRST_ROW_LENGTH}
-          />
-        ))}
-      </ul>
-    )}
-  </>
-);
-
-type RecipeListProps = { query: RecipeQuery; onClearFilters: () => void };
-
-const RecipeList = ({ query, onClearFilters }: RecipeListProps) => {
-  const { data, isPlaceholderData, errorUpdatedAt, refetch } = useRecipes(query);
-  // A refetch resets a never-successful query to pending but leaves errorUpdatedAt, so the error stays up through its
-  // retry, even when an earlier query's list would otherwise stand in as placeholder data.
-  const hasFailed = errorUpdatedAt > 0;
-  // A list already shown stays up if a background refetch fails.
-  if (data !== undefined && !(isPlaceholderData && hasFailed)) {
-    return <Recipes recipes={data.recipes} query={data.query} onClearFilters={onClearFilters} />;
+const Recipes = ({ recipes, query, onClearFilters }: RecipesProps) => {
+  if (recipes.length === 0) {
+    return <NoRecipes query={query} onClearFilters={onClearFilters} />;
   }
-  if (hasFailed) {
+  return (
+    <ul className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-9 lg:gap-y-11 large-text:grid-cols-1">
+      {recipes.map((recipe, index) => (
+        <RecipeItem
+          key={recipe.id}
+          recipe={recipe}
+          lean={index % 2 === 0 ? 'left' : 'right'}
+          eager={index < FIRST_ROW_LENGTH}
+        />
+      ))}
+    </ul>
+  );
+};
+
+type RecipesResult = ReturnType<typeof useRecipes>;
+
+// A refetch resets a never-successful query to pending but leaves errorUpdatedAt, so the error stays up through its
+// retry, even when an earlier query's list would otherwise stand in as placeholder data. A list already shown stays
+// up if a background refetch fails.
+const shownRecipes = ({ data, isPlaceholderData, errorUpdatedAt }: RecipesResult) =>
+  data !== undefined && !(isPlaceholderData && errorUpdatedAt > 0) ? data : undefined;
+
+type RecipeListProps = { result: RecipesResult; onClearFilters: () => void };
+
+const RecipeList = ({ result, onClearFilters }: RecipeListProps) => {
+  const shown = shownRecipes(result);
+  if (shown !== undefined) {
+    return <Recipes recipes={shown.recipes} query={shown.query} onClearFilters={onClearFilters} />;
+  }
+  if (result.errorUpdatedAt > 0) {
     return (
-      <ErrorWithRetry title="Couldn't load recipes" onRetry={refetch}>
+      <ErrorWithRetry title="Couldn't load recipes" onRetry={result.refetch}>
         Check your connection, then try again.
       </ErrorWithRetry>
     );
@@ -137,6 +142,46 @@ const RecipeList = ({ query, onClearFilters }: RecipeListProps) => {
 };
 
 const FILTER_PANEL_ID = 'recipe-filters';
+
+// The sheet's foot names the list it goes back to; while that list loads, it can't say how many.
+const showRecipesLabel = ({ data, isPlaceholderData }: RecipesResult) => {
+  if (data === undefined || isPlaceholderData) {
+    return 'Show recipes';
+  }
+  const count = data.recipes.length;
+  return `Show ${count} ${count === 1 ? 'recipe' : 'recipes'}`;
+};
+
+type FiltersSheetProps = {
+  filters: RecipeFilters;
+  onChange: (filters: RecipeFilters) => void;
+  filterCount: number;
+  result: RecipesResult;
+  buttonRef: RefObject<HTMLButtonElement | null>;
+};
+
+// Its own component, so whether it's open goes with it when the layout turns to the laptop column.
+const FiltersSheet = ({ filters, onChange, filterCount, result, buttonRef }: FiltersSheetProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <Sheet
+      title="Filters"
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      trigger={
+        <Button ref={buttonRef} variant="secondary">
+          <SlidersHorizontal aria-hidden="true" />
+          {filterCount === 0 ? 'Filters' : `Filters · ${filterCount}`}
+        </Button>
+      }
+    >
+      <RecipeFilterPanel id={FILTER_PANEL_ID} filters={filters} onChange={onChange} tilted={false} />
+      <Button className="w-full" onClick={() => setIsOpen(false)}>
+        {showRecipesLabel(result)}
+      </Button>
+    </Sheet>
+  );
+};
 
 export const RecipesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -153,41 +198,64 @@ export const RecipesPage = () => {
     [setSearchParams]
   );
 
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const query = { searchTerm, filters };
+  // RecipeList's query too, so the count and the sheet's button need no request of their own.
+  const result = useRecipes(query);
+  const shown = shownRecipes(result);
+  const isLaptop = useMediaQuery(isLaptopQuery);
+
+  // One of them is on screen: the Filters button below a laptop, the filters' column on one.
   const filtersButton = useRef<HTMLButtonElement>(null);
-  // The pressed chip or "Clear filters" disappears, so focus goes back to the Filters button.
+  const filtersColumn = useRef<HTMLElement>(null);
+  // The pressed chip or "Clear filters" disappears, so focus goes back to where the filters are.
   const removeFilters = useCallback(
     (next: RecipeFilters) => {
       changeFilters(next);
-      filtersButton.current?.focus();
+      (filtersButton.current ?? filtersColumn.current)?.focus();
     },
     [changeFilters]
   );
   const clearFilters = useCallback(() => removeFilters(noFilters), [removeFilters]);
 
+  const shownFilters = useActiveFilters(filters);
+  const filterCount = countActiveFilters(shownFilters);
+  const activeFilters = <ActiveFilters activeFilters={shownFilters} onChange={removeFilters} />;
+  const recipeList = <RecipeList result={result} onClearFilters={clearFilters} />;
+
   return (
     <Page>
-      {/* A 672 px column until TAS-83's part 2 lays the list out to the full page width. */}
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
-        <title>Recipes · Tastebook</title>
-        <h1>Recipes</h1>
-        <div className="flex flex-col gap-4">
-          <Button
-            ref={filtersButton}
-            variant="secondary"
-            className="self-start"
-            aria-expanded={isPanelOpen}
-            aria-controls={FILTER_PANEL_ID}
-            onClick={() => setIsPanelOpen(!isPanelOpen)}
-          >
-            <SlidersHorizontal aria-hidden="true" />
-            Filters
-          </Button>
-          {isPanelOpen && <RecipeFilterPanel id={FILTER_PANEL_ID} filters={filters} onChange={changeFilters} />}
-        </div>
-        <ActiveFilters filters={filters} onChange={removeFilters} />
-        <RecipeList query={{ searchTerm, filters }} onClearFilters={clearFilters} />
+      <title>Recipes · Tastebook</title>
+      <div className="flex flex-col gap-3.5">
+        <h1>
+          What shall we <Squiggle emphasis>cook</Squiggle> tonight?
+        </h1>
+        {shown !== undefined && <RecipeCount count={shown.recipes.length} />}
       </div>
+      {isLaptop ? (
+        <div className="grid grid-cols-[16.25rem_minmax(0,1fr)] items-start gap-12">
+          <aside aria-label="Filters" tabIndex={-1} ref={filtersColumn}>
+            <RecipeFilterPanel id={FILTER_PANEL_ID} filters={filters} onChange={changeFilters} tilted />
+          </aside>
+          <div className="flex flex-col gap-6">
+            {activeFilters}
+            {recipeList}
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-2">
+            <FiltersSheet
+              filters={filters}
+              onChange={changeFilters}
+              filterCount={filterCount}
+              result={result}
+              buttonRef={filtersButton}
+            />
+            {activeFilters}
+          </div>
+          {recipeList}
+        </>
+      )}
     </Page>
   );
 };
