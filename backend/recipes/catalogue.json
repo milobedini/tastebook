@@ -32105,74 +32105,6 @@
       ]
     },
     {
-      "slug": "mukimo",
-      "title": "Mukimo",
-      "description": "Kenyan mash from the Kikuyu highlands: potatoes, sweetcorn and peas boiled together, then greens stirred in and everything mashed into a bright green side for stews and grilled meat.",
-      "cuisines": ["Indian"],
-      "courses": ["Side"],
-      "difficulty": "easy",
-      "prep_minutes": 15,
-      "cook_minutes": 30,
-      "servings": 6,
-      "equipment": ["Hob"],
-      "one_pot": true,
-      "source": "Adapted from the Wikibooks Cookbook (CC BY-SA 4.0), converted to metric, ingredients restructured",
-      "source_url": "https://en.wikibooks.org/wiki/Cookbook:Mukimo",
-      "photo_url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Mukimo_%26_Beef_Stew.jpg",
-      "photo_author": "Anitah Pezz",
-      "photo_licence": "CC BY-SA 4.0",
-      "photo_source_url": "https://commons.wikimedia.org/wiki/File:Mukimo_%26_Beef_Stew.jpg",
-      "ingredient_lines": [
-        {
-          "amount": 1,
-          "unit": "kg",
-          "ingredient": "potatoes",
-          "note": "peeled and chopped",
-          "original_text": "1 kg potatoes, peeled and chopped"
-        },
-        {
-          "amount": 475,
-          "unit": "ml",
-          "ingredient": "sweetcorn",
-          "note": "fresh or frozen",
-          "original_text": "2 cups maize kernels (fresh or frozen)"
-        },
-        {
-          "amount": 150,
-          "unit": "g",
-          "ingredient": "peas",
-          "original_text": "1 cup green peas"
-        },
-        {
-          "amount": 475,
-          "unit": "ml",
-          "ingredient": "spinach",
-          "note": "chopped, or kale or pumpkin leaves",
-          "original_text": "2 cups pumpkin leaves, spinach, or kale, chopped"
-        },
-        {
-          "amount": 1,
-          "unit": "tsp",
-          "ingredient": "salt",
-          "original_text": "1 teaspoon salt"
-        },
-        {
-          "ingredient": "water",
-          "note": "as needed",
-          "original_text": "Water, as needed"
-        }
-      ],
-      "steps": [
-        "Put the potatoes, sweetcorn and peas in a large pan and cover with water.",
-        "Bring to the boil and cook until the potatoes are tender.",
-        "Add the chopped greens and cook for 5–10 minutes more.",
-        "Drain off any excess water.",
-        "Mash everything together until well combined.",
-        "Season with the salt to taste.",
-        "Serve hot with beef stew, chicken stew or grilled meat."
-      ]
-    },
-    {
       "slug": "sylheti-biryani",
       "title": "Sylheti biryani",
       "description": "A simple one-pot biryani from Sylhet: basmati and your choice of meat cooked in ghee with whole spices, ginger and garlic, then finished with kewra water, rose water and slit green chillies.",
@@ -32485,6 +32417,142 @@
         "In a 30 x 20 cm baking dish, make a layer with half the lasagne sheets, sauce, cottage cheese and mozzarella. Repeat to make a second layer.",
         "Sprinkle the top with the parmesan.",
         "Bake uncovered for 25 minutes, until the pasta is tender and the sauce is bubbling."
+      ]
+    },
+    {
+      "slug": "olive-ascolane",
+      "title": "Olive ascolane",
+      "description": "A starter from Ascoli Piceno: pork and chicken simmered in tomato sauce, minced with parmesan, lemon zest and warm spices, wrapped in halved green olives, then breadcrumbed and fried until golden.",
+      "cuisines": ["Italian"],
+      "courses": ["Main"],
+      "difficulty": "medium",
+      "prep_minutes": 60,
+      "cook_minutes": 60,
+      "extra_minutes": 60,
+      "extra_label": "chilling",
+      "yield_amount": 50,
+      "yield_unit": "stuffed olives",
+      "equipment": ["Food processor", "Hob"],
+      "one_pot": false,
+      "source": "Adapted from the Wikibooks Cookbook (CC BY-SA 4.0), converted to metric, ingredients restructured",
+      "source_url": "https://en.wikibooks.org/wiki/Cookbook:Olive_Ascolane_(Stuffed_Fried_Olives)",
+      "photo_url": "https://upload.wikimedia.org/wikipedia/commons/1/10/Olive_all%27ascolana.jpg",
+      "photo_author": "Manuela Zangara",
+      "photo_licence": "CC BY-SA 2.0",
+      "photo_source_url": "https://commons.wikimedia.org/wiki/File:Olive_all%27ascolana.jpg",
+      "ingredient_groups": [
+        {
+          "name": "For the filling",
+          "lines": [
+            {
+              "ingredient": "passata",
+              "note": "or your usual tomato sauce, enough to cook the meat in",
+              "original_text": "Tomato sauce or gravy"
+            },
+            {
+              "amount": 675,
+              "unit": "g",
+              "ingredient": "pork shoulder",
+              "original_text": "1 ½ pounds pork"
+            },
+            {
+              "amount": 675,
+              "unit": "g",
+              "ingredient": "chicken breast",
+              "original_text": "1 ½ pounds chicken breast"
+            },
+            {
+              "amount": 125,
+              "unit": "ml",
+              "ingredient": "green olives",
+              "note": "pitted and chopped",
+              "original_text": "½ cup chopped green olives"
+            },
+            {
+              "amount": 65,
+              "unit": "g",
+              "ingredient": "parmesan",
+              "note": "grated",
+              "original_text": "⅔ cup Parmesan cheese"
+            },
+            {
+              "amount": 1,
+              "ingredient": "lemon",
+              "note": "zest only, finely grated",
+              "original_text": "1 lemon rind, grated"
+            },
+            {
+              "amount": 1,
+              "unit": "tsp",
+              "ingredient": "ground nutmeg",
+              "note": "freshly grated",
+              "original_text": "1 teaspoon freshly-grated nutmeg"
+            },
+            {
+              "amount": 1,
+              "unit": "tsp",
+              "ingredient": "ground cinnamon",
+              "original_text": "1 teaspoon cinnamon"
+            },
+            {
+              "amount": 0.5,
+              "unit": "tsp",
+              "ingredient": "ground allspice",
+              "original_text": "½ teaspoon allspice"
+            },
+            {
+              "ingredient": "salt",
+              "note": "to taste",
+              "original_text": "Salt to taste"
+            }
+          ]
+        },
+        {
+          "name": "For the olives",
+          "lines": [
+            {
+              "amount": 50,
+              "ingredient": "green olives",
+              "note": "large, pitted and halved, about; have a spare jar in case of leftover filling",
+              "original_text": "About 50 large pitted green olives, halved"
+            }
+          ]
+        },
+        {
+          "name": "For the coating",
+          "lines": [
+            {
+              "amount": 2,
+              "ingredient": "eggs",
+              "note": "beaten",
+              "original_text": "2 eggs, beaten"
+            },
+            {
+              "ingredient": "plain flour",
+              "note": "for coating",
+              "original_text": "Flour"
+            },
+            {
+              "ingredient": "dried breadcrumbs",
+              "note": "plain",
+              "original_text": "Plain bread crumbs"
+            },
+            {
+              "ingredient": "rapeseed oil",
+              "note": "for frying",
+              "original_text": "Canola oil"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        "Simmer the pork and chicken in the tomato sauce until cooked through, about 45 minutes; the chicken should reach 75°C in the middle.",
+        "Lift the meat out of the sauce and leave it to cool, then mince it in a food processor.",
+        "Add the chopped olives, parmesan, lemon zest, nutmeg, cinnamon, allspice and salt to the minced meat and mix them in without over-processing. Chill the mixture for at least 1 hour.",
+        "Roll the filling into balls the size of a small walnut and press half an olive on each side.",
+        "Roll each ball in flour, dip it in the beaten egg, then coat it in breadcrumbs. Arrange them on a tray. You can freeze them unfried at this point; defrost them completely before frying.",
+        "Heat about 1 cm of oil in a frying pan and fry the olives quickly, in batches, until golden brown. The meat is already cooked, so they only need to brown.",
+        "Drain on kitchen paper and serve."
       ]
     },
     {

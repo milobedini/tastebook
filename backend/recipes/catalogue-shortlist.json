@@ -1960,13 +1960,6 @@
     "batch": 6
   },
   {
-    "page": "https://en.wikibooks.org/wiki/Cookbook:Mukimo",
-    "title": "Mukimo",
-    "cuisine": "Indian",
-    "course": "Side",
-    "batch": 6
-  },
-  {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Sylheti_Biryani",
     "title": "Sylheti biryani",
     "cuisine": "Indian",
@@ -1983,6 +1976,13 @@
   {
     "page": "https://en.wikibooks.org/wiki/Cookbook:Lasagne_with_Bean_Sauce",
     "title": "Lasagne with bean sauce",
+    "cuisine": "Italian",
+    "course": "Main",
+    "batch": 6
+  },
+  {
+    "page": "https://en.wikibooks.org/wiki/Cookbook:Olive_Ascolane_(Stuffed_Fried_Olives)",
+    "title": "Olive ascolane",
     "cuisine": "Italian",
     "course": "Main",
     "batch": 6
