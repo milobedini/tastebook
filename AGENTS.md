@@ -91,7 +91,7 @@ frontend/
                     API hooks, each *.test.tsx beside its file; index.ts exports what other areas use
   src/app/          router, query client, and what belongs to no area (home and not-found pages, health check)
   src/api/          typed client (openapi-fetch) and generated schema.d.ts, shared by every area
-  src/ui/           Dino, the design-system components: shadcn/ui restyled, tokens in enamel.css until they move to Picnic; add one with pnpm --filter frontend ui:add <name>
+  src/ui/           Dino, the design-system components: shadcn/ui restyled, tokens in enamel.css until they move to Picnic; add one with pnpm --filter frontend ui:add <name>; each component's stories sit beside it (`*.stories.tsx`)
   src/lib/          shared code with at least three users (none yet)
   src/test/         MSW server and default handlers, render helpers
   e2e/              Playwright specs (run against the real backend)
@@ -120,7 +120,8 @@ From the repo root unless noted.
 | Run the frontend only        | `pnpm dev:web` (proxies `/api` to `localhost:8000`)                                         |
 | Lint and type-check frontend | `pnpm lint` (fix with `pnpm format`)                                                        |
 | Lint backend                 | `uv run ruff check . && uv run ruff format --check .` (in `backend/`)                       |
-| Frontend tests               | `pnpm test`                                                                                 |
+| Frontend tests               | `pnpm test` (runs every story in Chromium too: install it once with `pnpm --filter frontend exec playwright install chromium`) |
+| Storybook                    | `pnpm --filter frontend storybook`                                                          |
 | Backend tests                | `uv run pytest` (in `backend/`)                                                             |
 | End-to-end tests             | `pnpm test:e2e` (starts both servers; needs Postgres)                                       |
 | Regenerate the API contract  | `uv run --env-file .env python manage.py spectacular --file schema.yml` (in `backend/`), then `pnpm generate:api` |
