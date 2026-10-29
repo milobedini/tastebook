@@ -12,6 +12,7 @@
     "dev:api": "cd backend && uv run --env-file .env python manage.py runserver 8000",
     "dev:web": "pnpm --filter frontend dev",
     "build": "pnpm --filter frontend build",
+    "dino:bundle": "pnpm --filter frontend dino:bundle",
     "test": "pnpm -r test",
     "test:e2e": "pnpm --filter frontend test:e2e",
     "type-check": "pnpm -r type-check",
