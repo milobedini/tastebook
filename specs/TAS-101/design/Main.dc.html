@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Top bar on a phone</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.frame{background:var(--color-ground);border:1px solid var(--color-line);border-radius:20px;overflow:hidden;flex-shrink:0}
+.bar{border-bottom:1px solid var(--color-line)}
+.in{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:minmax(76px,auto);align-items:center;column-gap:8px;padding:0 20px}
+.in.none{grid-template-columns:minmax(0,1fr) auto;column-gap:24px}
+.wmk{display:inline-flex;align-items:center;min-height:44px;font-family:var(--font-serif);font-size:34px;line-height:36px;font-style:italic;color:var(--color-ink);text-decoration:none}
+.av{width:44px;height:44px;padding:0;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-surface);color:var(--color-ink);display:inline-grid;place-items:center;font-family:var(--font-sans);font-size:19px;line-height:24px;font-weight:800;cursor:pointer}
+.srch{grid-column:1 / -1;padding-bottom:16px}
+.page{padding:32px 20px;display:flex;flex-direction:column;gap:16px}
+.page h1{margin:0}
+.col{display:flex;flex-direction:column;gap:10px}
+.notes{display:flex;flex-direction:column;gap:12px;max-width:520px}
+.notes p{margin:0;font-size:15px;line-height:22px;font-weight:600;color:var(--color-ink)}
+.notes p b{font-weight:800}
+.ms{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted);font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="width: 1800px; height: 1300px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">TAS-101 · the top bar · phone</span>
+    <h1 class="ttl">Who’s signed in, at the top of every page</h1>
+    <span class="cap">The account end sits at the bar’s right end, after search. Signed in: the avatar, which opens the account menu. Signed out: Sign in. Not known yet: nothing, exactly as today.</span>
+  </header>
+
+  <div style="display: flex; gap: 40px; align-items: flex-start">
+
+    <div class="col">
+      <span class="cap"><b>Signed in</b> · 390 px</span>
+      <div class="frame" style="width: 390px">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <div class="page">
+          <h1>What shall we <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">cook</x-import> tonight?</h1>
+          <span class="cap">24 recipes</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Signed out</b> · 390 px</span>
+      <div class="frame" style="width: 390px">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <x-import component-from-global-scope="Dino.Button" variant="secondary">Sign in</x-import>
+        </div></header>
+        <div class="page">
+          <h1>What shall we <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">cook</x-import> tonight?</h1>
+          <span class="cap">24 recipes</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Signed in, search open</b> · 390 px</span>
+      <div class="frame" style="width: 390px">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes" aria-expanded="true"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+          <div class="srch"><x-import component-from-global-scope="Dino.SearchInput" value="chickpea" on-value-change="{{noop}}" placeholder="Search recipes" aria-label="Search recipes"></x-import></div>
+        </div></header>
+        <div class="page">
+          <h1>What shall we <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">cook</x-import> tonight?</h1>
+          <span class="cap">3 recipes</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Not known yet</b> (no account passed) · 390 px · as today</span>
+      <div class="frame" style="width: 390px">
+        <header class="bar"><div class="in none">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+        </div></header>
+        <div class="page">
+          <h1>What shall we <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">cook</x-import> tonight?</h1>
+          <span class="cap">24 recipes</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="display: flex; gap: 40px; align-items: flex-start">
+
+    <div class="col">
+      <span class="cap"><b>Signed in</b> · 320 px</span>
+      <div class="frame" style="width: 320px">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <div class="page">
+          <h1>What shall we <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">cook</x-import> tonight?</h1>
+          <span class="cap">24 recipes</span>
+        </div>
+      </div>
+      <span class="ms">119 + 8 + 44 + 8 + 44 = 223 of 280 px</span>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Signed out</b> · 320 px, the tightest</span>
+      <div class="frame" style="width: 320px">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <x-import component-from-global-scope="Dino.Button" variant="secondary">Sign in</x-import>
+        </div></header>
+        <div class="page">
+          <h1>What shall we <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">cook</x-import> tonight?</h1>
+          <span class="cap">24 recipes</span>
+        </div>
+      </div>
+      <span class="ms">119 + 8 + 44 + 8 + 93 = 272 of 280 px</span>
+    </div>
+
+    <div class="notes">
+      <span class="cap">How it’s put together</span>
+      <p><b>8 px between the bar’s columns on a phone.</b> With today’s 24 px gaps, signed out doesn’t fit at 320 px (wordmark 119, search 44, Sign in 93: 304 of 280 px). At 8 px it fits with 8 px to spare; the wordmark’s column still takes the free space, so at 390 px nothing looks closer. From 640 px up the gap is 24 px again.</p>
+      <p><b>Sign in is a secondary Button</b>, a 2 px Field outline: peach stays for the page’s own main action, and a ghost Sign in would read as text beside the search circle.</p>
+      <p><b>The avatar is a 44 px Surface circle</b>, like the search button beside it, with the name’s first letter in Label L. It never takes a pastel.</p>
+      <p><b>Search open</b> keeps its own line under the row, now spanning all three columns; the avatar stays in row 1.</p>
+      <p><b>Tab order:</b> wordmark, search, account. On a phone the search field, once open, comes before the account end in the DOM too.</p>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1800,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { icons: window.Dino.icons, yes: true, noop: function () {} };
+  }
+}
+</script>
+</body>
+</html>
