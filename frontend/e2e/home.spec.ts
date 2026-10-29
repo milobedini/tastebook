@@ -40,3 +40,39 @@ test('stays dark whatever colour scheme the phone asks for', async ({ page }) =>
     await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
   }
 });
+
+type WebManifest = {
+  name: string;
+  display: string;
+  theme_color: string;
+  background_color: string;
+  icons: { src: string }[];
+};
+
+test('can be added to a home screen with the mark as its icon', async ({ page }) => {
+  await page.goto('/');
+
+  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', '#1c1233');
+  await expect(page.locator('meta[name="viewport"]')).toHaveAttribute('content', /viewport-fit=cover/);
+
+  const manifestHref = await page.locator('link[rel="manifest"]').getAttribute('href');
+  const manifest: WebManifest = await (await page.request.get(manifestHref ?? '')).json();
+  expect(manifest).toMatchObject({
+    name: 'Tastebook',
+    display: 'standalone',
+    theme_color: '#1c1233',
+    background_color: '#1c1233'
+  });
+
+  const iconLinks = await page
+    .locator('link[rel="icon"], link[rel="apple-touch-icon"]')
+    .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''));
+  const icons = [...iconLinks, ...manifest.icons.map(({ src }) => src)];
+  expect(icons).toEqual(
+    expect.arrayContaining(['/favicon.svg', '/apple-touch-icon.png', '/icon-192.png', '/icon-512.png'])
+  );
+  const contentTypes = await Promise.all(
+    icons.map(async (href) => (await page.request.get(href)).headers()['content-type'])
+  );
+  expect(contentTypes).toEqual(icons.map(() => expect.stringMatching(/^image\//)));
+});
