@@ -405,7 +405,14 @@ describe('RecipePage', () => {
     await userEvent.click(within(ingredients).getByRole('button', { name: 'Fewer servings' }));
 
     expect(within(ingredients).getByRole('status')).toHaveTextContent('Serves 1');
-    expect(within(ingredients).getByRole('button', { name: 'Fewer servings' })).toBeDisabled();
+    expect(within(ingredients).getByRole('button', { name: 'Fewer servings' })).toHaveAttribute(
+      'aria-disabled',
+      'true'
+    );
+
+    await userEvent.click(within(ingredients).getByRole('button', { name: 'Fewer servings' }));
+
+    expect(within(ingredients).getByRole('status')).toHaveTextContent('Serves 1');
     expect(amounts()).toEqual([
       ['0.75 tbsp olive oil', '1–2 eggs', 'salt, to taste'],
       ['1 onion, finely chopped', '1 clove garlic, crushed', '1 tin chopped tomatoes'],
