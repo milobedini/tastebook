@@ -1,20 +1,51 @@
 import { ChevronDown } from 'lucide-react';
-import type { ComponentProps } from 'react';
+import type { ComponentProps, KeyboardEvent, MouseEvent } from 'react';
 
 import { cn } from '@/dino/cn';
 
-export const NativeSelect = ({ className, ...props }: ComponentProps<'select'>) => (
-  <div className="relative">
-    <select
-      className={cn(
-        'h-11 w-full min-w-0 cursor-pointer appearance-none rounded-pill border border-field bg-surface pr-10 pl-3 text-body text-ink disabled:cursor-not-allowed disabled:bg-surface disabled:text-muted aria-invalid:border-2 aria-invalid:border-danger',
-        className
-      )}
-      {...props}
-    />
-    <ChevronDown
-      aria-hidden="true"
-      className="pointer-events-none absolute top-1/2 right-3 size-4.5 -translate-y-1/2 text-muted"
-    />
-  </div>
-);
+// Disabled is aria-disabled, never disabled, so the select stays focusable (docs/design.md, States).
+type NativeSelectProps = Omit<ComponentProps<'select'>, 'disabled'>;
+
+const isAriaDisabled = (value: NativeSelectProps['aria-disabled']) => value === true || value === 'true';
+
+export const NativeSelect = ({ className, onMouseDown, onKeyDown, ...props }: NativeSelectProps) => {
+  const isDisabled = isAriaDisabled(props['aria-disabled']);
+
+  // Blocks opening and changing the value; Tab still moves focus on.
+  const mouseDown = (event: MouseEvent<HTMLSelectElement>) => {
+    if (isDisabled) {
+      event.preventDefault();
+    }
+    onMouseDown?.(event);
+  };
+  const keyDown = (event: KeyboardEvent<HTMLSelectElement>) => {
+    if (isDisabled && event.key !== 'Tab') {
+      event.preventDefault();
+    }
+    onKeyDown?.(event);
+  };
+
+  return (
+    <div className="relative">
+      <select
+        className={cn(
+          'h-12 w-full min-w-0 cursor-pointer appearance-none rounded-pill border-2 border-field bg-transparent pr-11.5 pl-4.5 font-bold text-body text-ink transition-colors',
+          'hover:not-aria-invalid:not-aria-disabled:border-muted',
+          'focus-visible:not-aria-invalid:border-ink focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-ink',
+          'aria-invalid:border-danger',
+          'aria-disabled:cursor-not-allowed aria-disabled:border-dashed aria-disabled:bg-surface aria-disabled:text-muted',
+          'forced-colors:aria-disabled:border-[GrayText] forced-colors:aria-disabled:text-[GrayText]',
+          className
+        )}
+        onMouseDown={mouseDown}
+        onKeyDown={keyDown}
+        {...props}
+      />
+      <ChevronDown
+        aria-hidden="true"
+        strokeWidth={2.5}
+        className="pointer-events-none absolute top-3.5 right-4 size-5 text-muted"
+      />
+    </div>
+  );
+};

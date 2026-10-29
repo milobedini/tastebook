@@ -1,5 +1,4 @@
 import { CookingPot, SlidersHorizontal } from 'lucide-react';
-import type { ChangeEvent } from 'react';
 import { useCallback, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
@@ -40,11 +39,13 @@ const withParam = (params: URLSearchParams, name: string, value: string) => {
 
 type RecipeSearchProps = {
   value: string;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onValueChange: (text: string) => void;
 };
 
-const RecipeSearch = ({ value, onChange }: RecipeSearchProps) => (
-  <Field label="Search recipes">{(control) => <SearchInput {...control} value={value} onChange={onChange} />}</Field>
+const RecipeSearch = ({ value, onValueChange }: RecipeSearchProps) => (
+  <Field label="Search recipes" hideLabel>
+    {(control) => <SearchInput {...control} value={value} onValueChange={onValueChange} placeholder="Search recipes" />}
+  </Field>
 );
 
 type RecipesUnavailableProps = {
@@ -165,8 +166,7 @@ export const RecipesPage = () => {
   const searchTerm = toSearchTerm(useDebouncedValue(searchText, SEARCH_DELAY_MS));
 
   const handleSearchChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const text = event.target.value;
+    (text: string) => {
       setSearchText(text);
       setSearchParams((params) => withParam(params, 'q', text), { replace: true });
     },
@@ -201,7 +201,7 @@ export const RecipesPage = () => {
       <h1>Recipes</h1>
       {/* No form: results follow the typing and the chips, so Enter has nothing to submit. */}
       <search className="flex flex-col gap-4">
-        <RecipeSearch value={searchText} onChange={handleSearchChange} />
+        <RecipeSearch value={searchText} onValueChange={handleSearchChange} />
         <Button
           ref={filtersButton}
           variant="secondary"

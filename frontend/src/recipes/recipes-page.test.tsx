@@ -424,6 +424,18 @@ describe('RecipesPage', () => {
     expect(searches).toEqual(['tart', null]);
   });
 
+  it('clears the search with its clear button', async () => {
+    answerSearches({ tart: [appleTart], '': [appleTart, bananaBread] });
+    const { router } = renderRoute('/recipes?q=tart');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+
+    expect(searchBox()).toHaveValue('');
+    expect(searchBox()).toHaveFocus();
+    expect(router.state.location.search).toBe('');
+    expect(screen.queryByRole('button', { name: 'Clear search' })).not.toBeInTheDocument();
+  });
+
   it('keeps the previous results while a search loads', async () => {
     renderRoute('/recipes');
     await screen.findByText('Banana bread');
