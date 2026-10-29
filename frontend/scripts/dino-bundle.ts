@@ -143,17 +143,11 @@ const resolveVars = (value: string) =>
   value.replace(/var\(--([\w-]+)\)/g, (match, name: string) => declared(name) ?? match);
 
 const colours = declarations
-  .filter(({ name }) => name.startsWith('color-') || name.startsWith('cuisine-'))
+  .filter(({ name }) => name.startsWith('color-'))
   .map(({ name, value, comment }) => ({
     name,
     value,
-    usage:
-      colourUses.get(name) ??
-      (name.startsWith('cuisine-')
-        ? `The ${sentence(name.slice('cuisine-'.length)).slice(0, -1)} cuisine plate. ${comment ? sentence(comment) : ''}`.trim()
-        : comment
-          ? sentence(comment)
-          : `Tailwind's ${name.replace('color-', '')} colour.`)
+    usage: colourUses.get(name) ?? (comment ? sentence(comment) : `Tailwind's ${name.replace('color-', '')} colour.`)
   }));
 
 const shapeNote = "docs/design.md's Space and shape";

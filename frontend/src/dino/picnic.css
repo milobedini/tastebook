@@ -96,6 +96,8 @@
   --shadow-press: 0 5px 0 var(--color-on-pastel);
   --shadow-press-sunk: 0 2px 0 var(--color-on-pastel);
   --shadow-lift: 0 12px 28px rgb(0 0 0 / 0.35);
+  --shadow-lift-hover: 0 18px 36px rgb(0 0 0 / 0.42);
+  --shadow-lift-pressed: 0 6px 14px rgb(0 0 0 / 0.35);
   --inset-shadow-*: initial;
   --drop-shadow-*: initial;
   --text-shadow-*: initial;
@@ -106,14 +108,11 @@
 
 :root {
   color-scheme: dark;
-  /* Picked by a recipe's cuisine slug at run time, never as a utility class; they go with the cuisine plate (TAS-81). */
-  --cuisine-italian: #e2583e;
-  --cuisine-indian: #e0a526;
-  --cuisine-japanese: #4e7a5a;
-  --cuisine-mexican: #b8342c;
-  --cuisine-french: #7c8f4e;
-  --cuisine-other: #6a5acd;
 }
+
+/* Browser and phone zoom narrow the viewport in CSS px, and em in a media query follows the browser's text size,
+   so a viewport under 17.5em catches both at about 150% and up on a phone. */
+@custom-variant large-text (@media (width < 17.5em));
 
 @layer base {
   body {
