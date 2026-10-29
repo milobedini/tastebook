@@ -23,10 +23,14 @@ export const Default = {
   play: async ({ canvasElement }) => {
     const chip = within(canvasElement).getByRole('button', { name: 'Under 30 min' });
     await expect(chip).toHaveAttribute('aria-pressed', 'false');
+    await expect(chip).toHaveStyle({ rotate: 'none' });
+    await expect(chip.querySelector('svg')).toBeNull();
     await userEvent.click(chip);
     await expect(chip).toHaveAttribute('aria-pressed', 'true');
+    await expect(chip.querySelectorAll('svg')).toHaveLength(1);
     await userEvent.click(chip);
     await expect(chip).toHaveAttribute('aria-pressed', 'false');
+    await expect(chip.querySelector('svg')).toBeNull();
   }
 } satisfies Story;
 export const IsHover = { parameters: isHover } satisfies Story;
@@ -37,7 +41,33 @@ export const IsOn = {
   play: async ({ canvasElement }) => {
     const chip = within(canvasElement).getByRole('button', { name: 'Under 30 min' });
     await expect(chip).toHaveStyle({ backgroundColor: 'rgb(143, 227, 192)' });
+    await expect(chip.querySelector('svg')).not.toBeNull();
   }
 } satisfies Story;
 export const IsOnIsHover = { args: { pressed: true }, parameters: isHover } satisfies Story;
 export const IsOnIsPressed = { args: { pressed: true }, parameters: isPressed } satisfies Story;
+
+const TiltedChip = ({ label, tilt, on = false }: { label: string; tilt: 'left' | 'right'; on?: boolean }) => {
+  const [pressed, setPressed] = useState(on);
+  return (
+    <FilterChip pressed={pressed} onPressedChange={setPressed} tilt={tilt}>
+      {label}
+    </FilterChip>
+  );
+};
+
+export const Tilted = {
+  render: () => (
+    <div className="flex flex-wrap gap-2">
+      <TiltedChip label="Quick" tilt="left" on />
+      <TiltedChip label="Veggie" tilt="right" />
+      <TiltedChip label="One-pot" tilt="left" />
+      <TiltedChip label="Sweet" tilt="right" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('button', { name: 'Quick' })).toHaveStyle({ rotate: '-1.5deg' });
+    await expect(canvas.getByRole('button', { name: 'Veggie' })).toHaveStyle({ rotate: '1.5deg' });
+  }
+} satisfies Story;

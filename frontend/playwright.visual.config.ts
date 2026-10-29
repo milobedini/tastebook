@@ -2,7 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 
 const isCi = Boolean(process.env.CI);
 
-// Screenshots every story in the built Storybook (storybook-static) against its committed baseline.
+// Screenshots every story in the built Storybook (storybook-static) against its committed baseline, once as it
+// looks and once under forced colours.
 export default defineConfig({
   testDir: './visual',
   snapshotPathTemplate: '{testDir}/baselines/{arg}{ext}',
@@ -27,6 +28,17 @@ export default defineConfig({
     {
       name: 'phone',
       use: { ...devices['Desktop Chrome'], viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 }
+    },
+    {
+      // docs/design.md (Rules: Shape, State) says chosen states keep their icon and controls their outline here.
+      name: 'forced-colours',
+      snapshotPathTemplate: '{testDir}/baselines/forced-colours/{arg}{ext}',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 390, height: 844 },
+        deviceScaleFactor: 1,
+        forcedColors: 'active'
+      }
     }
   ],
   webServer: {
