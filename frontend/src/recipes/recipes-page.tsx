@@ -177,7 +177,8 @@ export const RecipesPage = () => {
   const filters = readFilters(searchParams);
   const changeFilters = useCallback(
     (next: RecipeFilters) => {
-      setSearchParams((params) => writeFilters(params, next), { replace: true });
+      // Each change builds on the filters last rendered, so it renders at once, not in a transition a second tap could overtake.
+      setSearchParams((params) => writeFilters(params, next), { replace: true, flushSync: true });
     },
     [setSearchParams]
   );
