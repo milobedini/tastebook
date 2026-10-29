@@ -25,7 +25,7 @@ export default mergeConfig(
           // Vite finds these only once a story imports them, then re-bundles and reloads the page mid-run, which can
           // leave a story's iframe never ready.
           optimizeDeps: {
-            include: ['@sentry/react', '@tanstack/react-query', 'cmdk', 'openapi-fetch', 'react-router/dom']
+            include: ['@sentry/react', '@tanstack/react-query', 'openapi-fetch', 'react-router/dom']
           },
           test: {
             name: 'storybook',

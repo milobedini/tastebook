@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { expect, test } from '@playwright/test';
 
 import { boardByTitle } from '../src/dino/boards.ts';
@@ -17,7 +17,6 @@ declare global {
 
 const repoRoot = join(import.meta.dirname, '..', '..');
 const indexPath = join(import.meta.dirname, '..', 'storybook-static', 'index.json');
-const baselinesDir = join(import.meta.dirname, 'baselines');
 
 if (!existsSync(indexPath)) {
   throw new Error('Build Storybook first: pnpm --filter frontend build-storybook');
@@ -47,6 +46,8 @@ stories.map(({ id, title, name }) =>
 
 test('every baseline has a story', () => {
   const storyIds = new Set(stories.map(({ id }) => id));
+  // Each project keeps its own baselines (snapshotPathTemplate), so check the running project's.
+  const baselinesDir = dirname(test.info().snapshotPath('any.png', { kind: 'screenshot' }));
   const baselines = existsSync(baselinesDir) ? readdirSync(baselinesDir).filter((file) => file.endsWith('.png')) : [];
   const orphans = baselines.map((file) => file.slice(0, -'.png'.length)).filter((id) => !storyIds.has(id));
 

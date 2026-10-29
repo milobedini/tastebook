@@ -46,9 +46,9 @@ test('switching to US customary converts a catalogue recipe through the real API
   await page.goto('/recipes/oat-and-raisin-cookies');
 
   const units = page.getByRole('group', { name: 'Units' });
-  await expect(units.getByRole('button', { name: 'Metric' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(units.getByRole('radio', { name: 'Metric' })).toBeChecked();
 
-  await units.getByRole('button', { name: 'US' }).click();
+  await units.getByRole('radio', { name: 'US' }).check();
 
   await expect(page.getByRole('region', { name: 'Ingredients' }).getByRole('listitem')).toHaveText([
     '4.5 oz unsalted butter, softened',

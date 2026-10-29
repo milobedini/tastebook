@@ -5,7 +5,7 @@ import { afterAll, afterEach, beforeAll } from 'vitest';
 
 import { server } from './server';
 
-// jsdom lays nothing out, so it has neither; Radix's Popover measures with one and cmdk scrolls its active option.
+// jsdom lays nothing out, so it has neither; Radix measures with one and the combobox scrolls its active option.
 globalThis.ResizeObserver ??= class {
   observe() {}
   unobserve() {}
