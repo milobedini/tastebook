@@ -4,7 +4,7 @@ Canvas: https://claude.ai/artifact/V6jwKtEfj9Z78HLqo43xS8
 
 ## Boards
 
-- `Main.dc.html` (1320 × 2000), **Switch**: every state (off and on, each at rest, hover, pressed, focus and disabled with its reason), anatomy, motion, forced colours, the switch beside Dino's checkbox row and filter chip, what it can grow into, and an interactive "Try it".
+- `Main.dc.html` (1320 × 2000, now `docs/design/dino/switch.dc.html` with its PNG), **Switch**: every state (off and on, each at rest, hover, pressed, focus and disabled with its reason), anatomy, motion, forced colours, the switch beside Dino's checkbox row and filter chip, what it can grow into, and an interactive "Try it".
 - `Phone.dc.html` (390 × 660), **Switch at phone width**: switches stacked as a list with hairlines, a disabled row with its reason, and a long label wrapping at 320 px.
 
 ## Decisions
