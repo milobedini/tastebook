@@ -166,6 +166,7 @@ The set lives in `frontend/src/dino/` (Dino: shadcn/ui, restyled) and is exporte
 | Stepper | Servings: minus (outlined), "Serves 4", plus (mint), or a yield: "Makes 16 cookies"; the count is announced (`aria-live="polite"`). |
 | Segmented control | Two to four options, one chosen, as native radios in a Surface track: the chosen one is mint with a check. One tab stop; arrow keys move the choice. |
 | Checkbox row | Shopping list rows: 48 px tall, a 28 px box with 10 px corners; ticked, the box fills mint with a check and the row is struck through in muted and moves to the end of its group. |
+| Switch | Turns one thing on or off ([`design/dino/switch.dc.html`](design/dino/switch.dc.html)): the label first in Body, the switch at the row's end, and the whole row (48 px tall, 8 px padding, 16 px gap) is the target, its hover fill and focus ring on the row as on the checkbox row. The track is a 52 × 32 px pill: off, a 2 px Field border and a Muted thumb at the start; on, mint with a 2 px transparent border and an On pastel thumb at the end holding a mint check, so on never rests on colour alone. The thumb slides 20 px in 120 ms. Hover turns off's border Ink and on's mint to its hover; pressed shrinks the switch to 94%. Disabled keeps its thumb's end and check, in Field, on a Surface track with a dashed border, under a Muted label and over its reason. |
 | Polaroid card | Replaces Recipe card: a polaroid with the recipe's name as its caption; meta below it in Small muted where the list needs it. The focus ring is square round the card and its meta, untilted. |
 | Note | A butter panel for heads-ups ("Left out salt, water and vegetable oil: you probably have them"), with at most one action, an On pastel outlined button. |
 | Banner | A 2 px border in a status colour with its icon, on Surface: warning for an import's gaps, success for a clean import, danger for a failure. At most one action, under its text. |
@@ -224,4 +225,4 @@ Review checks new UI against these.
 
 ## Still to settle
 
-Designed when a project needs them: the Accounts and households components (avatar, menu, text area, switch, tabs, app bar), and cooking mode's timer and step view beyond the Picnic board. Each built screen still gets its own forced-colours check; the Dino boards checked the components.
+Designed when a project needs them: the Accounts and households components (avatar, menu, text area, tabs, app bar), and cooking mode's timer and step view beyond the Picnic board. Each built screen still gets its own forced-colours check; the Dino boards checked the components.

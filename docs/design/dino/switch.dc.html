@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Dino in Picnic: switch</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.pn{color-scheme:dark}
+.serif{font-family:var(--font-serif);font-weight:400}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.h2{margin:0;font-size:28px;line-height:30px;font-style:italic}
+.spec{display:flex;flex-direction:column;align-items:stretch;gap:10px;min-width:0}
+.grid5{display:grid;grid-template-columns:repeat(5, minmax(0, 1fr));gap:28px 32px;align-items:start}
+.field{display:flex;flex-direction:column;gap:4px}
+.sw-row{display:flex;align-items:flex-start;gap:16px;min-height:48px;box-sizing:border-box;padding:8px;margin:0 -8px;border-radius:var(--radius-row);font:600 16px/24px var(--font-sans);color:var(--color-ink);cursor:pointer;transition:background-color 120ms ease-out}
+.sw-label{flex-grow:1;min-width:0;padding-top:4px}
+.sw-row:hover,.sw-row.is-hover{background:var(--color-surface)}
+.sw-row:has(.sw:focus-visible),.sw-row.is-focus{outline:3px solid var(--color-ink);outline-offset:-1px}
+.sw{position:relative;flex-shrink:0;width:52px;height:32px;margin:0;padding:0;box-sizing:border-box;border-radius:var(--radius-pill);border:2px solid var(--color-field);background:transparent;cursor:pointer;transition:background-color 120ms ease-out,border-color 120ms ease-out,transform 120ms ease-out}
+.sw:focus-visible{outline:none}
+.th{position:absolute;top:4px;left:4px;width:20px;height:20px;box-sizing:border-box;border-radius:var(--radius-pill);border:2px solid transparent;background:var(--color-muted);color:var(--color-mint);display:flex;align-items:center;justify-content:center;transition:translate 120ms ease-out,background-color 120ms ease-out}
+.sw-row:hover .sw[aria-checked="false"]:not([aria-disabled="true"]),.sw-row.is-hover .sw[aria-checked="false"]{border-color:var(--color-ink)}
+.sw-row:active .sw:not([aria-disabled="true"]),.sw-row.is-pressed .sw{transform:scale(0.94)}
+.sw-row.is-pressed .sw[aria-checked="false"]{border-color:var(--color-ink);background:var(--color-line)}
+.sw[aria-checked="true"]{background:var(--color-mint);border-color:transparent}
+.sw[aria-checked="true"] .th{translate:20px 0;background:var(--color-on-pastel)}
+.sw-row:hover .sw[aria-checked="true"]:not([aria-disabled="true"]),.sw-row.is-hover .sw[aria-checked="true"]{background:var(--color-mint-hover)}
+.sw-row.is-pressed .sw[aria-checked="true"]{background:var(--color-mint-pressed)}
+.sw-row.is-off{cursor:not-allowed;color:var(--color-muted)}
+.sw-row.is-off:hover{background:transparent}
+.sw[aria-disabled="true"]{cursor:not-allowed;background:var(--color-surface);border:2px dashed var(--color-field)}
+.sw[aria-disabled="true"] .th{background:var(--color-field);color:var(--color-ground)}
+.reason{margin:0;display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.reason svg{flex-shrink:0;margin-top:1px}
+.hc{background:#000000;color:#ffffff;border-radius:16px;padding:12px 16px;display:flex;flex-direction:column;gap:2px;font:600 16px/24px var(--font-sans)}
+.hc .r{display:flex;align-items:center;gap:16px;min-height:48px;padding:0 8px;margin:0 -8px;border-radius:14px}
+.hc .r span{flex-grow:1}
+.hc .t{position:relative;width:52px;height:32px;box-sizing:border-box;border-radius:999px;border:2px solid #ffffff;flex-shrink:0}
+.hc .k{position:absolute;top:4px;left:4px;width:20px;height:20px;box-sizing:border-box;border-radius:999px;border:2px solid #ffffff;display:flex;align-items:center;justify-content:center}
+.hc .on .k{left:24px}
+.hc .off{color:#3ff23f}
+.hc .off .t{border-style:dashed;border-color:#3ff23f}
+.hc .off .k{border-color:#3ff23f}
+.hc .ring{outline:3px solid #ffffff;outline-offset:-1px}
+.v{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:13px;font-size:13px;font-weight:800;color:var(--color-on-pastel);background:var(--color-success);align-self:flex-start}
+.dl{margin:0;display:grid;grid-template-columns:120px minmax(0, 1fr);gap:8px 16px;font-size:15px;line-height:22px}
+.dl dt{font-weight:800}
+.dl dd{margin:0;font-weight:600;color:var(--color-muted)}
+.panel{display:flex;flex-direction:column;gap:18px}
+@media (prefers-reduced-motion: reduce){.sw,.th,.sw-row{transition:none}}
+</style>
+</helmet>
+<div class="pn" style="width: 1320px; height: 2000px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 48px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">Dino in Picnic · TAS-113</span>
+    <h1 class="serif" style="margin: 0; font-size: 46px; line-height: 44px">Switch</h1>
+    <span class="cap">Turns one thing on or off. A visible label with the switch at the row’s end; the whole row is the target. Mint and a check mean on.</span>
+  </header>
+
+  <section aria-labelledby="states" class="panel">
+    <h2 id="states" class="serif h2">States</h2>
+    <div class="grid5">
+      <div class="spec">
+        <label class="sw-row"><span class="sw-label">Public</span><button type="button" role="switch" aria-checked="false" class="sw"><span class="th"></span></button></label>
+        <span class="cap">Off</span>
+      </div>
+      <div class="spec">
+        <label class="sw-row is-hover"><span class="sw-label">Public</span><button type="button" role="switch" aria-checked="false" class="sw"><span class="th"></span></button></label>
+        <span class="cap">Off · hover: the row fills Surface, the track’s border turns Ink</span>
+      </div>
+      <div class="spec">
+        <label class="sw-row is-pressed"><span class="sw-label">Public</span><button type="button" role="switch" aria-checked="false" class="sw"><span class="th"></span></button></label>
+        <span class="cap">Off · pressed: the switch shrinks to 94%, the track fills Line</span>
+      </div>
+      <div class="spec">
+        <label class="sw-row is-focus"><span class="sw-label">Public</span><button type="button" role="switch" aria-checked="false" class="sw"><span class="th"></span></button></label>
+        <span class="cap">Focus · off: a 3 px Ink ring round the row, flush</span>
+      </div>
+      <div class="spec">
+        <div class="field">
+          <label class="sw-row is-off"><span class="sw-label">Public</span><button type="button" role="switch" aria-checked="false" aria-disabled="true" class="sw"><span class="th"></span></button></label>
+          <p class="reason"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>Add a photo before making it public.</p>
+        </div>
+        <span class="cap">Disabled · off: Surface, dashed Field, Muted label, the reason under it</span>
+      </div>
+
+      <div class="spec">
+        <label class="sw-row"><span class="sw-label">Public</span><button type="button" role="switch" aria-checked="true" class="sw"><span class="th"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span></button></label>
+        <span class="cap">On: mint track, the thumb at the end with a check</span>
+      </div>
+      <div class="spec">
+        <label class="sw-row is-hover"><span class="sw-label">Public</span><button type="button" role="switch" aria-checked="true" class="sw"><span class="th"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span></button></label>
+        <span class="cap">On · hover: mint moves 20% towards Ink</span>
+      </div>
+      <div class="spec">
+        <label class="sw-row is-pressed"><span class="sw-label">Public</span><button type="button" role="switch" aria-checked="true" class="sw"><span class="th"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span></button></label>
+        <span class="cap">On · pressed: 94%, mint moves 14% towards On pastel</span>
+      </div>
+      <div class="spec">
+        <label class="sw-row is-focus"><span class="sw-label">Public</span><button type="button" role="switch" aria-checked="true" class="sw"><span class="th"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span></button></label>
+        <span class="cap">Focus · on</span>
+      </div>
+      <div class="spec">
+        <div class="field">
+          <label class="sw-row is-off"><span class="sw-label">Public</span><button type="button" role="switch" aria-checked="true" aria-disabled="true" class="sw"><span class="th"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span></button></label>
+          <p class="reason"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>Add a photo before making it public.</p>
+        </div>
+        <span class="cap">Disabled · on: the thumb keeps its end and its check, in Field</span>
+      </div>
+    </div>
+  </section>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px; align-items: start">
+    <section aria-labelledby="anat" class="panel">
+      <h2 id="anat" class="serif h2">Anatomy</h2>
+      <div style="display: flex; gap: 40px; align-items: flex-start">
+        <div aria-hidden="true" style="width: 104px; height: 64px; flex-shrink: 0; padding-top: 8px">
+          <div style="width: 52px; height: 32px; transform: scale(2); transform-origin: 0 0">
+            <span class="sw" style="display: block" aria-checked="true"><span class="th" style="translate: 20px 0; background: var(--color-on-pastel)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span></span>
+          </div>
+        </div>
+        <dl class="dl">
+          <dt>Track</dt><dd>52 × 32 px, pill. Off: 2 px Field border, no fill (4.9:1 on Ground). On: Mint, with a 2 px transparent border.</dd>
+          <dt>Thumb</dt><dd>20 px circle, 4 px in from the track. Off: Muted, at the start. On: On pastel at the end, a 12 px check in Mint (currentColor).</dd>
+          <dt>Row</dt><dd>48 px tall, like the checkbox row (44 at least); 8 px padding, 16 px gap. Label in Body, Ink, first; the switch at the end.</dd>
+          <dt>Focus</dt><dd>On the row, not the switch: 3 px Ink, 14 px corners (radius-row), never standing off the pill.</dd>
+          <dt>Reason</dt><dd>Small, Muted, after an Info icon; tied to the switch with aria-describedby.</dd>
+        </dl>
+      </div>
+    </section>
+
+    <section aria-labelledby="motion" class="panel">
+      <h2 id="motion" class="serif h2">Motion</h2>
+      <div style="display: flex; align-items: center; gap: 20px" aria-hidden="true">
+        <span class="sw" style="display: block"><span class="th"></span></span>
+        <svg width="28" height="16" viewBox="0 0 28 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-muted)"><path d="M2 8h22M18 2l6 6-6 6"></path></svg>
+        <span class="sw" style="display: block; border-color: transparent; background: color-mix(in oklab, var(--color-mint) 50%, var(--color-ground))"><span class="th" style="translate: 10px 0; background: var(--color-on-pastel)"></span></span>
+        <svg width="28" height="16" viewBox="0 0 28 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-muted)"><path d="M2 8h22M18 2l6 6-6 6"></path></svg>
+        <span class="sw" style="display: block" aria-checked="true"><span class="th" style="translate: 20px 0; background: var(--color-on-pastel)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span></span>
+      </div>
+      <p style="margin: 0; font-size: 15px; line-height: 22px; font-weight: 600; color: var(--color-muted); max-width: 52ch">The thumb slides 20 px and the track fills in 120 ms, ease-out; the check appears with the fill. With reduce motion on, it changes at once. Nothing else moves.</p>
+    </section>
+  </div>
+
+  <section aria-labelledby="fc" class="panel">
+    <h2 id="fc" class="serif h2">Forced colours</h2>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px; align-items: start">
+      <div class="hc" aria-hidden="true">
+        <div class="r"><span>Public</span><span class="t" style="flex-grow: 0"><span class="k"></span></span></div>
+        <div class="r on ring"><span>Share link</span><span class="t" style="flex-grow: 0"><span class="k"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span></span></div>
+        <div class="r off"><span>Public</span><span class="t" style="flex-grow: 0"><span class="k"></span></span></div>
+        <div class="r off on"><span>Public</span><span class="t" style="flex-grow: 0"><span class="k"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span></span></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start">
+        <span class="v">Holds</span>
+        <p style="margin: 0; font-size: 15px; line-height: 22px; font-weight: 600; color: var(--color-muted)">Simulated in High Contrast Black: off, on with focus, disabled off, disabled on. Fills drop, but the track’s and thumb’s 2 px borders are drawn, so on still shows by the thumb’s end and its check, never by colour. The ring is drawn in CanvasText, as on the checkbox row; disabled stays dashed in GrayText.</p>
+      </div>
+    </div>
+  </section>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px; align-items: start">
+    <section aria-labelledby="fam" class="panel">
+      <h2 id="fam" class="serif h2">Beside its family</h2>
+      <div style="display: flex; flex-direction: column; gap: 16px; width: 360px">
+        <x-import component-from-global-scope="Dino.CheckboxRow" checked="{{yes}}" amount="400 g" on-checked-change="{{noop}}">Tinned tomatoes</x-import>
+        <div style="display: flex; gap: 8px">
+          <x-import component-from-global-scope="Dino.FilterChip" pressed="{{yes}}" on-pressed-change="{{noop}}">Quick</x-import>
+          <x-import component-from-global-scope="Dino.FilterChip" pressed="{{no}}" on-pressed-change="{{noop}}">Veggie</x-import>
+        </div>
+        <label class="sw-row"><span class="sw-label">Public</span><button type="button" role="switch" aria-checked="true" class="sw"><span class="th"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span></button></label>
+      </div>
+      <span class="cap">Dino’s checkbox row and filter chip, live: mint with a check means chosen, and a whole row is the target. The switch says the same.</span>
+    </section>
+
+    <section aria-labelledby="grow" class="panel">
+      <h2 id="grow" class="serif h2">What it can grow into</h2>
+      <div style="width: 360px; display: flex; flex-direction: column; gap: 4px">
+        <label class="sw-row"><span class="sw-label" style="display: flex; flex-direction: column; gap: 2px">Share link<span style="font-size: 13px; line-height: 17px; font-weight: 700; color: var(--color-muted)">Anyone with the link can see this list.</span></span><button type="button" role="switch" aria-checked="false" class="sw"><span class="th"></span></button></label>
+      </div>
+      <span class="cap">Not in this issue. One component, Switch, so later needs are variants of it: a help line under the label (Small, Muted, tied with aria-describedby) when a project asks; a busy state that keeps the switch’s size and takes aria-busy, if saving it ever waits on the server; a group of switches under one heading, as a list with hairlines.</span>
+    </section>
+  </div>
+
+  <section aria-labelledby="try" class="panel">
+    <h2 id="try" class="serif h2">Try it</h2>
+    <div style="display: flex; gap: 56px; align-items: flex-start">
+      <div style="width: 300px">
+        <label class="sw-row"><span class="sw-label">Public</span><button type="button" role="switch" aria-checked="{{pubState}}" class="sw" onClick="{{togglePub}}"><span class="th"><sc-if value="{{pub}}" hint-placeholder-val="{{false}}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></sc-if></span></button></label>
+      </div>
+      <div style="width: 300px" class="field">
+        <label class="sw-row is-off"><span class="sw-label">Share link</span><button type="button" role="switch" aria-checked="false" aria-disabled="true" aria-describedby="try-reason" class="sw"><span class="th"></span></button></label>
+        <p id="try-reason" class="reason"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>Make the recipe public first.</p>
+      </div>
+    </div>
+    <span class="cap">In Play: press the row or Tab to it and press Space. The disabled one takes focus and reads its reason, but doesn’t change.</span>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":2000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { pub: false };
+  }
+  renderVals() {
+    const pub = this.state.pub;
+    return {
+      yes: true,
+      no: false,
+      noop: () => {},
+      pub,
+      pubState: pub ? 'true' : 'false',
+      togglePub: () => this.setState({ pub: !pub })
+    };
+  }
+}
+</script>
+</body>
+</html>

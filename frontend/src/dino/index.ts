@@ -24,5 +24,6 @@ export { Sheet } from './sheet';
 export { Toaster, toast } from './sonner';
 export { Squiggle } from './squiggle';
 export { Sticker, StickeredPhoto, type StickerItem } from './sticker';
+export { Switch } from './switch';
 export { TopBar } from './top-bar';
 export { Wordmark } from './wordmark';
