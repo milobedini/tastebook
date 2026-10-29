@@ -21,9 +21,13 @@ export const test = base.extend<{ accessibility: Accessibility }>({
   accessibility: [
     async ({ page }, use, testInfo) => {
       const check = async (): Promise<void> => {
+        // Under forced colours the system theme sets text contrast, and Chromium reports the unforced
+        // -webkit-text-fill-color that axe reads, so color-contrast fails text painted in CanvasText on Canvas.
+        const isForcedColours = await page.evaluate(() => window.matchMedia('(forced-colors: active)').matches);
         const { violations } = await new AxeBuilder({ page })
           .options({ rules: extraRules })
           .withTags(wcag22aaTags)
+          .disableRules(isForcedColours ? ['color-contrast'] : [])
           .analyze();
         expect(violations.map(describeViolation), `WCAG 2.2 A or AA violations on ${page.url()}`).toEqual([]);
       };

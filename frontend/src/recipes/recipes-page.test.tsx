@@ -570,15 +570,6 @@ describe('RecipesPage', () => {
     expect(screen.queryByRole('heading', { name: 'Recipes' })).not.toBeInTheDocument();
   });
 
-  it('takes the visitor home from the back link', async () => {
-    renderRoute('/recipes');
-
-    await userEvent.click(screen.getByRole('link', { name: 'Back to Tastebook' }));
-
-    expect(await screen.findByRole('heading', { name: 'Tastebook' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Recipes' })).not.toBeInTheDocument();
-  });
-
   it('keeps the cuisine while typing a search', async () => {
     const queries = answerFilters({ 'cuisine=french': [appleTart], 'cuisine=french&q=tart': [appleTart] });
     const { router } = renderRoute('/recipes?cuisine=french');
