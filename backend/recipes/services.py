@@ -1,5 +1,5 @@
 import json
-from collections import Counter
+from collections import Counter, defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
 from decimal import Decimal
@@ -8,7 +8,7 @@ from typing import Any
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db import models, transaction
+from django.db import IntegrityError, models, transaction
 from django.utils.text import slugify
 
 from recipes.models import (
@@ -60,7 +60,7 @@ def load_catalogue(path: Path = CATALOGUE_PATH) -> LoadedCatalogue:
             ingredients=_load_named(Ingredient, catalogue['ingredients'], 'Ingredient', {'synonyms'}),
         )
         _load_synonyms(names.ingredients, catalogue['ingredients'])
-        recipes = [_load_recipe(record, names) for record in catalogue['recipes']]
+        recipes = _load_recipes(catalogue['recipes'], names)
         # Every recipe is in the catalogue until households have private recipes, so the file's are the only ones.
         Recipe.objects.exclude(pk__in=[recipe.pk for recipe in recipes]).delete()
         Equipment.objects.exclude(pk__in=[row.pk for row in names.equipment.values()]).delete()
@@ -104,15 +104,15 @@ def _load_named[M: Equipment | Ingredient](
     # The slug is the row's identity, so two names that slugify alike would be one row.
     _refuse_repeats((slugify(name) for name in names), f'{kind} slugs')
     existing = dict(model.objects.values_list('slug', 'pk'))
-    rows: dict[str, M] = {}
+    placed: list[tuple[M, str]] = []
     for name, record in zip(names, records, strict=True):
         where = f'{kind} "{name}"'
         # Made afresh, so a field the file leaves out goes back to its default.
         row = model(slug=slugify(name), **_plain_fields(model, record, where, references))
         _take_place(row, existing.get(row.slug))
-        _save(row, where)
-        rows[name] = row
-    return rows
+        placed.append((row, where))
+    _write(model, placed)
+    return {name: row for name, (row, _) in zip(names, placed, strict=True)}
 
 
 def _load_synonyms(ingredients: dict[str, Ingredient], records: list[Record]) -> None:
@@ -128,36 +128,70 @@ def _load_synonyms(ingredients: dict[str, Ingredient], records: list[Record]) ->
     stale = [row.pk for row in IngredientSynonym.objects.all() if (row.ingredient_id, row.name) not in keep]
     IngredientSynonym.objects.filter(pk__in=stale).delete()
     existing = set(IngredientSynonym.objects.values_list('ingredient_id', 'name'))
-    for pk, synonym, where in wanted:
-        if (pk, synonym) not in existing:
-            _save(IngredientSynonym(ingredient_id=pk, name=synonym), where)
-
-
-def _load_recipe(record: Record, names: _Names) -> Recipe:
-    slug = record['slug']
-    where = f'Recipe {slug}'
-    references = {'slug', 'cuisines', 'courses', 'equipment', 'ingredient_lines', 'ingredient_groups', 'steps'}
-    recipe = Recipe(slug=slug, **_plain_fields(Recipe, record, where, references))
-    _take_place(recipe, Recipe.objects.filter(slug=slug).values_list('pk', flat=True).first())
-    _save(recipe, where)
-    recipe.cuisines.set(_look_up(names.cuisines, record.get('cuisines', []), where, 'cuisine'))
-    recipe.courses.set(_look_up(names.courses, record.get('courses', []), where, 'course'))
-    recipe.equipment.set(_look_up(names.equipment, record.get('equipment', []), where, 'equipment'))
-
-    group_records = record.get('ingredient_groups', [])
-    groups = [
-        IngredientGroup(
-            recipe=recipe, position=position, **_plain_fields(IngredientGroup, group, f'{where}, group', {'lines'})
-        )
-        for position, group in enumerate(group_records)
+    added = [
+        (IngredientSynonym(ingredient_id=pk, name=synonym), where)
+        for pk, synonym, where in wanted
+        if (pk, synonym) not in existing
     ]
-    _replace(recipe.ingredient_groups.all(), groups, where)
+    _write(IngredientSynonym, added)
 
+
+def _load_recipes(records: list[Record], names: _Names) -> list[Recipe]:
+    references = {'slug', 'cuisines', 'courses', 'equipment', 'ingredient_lines', 'ingredient_groups', 'steps'}
+    existing = dict(Recipe.objects.values_list('slug', 'pk'))
+    loaded: list[tuple[Recipe, Record, str]] = []
+    for record in records:
+        where = f'Recipe {record["slug"]}'
+        recipe = Recipe(slug=record['slug'], **_plain_fields(Recipe, record, where, references))
+        _take_place(recipe, existing.get(recipe.slug))
+        loaded.append((recipe, record, where))
+    _write(Recipe, [(recipe, where) for recipe, _, where in loaded])
+
+    for field_name, rows, kind in [
+        ('cuisines', names.cuisines, 'cuisine'),
+        ('courses', names.courses, 'course'),
+        ('equipment', names.equipment, 'equipment'),
+    ]:
+        links = [(recipe, _look_up(rows, record.get(field_name, []), where, kind)) for recipe, record, where in loaded]
+        _link(field_name, links)
+
+    groups = {
+        recipe.pk: [
+            IngredientGroup(
+                recipe=recipe, position=position, **_plain_fields(IngredientGroup, group, f'{where}, group', {'lines'})
+            )
+            for position, group in enumerate(record.get('ingredient_groups', []))
+        ]
+        for recipe, record, where in loaded
+    }
+    _replace(IngredientGroup, [(recipe, groups[recipe.pk], where) for recipe, _, where in loaded])
+    lines = [
+        (recipe, _lines(recipe, record, groups[recipe.pk], names, where), where) for recipe, record, where in loaded
+    ]
+    _replace(IngredientLine, lines)
+    steps = [
+        (
+            recipe,
+            [
+                Step(recipe=recipe, position=position, text=text)
+                for position, text in enumerate(record.get('steps', []))
+            ],
+            where,
+        )
+        for recipe, record, where in loaded
+    ]
+    _replace(Step, steps)
+    return [recipe for recipe, _, _ in loaded]
+
+
+def _lines(
+    recipe: Recipe, record: Record, groups: list[IngredientGroup], names: _Names, where: str
+) -> list[IngredientLine]:
     placed = [
         (None, record.get('ingredient_lines', [])),
-        *zip(groups, (g.get('lines', []) for g in group_records), strict=True),
+        *zip(groups, (g.get('lines', []) for g in record.get('ingredient_groups', [])), strict=True),
     ]
-    lines = [
+    return [
         IngredientLine(
             recipe=recipe,
             group=group,
@@ -168,11 +202,6 @@ def _load_recipe(record: Record, names: _Names) -> Recipe:
         for group, group_lines in placed
         for position, line in enumerate(group_lines)
     ]
-    _replace(recipe.ingredient_lines.all(), lines, where)
-
-    steps = [Step(recipe=recipe, position=position, text=text) for position, text in enumerate(record.get('steps', []))]
-    _replace(recipe.steps.all(), steps, where)
-    return recipe
 
 
 def _plain_fields(model: type[models.Model], record: Record, where: str, references: set[str]) -> Record:
@@ -195,14 +224,32 @@ def _look_up[M: models.Model](rows: dict[str, M], names: list[str], where: str, 
     return [rows[name] for name in names]
 
 
-def _replace[M: models.Model](existing: models.QuerySet[M], rows: list[M], where: str) -> None:
+def _link(field_name: str, links: list[tuple[Recipe, list[Any]]]) -> None:
+    """Makes each recipe's rows through a many-to-many field the given ones."""
+    field = Recipe._meta.get_field(field_name)
+    assert isinstance(field, models.ManyToManyField)
+    through = field.remote_field.through
+    source, target = f'{field.m2m_field_name()}_id', f'{field.m2m_reverse_field_name()}_id'
+    wanted = {(recipe.pk, row.pk) for recipe, rows in links for row in rows}
+    existing = {
+        (source_id, target_id): pk for pk, source_id, target_id in through.objects.values_list('pk', source, target)
+    }
+    through.objects.filter(pk__in=[pk for pair, pk in existing.items() if pair not in wanted]).delete()
+    through.objects.bulk_create([through(**{source: a, target: b}) for a, b in sorted(wanted - existing.keys())])
+
+
+def _replace[M: IngredientGroup | IngredientLine | Step](
+    model: type[M], children: list[tuple[Recipe, list[M], str]]
+) -> None:
     # Each row reuses the id of the existing row in its place, so loading an unchanged file keeps every id.
-    ids = list(existing.order_by('id').values_list('pk', flat=True))
-    for row, row_id in zip(rows, ids, strict=False):
-        _take_place(row, row_id)
-    for row in rows:
-        _save(row, where)
-    existing.model.objects.filter(pk__in=ids[len(rows) :]).delete()
+    ids: dict[int, list[int]] = defaultdict(list)
+    for recipe_id, pk in model.objects.order_by('id').values_list('recipe_id', 'pk'):
+        ids[recipe_id].append(pk)
+    for recipe, rows, _ in children:
+        for row, row_id in zip(rows, ids[recipe.pk], strict=False):
+            _take_place(row, row_id)
+    _write(model, [(row, where) for _, rows, where in children for row in rows])
+    model.objects.filter(pk__in=[pk for recipe, rows, _ in children for pk in ids[recipe.pk][len(rows) :]]).delete()
 
 
 def _take_place(row: models.Model, pk: int | None) -> None:
@@ -212,12 +259,49 @@ def _take_place(row: models.Model, pk: int | None) -> None:
         row._state.adding = False
 
 
-def _save(row: models.Model, where: str) -> None:
+def _write[M: models.Model](model: type[M], placed: list[tuple[M, str]]) -> None:
+    """Saves the rows the file adds or changes in a few queries, however many there are."""
+    # One query a row timed deploys out, with the build in Washington and the database in London.
+    for row, where in placed:
+        _clean(row, where, exclude=_relations(model), validate_unique=False, validate_constraints=False)
+    fields = [field for field in model._meta.concrete_fields if not field.primary_key]
+    existing = model.objects.in_bulk([row.pk for row, _ in placed if row.pk is not None])
+    added = [row for row, _ in placed if row.pk is None]
+    changed = [
+        row for row, _ in placed if row.pk is not None and _values(row, fields) != _values(existing[row.pk], fields)
+    ]
     try:
-        row.full_clean()
+        with transaction.atomic():
+            model.objects.bulk_create(added)
+            model.objects.bulk_update(changed, [field.name for field in fields])
+    except IntegrityError:
+        # The database refused a row: saving them one at a time, checked in full, says which and why.
+        for row in added:
+            row.pk = None
+            row._state.adding = True
+        for row, where in placed:
+            _save(row, where)
+        raise
+
+
+def _relations(model: type[models.Model]) -> list[str]:
+    return [field.name for field in model._meta.concrete_fields if field.is_relation]
+
+
+def _values(row: models.Model, fields: list[models.Field[Any, Any]]) -> list[Any]:
+    return [getattr(row, field.attname) for field in fields]
+
+
+def _save(row: models.Model, where: str) -> None:
+    _clean(row, where)
+    row.save()
+
+
+def _clean(row: models.Model, where: str, **checks: Any) -> None:
+    try:
+        row.full_clean(**checks)
     except ValidationError as error:
         raise CatalogueError(f'{where}: {" ".join(error.messages)}') from error
-    row.save()
 
 
 @dataclass(frozen=True)

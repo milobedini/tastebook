@@ -312,6 +312,20 @@ def test_loading_an_edited_file_overwrites_the_catalogue_with_it(tmp_path: Path)
     assert list(Ingredient.objects.values_list('name', flat=True)) == ['eggs']
 
 
+# Each deploy loads the catalogue across the Atlantic, so a query per row timed builds out once it held 305 recipes.
+@pytest.mark.django_db
+def test_loading_the_repos_catalogue_takes_a_handful_of_queries_however_many_recipes_it_holds(
+    django_assert_max_num_queries: Any,
+) -> None:
+    with django_assert_max_num_queries(50):
+        call_command('load_catalogue')
+
+    with django_assert_max_num_queries(50):
+        call_command('load_catalogue')
+
+    assert len(titles()) == 305
+
+
 @pytest.mark.django_db
 def test_loading_records_what_each_ingredient_contains_and_clears_what_the_file_leaves_out(tmp_path: Path) -> None:
     call_command('load_catalogue', write(tmp_path / 'first.json', catalogue(FLAPJACKS)))
