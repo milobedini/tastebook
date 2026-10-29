@@ -1068,9 +1068,9 @@ describe('RecipesPage', () => {
     expect(search).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('closes the list with Escape, then clears the text', async () => {
-    setLaptop(true);
+  it('closes the list with Escape, then clears the text, then closes the filters sheet', async () => {
     const { router } = renderRoute('/recipes');
+    await userEvent.click(filtersButton());
     const search = await openPicker('Exclude an ingredient');
     await userEvent.type(search, 'aub');
     expect(screen.getByRole('listbox', { name: 'Exclude an ingredient' })).toBeInTheDocument();
@@ -1079,11 +1079,17 @@ describe('RecipesPage', () => {
 
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     expect(search).toHaveValue('aub');
+    expect(filtersSheet()).toBeInTheDocument();
     expect(router.state.location.search).toBe('');
 
     await userEvent.keyboard('{Escape}');
 
     expect(search).toHaveValue('');
+    expect(filtersSheet()).toBeInTheDocument();
+
+    await userEvent.keyboard('{Escape}');
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
   it('opens diet and ingredient filters from the address', async () => {
