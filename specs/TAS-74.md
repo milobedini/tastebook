@@ -171,6 +171,8 @@ flowchart LR
 
 8. **Add the update workflow.** `.github/workflows/update-screenshots.yml` (new)
 
+   Two jobs, so the write token never shares a job with repo or dependency code (review round 1): `render` holds a read-only token and uploads the baselines; `commit` holds the write token and runs only git and gh.
+
    ```yaml
    name: Update screenshots
 
@@ -185,12 +187,10 @@ flowchart LR
      cancel-in-progress: true
 
    jobs:
-     update:
-       name: Update screenshots
+     # Runs the branch's code and its dependencies, so it holds a read-only token.
+     render:
+       name: Render screenshots
        runs-on: ubuntu-latest
-       permissions:
-         contents: write
-         actions: write
        steps:
          - name: Refuse main and tags
            if: github.ref_type != 'branch' || github.ref_name == 'main'
@@ -199,11 +199,44 @@ flowchart LR
              exit 1
          - uses: actions/checkout@<same SHA as ci.yml> # v7.0.1
            with:
-             # The token stays out of .git/config, so install scripts and the stories can't read it.
              persist-credentials: false
-         # pnpm, setup-node (24, cache pnpm), pnpm install --frozen-lockfile,
-         # playwright install --with-deps chromium: copy the Frontend job's steps.
+         - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+         - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+           with:
+             node-version: 24
+             cache: pnpm
+         - run: pnpm install --frozen-lockfile
+         - run: pnpm --filter frontend exec playwright install --with-deps chromium
          - run: pnpm --filter frontend test:visual:update
+         - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+           with:
+             name: baselines
+             path: frontend/visual/baselines
+             if-no-files-found: error
+             retention-days: 1
+
+     # Holds the write token, so it runs only git and gh: no repo or dependency code.
+     commit:
+       name: Commit screenshots
+       needs: render
+       runs-on: ubuntu-latest
+       permissions:
+         contents: write
+         actions: write
+       steps:
+         - uses: actions/checkout@<same SHA as ci.yml> # v7.0.1
+           with:
+             # The token stays out of .git/config; the push below passes it explicitly.
+             persist-credentials: false
+         - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+           with:
+             name: baselines
+             path: ${{ runner.temp }}/baselines
+         - name: Replace the baselines
+           run: |
+             # Starting empty drops the baseline of a deleted or renamed story.
+             rm -rf frontend/visual/baselines
+             mv "$RUNNER_TEMP/baselines" frontend/visual/baselines
          - name: Commit the baselines
            id: commit
            env:
