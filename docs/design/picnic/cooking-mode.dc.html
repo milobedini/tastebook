@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Picnic: cooking mode</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.t-dark{--stage:#0b0716;--bg:#1c1233;--surface:#2a1d47;--fg:#fff4ea;--muted:#cbbfe0;--field:#8f7fb0;--pop:#ffb38a;--pop2:#ffe08a}
+.t-dark{--ink:#2a1440;--peach:#ffb38a;--mint:#8fe3c0;--butter:#ffe08a;--pink:#ff9fc6}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.ing{background:var(--mint);color:var(--ink);border-radius:8px;padding:0 5px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.seg{flex-grow:1;height:8px;border-radius:4px}
+.icon-btn{width:48px;height:48px;border-radius:24px;border:0;background:var(--surface);color:var(--fg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+</style>
+</helmet>
+<div class="{{theme}}" style="width: 820px; height: 844px; display: flex; gap: 40px; background: var(--stage); font-family: Nunito, system-ui, sans-serif; color: var(--fg)">
+
+<!-- Step 2, timer running -->
+<div style="width: 390px; height: 844px; border-radius: 44px; overflow: hidden; position: relative; background: var(--bg); display: flex; flex-direction: column">
+  <div style="padding: 52px 20px 0; display: flex; align-items: center; gap: 14px">
+    <button type="button" class="icon-btn" aria-label="Leave cooking mode"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+    <div role="progressbar" aria-label="Steps" aria-valuemin="1" aria-valuemax="6" aria-valuenow="2" aria-valuetext="Step 2 of 6" style="flex-grow: 1; display: flex; gap: 5px">
+      <span class="seg" style="background: var(--mint)"></span>
+      <span class="seg" style="background: var(--peach)"></span>
+      <span class="seg" style="border: 2px solid var(--field)"></span>
+      <span class="seg" style="border: 2px solid var(--field)"></span>
+      <span class="seg" style="border: 2px solid var(--field)"></span>
+      <span class="seg" style="border: 2px solid var(--field)"></span>
+    </div>
+    <button type="button" class="icon-btn" aria-label="All ingredients"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"></path></svg></button>
+  </div>
+  <div style="padding: 18px 20px 0; display: flex; align-items: flex-end; gap: 10px">
+    <span class="serif" style="position: relative; font-size: 96px; line-height: 80px; font-style: italic; color: var(--pop)">2<svg aria-hidden="true" width="56" height="12" viewBox="0 0 56 12" style="position: absolute; left: -4px; bottom: -10px"><path d="M2 7c7-5 12-5 19 0s12 5 19 0 12-5 14-2" fill="none" stroke="var(--pop)" stroke-width="3" stroke-linecap="round"></path></svg></span>
+    <span style="font-size: 15px; font-weight: 800; color: var(--muted); padding-bottom: 6px">of 6 · Chana masala</span>
+  </div>
+  <p style="margin: 26px 20px 0; font-size: 23px; line-height: 34px; font-weight: 700">The next day, drain the chickpeas and put them in a large pan with the <span class="ing">500 ml of fresh water</span> and <span class="ing">salt</span> to taste. Bring to the boil, then simmer for <button type="button" style="display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px; border-radius: 18px; border: 2px solid var(--ink); background: var(--butter); color: var(--ink); font: 800 19px Nunito, sans-serif; vertical-align: 1px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2M10 2h4"></path></svg>60 to 90 minutes</button> until tender.</p>
+  <p style="margin: 12px 20px 0; font-size: 15px; line-height: 22px; font-weight: 600; color: var(--muted)">Or 10 minutes at high pressure in a pressure cooker.</p>
+  <section aria-label="Timer" style="position: absolute; left: 20px; right: 20px; bottom: 120px; border-radius: 28px; background: var(--butter); color: var(--ink); padding: 14px 14px 14px 16px; display: flex; align-items: center; gap: 14px; box-shadow: 0 5px 0 var(--ink)">
+    <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true" style="flex-shrink: 0"><circle cx="32" cy="32" r="26" fill="none" stroke="rgb(42 20 64 / 0.18)" stroke-width="7"></circle><circle cx="32" cy="32" r="26" fill="none" stroke="var(--ink)" stroke-width="7" stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="114.4" transform="rotate(-90 32 32)"></circle></svg>
+    <span style="flex-grow: 1; display: flex; flex-direction: column">
+      <span role="timer" aria-live="off" style="font-size: 38px; line-height: 40px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.01em">41:48</span>
+      <span style="font-size: 13px; line-height: 17px; font-weight: 700">to the first check, then up to 30 min more</span>
+    </span>
+    <button type="button" aria-label="Pause timer" style="width: 52px; height: 52px; border-radius: 26px; border: 0; background: var(--ink); color: var(--butter); display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1.5"></rect><rect x="14" y="4" width="4" height="16" rx="1.5"></rect></svg></button>
+  </section>
+  <div style="position: absolute; left: 20px; right: 20px; bottom: 30px; display: flex; gap: 10px">
+    <button type="button" style="width: 110px; height: 64px; border-radius: 32px; border: 2px solid var(--field); background: transparent; color: var(--fg); font: 800 17px Nunito, sans-serif">Back</button>
+    <button type="button" style="flex-grow: 1; height: 64px; border-radius: 32px; border: 2px solid var(--ink); background: var(--peach); color: var(--ink); box-shadow: 0 5px 0 var(--ink); display: flex; align-items: center; justify-content: center; gap: 10px; font: 800 19px Nunito, sans-serif">Next step<svg width="34" height="16" viewBox="0 0 34 16" aria-hidden="true"><path d="M2 9c5-5 9 3 14-1s7-3 14 0M24 3l6 5-6 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+  </div>
+</div>
+
+<!-- Step 3, timer carried along -->
+<div style="width: 390px; height: 844px; border-radius: 44px; overflow: hidden; position: relative; background: var(--bg); display: flex; flex-direction: column">
+  <div style="padding: 52px 20px 0; display: flex; align-items: center; gap: 14px">
+    <button type="button" class="icon-btn" aria-label="Leave cooking mode"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+    <div role="progressbar" aria-label="Steps" aria-valuemin="1" aria-valuemax="6" aria-valuenow="3" aria-valuetext="Step 3 of 6" style="flex-grow: 1; display: flex; gap: 5px">
+      <span class="seg" style="background: var(--mint)"></span>
+      <span class="seg" style="background: var(--mint)"></span>
+      <span class="seg" style="background: var(--peach)"></span>
+      <span class="seg" style="border: 2px solid var(--field)"></span>
+      <span class="seg" style="border: 2px solid var(--field)"></span>
+      <span class="seg" style="border: 2px solid var(--field)"></span>
+    </div>
+    <button type="button" class="icon-btn" aria-label="All ingredients"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"></path></svg></button>
+  </div>
+  <button type="button" aria-label="Chickpeas timer, 41 minutes 48 seconds left. Open timer" style="margin: 14px 20px 0; align-self: flex-start; height: 44px; padding: 0 16px 0 8px; border-radius: 22px; border: 0; background: var(--butter); color: var(--ink); display: flex; align-items: center; gap: 10px; font: 800 15px Nunito, sans-serif; box-shadow: 0 3px 0 var(--ink)">
+    <svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="24" fill="none" stroke="rgb(42 20 64 / 0.18)" stroke-width="10"></circle><circle cx="32" cy="32" r="24" fill="none" stroke="var(--ink)" stroke-width="10" stroke-dasharray="150.8" stroke-dashoffset="105.6" transform="rotate(-90 32 32)"></circle></svg>
+    Chickpeas<span style="font-variant-numeric: tabular-nums">41:48</span>
+  </button>
+  <div style="padding: 14px 20px 0; display: flex; align-items: flex-end; gap: 10px">
+    <span class="serif" style="position: relative; font-size: 96px; line-height: 80px; font-style: italic; color: var(--pop)">3<svg aria-hidden="true" width="56" height="12" viewBox="0 0 56 12" style="position: absolute; left: -4px; bottom: -10px"><path d="M2 7c7-5 12-5 19 0s12 5 19 0 12-5 14-2" fill="none" stroke="var(--pop)" stroke-width="3" stroke-linecap="round"></path></svg></span>
+    <span style="font-size: 15px; font-weight: 800; color: var(--muted); padding-bottom: 6px">of 6 · Chana masala</span>
+  </div>
+  <p style="margin: 24px 20px 0; font-size: 21px; line-height: 31px; font-weight: 700">Heat the <span class="ing">oil</span> in a heavy-based pan. Add the <span class="ing">coriander</span>, <span class="ing">cumin</span> and <span class="ing">nigella seeds</span> and cook briefly until they crackle. Quickly add the <span class="ing">onion</span> and <span class="ing">garlic</span>, lower the heat to medium and fry until the onion is translucent.</p>
+  <section aria-labelledby="needs" style="margin: 18px 20px 0; border-radius: 24px; background: var(--surface); padding: 12px 16px 8px">
+    <h2 id="needs" class="serif" style="margin: 0 0 2px; font-size: 22px; font-style: italic">For this step</h2>
+    <ul style="list-style: none; margin: 0; padding: 0">
+      <sc-for list="{{needs}}" as="n" hint-placeholder-count="6">
+        <li style="display: flex; align-items: baseline; gap: 8px; padding: 4px 0; font-size: 15px; font-weight: 700">
+          <span>{{n.name}}</span>
+          <span aria-hidden="true" style="flex-grow: 1; border-bottom: 2px dotted var(--field); transform: translateY(-4px)"></span>
+          <span style="font-weight: 800; font-variant-numeric: tabular-nums">{{n.amount}}</span>
+        </li>
+      </sc-for>
+    </ul>
+  </section>
+  <div style="position: absolute; left: 20px; right: 20px; bottom: 30px; display: flex; gap: 10px">
+    <button type="button" style="width: 110px; height: 64px; border-radius: 32px; border: 2px solid var(--field); background: transparent; color: var(--fg); font: 800 17px Nunito, sans-serif">Back</button>
+    <button type="button" style="flex-grow: 1; height: 64px; border-radius: 32px; border: 2px solid var(--ink); background: var(--peach); color: var(--ink); box-shadow: 0 5px 0 var(--ink); display: flex; align-items: center; justify-content: center; gap: 10px; font: 800 19px Nunito, sans-serif">Next step<svg width="34" height="16" viewBox="0 0 34 16" aria-hidden="true"><path d="M2 9c5-5 9 3 14-1s7-3 14 0M24 3l6 5-6 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+  </div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":820,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      theme: 't-dark',
+      needs: [
+        { amount: '1 tbsp', name: 'Vegetable oil' },
+        { amount: '1 tsp', name: 'Coriander seeds' },
+        { amount: '1 tsp', name: 'Cumin seeds, optional' },
+        { amount: '1 tsp', name: 'Nigella seeds, optional' },
+        { amount: '1', name: 'Onion, sliced' },
+        { amount: '1 clove', name: 'Garlic, minced' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

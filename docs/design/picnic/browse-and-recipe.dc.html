@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Picnic: browse and recipe</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.t-dark{--stage:#0b0716;--bg:#1c1233;--surface:#2a1d47;--fg:#fff4ea;--muted:#cbbfe0;--field:#8f7fb0;--dock:#fff4ea;--dock-fg:#2a1440;--pop:#ffb38a;--pop2:#ffe08a}
+.t-dark{--paper:#fff8ef;--ink:#2a1440;--peach:#ffb38a;--mint:#8fe3c0;--butter:#ffe08a;--pink:#ff9fc6;--tape:rgb(255 224 138 / 0.85)}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.polaroid{background:var(--paper);color:var(--ink);box-shadow:0 12px 28px rgb(0 0 0 / 0.35);position:relative}
+.tape{position:absolute;top:-11px;left:50%;width:72px;height:22px;margin-left:-36px;background:var(--tape)}
+</style>
+</helmet>
+<div class="{{theme}}" style="width: 820px; height: 844px; display: flex; gap: 40px; background: var(--stage); font-family: Nunito, system-ui, sans-serif; color: var(--fg)">
+
+<!-- Browse -->
+<div style="width: 390px; height: 844px; border-radius: 44px; overflow: hidden; position: relative; background: var(--bg)">
+  <div style="padding: 54px 20px 0; display: flex; justify-content: space-between; align-items: center">
+    <span class="serif" style="font-size: 30px; font-style: italic">Tastebook</span>
+    <button type="button" aria-label="Search recipes" style="width: 44px; height: 44px; border-radius: 22px; border: 0; background: var(--peach); color: var(--ink); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></button>
+  </div>
+  <h1 class="serif" style="margin: 14px 20px 0; font-size: 46px; line-height: 44px; letter-spacing: -0.01em">What shall we <span style="position: relative; font-style: italic; color: var(--pop)">cook<svg aria-hidden="true" width="86" height="12" viewBox="0 0 86 12" style="position: absolute; left: -2px; bottom: -8px"><path d="M2 7c7-5 12-5 19 0s12 5 19 0 12-5 19 0 12 5 19 0 6-4 6-4" fill="none" stroke="var(--pop)" stroke-width="3" stroke-linecap="round"></path></svg></span> tonight?</h1>
+  <div style="margin: 22px 20px 0; display: flex; gap: 8px">
+    <button type="button" aria-pressed="true" style="height: 44px; padding: 0 14px 0 10px; border-radius: 22px; border: 2px solid var(--fg); background: var(--mint); color: var(--ink); font: 800 15px Nunito, sans-serif; display: flex; align-items: center; gap: 6px; transform: rotate(-2deg)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Quick</button>
+    <button type="button" aria-pressed="false" style="height: 44px; padding: 0 14px; border-radius: 22px; border: 2px solid var(--field); background: transparent; color: var(--fg); font: 700 15px Nunito, sans-serif; transform: rotate(1.5deg)">Veggie</button>
+    <button type="button" aria-pressed="false" style="height: 44px; padding: 0 14px; border-radius: 22px; border: 2px solid var(--field); background: transparent; color: var(--fg); font: 700 15px Nunito, sans-serif; transform: rotate(-1deg)">One-pot</button>
+    <button type="button" aria-pressed="false" style="height: 44px; padding: 0 14px; border-radius: 22px; border: 2px solid var(--field); background: transparent; color: var(--fg); font: 700 15px Nunito, sans-serif; transform: rotate(2deg)">Sweet</button>
+  </div>
+  <a href="#" class="polaroid" style="position: absolute; left: 26px; top: 300px; width: 250px; padding: 10px 10px 0; box-sizing: border-box; transform: rotate(-3deg); text-decoration: none; display: block">
+    <span class="tape" aria-hidden="true"></span>
+    <img src="/_blob/4813334b2e4d4668bff2289c284b3d45" alt="" style="width: 230px; height: 170px; object-fit: cover; display: block">
+    <span class="serif" style="display: block; padding: 6px 2px 10px; font-size: 28px; font-style: italic">Chana masala</span>
+  </a>
+  <span aria-hidden="true" style="position: absolute; left: 262px; top: 296px; width: 96px; height: 96px; border-radius: 48px; background: var(--butter); color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; transform: rotate(10deg); font: 800 14px/16px Nunito, sans-serif; text-align: center">1 h 45<br><span style="font-weight: 700; font-size: 12px">+ soak<br>overnight</span></span>
+  <svg aria-hidden="true" width="70" height="60" viewBox="0 0 70 60" style="position: absolute; left: 284px; top: 400px; color: var(--muted)"><path d="M8 6c20 4 38 18 44 40M44 40l8 8 6-11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  <span class="serif" style="position: absolute; left: 286px; top: 462px; font-size: 20px; line-height: 21px; font-style: italic; color: var(--muted); transform: rotate(-4deg)">start it<br>tonight!</span>
+  <a href="#" class="polaroid" style="position: absolute; left: 30px; top: 560px; width: 150px; padding: 8px 8px 0; box-sizing: border-box; transform: rotate(3deg); text-decoration: none; display: block">
+    <img src="/_blob/3e7f4885a57eb8a69b47f14625bcf9b9" alt="" style="width: 134px; height: 104px; object-fit: cover; display: block">
+    <span class="serif" style="display: block; padding: 4px 2px 8px; font-size: 21px; font-style: italic">Bibimbap</span>
+  </a>
+  <a href="#" class="polaroid" style="position: absolute; left: 204px; top: 552px; width: 150px; padding: 8px 8px 0; box-sizing: border-box; transform: rotate(-4deg); text-decoration: none; display: block">
+    <span class="tape" aria-hidden="true" style="width: 52px; margin-left: -26px; background: rgb(143 227 192 / 0.85)"></span>
+    <img src="/_blob/90cb006d7b14053a871d5d5f4c358646" alt="" style="width: 134px; height: 104px; object-fit: cover; display: block">
+    <span class="serif" style="display: block; padding: 4px 2px 8px; font-size: 21px; font-style: italic">Baklava</span>
+  </a>
+  <nav aria-label="Main" style="position: absolute; left: 20px; right: 20px; bottom: 26px; height: 62px; border-radius: 31px; background: var(--dock); display: flex; align-items: center; gap: 4px; padding: 0 8px">
+    <a href="#" aria-current="page" style="flex-grow: 1; height: 46px; border-radius: 23px; background: var(--peach); color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font: 800 15px Nunito, sans-serif">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Recipes</a>
+    <a href="#" aria-label="Shopping" style="width: 64px; height: 46px; color: var(--dock-fg); display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"></path></svg></a>
+    <a href="#" aria-label="Household" style="width: 64px; height: 46px; color: var(--dock-fg); display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg></a>
+  </nav>
+</div>
+
+<!-- Recipe -->
+<div style="width: 390px; height: 844px; border-radius: 44px; overflow: hidden; position: relative; background: var(--bg); display: flex; flex-direction: column">
+  <div style="padding: 54px 20px 0; display: flex; justify-content: space-between; position: relative; z-index: 1">
+    <button type="button" aria-label="Back to recipes" style="width: 44px; height: 44px; border-radius: 22px; border: 0; background: var(--peach); color: var(--ink); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button>
+    <button type="button" aria-label="Favourite" aria-pressed="true" style="width: 44px; height: 44px; border-radius: 22px; border: 0; background: var(--pink); color: var(--ink); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></button>
+  </div>
+  <div style="position: relative; align-self: center; margin-top: -14px">
+    <div class="polaroid" style="width: 296px; padding: 10px 10px 28px; box-sizing: border-box; transform: rotate(-2deg)">
+      <span class="tape" aria-hidden="true"></span>
+      <img src="/_blob/4813334b2e4d4668bff2289c284b3d45" alt="Chana masala in a pan, topped with tomato and coriander" style="width: 276px; height: 196px; object-fit: cover; display: block">
+      <span style="position: absolute; left: 12px; bottom: 7px; font: 700 10px Nunito, sans-serif; color: #5d4a73">Photo: Simon Law, CC BY-SA 2.0</span>
+    </div>
+    <span style="position: absolute; left: -22px; bottom: 30px; transform: rotate(-12deg); background: var(--pink); color: var(--ink); font: 800 13px Nunito, sans-serif; padding: 8px 12px; border-radius: 18px">Vegan</span>
+    <span style="position: absolute; right: -24px; top: 34px; transform: rotate(9deg); background: var(--mint); color: var(--ink); font: 800 13px Nunito, sans-serif; padding: 8px 12px; border-radius: 18px">Gluten-free</span>
+  </div>
+  <div style="padding: 20px 20px 0; display: flex; flex-direction: column; gap: 6px">
+    <h1 class="serif" style="margin: 0; font-size: 48px; line-height: 46px; letter-spacing: -0.01em; position: relative; align-self: flex-start">Chana masala<svg aria-hidden="true" width="150" height="12" viewBox="0 0 150 12" style="position: absolute; left: 0; bottom: -8px"><path d="M2 7c7-5 12-5 19 0s12 5 19 0 12-5 19 0 12 5 19 0 12-5 19 0 12 5 19 0 12-5 19 0" fill="none" stroke="var(--pop2)" stroke-width="3" stroke-linecap="round"></path></svg></h1>
+    <p style="margin: 8px 0 0; font-size: 15px; line-height: 22px; font-weight: 600; color: var(--muted)">Punjabi chickpeas in a thick tomato and whole-spice sauce. Indian, and easy.</p>
+  </div>
+  <dl style="margin: 14px 20px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+    <div style="background: var(--peach); color: var(--ink); border-radius: 46% 54% 42% 58% / 55% 45% 55% 45%; padding: 12px 8px; display: flex; flex-direction: column-reverse; align-items: center"><dt style="font-size: 12px; font-weight: 700">prep</dt><dd class="serif" style="margin: 0; font-size: 26px; line-height: 28px">15 min</dd></div>
+    <div style="background: var(--butter); color: var(--ink); border-radius: 58% 42% 55% 45% / 45% 55% 45% 55%; padding: 12px 8px; display: flex; flex-direction: column-reverse; align-items: center"><dt style="font-size: 12px; font-weight: 700">cook</dt><dd class="serif" style="margin: 0; font-size: 26px; line-height: 28px">1 hr 30</dd></div>
+    <div style="background: var(--mint); color: var(--ink); border-radius: 42% 58% 48% 52% / 52% 48% 52% 48%; padding: 12px 8px; display: flex; flex-direction: column-reverse; align-items: center"><dt style="font-size: 12px; font-weight: 700">soak first</dt><dd class="serif" style="margin: 0; font-size: 26px; line-height: 28px">12 hrs</dd></div>
+  </dl>
+  <div style="padding: 16px 20px 2px; display: flex; justify-content: space-between; align-items: center">
+    <h2 class="serif" style="margin: 0; font-size: 28px; font-style: italic">Ingredients</h2>
+    <div style="display: flex; align-items: center; gap: 8px">
+      <button type="button" aria-label="Fewer servings" style="width: 44px; height: 44px; border-radius: 22px; border: 2px solid var(--field); background: transparent; color: var(--fg); display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
+      <span aria-live="polite" style="font-weight: 800; font-size: 15px; min-width: 62px; text-align: center">Serves 4</span>
+      <button type="button" aria-label="More servings" style="width: 44px; height: 44px; border-radius: 22px; border: 0; background: var(--mint); color: var(--ink); display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"></path></svg></button>
+    </div>
+  </div>
+  <ul style="list-style: none; margin: 0; padding: 0 20px">
+    <sc-for list="{{ingredients}}" as="i" hint-placeholder-count="3">
+      <li style="display: flex; align-items: baseline; gap: 8px; padding: 7px 0; font-size: 16px; font-weight: 600">
+        <span>{{i.name}}</span>
+        <span aria-hidden="true" style="flex-grow: 1; border-bottom: 2px dotted var(--field); transform: translateY(-4px)"></span>
+        <span style="font-weight: 800; font-variant-numeric: tabular-nums">{{i.amount}}</span>
+      </li>
+    </sc-for>
+  </ul>
+  <div style="position: absolute; left: 20px; right: 20px; bottom: 28px">
+    <button type="button" style="width: 100%; height: 60px; border-radius: 30px; border: 2px solid var(--ink); background: var(--peach); color: var(--ink); box-shadow: 0 5px 0 var(--ink); display: flex; align-items: center; justify-content: center; gap: 10px; font: 800 18px Nunito, sans-serif">Let’s get cooking<svg width="34" height="16" viewBox="0 0 34 16" aria-hidden="true"><path d="M2 9c5-5 9 3 14-1s7-3 14 0M24 3l6 5-6 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+  </div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:820,&quot;height&quot;:844}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      theme: 't-dark',
+      ingredients: [
+        { amount: '250 g', name: 'Dried chickpeas' },
+        { amount: '500 ml', name: 'Water' },
+        { amount: '1 tbsp', name: 'Vegetable oil' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
