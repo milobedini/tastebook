@@ -22,7 +22,7 @@ export const Warning = {
   args: {
     tone: 'warning',
     title: '2 gaps in this import',
-    children: 'Check the amounts marked in yolk before you cook it.'
+    children: 'Fill in the missing amounts before you cook it.'
   }
 } satisfies Story;
 export const Danger = {
