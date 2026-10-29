@@ -4,15 +4,17 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { Button } from '@/dino/button';
 import { Toaster, toast } from '@/dino/sonner';
 
-const showToast = () =>
+const showToast = (toasterId: string) =>
   toast('Saved to Favourites', {
+    toasterId,
     action: { label: 'Undo', onClick: () => undefined },
     // Stays until dismissed, so the screenshot doesn't race Sonner's 4 s timer.
     duration: Number.POSITIVE_INFINITY
   });
 
-const showError = () =>
+const showError = (toasterId: string) =>
   toast.error('Couldn’t save. You’re offline.', {
+    toasterId,
     action: { label: 'Try again', onClick: () => undefined },
     duration: Number.POSITIVE_INFINITY
   });
@@ -20,18 +22,15 @@ const showError = () =>
 const meta = {
   title: 'Dino/Toast',
   component: Toaster,
-  // Sonner replays every toast still showing to a newly mounted Toaster, so each story starts with none.
-  beforeEach: () => {
-    toast.dismiss();
-  },
-  render: (args) => (
+  // Sonner replays every toast still showing to a newly mounted Toaster, so each story's Toaster shows only its own.
+  render: (args, { id }) => (
     <>
-      <Toaster {...args} />
+      <Toaster {...args} id={id} />
       <div className="flex flex-wrap gap-2.5">
-        <Button variant="secondary" onClick={showToast}>
+        <Button variant="secondary" onClick={() => showToast(id)}>
           Show a toast
         </Button>
-        <Button variant="secondary" onClick={showError}>
+        <Button variant="secondary" onClick={() => showError(id)}>
           Show an error
         </Button>
       </div>
