@@ -170,7 +170,7 @@ test('the recipe list with diet and ingredient filters fits a 375 px phone scree
 
   await page.goto('/recipes?diet=vegetarian&diet=gluten_free&include_ingredient=natural-yoghurt');
   await page.getByRole('button', { name: 'Filters', exact: true }).click();
-  await page.getByRole('button', { name: 'Exclude an ingredient' }).click();
+  await page.getByRole('combobox', { name: 'Exclude an ingredient' }).click();
 
   await expect(page.getByRole('button', { name: 'Remove filter: With natural yoghurt' })).toBeVisible();
   await expect(

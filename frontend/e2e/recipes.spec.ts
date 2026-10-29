@@ -57,8 +57,7 @@ test("filters by diet and by an ingredient's synonym through the real API", asyn
   await expect(page.getByRole('heading', { name: 'Greek salad' })).toHaveCount(0);
 
   await page.getByRole('button', { name: 'Clear filters' }).first().click();
-  await page.getByRole('button', { name: 'Exclude an ingredient' }).click();
-  await page.getByRole('combobox', { name: 'Search ingredients' }).fill('plain yogurt');
+  await page.getByRole('combobox', { name: 'Exclude an ingredient' }).fill('plain yogurt');
 
   const yoghurt = page.getByRole('option', { name: 'natural yoghurt · also plain yogurt' });
   await expect(yoghurt).toBeVisible();
