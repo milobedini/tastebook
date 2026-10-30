@@ -4,8 +4,9 @@ import time
 from allauth.core.internal.ratelimit import Rate, get_cache_key, get_rates
 from django.conf import settings
 from django.core.cache import cache
-from django.db import transaction
+from django.db import connection, transaction
 from django.http import HttpRequest
+from django.utils import timezone
 
 from households.models import Household, StoredSignInCode, User
 
@@ -58,3 +59,12 @@ def wait_for(rate: Rate, history: list[float], now: float) -> float:
     # allauth keeps the newest hit first; a slot frees when the rate.amount-th newest one leaves the window.
     live = [hit for hit in history if hit > now - rate.duration]
     return live[rate.amount - 1] + rate.duration - now if len(live) >= rate.amount else 0
+
+
+def clear_expired_sign_in_limits() -> int:
+    """Deletes the cache rows whose time has passed, and says how many; the cache holds only sign-in's limits."""
+    # Django deletes expired rows only once the table passes MAX_ENTRIES, and these rows hold client IP addresses.
+    table = connection.ops.quote_name(settings.CACHES['default']['LOCATION'])
+    with connection.cursor() as cursor:
+        cursor.execute(f'DELETE FROM {table} WHERE expires < %s', [timezone.now()])
+        return cursor.rowcount

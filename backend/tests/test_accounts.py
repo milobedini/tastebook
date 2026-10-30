@@ -1,11 +1,13 @@
 import re
 import time
 from collections.abc import Iterator
+from io import StringIO
 from typing import Any
 
 import pytest
 from django.core import mail
 from django.core.cache import cache
+from django.core.management import call_command
 from django.db import connection
 from django.http import HttpResponse
 from pytest_django.fixtures import Settings
@@ -156,6 +158,26 @@ def test_the_limit_on_asking_for_codes_is_kept_in_the_database() -> None:
         cursor.execute('SELECT cache_key FROM django_cache')
         keys = [key for (key,) in cursor.fetchall() if 'request_login_code' in key]
     assert len(keys) == 2
+
+
+@pytest.mark.django_db
+def test_clearing_expired_sign_in_limits_keeps_only_the_live_ones(monkeypatch: pytest.MonkeyPatch) -> None:
+    User.objects.create_user('yesterday@example.com')
+    User.objects.create_user('today@example.com')
+    a_day_ago = time.time() - 24 * 60 * 60
+    monkeypatch.setattr(time, 'time', lambda: a_day_ago)
+    BrowserClient().post('code/request', {'email': 'yesterday@example.com'})
+    monkeypatch.undo()
+    BrowserClient().post('code/request', {'email': 'today@example.com'})
+    output = StringIO()
+
+    call_command('clear_expired_sign_in_limits', stdout=output)
+
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT COUNT(*), BOOL_AND(expires > NOW()) FROM django_cache')
+        remaining = cursor.fetchone()
+    # One row for the address asked for today and one for the IP address both came from.
+    assert (output.getvalue(), remaining) == ('Cleared 1 expired sign-in limits.\n', (2, True))
 
 
 SENT_AT = 1_800_000_000.0
