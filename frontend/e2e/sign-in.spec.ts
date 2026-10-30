@@ -74,3 +74,23 @@ test("a new test account's name page under forced colours", async ({ page, acces
     contentType: 'image/png'
   });
 });
+
+// Only production has a Google client, so the page is told Google is offered and the real backend, with none, sends
+// the browser back as it would after a failed sign-in at Google.
+test('going to Google posts to the backend, which sends the browser back to the sign-in page when it fails', async ({
+  page,
+  accessibility
+}) => {
+  await page.route('**/api/_allauth/browser/v1/config', (route) =>
+    route.fulfill({
+      json: { status: 200, data: { socialaccount: { providers: [{ id: 'google', name: 'Google', flows: [] }] } } }
+    })
+  );
+  await page.goto('/sign-in?next=%2Frecipes%2Fbaguette');
+  await accessibility.check();
+
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+
+  await expect(page).toHaveURL(/\/sign-in\?error=/);
+  await expect(page.getByRole('alert')).toContainText("Couldn't sign in with Google");
+});

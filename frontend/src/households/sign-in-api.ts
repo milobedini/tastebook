@@ -1,6 +1,15 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { type AuthResult, type CodeFlow, confirmSignInCode, requestCode, signUp, verifyEmail } from './auth-api';
+import {
+  type AuthResult,
+  type CodeFlow,
+  confirmSignInCode,
+  fetchProviders,
+  goToProvider,
+  requestCode,
+  signUp,
+  verifyEmail
+} from './auth-api';
 import { SESSION_KEY } from './session-api';
 
 type Rejected = Extract<AuthResult, { kind: 'rejected' }>;
@@ -41,4 +50,20 @@ export const useConfirmCode = () => {
     onSuccess: (result) =>
       result.kind === 'signed-in' ? queryClient.invalidateQueries({ queryKey: SESSION_KEY }) : undefined
   });
+};
+
+// Google is offered only once the server says it's set up; while it's asked, or if asking fails, the email code is
+// the way in, so neither has a state of its own.
+export const useGoogleSignIn = () => {
+  const { data: providers } = useQuery({ queryKey: ['households', 'providers'], queryFn: fetchProviders });
+  const { mutate, reset, isPending, isError } = useMutation({
+    mutationFn: (callbackUrl: string) => goToProvider('google', callbackUrl)
+  });
+  return {
+    isOffered: providers?.some(({ id }) => id === 'google') ?? false,
+    goToGoogle: mutate,
+    reset,
+    isGoing: isPending,
+    isUnreachable: isError
+  };
 };

@@ -14,6 +14,7 @@ export const renderRoute = (path: string) => {
         <RouterProvider router={router} />
       </QueryClientProvider>
     ),
-    router
+    router,
+    queryClient
   };
 };

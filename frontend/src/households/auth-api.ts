@@ -2,7 +2,8 @@ import type { components } from '../api/schema';
 
 // allauth's headless endpoints aren't DRF views, so they're outside the OpenAPI schema: the few read here are
 // typed by hand from allauth's headless spec.
-const AUTH_PATH = '/api/_allauth/browser/v1/auth';
+const ALLAUTH_PATH = '/api/_allauth/browser/v1';
+const AUTH_PATH = `${ALLAUTH_PATH}/auth`;
 
 const ACCOUNT_PATH = '/api/account/';
 
@@ -68,12 +69,16 @@ const toResult = (status: number, body: AuthBody): AuthResult => {
   throw new Error(`Sign-in request failed with ${status}`);
 };
 
-const send = async (method: 'POST' | 'DELETE', path: string, payload?: object): Promise<AuthResult> => {
-  // The account request every page makes sets the CSRF cookie; this covers a press before it has answered.
+// The account request every page makes sets the CSRF cookie; this covers a press before it has answered.
+const ensureCsrfToken = async (): Promise<string | undefined> => {
   if (csrfToken() === undefined) {
     await fetch(`${window.location.origin}${ACCOUNT_PATH}`, { credentials: 'same-origin' });
   }
-  const token = csrfToken();
+  return csrfToken();
+};
+
+const send = async (method: 'POST' | 'DELETE', path: string, payload?: object): Promise<AuthResult> => {
+  const token = await ensureCsrfToken();
   const response = await fetch(`${window.location.origin}${AUTH_PATH}${path}`, {
     method,
     credentials: 'same-origin',
@@ -98,3 +103,42 @@ export const confirmSignInCode = (code: string) => send('POST', '/code/confirm',
 export const verifyEmail = (code: string) => send('POST', '/email/verify', { key: code });
 
 export const signOut = () => send('DELETE', '/session');
+
+type Provider = { id: string };
+
+type ConfigBody = { data?: { socialaccount?: { providers?: Provider[] } } };
+
+// The ways to sign in besides an email code that this server has set up; none where Google has no client.
+export const fetchProviders = async (): Promise<Provider[]> => {
+  const response = await fetch(`${window.location.origin}${ALLAUTH_PATH}/config`, { credentials: 'same-origin' });
+  if (!response.ok) {
+    throw new Error(`Sign-in config request failed with ${response.status}`);
+  }
+  const body = (await response.json()) as ConfigBody;
+  return body.data?.socialaccount?.providers ?? [];
+};
+
+// allauth sends the browser on to the provider, so this is a page navigation (a form post), not a fetch. The
+// provider sends it back to `callbackUrl`, with `?error=` when signing in didn't work.
+export const goToProvider = async (provider: string, callbackUrl: string): Promise<void> => {
+  const fields = {
+    provider,
+    process: 'login',
+    callback_url: callbackUrl,
+    csrfmiddlewaretoken: (await ensureCsrfToken()) ?? ''
+  };
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = `${window.location.origin}${AUTH_PATH}/provider/redirect`;
+  form.append(
+    ...Object.entries(fields).map(([name, value]) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      return input;
+    })
+  );
+  document.body.append(form);
+  form.submit();
+};

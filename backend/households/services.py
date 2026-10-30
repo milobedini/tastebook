@@ -1,5 +1,6 @@
 import math
 import time
+from typing import Any
 
 from allauth.core.internal.ratelimit import Rate, get_cache_key, get_rates
 from django.conf import settings
@@ -8,7 +9,7 @@ from django.db import connection, transaction
 from django.http import HttpRequest
 from django.utils import timezone
 
-from households.models import Household, StoredSignInCode, User
+from households.models import NAME_MAX_LENGTH, Household, StoredSignInCode, User
 
 
 def is_test_account(email: str) -> bool:
@@ -38,6 +39,12 @@ def name_account(user: User, name: str) -> User:
             account.household = Household.objects.create(name=household_name_for(name))
         account.save(update_fields=['name', 'household'])
     return account
+
+
+def name_from_google(profile: dict[str, Any]) -> str:
+    """The first name on a Google profile, as an account's name; blank when it has none that fits."""
+    name = str(profile.get('given_name') or '').strip()
+    return name if len(name) <= NAME_MAX_LENGTH else ''
 
 
 ALLAUTH_LIMITS = 'allauth.account'
