@@ -129,6 +129,15 @@ DATABASES = {
 # Neon's pooled connection runs PgBouncer in transaction mode, which can't hold a server-side cursor open.
 DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache',
+        # Room for every live limit, so culling never drops an address's history early.
+        'OPTIONS': {'MAX_ENTRIES': 10_000},
+    }
+}
+
 AUTH_USER_MODEL = 'households.User'
 
 AUTHENTICATION_BACKENDS = [
@@ -154,6 +163,9 @@ ACCOUNT_PREVENT_ENUMERATION = False
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_EMAIL_SUBJECT_PREFIX = ''
 ALLAUTH_USER_CODE_FORMAT = {'numeric': True, 'length': 6, 'dashed': False}
+if VERCEL_ENV:
+    # Vercel sets X-Real-IP to the client's address and overwrites one the client sends.
+    ALLAUTH_TRUSTED_CLIENT_IP_HEADER = 'X-Real-IP'
 HEADLESS_ONLY = True
 HEADLESS_CLIENTS = ('browser',)
 

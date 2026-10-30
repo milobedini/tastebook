@@ -6,6 +6,7 @@ from typing import Any
 import pytest
 from django.core import mail
 from django.core.cache import cache
+from django.db import connection
 from django.http import HttpResponse
 from pytest_django.fixtures import Settings
 from rest_framework.test import APIClient
@@ -143,6 +144,18 @@ def test_a_wrong_code_is_refused() -> None:
 
     assert (refused.status_code, refused.json()['errors'][0]['code']) == (400, 'incorrect_code')
     assert browser.get('session').status_code == 401
+
+
+@pytest.mark.django_db
+def test_the_limit_on_asking_for_codes_is_kept_in_the_database() -> None:
+    sign_up(BrowserClient(), 'sam@example.com')
+
+    BrowserClient().post('code/request', {'email': 'sam@example.com'})
+
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT cache_key FROM django_cache')
+        keys = [key for (key,) in cursor.fetchall() if 'request_login_code' in key]
+    assert len(keys) == 2
 
 
 def ask_to_sign_in(browser: BrowserClient, email: str) -> tuple[str, dict[str, str]]:
