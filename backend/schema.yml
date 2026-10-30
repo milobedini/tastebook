@@ -213,6 +213,28 @@ paths:
           description: ''
         '404':
           description: No recipe has this slug.
+  /api/test-accounts/code/:
+    get:
+      operationId: test_account_code_retrieve
+      description: The latest sign-in code of a test account at tastebook.test. Local
+        runs and previews only; 404 on production.
+      parameters:
+      - in: query
+        name: email
+        schema:
+          type: string
+        required: true
+      tags:
+      - test-accounts
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignInCode'
+          description: ''
+        '404':
+          description: No response body
 components:
   schemas:
     BlankEnum:
@@ -665,6 +687,13 @@ components:
       - slug
       - title
       - total_minutes
+    SignInCode:
+      type: object
+      properties:
+        code:
+          type: string
+      required:
+      - code
     StatusEnum:
       enum:
       - ok
