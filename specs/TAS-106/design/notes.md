@@ -4,12 +4,12 @@ Canvas: https://claude.ai/artifact/9GGSFtYoW17HzKhFEQGUWx
 
 ## Boards
 
-- `Main.dc.html` (The account page, phone): /account at 390 px in six states: as it opens, saving the name, name saved, blank name, refused by the server (over 50 characters) and couldn't save the name.
-- `account-units.dc.html` (Choosing units): the Units segmented control in four states: focus on the group, chosen and saving, units saved, and couldn't save the units (the saved choice comes back).
-- `account-session.dc.html` (Before the page, and the way in): the account menu open with its Account item, then Checking your account… and Couldn't reach Tastebook while the session is unknown.
-- `account-laptop.dc.html` (The account page, laptop): the same 400 px column at 1280 px, with the toast at the bottom right; tablets match with the phone's bar and 32 px gutters.
-- `account-recipe.dc.html` (A recipe opens in your units): the recipe page's Units switch starting at the account's choice (US) when signed in, and metric when signed out or the session can't be checked.
-- `account-forced-colours.dc.html` (The account page under forced colours): the page simulated in High Contrast Black, with what to check on the built page.
+- `docs/design/picnic/account-page.dc.html` (The account page, phone): /account at 390 px in six states: as it opens, saving the name, name saved, blank name, refused by the server (over 50 characters) and couldn't save the name.
+- `docs/design/picnic/account-page-units.dc.html` (Choosing units): the Units segmented control in four states: focus on the group, chosen and saving, units saved, and couldn't save the units (the saved choice comes back).
+- `docs/design/picnic/account-page-session.dc.html` (Before the page, and the way in): the account menu open with its Account item, then Checking your account… and Couldn't reach Tastebook while the session is unknown.
+- `docs/design/picnic/account-page-laptop.dc.html` (The account page, laptop): the same 400 px column at 1280 px, with the toast at the bottom right; tablets match with the phone's bar and 32 px gutters.
+- `docs/design/picnic/account-page-recipe.dc.html` (A recipe opens in your units): the recipe page's Units switch starting at the account's choice (US) when signed in, and metric when signed out or the session can't be checked.
+- `docs/design/picnic/account-page-forced-colours.dc.html` (The account page under forced colours): the page simulated in High Contrast Black, with what to check on the built page.
 
 ## Decisions
 
