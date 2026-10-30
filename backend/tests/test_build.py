@@ -22,7 +22,7 @@ def test_a_preview_built_on_a_database_with_an_account_fails_before_loading_the_
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv('VERCEL_ENV', 'preview')
-    get_user_model().objects.create_user(username='someone', email='someone@example.com')
+    get_user_model().objects.create_user(email='someone@example.com')
 
     with pytest.raises(SystemExit) as failure:
         build.main()
@@ -47,7 +47,7 @@ def test_a_build_loads_the_catalogue_unless_it_is_a_preview_holding_accounts(
     else:
         monkeypatch.setenv('VERCEL_ENV', environment)
     for number in range(accounts):
-        get_user_model().objects.create_user(username=f'cook{number}')
+        get_user_model().objects.create_user(email=f'cook{number}@example.com')
 
     build.main()
 
@@ -60,7 +60,7 @@ def test_a_preview_born_empty_keeps_its_own_accounts_on_the_next_build(
 ) -> None:
     monkeypatch.setenv('VERCEL_ENV', 'preview')
     build.main()
-    get_user_model().objects.create_user(username='someone', email='someone@example.com')
+    get_user_model().objects.create_user(email='someone@example.com')
 
     build.main()
 
