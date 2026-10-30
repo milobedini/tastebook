@@ -53,6 +53,12 @@ Each build runs Django's migrations against its own database (`backend/build.py`
 - **Email:** Resend over SMTP from `noreply@tastebook.dev` (`DJANGO_DEFAULT_FROM_EMAIL`), production only; `RESEND_API_KEY` is a Production secret and production won't start without it. Previews send no email; locally and in CI it goes to the console.
 - **Previews:** email codes only; Google can't redirect to preview addresses that change per PR. Since previews send no email, only test accounts sign in there: addresses at `tastebook.test` (reserved by RFC 2606, so nobody can own one), whose codes the backend stores instead of sending. End-to-end tests read them from `GET /api/test-accounts/code/?email=`, which on previews needs the previews' bypass secret in `X-Test-Account-Secret`. Locally and in CI it needs nothing; on production it answers 404 and signing up refuses a `tastebook.test` address.
 - **Staff:** the Django admin is for staff accounts only, and staff need two-factor sign-in with an authenticator app (allauth's MFA), because the admin can change every recipe and account. _planned: TAS-107_
+- **Personal data, where and for how long** (UK GDPR's storage limitation; add a row with any feature that stores more):
+  - Accounts (`households.User`): the email address and name, for as long as the account exists.
+  - Sessions (`django_session`): which account a browser is signed in as, 30 days from its last request; nothing deletes expired sessions yet.
+  - Sign-in limits (`django_cache`): the client's IP address, a SHA-256 hash of the email address or the account's id, while a limit counts them (at most 10 minutes), then until the next night's clear.
+  - Backups: a copy of the database, so of the rows above, kept 30 days (Backups).
+  - Sentry: error reports, sent without request bodies, cookies, IP addresses or local variables (`backend/config/sentry.py`).
 - **Deleting an account** (UK GDPR's right to erasure): the account's private recipes are deleted; its public recipes stay, credited to "a former member", so saved links keep working. _planned_
 
 ## Photos
