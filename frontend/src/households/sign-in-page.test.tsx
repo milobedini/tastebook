@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import type { components } from '../api/schema';
 import { renderRoute } from '../test/render-route';
@@ -109,12 +109,8 @@ const signInWith = async (code: string) => {
 };
 
 describe('SignInPage', () => {
-  let sent: SentRequest[] = [];
-  beforeEach(() => {
-    sent = answerAllauth();
-  });
-
   it('signs an existing account in with the emailed code and goes back to the page', async () => {
+    const sent = answerAllauth();
     const { router } = renderRoute('/sign-in?next=/recipes/baguette');
 
     await sendCode('sam@example.com');
@@ -129,6 +125,7 @@ describe('SignInPage', () => {
   });
 
   it('signs a new address up with the same field and checks it with the emailed code', async () => {
+    const sent = answerAllauth();
     renderRoute('/sign-in?next=/recipes/baguette');
 
     await sendCode('new@example.com');
@@ -150,6 +147,7 @@ describe('SignInPage', () => {
   });
 
   it('says how to fix an address that is not one, and sends nothing', async () => {
+    const sent = answerAllauth();
     renderRoute('/sign-in');
 
     await sendCode('sam@example');
@@ -161,6 +159,7 @@ describe('SignInPage', () => {
   });
 
   it("shows the server's message for an address it refuses", async () => {
+    answerAllauth();
     const refused = 'Addresses at tastebook.test are only for testing. Use your own email address.';
     server.use(
       http.post(`${AUTH}/signup`, () => rejected(400, [{ code: 'test_account', param: 'email', message: refused }]))
@@ -175,6 +174,7 @@ describe('SignInPage', () => {
   });
 
   it('says how to fix a code that is not 6 digits, and sends nothing', async () => {
+    const sent = answerAllauth();
     renderRoute('/sign-in');
     await sendCode('sam@example.com');
 
@@ -196,6 +196,7 @@ describe('SignInPage', () => {
       'That code has run out. Use a different email or send a new code from step 1.'
     ]
   ])('says so for %s and keeps it in the field', async (_, answer, message) => {
+    answerAllauth();
     server.use(http.post(`${AUTH}/code/confirm`, answer));
     renderRoute('/sign-in');
     await sendCode('sam@example.com');
@@ -208,6 +209,7 @@ describe('SignInPage', () => {
   });
 
   it("says Tastebook couldn't be reached and keeps the address", async () => {
+    answerAllauth();
     server.use(http.post(`${AUTH}/code/request`, () => HttpResponse.error()));
     renderRoute('/sign-in');
 
@@ -220,6 +222,7 @@ describe('SignInPage', () => {
   });
 
   it('goes back to the address, kept and focused, from Use a different email', async () => {
+    answerAllauth();
     renderRoute('/sign-in');
     await sendCode('sam@example.com');
 
@@ -237,6 +240,7 @@ describe('SignInPage', () => {
     ['https://evil.example', 'Tastebook', '/'],
     [null, 'Tastebook', '/']
   ])('after signing in with next=%s, lands on %s', async (next, heading, landing) => {
+    answerAllauth();
     const { router } = renderRoute(next === null ? '/sign-in' : `/sign-in?next=${encodeURIComponent(next)}`);
 
     await sendCode('sam@example.com');
@@ -247,6 +251,7 @@ describe('SignInPage', () => {
   });
 
   it('goes straight to next when already signed in', async () => {
+    answerAllauth();
     server.use(http.get(`${AUTH}/session`, () => signedIn('sam@example.com')));
     const { router } = renderRoute('/sign-in?next=/recipes');
 
