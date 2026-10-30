@@ -105,7 +105,15 @@ const toSummary = ({
   diet_tags
 });
 
+// allauth's answer for a visitor who isn't signed in (allauth's endpoints are outside the OpenAPI schema).
+const signedOutSession = {
+  status: 401,
+  data: { flows: [{ id: 'login_by_code' }, { id: 'signup' }] },
+  meta: { is_authenticated: false }
+};
+
 export const handlers = [
+  http.get('/api/_allauth/browser/v1/auth/session', () => HttpResponse.json(signedOutSession, { status: 401 })),
   http.get('/api/health/', () => HttpResponse.json<Health>({ status: 'ok', database: 'ok', version: '0.1.0' })),
   http.get('/api/courses/', () => HttpResponse.json<Course[]>(courses)),
   http.get('/api/cuisines/', () => HttpResponse.json<Cuisine[]>(cuisines)),
