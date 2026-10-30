@@ -25,6 +25,7 @@ export type CodeFlow = 'login_by_code' | 'verify_email';
 export type AuthResult =
   | { kind: 'signed-in'; account: AuthUser }
   | { kind: 'code-sent'; flow: CodeFlow }
+  | { kind: 'two-factor' } // signed in up to the second factor: allauth's pending flow mfa_authenticate
   | { kind: 'signed-out' }
   | { kind: 'rejected'; status: 400 | 409; errors: AuthError[] }
   | { kind: 'limited'; retryAfterSeconds: number | undefined };
@@ -57,11 +58,12 @@ const toResult = (status: number, body: AuthBody): AuthResult => {
     return { kind: 'signed-in', account: { email: body.data.user.email } };
   }
   if (status === 401) {
-    const pending = body.data?.flows
-      ?.filter((flow) => flow.is_pending === true)
-      .map((flow) => flow.id)
-      .find(isCodeFlow);
-    return pending === undefined ? { kind: 'signed-out' } : { kind: 'code-sent', flow: pending };
+    const pending = body.data?.flows?.filter((flow) => flow.is_pending === true).map((flow) => flow.id) ?? [];
+    if (pending.includes('mfa_authenticate')) {
+      return { kind: 'two-factor' };
+    }
+    const codeFlow = pending.find(isCodeFlow);
+    return codeFlow === undefined ? { kind: 'signed-out' } : { kind: 'code-sent', flow: codeFlow };
   }
   if (status === 400 || status === 409) {
     return { kind: 'rejected', status, errors: body.errors ?? [] };
@@ -77,7 +79,7 @@ const ensureCsrfToken = async (): Promise<string | undefined> => {
   return csrfToken();
 };
 
-const send = async (method: 'POST' | 'DELETE', path: string, payload?: object): Promise<AuthResult> => {
+const send = async (method: 'GET' | 'POST' | 'DELETE', path: string, payload?: object): Promise<AuthResult> => {
   const token = await ensureCsrfToken();
   const response = await fetch(`${window.location.origin}${AUTH_PATH}${path}`, {
     method,
@@ -103,6 +105,12 @@ export const confirmSignInCode = (code: string) => send('POST', '/code/confirm',
 export const verifyEmail = (code: string) => send('POST', '/email/verify', { key: code });
 
 export const signOut = () => send('DELETE', '/session');
+
+export const confirmTwoFactorCode = (code: string) => send('POST', '/2fa/authenticate', { code });
+
+// allauth's session answers 401 to anyone not fully signed in, which the browser logs, so only the page Google
+// sends back to asks it.
+export const fetchSignInState = () => send('GET', '/session');
 
 type Provider = { id: string };
 

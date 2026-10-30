@@ -39,7 +39,8 @@ export default defineConfig({
     proxy: {
       // The object form keeps the browser's Host header (a bare string sets changeOrigin), so Django's CSRF check
       // sees the page's own origin on a signed-in request.
-      '/api': { target: 'http://localhost:8000' }
+      '/api': { target: 'http://localhost:8000' },
+      '/admin': { target: 'http://localhost:8000' }
     }
   }
 });

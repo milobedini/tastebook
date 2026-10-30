@@ -1,20 +1,33 @@
-import { type FormEvent, type RefObject, useRef, useState } from 'react';
+import { type FormEvent, type RefObject, useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Navigate, useNavigate, useSearchParams } from 'react-router';
 
-import { Banner, Button, Field, Input, Page } from '../dino';
+import { Banner, Button, Field, Input, Loading, Page } from '../dino';
 import type { CodeFlow } from './auth-api';
-import { safeNextPath } from './safe-next-path';
+import { isServerPage, safeNextPath } from './safe-next-path';
 import { useSession } from './session-api';
-import { useConfirmCode, useGoogleSignIn, useRequestCode } from './sign-in-api';
+import {
+  useConfirmCode,
+  useConfirmTwoFactorCode,
+  useGoogleSignIn,
+  useRequestCode,
+  useSignInState
+} from './sign-in-api';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CODE_PATTERN = /^\d{6}$/;
+// An authenticator app's code, or a recovery code.
+const TWO_FACTOR_CODE_PATTERN = /^(\d{6}|\d{8})$/;
 
 const NOT_AN_ADDRESS = 'Enter your email address, like sam@example.com.';
 const NOT_A_CODE = 'Enter the 6-digit code from the email, like 123456.';
 const WRONG_CODE = "That code isn't right. Check the email and try again.";
 const STOPPED = 'That code has stopped working. Use a different email or send a new code from step 1.';
+const NOT_A_TWO_FACTOR_CODE =
+  'Enter the 6-digit code from your authenticator app, like 123456, or an 8-digit recovery code.';
+const WRONG_TWO_FACTOR_CODE = "That code isn't right. Check the app and try again.";
+const TOO_MANY_TWO_FACTOR_CODES = "You've tried too many codes. Wait a few minutes and try again.";
+const TIMED_OUT = 'That sign-in has timed out. Start again from step 1.';
 
 const minutes = (seconds: number): string => {
   const count = Math.ceil(seconds / 60);
@@ -99,7 +112,7 @@ const EmailStep = ({
   const goToGoogle = () => {
     setIsUnreachable(false);
     onDismissGoogleRefused();
-    google.goToGoogle(`/sign-in?next=${encodeURIComponent(next)}`);
+    google.goToGoogle(`/sign-in?next=${encodeURIComponent(next)}&via=google`);
   };
 
   return (
@@ -143,10 +156,11 @@ type CodeStepProps = {
   flow: CodeFlow;
   headingRef: RefObject<HTMLHeadingElement | null>;
   onSignedIn: () => void;
+  onTwoFactor: () => void;
   onDifferentEmail: () => void;
 };
 
-const CodeStep = ({ email, flow, headingRef, onSignedIn, onDifferentEmail }: CodeStepProps) => {
+const CodeStep = ({ email, flow, headingRef, onSignedIn, onTwoFactor, onDifferentEmail }: CodeStepProps) => {
   const confirmCode = useConfirmCode();
   const codeRef = useRef<HTMLInputElement>(null);
   const [code, setCode] = useState('');
@@ -170,6 +184,10 @@ const CodeStep = ({ email, flow, headingRef, onSignedIn, onDifferentEmail }: Cod
       const result = await confirmCode.mutateAsync({ flow, code });
       if (result.kind === 'signed-in') {
         onSignedIn();
+        return;
+      }
+      if (result.kind === 'two-factor') {
+        onTwoFactor();
         return;
       }
       if (result.status === 409) {
@@ -219,7 +237,105 @@ const CodeStep = ({ email, flow, headingRef, onSignedIn, onDifferentEmail }: Cod
   );
 };
 
-type SentCode = { email: string; flow: CodeFlow };
+type TwoFactorStepProps = {
+  headingRef: RefObject<HTMLHeadingElement | null>;
+  onSignedIn: () => void;
+  onStartAgain: () => void;
+};
+
+const twoFactorRefusal = (status: 400 | 409, error: { code: string; message: string } | undefined): string => {
+  if (status === 409) {
+    return TIMED_OUT;
+  }
+  if (error?.code === 'incorrect_code') {
+    return WRONG_TWO_FACTOR_CODE;
+  }
+  if (error?.code === 'too_many_login_attempts') {
+    return TOO_MANY_TWO_FACTOR_CODES;
+  }
+  return error?.message ?? WRONG_TWO_FACTOR_CODE;
+};
+
+const TwoFactorStep = ({ headingRef, onSignedIn, onStartAgain }: TwoFactorStepProps) => {
+  const confirmCode = useConfirmTwoFactorCode();
+  const codeRef = useRef<HTMLInputElement>(null);
+  const [code, setCode] = useState('');
+  const [error, setError] = useState<string>();
+  const [isUnreachable, setIsUnreachable] = useState(false);
+
+  const refuse = (message: string) => {
+    setError(message);
+    codeRef.current?.focus();
+  };
+
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError(undefined);
+    setIsUnreachable(false);
+    if (!TWO_FACTOR_CODE_PATTERN.test(code)) {
+      refuse(NOT_A_TWO_FACTOR_CODE);
+      return;
+    }
+    try {
+      const result = await confirmCode.mutateAsync(code);
+      if (result.kind === 'signed-in') {
+        onSignedIn();
+        return;
+      }
+      refuse(twoFactorRefusal(result.status, result.errors[0]));
+    } catch {
+      setIsUnreachable(true);
+    }
+  };
+
+  return (
+    <>
+      <h1 ref={headingRef} tabIndex={-1}>
+        Enter your two-factor code
+      </h1>
+      <p>
+        Open your authenticator app and enter the 6-digit code for Tastebook. Lost your phone? Enter one of your
+        recovery codes instead.
+      </p>
+      {isUnreachable && <Unreachable />}
+      <form noValidate onSubmit={submit} className="flex flex-col gap-6">
+        <Field label="Code" error={error}>
+          {(control) => (
+            <Input
+              {...control}
+              ref={codeRef}
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={8}
+              value={code}
+              onChange={(event) => setCode(event.target.value)}
+            />
+          )}
+        </Field>
+        <div className={actions}>
+          <Button type="submit" loading={confirmCode.isPending} loadingLabel="Signing in…">
+            Sign in
+          </Button>
+          <Button variant="secondary" onClick={onStartAgain}>
+            Start again
+          </Button>
+        </div>
+      </form>
+    </>
+  );
+};
+
+// The browser leaves the app for a page Django serves, which is the outside system this effect syncs with.
+const LeaveForServerPage = ({ to }: { to: string }) => {
+  useEffect(() => window.location.replace(to), [to]);
+  return (
+    <Page>
+      <Loading>Opening the admin…</Loading>
+    </Page>
+  );
+};
+
+type Step = { name: 'email' } | { name: 'code'; email: string; flow: CodeFlow } | { name: 'two-factor' };
 
 export const SignInPage = () => {
   const { account } = useSession();
@@ -228,18 +344,38 @@ export const SignInPage = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [email, setEmail] = useState('');
-  const [sentCode, setSentCode] = useState<SentCode>();
+  const [chosenStep, setChosenStep] = useState<Step>();
   const next = safeNextPath(searchParams.get('next'));
+  const signInState = useSignInState(searchParams.get('via') === 'google');
 
   if (account) {
-    return <Navigate to={next} replace />;
+    return isServerPage(next) ? <LeaveForServerPage to={next} /> : <Navigate to={next} replace />;
   }
+
+  if (chosenStep === undefined && signInState.isChecking) {
+    return (
+      <Page>
+        <title>Sign in · Tastebook</title>
+        <Loading>Signing you in…</Loading>
+      </Page>
+    );
+  }
+
+  const step: Step = chosenStep ?? (signInState.needsTwoFactor ? { name: 'two-factor' } : { name: 'email' });
 
   // Focus follows the step, so a screen reader reads the new heading and the address the code went to.
   const showCodeStep = (sentTo: string, flow: CodeFlow) => {
-    flushSync(() => setSentCode({ email: sentTo, flow }));
+    flushSync(() => setChosenStep({ name: 'code', email: sentTo, flow }));
     headingRef.current?.focus();
   };
+
+  const showTwoFactorStep = () => {
+    flushSync(() => setChosenStep({ name: 'two-factor' }));
+    headingRef.current?.focus();
+  };
+
+  // A server page is left once the session's refetch brings the account, above.
+  const goToNext = () => (isServerPage(next) ? undefined : void navigate(next, { replace: true }));
 
   const dismissGoogleRefused = () => {
     if (searchParams.has('error')) {
@@ -248,7 +384,7 @@ export const SignInPage = () => {
   };
 
   const showEmailStep = () => {
-    flushSync(() => setSentCode(undefined));
+    flushSync(() => setChosenStep({ name: 'email' }));
     emailRef.current?.focus();
   };
 
@@ -256,7 +392,7 @@ export const SignInPage = () => {
     <Page>
       <title>Sign in · Tastebook</title>
       <div className="flex max-w-100 flex-col gap-6">
-        {sentCode === undefined ? (
+        {step.name === 'email' && (
           <EmailStep
             email={email}
             onEmailChange={setEmail}
@@ -266,14 +402,19 @@ export const SignInPage = () => {
             isGoogleRefused={searchParams.has('error')}
             onDismissGoogleRefused={dismissGoogleRefused}
           />
-        ) : (
+        )}
+        {step.name === 'code' && (
           <CodeStep
-            email={sentCode.email}
-            flow={sentCode.flow}
+            email={step.email}
+            flow={step.flow}
             headingRef={headingRef}
-            onSignedIn={() => void navigate(next, { replace: true })}
+            onSignedIn={goToNext}
+            onTwoFactor={showTwoFactorStep}
             onDifferentEmail={showEmailStep}
           />
+        )}
+        {step.name === 'two-factor' && (
+          <TwoFactorStep headingRef={headingRef} onSignedIn={goToNext} onStartAgain={showEmailStep} />
         )}
       </div>
     </Page>

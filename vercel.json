@@ -18,6 +18,8 @@
       "destination": "https://o4512323379724288.ingest.de.sentry.io/api/4512323386015824/envelope/"
     },
     { "source": "/api/(.*)", "destination": { "service": "backend" } },
+    { "source": "/admin", "destination": { "service": "backend" } },
+    { "source": "/admin/(.*)", "destination": { "service": "backend" } },
     { "source": "/(.*)", "destination": { "service": "frontend" } }
   ]
 }

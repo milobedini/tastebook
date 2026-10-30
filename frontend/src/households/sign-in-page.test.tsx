@@ -63,7 +63,8 @@ const rejected = (status: 400 | 409, errors: { code: string; message: string; pa
 
 type SentRequest = { path: string; body: unknown };
 
-// A stand-in for allauth: sam@example.com has an account, any other address doesn't, and 123456 is the code.
+// A stand-in for allauth: sam@example.com and staff@example.com have accounts, any other address doesn't, and
+// 123456 is the code. Staff then give their authenticator app's code, 654321, or the recovery code 12345678.
 const answerAllauth = () => {
   const sent: SentRequest[] = [];
   const state: { signedInAs?: string } = {};
@@ -76,7 +77,7 @@ const answerAllauth = () => {
     http.get('/api/account/', () => currentAccount(state.signedInAs)),
     http.post(`${AUTH}/code/request`, async ({ request }) => {
       const { email } = await record('code/request', request);
-      return email === 'sam@example.com'
+      return email === 'sam@example.com' || email === 'staff@example.com'
         ? pending('login_by_code')
         : rejected(400, [{ code: 'unknown_email', param: 'email', message: 'Unknown email address.' }]);
     }),
@@ -89,8 +90,19 @@ const answerAllauth = () => {
       if (code !== '123456') {
         return rejected(400, [{ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }]);
       }
+      if (sent.some(({ body }) => (body as Record<string, string>).email === 'staff@example.com')) {
+        return pending('mfa_authenticate');
+      }
       state.signedInAs = 'sam@example.com';
       return signedIn('sam@example.com');
+    }),
+    http.post(`${AUTH}/2fa/authenticate`, async ({ request }) => {
+      const { code } = await record('2fa/authenticate', request);
+      if (code !== '654321' && code !== '12345678') {
+        return rejected(400, [{ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }]);
+      }
+      state.signedInAs = 'staff@example.com';
+      return signedIn('staff@example.com');
     }),
     http.post(`${AUTH}/email/verify`, async ({ request }) => {
       const { key } = await record('email/verify', request);
@@ -313,6 +325,131 @@ describe('SignInPage', () => {
   });
 });
 
+const twoFactorHeading = () => screen.findByRole('heading', { level: 1, name: 'Enter your two-factor code' });
+
+const signInAsStaff = async () => {
+  await sendCode('staff@example.com');
+  await signInWith('123456');
+  return twoFactorHeading();
+};
+
+describe('SignInPage with two factors', () => {
+  it('asks staff for their authenticator code after the emailed one', async () => {
+    answerAllauth();
+    renderRoute('/sign-in?next=/recipes/baguette');
+
+    expect(await signInAsStaff()).toHaveFocus();
+  });
+
+  it.each([
+    ['the app’s code', '654321'],
+    ['a recovery code', '12345678']
+  ])('signs staff in with %s and goes back to the page', async (_, code) => {
+    const sent = answerAllauth();
+    const { router } = renderRoute('/sign-in?next=/recipes/baguette');
+    await signInAsStaff();
+
+    await signInWith(code);
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Baguette' })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/recipes/baguette');
+    expect(sent.at(-1)).toEqual({ path: '2fa/authenticate', body: { code } });
+  });
+
+  it('says how to fix a code that is neither 6 nor 8 digits, and sends nothing', async () => {
+    const sent = answerAllauth();
+    renderRoute('/sign-in');
+    await signInAsStaff();
+
+    await signInWith('12345');
+
+    expect(codeField()).toHaveAccessibleDescription(
+      'Enter the 6-digit code from your authenticator app, like 123456, or an 8-digit recovery code.'
+    );
+    expect(sent.map(({ path }) => path)).not.toContain('2fa/authenticate');
+  });
+
+  it.each([
+    [
+      'a wrong code',
+      () => rejected(400, [{ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }]),
+      "That code isn't right. Check the app and try again."
+    ],
+    [
+      'too many tries',
+      () => rejected(400, [{ code: 'too_many_login_attempts', message: 'Too many failed login attempts.' }]),
+      "You've tried too many codes. Wait a few minutes and try again."
+    ],
+    ['a sign-in that has timed out', () => rejected(409), 'That sign-in has timed out. Start again from step 1.']
+  ])('says so for %s and keeps the field focused', async (_, answer, message) => {
+    answerAllauth();
+    server.use(http.post(`${AUTH}/2fa/authenticate`, answer));
+    renderRoute('/sign-in');
+    await signInAsStaff();
+
+    await signInWith('111111');
+
+    await waitFor(() => expect(codeField()).toHaveAccessibleDescription(message));
+    expect(codeField()).toHaveFocus();
+  });
+
+  it("says Tastebook couldn't be reached when the two-factor code can't be sent", async () => {
+    answerAllauth();
+    server.use(http.post(`${AUTH}/2fa/authenticate`, () => HttpResponse.error()));
+    renderRoute('/sign-in');
+    await signInAsStaff();
+
+    await signInWith('654321');
+
+    expect(await screen.findByRole('alert')).toHaveTextContent("Couldn't reach Tastebook");
+  });
+
+  it('goes back to the email step, focused, from Start again', async () => {
+    answerAllauth();
+    renderRoute('/sign-in');
+    await signInAsStaff();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Start again' }));
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Sign in' })).toBeInTheDocument();
+    expect(emailField()).toHaveFocus();
+  });
+
+  it('asks staff back from Google for their authenticator code', async () => {
+    answerAllauth();
+    server.use(http.get(`${AUTH}/session`, () => pending('mfa_authenticate')));
+    renderRoute('/sign-in?next=%2Frecipes&via=google');
+
+    expect(await screen.findByText('Signing you in…')).toBeInTheDocument();
+    expect(await twoFactorHeading()).toBeInTheDocument();
+  });
+
+  it.each([
+    ['/sign-in?next=%2Frecipes', 0],
+    ['/sign-in?next=%2Frecipes&via=google', 1]
+  ])('on %s, asks allauth for a pending second factor %i times', async (address, times) => {
+    answerAllauth();
+    server.use(http.get(`${AUTH}/session`, () => pending('login_by_code')));
+    const asked: string[] = [];
+    server.events.on('response:mocked', ({ request }) => asked.push(new URL(request.url).pathname));
+    const { queryClient } = renderRoute(address);
+
+    await waitFor(() => expect(asked).toContain('/api/account/'));
+    await waitFor(() => expect(queryClient.isFetching()).toBe(0));
+    expect(await screen.findByRole('heading', { level: 1, name: 'Sign in' })).toBeInTheDocument();
+    expect(asked.filter((path) => path === `${AUTH}/session`)).toHaveLength(times);
+    server.events.removeAllListeners();
+  });
+
+  it('shows the email step when asking allauth back from Google fails', async () => {
+    answerAllauth();
+    server.use(http.get(`${AUTH}/session`, () => new HttpResponse(null, { status: 500 })));
+    renderRoute('/sign-in?next=%2Frecipes&via=google');
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Sign in' })).toBeInTheDocument();
+  });
+});
+
 const offerGoogle = () =>
   server.use(
     http.get('/api/_allauth/browser/v1/config', () =>
@@ -367,7 +504,7 @@ describe('SignInPage with Google', () => {
           fields: {
             provider: 'google',
             process: 'login',
-            callback_url: '/sign-in?next=%2Frecipes%2Fbaguette',
+            callback_url: '/sign-in?next=%2Frecipes%2Fbaguette&via=google',
             csrfmiddlewaretoken: 'from-the-cookie'
           }
         }

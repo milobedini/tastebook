@@ -2,8 +2,16 @@ import math
 import time
 from typing import Any
 
+from allauth.account.authentication import get_authentication_records
 from allauth.core.internal.ratelimit import Rate, get_cache_key, get_rates
+from allauth.mfa.base.internal.flows import post_authentication
+from allauth.mfa.models import Authenticator
+from allauth.mfa.recovery_codes.internal.auth import RecoveryCodes
+from allauth.mfa.totp.forms import ActivateTOTPForm
+from allauth.mfa.totp.internal.flows import activate_totp
 from django.conf import settings
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from django.db import connection, transaction
 from django.http import HttpRequest
@@ -85,3 +93,54 @@ def clear_expired_sign_in_limits() -> int:
     with connection.cursor() as cursor:
         cursor.execute(f'DELETE FROM {table} WHERE expires < %s', [timezone.now()])
         return cursor.rowcount
+
+
+def is_staff_account(user: AbstractBaseUser | AnonymousUser) -> bool:
+    return bool(user.is_authenticated and user.is_active and user.is_staff)
+
+
+def has_authenticator(user: AbstractBaseUser) -> bool:
+    return Authenticator.objects.filter(user_id=user.pk, type=Authenticator.Type.TOTP).exists()
+
+
+def passed_two_factors(request: HttpRequest) -> bool:
+    """Whether this session's sign-in included an authenticator or recovery code that the account still has."""
+    used = [
+        record.get('id')
+        for record in get_authentication_records(request, request.user)
+        if record.get('method') == 'mfa'
+    ]
+    # Only factors that still exist count: after reset_two_factor, a new authenticator mustn't vouch for this session.
+    return Authenticator.objects.filter(user_id=request.user.pk, pk__in=used).exists()
+
+
+def may_open_admin(request: HttpRequest) -> bool:
+    return is_staff_account(request.user) and passed_two_factors(request)
+
+
+def turn_on_two_factor(request: HttpRequest, form: ActivateTOTPForm) -> list[str]:
+    """Saves the authenticator and recovery codes; counts as this session's second factor. Returns the codes."""
+    totp, recovery = activate_totp(request, form)
+    # The code that confirmed the app proves the second factor, so the admin opens without asking again.
+    post_authentication(request, totp)
+    # Never None here: setup runs only without an authenticator, and removing one removes its recovery codes.
+    return RecoveryCodes(recovery).get_unused_codes()
+
+
+def account_with_email(email: str) -> User:
+    return User.objects.get(email__iexact=email)
+
+
+def make_staff(email: str) -> User:
+    """Makes the account with this address staff and superuser; raises User.DoesNotExist when there's none."""
+    account = account_with_email(email)
+    account.is_staff = True
+    account.is_superuser = True
+    account.save(update_fields=['is_staff', 'is_superuser'])
+    return account
+
+
+def reset_two_factor(email: str) -> int:
+    """Deletes the account's authenticator and recovery codes and says how many; raises User.DoesNotExist."""
+    deleted, _ = Authenticator.objects.filter(user=account_with_email(email)).delete()
+    return deleted

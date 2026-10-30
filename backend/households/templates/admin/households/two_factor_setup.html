@@ -1,0 +1,47 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}{% if form.errors %}Error: {% endif %}{{ block.super }}{% endblock %}
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">
+{% endblock %}
+{% block usertools %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block content %}<div id="content-main">
+
+<form method="post">{% csrf_token %}
+<div>
+{% if form.errors %}
+    <p class="errornote">Please correct the error below.</p>
+{% endif %}
+
+<p>The admin needs a code from an authenticator app, such as Google Authenticator, Microsoft Authenticator or 1Password, each time you sign in. Scan this QR code with the app.</p>
+
+{# The QR code's modules are black on transparent, so it needs its own white ground to stay readable in the dark theme. #}
+<p style="display: inline-block; background: #fff; padding: 16px;">
+    <img src="{{ qr_code }}" alt="QR code for your authenticator app">
+</p>
+
+<p>Can't scan it? Type this key into the app instead: <code>{{ key }}</code></p>
+
+<fieldset class="module aligned">
+<div class="form-row">
+    <div class="flex-container{% if form.code.errors %} errors{% endif %}">
+        {{ form.code.label_tag }}
+        {{ form.code.errors }}
+        {{ form.code }}
+    </div>
+    <div class="help" id="{{ form.code.auto_id }}_helptext">{{ form.code.help_text }}</div>
+</div>
+</fieldset>
+
+<div class="submit-row">
+    <input type="submit" value="Turn on two-factor sign-in" class="default">
+</div>
+
+</div>
+</form></div>
+{% endblock %}
