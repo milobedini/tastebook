@@ -16,10 +16,13 @@ type AuthBody = {
 
 export type Account = components['schemas']['Account'];
 
+// allauth's user carries only the address; the name comes from GET /api/account/.
+export type AuthUser = { email: string };
+
 export type CodeFlow = 'login_by_code' | 'verify_email';
 
 export type AuthResult =
-  | { kind: 'signed-in'; account: Account }
+  | { kind: 'signed-in'; account: AuthUser }
   | { kind: 'code-sent'; flow: CodeFlow }
   | { kind: 'signed-out' }
   | { kind: 'rejected'; status: 400 | 409; errors: AuthError[] };
