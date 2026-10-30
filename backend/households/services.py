@@ -1,5 +1,11 @@
+import math
+import time
+
+from allauth.core.internal.ratelimit import Rate, get_cache_key, get_rates
 from django.conf import settings
+from django.core.cache import cache
 from django.db import transaction
+from django.http import HttpRequest
 
 from households.models import Household, StoredSignInCode, User
 
@@ -31,3 +37,24 @@ def name_account(user: User, name: str) -> User:
             account.household = Household.objects.create(name=household_name_for(name))
         account.save(update_fields=['name', 'household'])
     return account
+
+
+ALLAUTH_LIMITS = 'allauth.account'
+
+
+def seconds_until_allowed(request: HttpRequest, action: str, key: str | None = None) -> int:
+    """Whole seconds until every allauth limit on `action` would let `request` through again; at least 1."""
+    now = time.time()
+    waits = [
+        wait_for(
+            rate, cache.get(get_cache_key(request, app=ALLAUTH_LIMITS, action=action, rate=rate, key=key), []), now
+        )
+        for rate in get_rates(app=ALLAUTH_LIMITS, action=action)
+    ]
+    return max(1, math.ceil(max(waits, default=0)))
+
+
+def wait_for(rate: Rate, history: list[float], now: float) -> float:
+    # allauth keeps the newest hit first; a slot frees when the rate.amount-th newest one leaves the window.
+    live = [hit for hit in history if hit > now - rate.duration]
+    return live[rate.amount - 1] + rate.duration - now if len(live) >= rate.amount else 0

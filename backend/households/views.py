@@ -1,11 +1,13 @@
 import hmac
+from http import HTTPStatus
+from typing import Any
 
-from allauth.headless.account.inputs import ConfirmLoginCodeInput, VerifyEmailInput
-from allauth.headless.account.views import ConfirmLoginCodeView, VerifyEmailView
-from allauth.headless.base.response import ConflictResponse
+from allauth.headless.account.inputs import ConfirmLoginCodeInput, RequestLoginCodeInput, VerifyEmailInput
+from allauth.headless.account.views import ConfirmLoginCodeView, RequestLoginCodeView, SignupView, VerifyEmailView
+from allauth.headless.base.response import ConflictResponse, RateLimitResponse
 from allauth.headless.internal.restkit.response import ErrorResponse
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -20,7 +22,7 @@ from households.serializers import (
     CurrentAccountSerializer,
     SignInCodeSerializer,
 )
-from households.services import is_test_account, latest_sign_in_code, name_account
+from households.services import is_test_account, latest_sign_in_code, name_account, seconds_until_allowed
 
 
 def may_read_codes(request: Request) -> bool:
@@ -80,6 +82,29 @@ class CurrentAccountView(APIView):
         names.is_valid(raise_exception=True)
         account = name_account(request.user, names.validated_data['name'])
         return Response(AccountSerializer(account).data)
+
+
+def rate_limited(request: HttpRequest, seconds: int) -> HttpResponse:
+    response = RateLimitResponse(request)
+    response['Retry-After'] = str(seconds)
+    return response
+
+
+class RequestSignInCodeView(RequestLoginCodeView):
+    def handle_invalid_input(self, input: RequestLoginCodeInput) -> HttpResponse:
+        refused = [error.code for error in input.errors.as_data().get('email', [])]
+        if 'too_many_login_attempts' not in refused:
+            return super().handle_invalid_input(input)
+        email = str(input.data.get('email', '')).strip().lower()
+        return rate_limited(self.request, seconds_until_allowed(self.request, 'request_login_code', key=email))
+
+
+class SignUpView(SignupView):
+    def handle(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
+        response = super().handle(request, *args, **kwargs)
+        if response.status_code != HTTPStatus.TOO_MANY_REQUESTS:
+            return response
+        return rate_limited(request, seconds_until_allowed(request, 'signup'))
 
 
 class ConfirmSignInCodeView(ConfirmLoginCodeView):

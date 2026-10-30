@@ -158,6 +158,71 @@ def test_the_limit_on_asking_for_codes_is_kept_in_the_database() -> None:
     assert len(keys) == 2
 
 
+SENT_AT = 1_800_000_000.0
+
+
+def ask_for_codes(
+    monkeypatch: pytest.MonkeyPatch, email: str, seconds_after_the_first: list[int]
+) -> list[HttpResponse]:
+    def ask(seconds: int) -> HttpResponse:
+        monkeypatch.setattr(time, 'time', lambda: SENT_AT + seconds)
+        return BrowserClient().post('code/request', {'email': email})
+
+    return [ask(seconds) for seconds in seconds_after_the_first]
+
+
+@pytest.mark.django_db
+def test_an_address_is_sent_at_most_3_codes_in_10_minutes(monkeypatch: pytest.MonkeyPatch) -> None:
+    sign_up(BrowserClient(), 'sam@example.com')
+    sent_before = len(mail.outbox)
+
+    answers = ask_for_codes(monkeypatch, 'sam@example.com', [0, 60, 120, 180])
+
+    codes_sent = len([message for message in mail.outbox[sent_before:] if message.to == ['sam@example.com']])
+    assert ([answer.status_code for answer in answers], answers[-1].get('Retry-After'), codes_sent) == (
+        [401, 401, 401, 429],
+        '420',
+        3,
+    )
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(('seconds_later', 'status', 'retry_after'), [(599, 429, '1'), (600, 401, None)])
+def test_a_4th_code_is_sent_once_the_first_is_10_minutes_old(
+    monkeypatch: pytest.MonkeyPatch, seconds_later: int, status: int, retry_after: str | None
+) -> None:
+    sign_up(BrowserClient(), 'sam@example.com')
+
+    *_, fourth = ask_for_codes(monkeypatch, 'sam@example.com', [0, 60, 120, seconds_later])
+
+    assert (fourth.status_code, fourth.get('Retry-After')) == (status, retry_after)
+
+
+@pytest.mark.django_db
+def test_another_address_is_not_held_back_by_one_over_its_limit(monkeypatch: pytest.MonkeyPatch) -> None:
+    sign_up(BrowserClient(), 'sam@example.com')
+    sign_up(BrowserClient(), 'kim@example.com')
+
+    *_, sams_fourth = ask_for_codes(monkeypatch, 'sam@example.com', [0, 60, 120, 180])
+    [kims_first] = ask_for_codes(monkeypatch, 'kim@example.com', [180])
+
+    assert (sams_fourth.status_code, kims_first.status_code) == (429, 401)
+
+
+@pytest.mark.django_db
+def test_a_21st_sign_up_from_one_address_in_a_minute_is_told_when_to_try_again(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(time, 'time', lambda: SENT_AT)
+    for number in range(20):
+        BrowserClient().post('signup', {'email': f'cook{number}@example.com'})
+    monkeypatch.setattr(time, 'time', lambda: SENT_AT + 15)
+
+    refused = BrowserClient().post('signup', {'email': 'cook20@example.com'})
+
+    assert (refused.status_code, refused.get('Retry-After')) == (429, '45')
+
+
 def ask_to_sign_in(browser: BrowserClient, email: str) -> tuple[str, dict[str, str]]:
     sign_up(BrowserClient(), email)
     browser.post('code/request', {'email': email})
