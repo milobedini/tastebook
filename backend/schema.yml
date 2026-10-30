@@ -21,6 +21,38 @@ paths:
               schema:
                 $ref: '#/components/schemas/CurrentAccount'
           description: ''
+    patch:
+      operationId: current_account_partial_update
+      description: Saves the signed-in account's name. An account with no household
+        gets one called "<name>'s household".
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAccountName'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAccountName'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAccountName'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+        '400':
+          description: No response body
+        '403':
+          description: No response body
   /api/courses/:
     get:
       operationId: courses_list
@@ -260,8 +292,11 @@ components:
         email:
           type: string
           format: email
+        name:
+          type: string
       required:
       - email
+      - name
     BlankEnum:
       enum:
       - ''
@@ -496,6 +531,12 @@ components:
       - name
       - slug
       - synonyms
+    PatchedAccountName:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 50
     PhotoThumbnail:
       type: object
       properties:
