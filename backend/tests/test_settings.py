@@ -21,6 +21,7 @@ print(json.dumps({
     'TEST_ACCOUNT_CODES_NEED_SECRET': settings.TEST_ACCOUNT_CODES_NEED_SECRET,
     'MAILERS': settings.MAILERS,
     'DEFAULT_FROM_EMAIL': settings.DEFAULT_FROM_EMAIL,
+    'ALLAUTH_TRUSTED_CLIENT_IP_HEADER': getattr(settings, 'ALLAUTH_TRUSTED_CLIENT_IP_HEADER', None),
 }))
 """
 
@@ -132,3 +133,17 @@ def test_production_without_the_resend_key_does_not_start() -> None:
 
     assert result.returncode != 0
     assert 'RESEND_API_KEY must be set on production' in result.stderr
+
+
+@pytest.mark.parametrize(
+    ('env', 'expected'),
+    [
+        ({'DJANGO_SECRET_KEY': 'test-only', 'VERCEL_ENV': 'preview'}, 'X-Real-IP'),
+        ({'DJANGO_SECRET_KEY': 'test-only', 'DJANGO_DEBUG': 'true'}, None),
+    ],
+    ids=['vercel', 'local'],
+)
+def test_only_vercel_reads_the_clients_address_from_x_real_ip(env: dict[str, str], expected: str | None) -> None:
+    settings = settings_with(env)
+
+    assert settings['ALLAUTH_TRUSTED_CLIENT_IP_HEADER'] == expected

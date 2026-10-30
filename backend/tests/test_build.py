@@ -81,6 +81,17 @@ def test_a_preview_born_empty_keeps_its_own_accounts_on_the_next_build(
     assert (Recipe.objects.count(), get_user_model().objects.count()) == (305, 1)
 
 
+@pytest.mark.django_db(transaction=True)
+def test_a_build_on_an_empty_database_makes_the_cache_table_sign_in_limits_use(
+    monkeypatch: pytest.MonkeyPatch, an_empty_database: None
+) -> None:
+    monkeypatch.delenv('VERCEL_ENV', raising=False)
+
+    build.main()
+
+    assert 'django_cache' in connection.introspection.table_names()
+
+
 @pytest.fixture
 def a_database_migrated_before_the_switch(an_empty_database: None) -> Iterator[None]:
     # As production and older previews are: the admin migrated against auth.User, with its log and auth_user empty.

@@ -1,11 +1,14 @@
 import re
 import time
 from collections.abc import Iterator
+from io import StringIO
 from typing import Any
 
 import pytest
 from django.core import mail
 from django.core.cache import cache
+from django.core.management import call_command
+from django.db import connection
 from django.http import HttpResponse
 from pytest_django.fixtures import Settings
 from rest_framework.test import APIClient
@@ -145,6 +148,103 @@ def test_a_wrong_code_is_refused() -> None:
     assert browser.get('session').status_code == 401
 
 
+@pytest.mark.django_db
+def test_the_limit_on_asking_for_codes_is_kept_in_the_database() -> None:
+    sign_up(BrowserClient(), 'sam@example.com')
+
+    BrowserClient().post('code/request', {'email': 'sam@example.com'})
+
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT cache_key FROM django_cache')
+        keys = [key for (key,) in cursor.fetchall() if 'request_login_code' in key]
+    assert len(keys) == 2
+
+
+@pytest.mark.django_db
+def test_clearing_expired_sign_in_limits_keeps_only_the_live_ones(monkeypatch: pytest.MonkeyPatch) -> None:
+    User.objects.create_user('yesterday@example.com')
+    User.objects.create_user('today@example.com')
+    a_day_ago = time.time() - 24 * 60 * 60
+    monkeypatch.setattr(time, 'time', lambda: a_day_ago)
+    BrowserClient().post('code/request', {'email': 'yesterday@example.com'})
+    monkeypatch.undo()
+    BrowserClient().post('code/request', {'email': 'today@example.com'})
+    output = StringIO()
+
+    call_command('clear_expired_sign_in_limits', stdout=output)
+
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT COUNT(*), BOOL_AND(expires > NOW()) FROM django_cache')
+        remaining = cursor.fetchone()
+    # One row for the address asked for today and one for the IP address both came from.
+    assert (output.getvalue(), remaining) == ('Cleared 1 expired sign-in limits.\n', (2, True))
+
+
+SENT_AT = 1_800_000_000.0
+
+
+def ask_for_codes(
+    monkeypatch: pytest.MonkeyPatch, email: str, seconds_after_the_first: list[int]
+) -> list[HttpResponse]:
+    def ask(seconds: int) -> HttpResponse:
+        monkeypatch.setattr(time, 'time', lambda: SENT_AT + seconds)
+        return BrowserClient().post('code/request', {'email': email})
+
+    return [ask(seconds) for seconds in seconds_after_the_first]
+
+
+@pytest.mark.django_db
+def test_an_address_is_sent_at_most_3_codes_in_10_minutes(monkeypatch: pytest.MonkeyPatch) -> None:
+    sign_up(BrowserClient(), 'sam@example.com')
+    sent_before = len(mail.outbox)
+
+    answers = ask_for_codes(monkeypatch, 'sam@example.com', [0, 60, 120, 180])
+
+    codes_sent = len([message for message in mail.outbox[sent_before:] if message.to == ['sam@example.com']])
+    assert ([answer.status_code for answer in answers], answers[-1].get('Retry-After'), codes_sent) == (
+        [401, 401, 401, 429],
+        '420',
+        3,
+    )
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(('seconds_later', 'status', 'retry_after'), [(599, 429, '1'), (600, 401, None)])
+def test_a_4th_code_is_sent_once_the_first_is_10_minutes_old(
+    monkeypatch: pytest.MonkeyPatch, seconds_later: int, status: int, retry_after: str | None
+) -> None:
+    sign_up(BrowserClient(), 'sam@example.com')
+
+    *_, fourth = ask_for_codes(monkeypatch, 'sam@example.com', [0, 60, 120, seconds_later])
+
+    assert (fourth.status_code, fourth.get('Retry-After')) == (status, retry_after)
+
+
+@pytest.mark.django_db
+def test_another_address_is_not_held_back_by_one_over_its_limit(monkeypatch: pytest.MonkeyPatch) -> None:
+    sign_up(BrowserClient(), 'sam@example.com')
+    sign_up(BrowserClient(), 'kim@example.com')
+
+    *_, sams_fourth = ask_for_codes(monkeypatch, 'sam@example.com', [0, 60, 120, 180])
+    [kims_first] = ask_for_codes(monkeypatch, 'kim@example.com', [180])
+
+    assert (sams_fourth.status_code, kims_first.status_code) == (429, 401)
+
+
+@pytest.mark.django_db
+def test_a_21st_sign_up_from_one_address_in_a_minute_is_told_when_to_try_again(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(time, 'time', lambda: SENT_AT)
+    for number in range(20):
+        BrowserClient().post('signup', {'email': f'cook{number}@example.com'})
+    monkeypatch.setattr(time, 'time', lambda: SENT_AT + 15)
+
+    refused = BrowserClient().post('signup', {'email': 'cook20@example.com'})
+
+    assert (refused.status_code, refused.get('Retry-After')) == (429, '45')
+
+
 def ask_to_sign_in(browser: BrowserClient, email: str) -> tuple[str, dict[str, str]]:
     sign_up(BrowserClient(), email)
     browser.post('code/request', {'email': email})
@@ -175,6 +275,37 @@ def test_a_code_works_for_10_minutes(
     else:
         assert confirmed.status_code != 200
         assert browser.get('session').status_code == 401
+
+
+def wrong_code(body: dict[str, str]) -> dict[str, str]:
+    [(field, code)] = body.items()
+    return {field: '000000' if code != '000000' else '111111'}
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('ask', [ask_to_sign_in, ask_to_sign_up], ids=['sign-in', 'sign-up'])
+def test_the_5th_wrong_code_stops_the_code(ask: Any) -> None:
+    browser = BrowserClient()
+    path, body = ask(browser, 'sam@example.com')
+
+    statuses = [browser.post(path, wrong_code(body)).status_code for _ in range(5)]
+    right = browser.post(path, body)
+
+    assert [*statuses, right.status_code] == [400, 400, 400, 400, 409, 409]
+    assert browser.get('session').status_code == 401
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('ask', [ask_to_sign_in, ask_to_sign_up], ids=['sign-in', 'sign-up'])
+def test_the_right_code_still_works_after_4_wrong_ones(ask: Any) -> None:
+    browser = BrowserClient()
+    path, body = ask(browser, 'sam@example.com')
+
+    statuses = [browser.post(path, wrong_code(body)).status_code for _ in range(4)]
+    right = browser.post(path, body)
+
+    assert [*statuses, right.status_code] == [400, 400, 400, 400, 200]
+    assert signed_in_email(browser) == 'sam@example.com'
 
 
 @pytest.mark.django_db

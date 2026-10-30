@@ -5,7 +5,7 @@ import { SESSION_KEY } from './session-api';
 
 type Rejected = Extract<AuthResult, { kind: 'rejected' }>;
 
-export type CodeRequest = Extract<AuthResult, { kind: 'code-sent' }> | Rejected;
+export type CodeRequest = Extract<AuthResult, { kind: 'code-sent' | 'limited' }> | Rejected;
 
 export type CodeConfirmation = Extract<AuthResult, { kind: 'signed-in' }> | Rejected;
 
@@ -21,7 +21,7 @@ export const useRequestCode = () =>
     mutationFn: async (email: string): Promise<CodeRequest> => {
       const requested = await requestCode(email);
       const result = isUnknownEmail(requested) ? await signUp(email) : requested;
-      if (result.kind === 'code-sent' || result.kind === 'rejected') {
+      if (result.kind === 'code-sent' || result.kind === 'limited' || result.kind === 'rejected') {
         return result;
       }
       throw unexpected(result);

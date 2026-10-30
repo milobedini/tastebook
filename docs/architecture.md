@@ -48,11 +48,17 @@ Each build runs Django's migrations against its own database (`backend/build.py`
 
 ## Accounts
 
-- **Sign-in:** `django-allauth`'s headless API under `/api/_allauth/` (the browser client: session cookies and CSRF), with a 6-digit code sent by email that works once, for 10 minutes; no passwords. Asking for a code for an address with no account answers `unknown_email`, and the client then signs up with it, which emails a code too. Signing in with Google is _planned: TAS-105_. Nobody forgets a password they never set, Google covers most people, and accounts stay in Tastebook's own database (households and private recipes depend on them) rather than with a third party. The account is `households.User`, with the email address as its identifier.
+- **Sign-in:** `django-allauth`'s headless API under `/api/_allauth/` (the browser client: session cookies and CSRF), with a 6-digit code sent by email that works once, for 10 minutes; no passwords. Asking for a code for an address with no account answers `unknown_email`, and the client then signs up with it, which emails a code too. Signing in with Google is _planned: TAS-105_. Nobody forgets a password they never set, Google covers most people, and accounts stay in Tastebook's own database (households and private recipes depend on them) rather than with a third party. The account is `households.User`, with the email address as its identifier. Sign-in's limits (codes per address, tries per code) are counted in Django's database cache, the `django_cache` table a migration makes, so every instance shares them; on Vercel the client's address comes from `X-Real-IP`. Django deletes expired cache rows only once the table passes `MAX_ENTRIES`, so the nightly backup workflow clears them first (`manage.py clear_expired_sign_in_limits`).
 - **Sessions:** Django's database sessions, in cookies on the same domain as the API. A session lasts 30 days from its last request: every request sets the cookie again.
 - **Email:** Resend over SMTP from `noreply@tastebook.dev` (`DJANGO_DEFAULT_FROM_EMAIL`), production only; `RESEND_API_KEY` is a Production secret and production won't start without it. Previews send no email; locally and in CI it goes to the console.
 - **Previews:** email codes only; Google can't redirect to preview addresses that change per PR. Since previews send no email, only test accounts sign in there: addresses at `tastebook.test` (reserved by RFC 2606, so nobody can own one), whose codes the backend stores instead of sending. End-to-end tests read them from `GET /api/test-accounts/code/?email=`, which on previews needs the previews' bypass secret in `X-Test-Account-Secret`. Locally and in CI it needs nothing; on production it answers 404 and signing up refuses a `tastebook.test` address.
 - **Staff:** the Django admin is for staff accounts only, and staff need two-factor sign-in with an authenticator app (allauth's MFA), because the admin can change every recipe and account. _planned: TAS-107_
+- **Personal data, where and for how long** (UK GDPR's storage limitation; add a row with any feature that stores more):
+  - Accounts (`households.User`): the email address and name, for as long as the account exists.
+  - Sessions (`django_session`): which account a browser is signed in as, 30 days from its last request; nothing deletes expired sessions yet.
+  - Sign-in limits (`django_cache`): the client's IP address, a SHA-256 hash of the email address or the account's id, while a limit counts them (at most 10 minutes), then until the next night's clear.
+  - Backups: a copy of the database, so of the rows above, kept 30 days (Backups).
+  - Sentry: error reports, sent without request bodies, cookies, IP addresses or local variables (`backend/config/sentry.py`).
 - **Deleting an account** (UK GDPR's right to erasure): the account's private recipes are deleted; its public recipes stay, credited to "a former member", so saved links keep working. _planned_
 
 ## Photos
@@ -82,9 +88,9 @@ Uploads are _planned: Accounts and households._
 
 ## Backups
 
-`.github/workflows/backup.yml` runs at 02:17 UTC every night (and on demand from the Actions tab). It dumps production with `pg_dump` 18 over Neon's direct connection, checks the dump holds table data, uploads it to the private Blob store `tastebook-backups` as `tastebook-<time taken>.dump`, then deletes dumps older than 30 days. The code is in `tools/backup/`.
+`.github/workflows/backup.yml` runs at 02:17 UTC every night (and on demand from the Actions tab). It first clears expired sign-in limits (Accounts), so no dump keeps their IP addresses; the backup runs even if that fails. It then dumps production with `pg_dump` 18 over Neon's direct connection, checks the dump holds table data, uploads it to the private Blob store `tastebook-backups` as `tastebook-<time taken>.dump`, then deletes dumps older than 30 days. The code is in `tools/backup/`.
 
-- **Secrets:** the workflow reads `PRODUCTION_DATABASE_URL` (direct, unpooled) and `BACKUP_BLOB_READ_WRITE_TOKEN` from the GitHub environment `backups`, not the repository's secrets. Only `main` can deploy to that environment, so a workflow on any other branch can't read them. The store isn't connected to the Vercel project, so the app's own token can't read or delete backups; photos are in a different store.
+- **Secrets:** the workflow reads `PRODUCTION_DATABASE_URL` (direct, unpooled; the clearing job reads it as `DATABASE_URL`) and `BACKUP_BLOB_READ_WRITE_TOKEN` from the GitHub environment `backups`, not the repository's secrets. Only `main` can deploy to that environment, so a workflow on any other branch can't read them. The store isn't connected to the Vercel project, so the app's own token can't read or delete backups; photos are in a different store.
 - **A failed night:** the run fails and shows red in Actions, GitHub emails whoever last changed the workflow's schedule, and nothing is deleted, because pruning only follows a successful upload.
 - **Keeping it running:** GitHub turns scheduled workflows off after 60 days without activity in the repo. If that happens, turn it back on from the workflow's page in Actions.
 

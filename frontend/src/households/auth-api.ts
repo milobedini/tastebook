@@ -25,7 +25,8 @@ export type AuthResult =
   | { kind: 'signed-in'; account: AuthUser }
   | { kind: 'code-sent'; flow: CodeFlow }
   | { kind: 'signed-out' }
-  | { kind: 'rejected'; status: 400 | 409; errors: AuthError[] };
+  | { kind: 'rejected'; status: 400 | 409; errors: AuthError[] }
+  | { kind: 'limited'; retryAfterSeconds: number | undefined };
 
 const isCodeFlow = (id: string | undefined): id is CodeFlow => id === 'login_by_code' || id === 'verify_email';
 
@@ -42,6 +43,12 @@ const readBody = async (response: Response): Promise<AuthBody> => {
     // A 409 can come with no body worth reading, and a proxy's error page isn't JSON.
     return {};
   }
+};
+
+// Whole seconds from the server's Retry-After; undefined when it's missing or isn't a positive whole number.
+const retryAfter = (response: Response): number | undefined => {
+  const seconds = Number(response.headers.get('Retry-After'));
+  return Number.isInteger(seconds) && seconds > 0 ? seconds : undefined;
 };
 
 const toResult = (status: number, body: AuthBody): AuthResult => {
@@ -76,6 +83,9 @@ const send = async (method: 'POST' | 'DELETE', path: string, payload?: object): 
     },
     body: payload === undefined ? undefined : JSON.stringify(payload)
   });
+  if (response.status === 429) {
+    return { kind: 'limited', retryAfterSeconds: retryAfter(response) };
+  }
   return toResult(response.status, await readBody(response));
 };
 
