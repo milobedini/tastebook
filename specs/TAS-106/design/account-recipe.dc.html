@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>A recipe opens in your units</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.frame{position:relative;background:var(--color-ground);border:1px solid var(--color-line);border-radius:20px;overflow:hidden;flex-shrink:0;width:390px;height:520px}
+.bar{border-bottom:1px solid var(--color-line)}
+.in{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:minmax(76px,auto);align-items:center;column-gap:8px;padding:0 20px}
+.in.bare{grid-template-columns:minmax(0,1fr) auto}
+.wmk{display:inline-flex;align-items:center;min-height:44px;font-family:var(--font-serif);font-size:34px;line-height:36px;font-style:italic;color:var(--color-ink);text-decoration:none}
+.av{width:44px;height:44px;padding:0;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-surface);color:var(--color-ink);display:inline-grid;place-items:center;font-family:var(--font-sans);font-size:19px;line-height:24px;font-weight:800;cursor:pointer}
+.page{padding:24px 20px 48px;display:flex;flex-direction:column;gap:24px}
+.page h1,.page h2{margin:0}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ing{display:flex;flex-direction:column;gap:16px}
+.cut{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted);font-style:italic}
+.boards{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:40px;align-items:start}
+.col{display:flex;flex-direction:column;gap:10px}
+.notes{display:flex;flex-direction:column;gap:12px;max-width:880px}
+.notes p{margin:0;font-size:15px;line-height:22px;font-weight:600;color:var(--color-ink)}
+.notes p b{font-weight:800}
+</style>
+</helmet>
+<div style="width: 1000px; height: 1060px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">TAS-106 · /recipes/:slug · phone, 390 px · the recipe’s controls and ingredients, the rest as today</span>
+    <h1 class="ttl">A recipe opens in your units</h1>
+    <span class="cap">Nothing new is drawn on the recipe page: its Units switch simply starts at the account’s choice. Switching it there changes this visit only.</span>
+  </header>
+
+  <div class="boards">
+
+    <div class="col">
+      <span class="cap"><b>Signed in, US customary chosen</b> · the switch starts on US</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Sam Jones" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">S</span></button>
+        </div></header>
+        <main class="page">
+          <span class="cut">… the photo, title and times, as today</span>
+          <div class="ctl">
+            <x-import component-from-global-scope="Dino.ServingsStepper" value="{{four}}" min="{{one}}" max="{{max}}" on-value-change="{{noop}}"></x-import>
+            <x-import component-from-global-scope="Dino.SegmentedControl" label="Units" options="{{units}}" value="us" on-value-change="{{noop}}"></x-import>
+          </div>
+          <section class="ing" aria-labelledby="a-ing">
+            <h2 id="a-ing">Ingredients</h2>
+            <x-import component-from-global-scope="Dino.AmountList" items="{{usItems}}"></x-import>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Signed out, or the session can’t be checked</b> · metric, as today</span>
+      <div class="frame">
+        <header class="bar"><div class="in bare">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+        </div></header>
+        <main class="page">
+          <span class="cut">… the photo, title and times, as today</span>
+          <div class="ctl">
+            <x-import component-from-global-scope="Dino.ServingsStepper" value="{{four}}" min="{{one}}" max="{{max}}" on-value-change="{{noop}}"></x-import>
+            <x-import component-from-global-scope="Dino.SegmentedControl" label="Units" options="{{units}}" value="metric" on-value-change="{{noop}}"></x-import>
+          </div>
+          <section class="ing" aria-labelledby="b-ing">
+            <h2 id="b-ing">Ingredients</h2>
+            <x-import component-from-global-scope="Dino.AmountList" items="{{metricItems}}"></x-import>
+          </section>
+        </main>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <p><b>No flash of metric.</b> Opened straight at a recipe, the page shows its existing “Opening the recipe…” loading line until the session answers, so a US account never sees metric amounts first. If the session can’t be checked, the recipe opens in metric rather than waiting on it.</p>
+    <p><b>The switch keeps its short labels</b> (“Metric”, “US”) to fit beside the servings stepper; only the account page spells out “US customary”. Amounts here are illustrative; the converter decides the real ones.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1000,"height":1060}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      icons: window.Dino.icons, one: 1, four: 4, max: 99, noop: function () {},
+      units: [{ value: 'metric', label: 'Metric' }, { value: 'us', label: 'US' }],
+      usItems: [{ key: 1, name: 'Plain flour', amount: '1 cup' }, { key: 2, name: 'Eggs', amount: '2' }, { key: 3, name: 'Salt', amount: 'a pinch' }],
+      metricItems: [{ key: 1, name: 'Plain flour', amount: '240 ml' }, { key: 2, name: 'Eggs', amount: '2' }, { key: 3, name: 'Salt', amount: 'a pinch' }]
+    };
+  }
+}
+</script>
+</body>
+</html>

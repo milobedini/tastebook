@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Choosing units, phone</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.frame{position:relative;background:var(--color-ground);border:1px solid var(--color-line);border-radius:20px;overflow:hidden;flex-shrink:0;width:390px;height:780px}
+.bar{border-bottom:1px solid var(--color-line)}
+.in{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:minmax(76px,auto);align-items:center;column-gap:8px;padding:0 20px}
+.wmk{display:inline-flex;align-items:center;min-height:44px;font-family:var(--font-serif);font-size:34px;line-height:36px;font-style:italic;color:var(--color-ink);text-decoration:none}
+.av{width:44px;height:44px;padding:0;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-surface);color:var(--color-ink);display:inline-grid;place-items:center;font-family:var(--font-sans);font-size:19px;line-height:24px;font-weight:800;cursor:pointer}
+.page{padding:24px 20px 48px;display:flex;flex-direction:column}
+.page h1,.page h2{margin:0}
+.stack{display:flex;flex-direction:column;gap:32px;max-width:400px}
+.sec{display:flex;flex-direction:column;gap:16px}
+.sec p{margin:0;font-size:16px;line-height:24px;font-weight:600}
+.form{display:flex;flex-direction:column;gap:20px}
+.fld{display:flex;flex-direction:column;gap:6px}
+.help{margin:0;font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.is-focus fieldset{outline:3px solid var(--color-ink);outline-offset:0}
+.toast{position:absolute;left:16px;right:16px;bottom:16px;min-height:56px;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-dock);color:var(--color-on-dock);box-shadow:var(--shadow-lift);display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;font-size:15px;line-height:20px;font-weight:800}
+.toast svg{width:18px;height:18px;flex-shrink:0}
+.boards{display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:40px;align-items:start}
+.col{display:flex;flex-direction:column;gap:10px}
+.notes{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:12px 40px;max-width:1680px}
+.notes p{margin:0;font-size:15px;line-height:22px;font-weight:600;color:var(--color-ink)}
+.notes p b{font-weight:800}
+</style>
+</helmet>
+<div style="width: 1800px; height: 1400px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">TAS-106 · /account · phone, 390 px · an account in metric choosing US customary</span>
+    <h1 class="ttl">Choosing units</h1>
+    <span class="cap">A unit choice saves the moment it’s made: there’s no button. The control shows the latest choice while it saves, a toast confirms it, and a failure puts the saved choice back.</span>
+  </header>
+
+  <div class="boards">
+
+    <div class="col">
+      <span class="cap"><b>Focus on the group</b> · one ring round the track; arrow keys move the choice</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Sam Jones" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">S</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">account</x-import></h1>
+          <section class="sec" aria-labelledby="a-h-name">
+            <h2 id="a-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="a-name" class="text-label">Your name</label>
+                <x-import component-from-global-scope="Dino.Input" id="a-name" type="text" auto-complete="name" max-length="{{fifty}}" default-value="Sam Jones" aria-describedby="a-help"></x-import>
+                <p id="a-help" class="help">It shows on recipes you write, like “by Milo”.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="a-h-units">
+            <h2 id="a-h-units">Units</h2>
+            <p>Recipes open in these units. You can still switch on any recipe.</p>
+            <div class="is-focus"><x-import component-from-global-scope="Dino.SegmentedControl" label="Units" options="{{units}}" value="metric" on-value-change="{{noop}}"></x-import></div>
+          </section>
+        </div></main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Chosen, saving</b> · US customary shows at once; nothing else waits</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Sam Jones" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">S</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">account</x-import></h1>
+          <section class="sec" aria-labelledby="b-h-name">
+            <h2 id="b-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="b-name" class="text-label">Your name</label>
+                <x-import component-from-global-scope="Dino.Input" id="b-name" type="text" auto-complete="name" max-length="{{fifty}}" default-value="Sam Jones" aria-describedby="b-help"></x-import>
+                <p id="b-help" class="help">It shows on recipes you write, like “by Milo”.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="b-h-units">
+            <h2 id="b-h-units">Units</h2>
+            <p>Recipes open in these units. You can still switch on any recipe.</p>
+            <div class="is-focus"><x-import component-from-global-scope="Dino.SegmentedControl" label="Units" options="{{units}}" value="us" on-value-change="{{noop}}"></x-import></div>
+          </section>
+        </div></main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Units saved</b> · the toast is the confirmation (NN/g 1)</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Sam Jones" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">S</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">account</x-import></h1>
+          <section class="sec" aria-labelledby="c-h-name">
+            <h2 id="c-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="c-name" class="text-label">Your name</label>
+                <x-import component-from-global-scope="Dino.Input" id="c-name" type="text" auto-complete="name" max-length="{{fifty}}" default-value="Sam Jones" aria-describedby="c-help"></x-import>
+                <p id="c-help" class="help">It shows on recipes you write, like “by Milo”.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="c-h-units">
+            <h2 id="c-h-units">Units</h2>
+            <p>Recipes open in these units. You can still switch on any recipe.</p>
+            <div class="is-focus"><x-import component-from-global-scope="Dino.SegmentedControl" label="Units" options="{{units}}" value="us" on-value-change="{{noop}}"></x-import></div>
+          </section>
+        </div></main>
+        <div class="toast" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg><span>Units saved</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Couldn’t save the units</b> · Metric, the saved choice, comes back</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Sam Jones" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">S</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">account</x-import></h1>
+          <section class="sec" aria-labelledby="d-h-name">
+            <h2 id="d-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="d-name" class="text-label">Your name</label>
+                <x-import component-from-global-scope="Dino.Input" id="d-name" type="text" auto-complete="name" max-length="{{fifty}}" default-value="Sam Jones" aria-describedby="d-help"></x-import>
+                <p id="d-help" class="help">It shows on recipes you write, like “by Milo”.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="d-h-units">
+            <h2 id="d-h-units">Units</h2>
+            <p>Recipes open in these units. You can still switch on any recipe.</p>
+            <div class="is-focus"><x-import component-from-global-scope="Dino.SegmentedControl" label="Units" options="{{units}}" value="metric" on-value-change="{{noop}}"></x-import></div>
+          </section>
+        </div></main>
+        <div class="toast" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg><span>Couldn’t save your units. Check your connection and try again.</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <p><b>No spinner on the control.</b> A save takes a moment and the choice already shows, so the control doesn’t wait or lock: choosing again at once queues behind the first save, and the last choice is the one kept. The toast is the confirmation.</p>
+    <p><b>The full term here, the short one on a recipe.</b> The account page says “US customary”, the glossary’s term; the recipe page’s compact switch keeps “US”. Mint with a check marks the chosen one, so it survives forced colours.</p>
+    <p><b>A failure undoes itself.</b> The control returns to the saved choice and the error toast says what happened and how to fix it; choosing again is the retry. Focus stays on the group.</p>
+    <p><b>The line under “Units” says what the choice does</b> and that it isn’t a lock: every recipe page still has its own switch, which changes that visit only.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1800,"height":1400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      icons: window.Dino.icons, yes: true, no: false, fifty: 50, noop: function () {},
+      units: [{ value: 'metric', label: 'Metric' }, { value: 'us', label: 'US customary' }]
+    };
+  }
+}
+</script>
+</body>
+</html>
