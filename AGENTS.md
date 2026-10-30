@@ -91,7 +91,7 @@ The code is organised by domain area, the same areas on both sides, named in the
 
 ```text
 frontend/
-  src/<area>/       one folder per domain area (recipes/ so far): its pages, components and
+  src/<area>/       one folder per domain area (recipes/ and households/ so far): its pages, components and
                     API hooks, each *.test.tsx beside its file; index.ts exports what other areas use
   src/app/          router, query client, and what belongs to no area (home and not-found pages, health check)
   src/api/          typed client (openapi-fetch) and generated schema.d.ts, shared by every area
@@ -107,7 +107,7 @@ backend/
   schema.yml        generated OpenAPI schema (committed)
 tools/openapi/      generates frontend/src/api/schema.d.ts
 tools/backup/       nightly production backup and restore (docs/architecture.md, Backups)
-tools/biome/        Biome lint plugins (no arbitrary radius outside the design system's corner tokens)
+tools/biome/        Biome lint plugins (no arbitrary radius outside the design system's corner tokens; no `let` in frontend/)
 specs/              one spec per issue, plus lessons/
 ```
 

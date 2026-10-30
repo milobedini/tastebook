@@ -4,6 +4,7 @@ import type { components } from '../api/schema';
 
 type Course = components['schemas']['Course'];
 type Cuisine = components['schemas']['Cuisine'];
+type CurrentAccount = components['schemas']['CurrentAccount'];
 type Health = components['schemas']['Health'];
 type IngredientOption = components['schemas']['IngredientOption'];
 type Recipe = components['schemas']['Recipe'];
@@ -106,6 +107,7 @@ const toSummary = ({
 });
 
 export const handlers = [
+  http.get('/api/account/', () => HttpResponse.json<CurrentAccount>({ account: null })),
   http.get('/api/health/', () => HttpResponse.json<Health>({ status: 'ok', database: 'ok', version: '0.1.0' })),
   http.get('/api/courses/', () => HttpResponse.json<Course[]>(courses)),
   http.get('/api/cuisines/', () => HttpResponse.json<Cuisine[]>(cuisines)),

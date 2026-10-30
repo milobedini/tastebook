@@ -1,0 +1,7 @@
+language js
+
+JsVariableDeclaration() as $declaration where {
+  $filename <: r".*frontend/.*",
+  $declaration <: r"let\s[\s\S]*",
+  register_diagnostic(span=$declaration, message="Use const, with map, filter or reduce in place of reassigning, not let (AGENTS.md › Frontend).")
+}

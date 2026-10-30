@@ -1,4 +1,4 @@
-import { act, screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
@@ -7,6 +7,7 @@ import type { components } from '../api/schema';
 import { renderRoute } from '../test/render-route';
 import { server } from '../test/server';
 
+type CurrentAccount = components['schemas']['CurrentAccount'];
 type RecipeSummary = components['schemas']['RecipeSummary'];
 
 const appleTart: RecipeSummary = {
@@ -32,6 +33,30 @@ const answerTartSearch = () =>
 const searchBox = () => screen.getByRole('searchbox', { name: 'Search recipes' });
 
 const searchButton = () => screen.getByRole('button', { name: 'Search recipes' });
+
+const ACCOUNT = '/api/account/';
+
+const SESSION = '/api/_allauth/browser/v1/auth/session';
+
+const currentAccount = (email?: string) =>
+  HttpResponse.json<CurrentAccount>({ account: email === undefined ? null : { email } });
+
+// allauth answers a sign out with 401: nobody is signed in now.
+const signedOut = () =>
+  HttpResponse.json({ status: 401, data: { flows: [] }, meta: { is_authenticated: false } }, { status: 401 });
+
+// Signed in until a DELETE signs out, which is recorded.
+const answerSignedIn = () => {
+  const signOuts: string[] = [];
+  server.use(
+    http.get(ACCOUNT, () => currentAccount(signOuts.length > 0 ? undefined : 'sam@example.com')),
+    http.delete(SESSION, ({ request }) => {
+      signOuts.push(new URL(request.url).pathname);
+      return signedOut();
+    })
+  );
+  return signOuts;
+};
 
 describe('AppLayout', () => {
   it.each(['/', '/recipes', '/recipes/apple-tart', '/no-such-page'])(
@@ -115,5 +140,84 @@ describe('AppLayout', () => {
     expect(searchBox()).toHaveValue('');
     expect(searchButton()).toHaveAttribute('aria-expanded', 'true');
     expect(searchBox()).toHaveFocus();
+  });
+
+  it('links Sign in back to the page and its search when signed out', async () => {
+    renderRoute('/recipes?q=soup');
+
+    const banner = screen.getByRole('banner');
+    expect(await within(banner).findByRole('link', { name: 'Sign in' })).toHaveAttribute(
+      'href',
+      '/sign-in?next=%2Frecipes%3Fq%3Dsoup'
+    );
+  });
+
+  it('signs out from the account menu and then offers Sign in', async () => {
+    const signOuts = answerSignedIn();
+    renderRoute('/recipes');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Account' }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Sign out' }));
+
+    const banner = screen.getByRole('banner');
+    expect(await within(banner).findByRole('link', { name: 'Sign in' })).toBeInTheDocument();
+    expect(within(banner).queryByRole('button', { name: 'Account' })).not.toBeInTheDocument();
+    expect(signOuts).toEqual([SESSION]);
+  });
+
+  it.each([
+    ['the server fails', () => new HttpResponse(null, { status: 500 })],
+    ['the network fails', () => HttpResponse.error()]
+  ])('says signing out failed and stays signed in when %s', async (_, answer) => {
+    answerSignedIn();
+    server.use(http.delete(SESSION, answer));
+    renderRoute('/recipes');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Account' }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Sign out' }));
+
+    expect(await screen.findByText("Couldn't sign out. Check your connection and try again.")).toBeInTheDocument();
+    const banner = screen.getByRole('banner');
+    expect(within(banner).getByRole('button', { name: 'Account' })).toBeInTheDocument();
+    expect(within(banner).queryByRole('link', { name: 'Sign in' })).not.toBeInTheDocument();
+  });
+
+  it('shows neither Sign in nor Account until the session is known', async () => {
+    const answer: { send?: () => void } = {};
+    server.use(
+      http.get(
+        ACCOUNT,
+        () =>
+          new Promise<Response>((resolve) => {
+            answer.send = () => resolve(currentAccount());
+          })
+      )
+    );
+    renderRoute('/recipes');
+    const banner = screen.getByRole('banner');
+    await waitFor(() => expect(answer.send).toBeDefined());
+
+    expect(within(banner).getByRole('link', { name: 'Tastebook' })).toBeInTheDocument();
+    expect(within(banner).queryByRole('link', { name: 'Sign in' })).not.toBeInTheDocument();
+    expect(within(banner).queryByRole('button', { name: 'Account' })).not.toBeInTheDocument();
+
+    answer.send?.();
+
+    expect(await within(banner).findByRole('link', { name: 'Sign in' })).toBeInTheDocument();
+  });
+
+  it('shows neither Sign in nor Account on the sign-in page', async () => {
+    const { router } = renderRoute('/');
+    const banner = screen.getByRole('banner');
+    expect(await within(banner).findByRole('link', { name: 'Sign in' })).toBeInTheDocument();
+
+    await act(async () => {
+      await router.navigate('/sign-in');
+    });
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Sign in' })).toBeInTheDocument();
+    expect(within(banner).getByRole('link', { name: 'Tastebook' })).toBeInTheDocument();
+    expect(within(banner).queryByRole('link', { name: 'Sign in' })).not.toBeInTheDocument();
+    expect(within(banner).queryByRole('button', { name: 'Account' })).not.toBeInTheDocument();
   });
 });
