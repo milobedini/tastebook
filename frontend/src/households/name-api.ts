@@ -4,6 +4,8 @@ import { api } from '../api/client';
 import type { Account } from './auth-api';
 import { SESSION_KEY } from './session-api';
 
+export const NAME_MAX_LENGTH = 50;
+
 export const NOT_A_NAME = 'Enter your name, like Milo.';
 
 export type NameSave = { kind: 'saved'; account: Account } | { kind: 'refused'; message: string };

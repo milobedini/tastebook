@@ -24,6 +24,7 @@ const useAccountEnd = (): TopBarAccount | undefined => {
     status: 'signed-in',
     name: account.name,
     menuItems: [
+      { kind: 'link', label: 'Account', to: '/account' },
       {
         kind: 'action',
         label: 'Sign out',

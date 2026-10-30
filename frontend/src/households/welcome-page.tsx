@@ -2,11 +2,9 @@ import { type FormEvent, useRef, useState } from 'react';
 import { Navigate, useSearchParams } from 'react-router';
 
 import { Banner, Button, ErrorWithRetry, Field, Input, Loading, Page, Squiggle } from '../dino';
-import { NOT_A_NAME, useSaveName } from './name-api';
+import { NAME_MAX_LENGTH, NOT_A_NAME, useSaveName } from './name-api';
 import { safeNextPath } from './safe-next-path';
 import { useSession } from './session-api';
-
-const NAME_MAX_LENGTH = 50;
 
 // No action of its own: Continue is the retry.
 const Unreachable = () => (
