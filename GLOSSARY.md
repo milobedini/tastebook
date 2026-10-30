@@ -45,10 +45,10 @@ Names marked _planned_ don't exist in the code yet; use them when you build the 
 
 | Term | Meaning | In code |
 | --- | --- | --- |
-| Account | A person who has signed up. Signs in with an email code or Google. | `User` |
+| Account | A person who has signed up. Signs in with an email code or Google. Has a name, shown on recipes it writes ("by Milo"). | `User` |
 | Sign-in code | The 6-digit code emailed to sign in or sign up. Works once, for 10 minutes. | `allauth`'s login code and email verification code |
 | Test account | A throwaway account at tastebook.test for end-to-end tests. Its codes are stored, not emailed, and production refuses it. | `StoredSignInCode`, `is_test_account()` |
-| Household | The people who cook together. An account belongs to at most one. It owns private recipes, the plan, the shopping list, the pantry and the household's equipment. | `Household` _planned_ |
+| Household | The people who cook together. Every account belongs to exactly one, once it has a name; a new one starts as "<name>'s household". It owns private recipes, the plan, the shopping list, the pantry and the household's equipment. | `Household` |
 | Invite | A link that lets someone join a household. | `Invite` _planned_ |
 | Staff | An account that can use the admin pages (moderation, fixing data). Needs two-factor sign-in. | `User.is_staff` |
 
