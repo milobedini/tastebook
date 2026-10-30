@@ -4,7 +4,9 @@ Canvas: https://claude.ai/artifact/7oqpRknXfhbAVr8JQKaNN5 (approved at Design Re
 
 ## Boards
 
-- `Main.dc.html`: the name page at /welcome on a phone (390 px), in six states: empty, typed with focus, saving, blank name, refused by the server (over 50 characters), and couldn't reach Tastebook.
+Each board is in `docs/design/picnic/`, as HTML and PNG.
+
+- `welcome.dc.html`: the name page at /welcome on a phone (390 px), in six states: empty, typed with focus, saving, blank name, refused by the server (over 50 characters), and couldn't reach Tastebook.
 - `welcome-session.dc.html`: before the form and the way out: checking your account (Loading), the session failing (Error with retry), and the account menu open with Sign out as its only item.
 - `welcome-laptop.dc.html`: the same page at 1280 px; nothing rearranges, the form keeps its 400 px column at the left edge.
 - `welcome-forced-colours.dc.html`: the blank-name and couldn't-reach states under forced colours (High Contrast Black), with what to check on the built page.
