@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Signing in and out on a phone</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.frame{position:relative;background:var(--color-ground);border:1px solid var(--color-line);border-radius:20px;overflow:hidden;flex-shrink:0;height:560px}
+.bar{border-bottom:1px solid var(--color-line)}
+.in{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:minmax(76px,auto);align-items:center;column-gap:8px;padding:0 20px}
+.in.none{grid-template-columns:minmax(0,1fr) auto;column-gap:24px}
+.wmk{display:inline-flex;align-items:center;min-height:44px;font-family:var(--font-serif);font-size:34px;line-height:36px;font-style:italic;color:var(--color-ink);text-decoration:none}
+.avb{width:44px;height:44px;padding:0;border:0;background:none;border-radius:var(--radius-pill);display:inline-grid;place-items:center;cursor:pointer}
+.avb.open>span{background:var(--color-line);border-color:var(--color-ink)}
+.page{padding:24px 20px 48px;display:flex;flex-direction:column;gap:24px}
+.page h1{margin:0}
+.page .lead{margin:0;font-size:16px;line-height:24px;font-weight:600}
+.stack{display:flex;flex-direction:column;gap:24px;max-width:400px}
+.fld{display:flex;flex-direction:column;gap:6px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.em{font-weight:800;overflow-wrap:anywhere}
+.menu{position:absolute;min-width:224px;max-width:320px;box-sizing:border-box;background:var(--color-surface);border:2px solid var(--color-field);border-radius:var(--radius-card);padding:6px;display:flex;flex-direction:column;gap:2px;color:var(--color-ink)}
+.mi{min-height:44px;display:flex;align-items:center;box-sizing:border-box;padding:10px 14px;border-radius:var(--radius-option);font-size:16px;line-height:24px;font-weight:600;color:var(--color-ink);text-decoration:none;cursor:pointer}
+.mi.fv{background:var(--color-line);outline:3px solid var(--color-ink);outline-offset:-3px}
+.col{display:flex;flex-direction:column;gap:10px}
+.arrow{align-self:center;color:var(--color-muted);font-size:13px;font-weight:800}
+.notes{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:12px 40px}
+.notes p{margin:0;font-size:15px;line-height:22px;font-weight:600;color:var(--color-ink)}
+.notes p b{font-weight:800}
+</style>
+</helmet>
+<div style="width: 2612px; height: 1240px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">TAS-102 · part 2 · the journey · phone, 390 px</span>
+    <h1 class="ttl">Sign in with a code, and land back where you were</h1>
+    <span class="cap">Sign in from any page, give your email, type the 6-digit code it sends, and you’re back on that page with the avatar in the bar. Sign out from its menu and you stay on the page. New to Tastebook? The same two steps make the account.</span>
+  </header>
+
+  <div style="display: flex; gap: 32px; align-items: flex-start">
+
+    <div class="col">
+      <span class="cap"><b>1 · Signed out, on any page</b> · Sign in adds ?next=%2Frecipes</span>
+      <div class="frame" style="width: 390px">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <x-import component-from-global-scope="Dino.Button" variant="secondary">Sign in</x-import>
+        </div></header>
+        <main class="page">
+          <h1>What shall we <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">cook</x-import> tonight?</h1>
+          <span class="cap">24 recipes</span>
+        </main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>2 · Step 1, your email</b> · the bar shows no account end here</span>
+      <div class="frame" style="width: 390px">
+        <header class="bar"><div class="in none">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Sign in</h1>
+          <p class="lead">We’ll email you a 6-digit code. New to Tastebook? The same code makes your account.</p>
+          <form class="stack" novalidate>
+            <div class="fld">
+              <label for="m-email" class="text-label">Email address</label>
+              <x-import component-from-global-scope="Dino.Input" id="m-email" type="email" auto-complete="email" default-value="sam@example.com"></x-import>
+            </div>
+            <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Sending…">Send code</x-import></div>
+          </form>
+        </div></main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>3 · Step 2, the code</b> · focus moves to the heading</span>
+      <div class="frame" style="width: 390px">
+        <header class="bar"><div class="in none">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Check your email</h1>
+          <p class="lead">We sent a 6-digit code to <span class="em">sam@example.com</span>. It works for 10 minutes.</p>
+          <form class="stack" novalidate>
+            <div class="fld">
+              <label for="m-code" class="text-label">Code</label>
+              <x-import component-from-global-scope="Dino.Input" id="m-code" input-mode="numeric" auto-complete="one-time-code" max-length="{{six}}" default-value="123456"></x-import>
+            </div>
+            <div class="acts">
+              <x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Signing in…">Sign in</x-import>
+              <x-import component-from-global-scope="Dino.Button" variant="secondary">Use a different email</x-import>
+            </div>
+          </form>
+        </div></main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>4 · Back on the page, signed in</b> · no name yet, so the icon</span>
+      <div class="frame" style="width: 390px">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="avb" aria-label="Account" aria-haspopup="menu" aria-expanded="false"><x-import component-from-global-scope="Dino.Avatar" name=""></x-import></button>
+        </div></header>
+        <main class="page">
+          <h1>What shall we <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">cook</x-import> tonight?</h1>
+          <span class="cap">24 recipes</span>
+        </main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>5 · The account menu</b> · one item until TAS-103 adds the name</span>
+      <div class="frame" style="width: 390px">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="avb open" aria-label="Account" aria-haspopup="menu" aria-expanded="true"><x-import component-from-global-scope="Dino.Avatar" name=""></x-import></button>
+        </div></header>
+        <main class="page">
+          <h1>What shall we <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">cook</x-import> tonight?</h1>
+          <span class="cap">24 recipes</span>
+        </main>
+        <div class="menu" role="menu" aria-label="Account" style="top: 68px; right: 20px">
+          <div class="mi fv" role="menuitem" tabindex="-1">Sign out</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>6 · Signed out</b> · still on the page, Sign in is back</span>
+      <div class="frame" style="width: 390px">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <x-import component-from-global-scope="Dino.Button" variant="secondary">Sign in</x-import>
+        </div></header>
+        <main class="page">
+          <h1>What shall we <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">cook</x-import> tonight?</h1>
+          <span class="cap">24 recipes</span>
+        </main>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <p><b>One page, two steps, at /sign-in.</b> Built from Page, Field, Input, Button and Banner as they are: nothing new in Dino. The heading is the screen title (Display XL), with no squiggle: this is a form to get through, so the fun stays on the pages behind it.</p>
+    <p><b>A 400 px column.</b> The heading, the text and the form sit in one column at most 400 px wide, on the page’s left edge like every other page, so the field never stretches across a laptop and the text stays under 50 characters a line.</p>
+    <p><b>One peach button per step.</b> Send code, then Sign in. Use a different email is secondary, beside Sign in where it fits and under it where it doesn’t (it never fits at 390 px, because Sign in keeps room for “Signing in…”).</p>
+    <p><b>Focus follows the step.</b> When step 2 opens, focus moves to its heading (tabindex −1), so a screen reader reads “Check your email” and the address the code went to; one Tab reaches the Code field. “Use a different email” puts focus back in the email field, the address kept.</p>
+    <p><b>The bar on /sign-in</b> shows neither Sign in nor the avatar, as the spec says, so the page never offers itself. Search stays: it goes to the recipes, and the way back is in the address.</p>
+    <p><b>Signed in with no name yet,</b> the avatar is Dino’s UserRound icon and the button is named “Account”; its menu has no heading and one item, Sign out. TAS-103 fills in the name, the letter and the heading.</p>
+    <p><b>The page shows step 1 at once.</b> While the session is still being checked the form is already there; if it turns out you’re signed in, the page replaces itself with where you were going. No spinner for a check that’s nearly always “signed out”.</p>
+    <p><b>Document title:</b> “Sign in · Tastebook” on both steps, like “Page not found · Tastebook”.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2612,"height":1240}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { icons: window.Dino.icons, yes: true, no: false, six: 6 };
+  }
+}
+</script>
+</body>
+</html>

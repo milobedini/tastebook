@@ -120,7 +120,7 @@ def test_an_unhandled_error_reaches_sentry_with_its_environment_and_release(
     )
 
     assert result == {'status': 500, 'sentry': True}
-    [event] = events(envelopes)
+    event, _ = events(envelopes)
     assert event['environment'] == 'preview'
     assert event['release'] == '4ca3bae7c06fdf9c4d95dd193eb4d6f0e2b651ab'
     assert event['exception']['values'][-1]['type'] == 'OperationalError'
@@ -132,17 +132,18 @@ def test_an_error_report_carries_no_request_body_cookies_or_local_variables(
 ) -> None:
     port = sentry_ingest.server_address[1]
 
-    _, [envelope] = request_a_failing_page({'SENTRY_DSN': f'http://public-key@127.0.0.1:{port}/1'})
+    _, envelopes = request_a_failing_page({'SENTRY_DSN': f'http://public-key@127.0.0.1:{port}/1'})
 
-    [event] = events([envelope])
+    event, _ = events(envelopes)
     frames = [frame for value in event['exception']['values'] for frame in value['stacktrace']['frames']]
     assert 'ensure_connection' in [frame['function'] for frame in frames]
     assert [frame['function'] for frame in frames if 'vars' in frame] == []
-    assert 'Grandma secret tart' not in envelope
-    assert 'private-session' not in envelope
+    assert 'Grandma secret tart' not in ''.join(envelopes)
+    assert 'private-session' not in ''.join(envelopes)
 
 
-@pytest.mark.parametrize(('dsn_is_set', 'events_sent'), [(True, 1), (False, 0)])
+# Two with a DSN: the view's error, then the session middleware's, which saves the session on every request.
+@pytest.mark.parametrize(('dsn_is_set', 'events_sent'), [(True, 2), (False, 0)])
 def test_sentry_is_on_only_where_a_dsn_is_set(
     sentry_ingest: ThreadingHTTPServer, dsn_is_set: bool, events_sent: int
 ) -> None:

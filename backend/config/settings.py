@@ -15,6 +15,39 @@ if not SECRET_KEY:
         raise RuntimeError('DJANGO_SECRET_KEY must be set unless DJANGO_DEBUG is true')
     SECRET_KEY = 'insecure-local-only-key'
 
+VERCEL_ENV = os.environ.get('VERCEL_ENV', '')
+
+# Throwaway accounts at a reserved domain, for end-to-end tests: open locally and in CI, behind the previews'
+# bypass secret on previews, and refused on production.
+TEST_ACCOUNT_DOMAIN = 'tastebook.test'
+TEST_ACCOUNTS_ENABLED = DEBUG or VERCEL_ENV == 'preview'
+TEST_ACCOUNT_CODES_NEED_SECRET = not DEBUG
+# Vercel sets this on deployments when Protection Bypass for Automation is on.
+TEST_ACCOUNT_SECRET = os.environ.get('VERCEL_AUTOMATION_BYPASS_SECRET', '')
+
+DEFAULT_FROM_EMAIL = os.environ.get('DJANGO_DEFAULT_FROM_EMAIL', 'Tastebook <noreply@tastebook.dev>')
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+if RESEND_API_KEY:
+    MAILER = {
+        'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+        'OPTIONS': {
+            'host': 'smtp.resend.com',
+            'port': 465,
+            'use_ssl': True,
+            'username': 'resend',
+            'password': RESEND_API_KEY,
+            'timeout': 10,
+        },
+    }
+elif VERCEL_ENV == 'production':
+    raise RuntimeError('RESEND_API_KEY must be set on production')
+elif DEBUG:
+    MAILER = {'BACKEND': 'django.core.mail.backends.console.EmailBackend'}
+else:
+    # Previews send no email: only test accounts, whose codes are stored instead, can sign in there.
+    MAILER = {'BACKEND': 'django.core.mail.backends.dummy.EmailBackend'}
+MAILERS = {'default': MAILER}
+
 init_sentry()
 
 # On Vercel, the hosts this deployment answers on: its own URL, its branch's and production's. Vercel sets these, so
@@ -48,6 +81,10 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'rest_framework',
     'drf_spectacular',
+    'households',
+    'allauth',
+    'allauth.account',
+    'allauth.headless',
     'health',
     'recipes',
 ]
@@ -60,6 +97,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -90,6 +128,34 @@ DATABASES = {
 }
 # Neon's pooled connection runs PgBouncer in transaction mode, which can't hold a server-side cursor open.
 DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
+
+AUTH_USER_MODEL = 'households.User'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# Signed in for 30 days from the last request: each request sets the cookie again.
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30
+SESSION_SAVE_EVERY_REQUEST = True
+
+ACCOUNT_ADAPTER = 'households.adapter.AccountAdapter'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*']
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_TIMEOUT = 10 * 60
+ACCOUNT_LOGIN_BY_CODE_ENABLED = True
+ACCOUNT_LOGIN_BY_CODE_TIMEOUT = 10 * 60
+# Signing up and signing in share one email field, so asking for a code says whether an account exists.
+ACCOUNT_PREVENT_ENUMERATION = False
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ''
+ALLAUTH_USER_CODE_FORMAT = {'numeric': True, 'length': 6, 'dashed': False}
+HEADLESS_ONLY = True
+HEADLESS_CLIENTS = ('browser',)
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},

@@ -7,6 +7,8 @@ from recipes.views import CourseListView, CuisineListView, IngredientListView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/health/', include('health.urls')),
+    path('api/test-accounts/', include('households.urls')),
+    path('api/_allauth/', include('allauth.headless.urls')),
     path('api/recipes/', include('recipes.urls')),
     path('api/cuisines/', CuisineListView.as_view(), name='cuisine-list'),
     path('api/courses/', CourseListView.as_view(), name='course-list'),
