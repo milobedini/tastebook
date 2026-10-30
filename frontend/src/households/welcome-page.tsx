@@ -1,5 +1,5 @@
 import { type FormEvent, useRef, useState } from 'react';
-import { Navigate, useNavigate, useSearchParams } from 'react-router';
+import { Navigate, useSearchParams } from 'react-router';
 
 import { Banner, Button, ErrorWithRetry, Field, Input, Loading, Page, Squiggle } from '../dino';
 import { NOT_A_NAME, useSaveName } from './name-api';
@@ -15,9 +15,7 @@ const Unreachable = () => (
   </Banner>
 );
 
-type NameFormProps = { onSaved: () => void };
-
-const NameForm = ({ onSaved }: NameFormProps) => {
+const NameForm = () => {
   const saveName = useSaveName();
   const nameRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState('');
@@ -40,11 +38,9 @@ const NameForm = ({ onSaved }: NameFormProps) => {
     }
     try {
       const result = await saveName.mutateAsync(trimmed);
-      if (result.kind === 'saved') {
-        onSaved();
-        return;
+      if (result.kind === 'refused') {
+        refuse(result.message);
       }
-      refuse(result.message);
     } catch {
       setIsUnreachable(true);
       nameRef.current?.focus();
@@ -54,9 +50,9 @@ const NameForm = ({ onSaved }: NameFormProps) => {
   return (
     <div className="flex max-w-100 flex-col gap-6">
       <h1>
-        What's your <Squiggle emphasis>name</Squiggle>?
+        What’s your <Squiggle emphasis>name</Squiggle>?
       </h1>
-      <p>It shows on recipes you write, like "by Milo".</p>
+      <p>It shows on recipes you write, like “by Milo”.</p>
       {isUnreachable && <Unreachable />}
       <form noValidate onSubmit={submit} className="flex flex-col gap-6">
         <Field label="Your name" error={error}>
@@ -84,13 +80,12 @@ const NameForm = ({ onSaved }: NameFormProps) => {
 type WelcomeContentProps = { next: string };
 
 const WelcomeContent = ({ next }: WelcomeContentProps) => {
-  const navigate = useNavigate();
   const { account, errorUpdatedAt, refetch } = useSession();
   if (account === null || (account !== undefined && account.name !== '')) {
     return <Navigate to={next} replace />;
   }
   if (account !== undefined) {
-    return <NameForm onSaved={() => void navigate(next, { replace: true })} />;
+    return <NameForm />;
   }
   // A refetch resets a never-successful query to pending but leaves errorUpdatedAt, so the error stays up through its retry.
   if (errorUpdatedAt > 0) {

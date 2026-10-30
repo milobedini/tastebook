@@ -263,7 +263,7 @@ describe('SignInPage', () => {
     await sendCode('new@example.com');
     await signInWith('123456');
 
-    expect(await screen.findByRole('heading', { level: 1, name: "What's your name?" })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'What’s your name?' })).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/welcome');
     expect(router.state.location.search).toBe('?next=%2Frecipes%2Fbaguette');
   });

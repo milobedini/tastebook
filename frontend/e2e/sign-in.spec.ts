@@ -18,8 +18,8 @@ const signInFromTheBar = async (page: Page, accessibility: Accessibility, email:
   await page.getByRole('button', { name: 'Sign in' }).click();
 };
 
-// Chromium names the heading "What's your name ?": the squiggle is inline-block, which adds a space around it.
-const NAME_PAGE_HEADING = /^What's your name ?\?$/;
+// Chromium names the heading "What’s your name ?": the squiggle is inline-block, which adds a space around it.
+const NAME_PAGE_HEADING = /^What’s your name ?\?$/;
 
 const giveName = async (page: Page, accessibility: Accessibility, name: string): Promise<void> => {
   await expect(page.getByRole('heading', { level: 1, name: NAME_PAGE_HEADING })).toBeVisible();

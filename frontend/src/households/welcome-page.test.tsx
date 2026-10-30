@@ -47,7 +47,7 @@ describe('WelcomePage', () => {
     answerNameless();
     const { router } = renderRoute('/recipes/apple-tart');
 
-    expect(await screen.findByRole('heading', { level: 1, name: "What's your name?" })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'What’s your name?' })).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/welcome');
     expect(router.state.location.search).toBe('?next=%2Frecipes%2Fapple-tart');
   });
@@ -143,6 +143,6 @@ describe('WelcomePage', () => {
     answerNameless();
     await userEvent.click(within(failed).getByRole('button', { name: 'Try again' }));
 
-    expect(await screen.findByRole('heading', { level: 1, name: "What's your name?" })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'What’s your name?' })).toBeInTheDocument();
   });
 });
