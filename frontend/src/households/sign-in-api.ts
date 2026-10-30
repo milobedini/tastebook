@@ -4,7 +4,9 @@ import {
   type AuthResult,
   type CodeFlow,
   confirmSignInCode,
+  confirmTwoFactorCode,
   fetchProviders,
+  fetchSignInState,
   goToProvider,
   requestCode,
   signUp,
@@ -16,7 +18,11 @@ type Rejected = Extract<AuthResult, { kind: 'rejected' }>;
 
 export type CodeRequest = Extract<AuthResult, { kind: 'code-sent' | 'limited' }> | Rejected;
 
-export type CodeConfirmation = Extract<AuthResult, { kind: 'signed-in' }> | Rejected;
+type SignedIn = Extract<AuthResult, { kind: 'signed-in' }>;
+
+export type CodeConfirmation = SignedIn | Extract<AuthResult, { kind: 'two-factor' }> | Rejected;
+
+export type TwoFactorConfirmation = SignedIn | Rejected;
 
 // The page shows only these outcomes; anything else allauth answers is treated like a failed request.
 const unexpected = (result: AuthResult): Error => new Error(`Unexpected sign-in answer: ${result.kind}`);
@@ -42,6 +48,21 @@ export const useConfirmCode = () => {
   return useMutation({
     mutationFn: async ({ flow, code }: { flow: CodeFlow; code: string }): Promise<CodeConfirmation> => {
       const result = flow === 'login_by_code' ? await confirmSignInCode(code) : await verifyEmail(code);
+      if (result.kind === 'signed-in' || result.kind === 'two-factor' || result.kind === 'rejected') {
+        return result;
+      }
+      throw unexpected(result);
+    },
+    onSuccess: (result) =>
+      result.kind === 'signed-in' ? queryClient.invalidateQueries({ queryKey: SESSION_KEY }) : undefined
+  });
+};
+
+export const useConfirmTwoFactorCode = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (code: string): Promise<TwoFactorConfirmation> => {
+      const result = await confirmTwoFactorCode(code);
       if (result.kind === 'signed-in' || result.kind === 'rejected') {
         return result;
       }
@@ -50,6 +71,18 @@ export const useConfirmCode = () => {
     onSuccess: (result) =>
       result.kind === 'signed-in' ? queryClient.invalidateQueries({ queryKey: SESSION_KEY }) : undefined
   });
+};
+
+// Back from Google, a staff account is signed in up to its second factor; a failed check counts as not, as with
+// the providers below, since the email step is the way in either way.
+export const useSignInState = (isBackFromGoogle: boolean) => {
+  const { data, isPending } = useQuery({
+    queryKey: ['households', 'sign-in-state'],
+    queryFn: fetchSignInState,
+    enabled: isBackFromGoogle,
+    retry: false
+  });
+  return { isChecking: isBackFromGoogle && isPending, needsTwoFactor: data?.kind === 'two-factor' };
 };
 
 // Google is offered only once the server says it's set up; while it's asked, or if asking fails, the email code is
