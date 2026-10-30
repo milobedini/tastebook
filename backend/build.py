@@ -3,6 +3,7 @@
 import os
 
 import django
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.db import connection, transaction
@@ -38,8 +39,11 @@ def was_born_empty() -> bool:
 
 def refuse_a_preview_with_accounts() -> None:
     # Households and private recipes belong to accounts, so a database with no accounts holds none of them either.
-    # A preview born empty holds only its own accounts, made on the preview since.
-    if not was_born_empty() and get_user_model().objects.exists():
+    # A preview born empty holds only its own accounts, made on the preview since. Production refuses test accounts,
+    # so one can't have come from it: the end-to-end tests make them on any preview, born empty or not.
+    # The build can't import households' services before django.setup(), so it matches test accounts' domain itself.
+    others = get_user_model().objects.exclude(email__iendswith=f'@{settings.TEST_ACCOUNT_DOMAIN}')
+    if not was_born_empty() and others.exists():
         raise SystemExit(PREVIEW_HOLDS_ACCOUNTS)
 
 

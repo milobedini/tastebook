@@ -20,11 +20,13 @@ def an_empty_database() -> Iterator[None]:
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize('email', ['someone@example.com', 'cook@sub.tastebook.test', 'cook@tastebook.testing'])
 def test_a_preview_built_on_a_database_with_an_account_fails_before_loading_the_catalogue(
-    monkeypatch: pytest.MonkeyPatch,
+    monkeypatch: pytest.MonkeyPatch, email: str
 ) -> None:
     monkeypatch.setenv('VERCEL_ENV', 'preview')
-    get_user_model().objects.create_user(email='someone@example.com')
+    get_user_model().objects.create_user(email='cook@tastebook.test')
+    get_user_model().objects.create_user(email=email)
 
     with pytest.raises(SystemExit) as failure:
         build.main()
@@ -54,6 +56,16 @@ def test_a_build_loads_the_catalogue_unless_it_is_a_preview_holding_accounts(
     build.main()
 
     assert (Recipe.objects.count(), get_user_model().objects.count()) == (305, accounts)
+
+
+@pytest.mark.django_db
+def test_a_preview_holding_only_test_accounts_loads_the_catalogue(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv('VERCEL_ENV', 'preview')
+    get_user_model().objects.create_user(email='cook@tastebook.test')
+
+    build.main()
+
+    assert (Recipe.objects.count(), get_user_model().objects.count()) == (305, 1)
 
 
 @pytest.mark.django_db(transaction=True)
