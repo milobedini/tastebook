@@ -190,6 +190,37 @@ def test_a_code_works_for_10_minutes(
         assert browser.get('session').status_code == 401
 
 
+def wrong_code(body: dict[str, str]) -> dict[str, str]:
+    [(field, code)] = body.items()
+    return {field: '000000' if code != '000000' else '111111'}
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('ask', [ask_to_sign_in, ask_to_sign_up], ids=['sign-in', 'sign-up'])
+def test_the_5th_wrong_code_stops_the_code(ask: Any) -> None:
+    browser = BrowserClient()
+    path, body = ask(browser, 'sam@example.com')
+
+    statuses = [browser.post(path, wrong_code(body)).status_code for _ in range(5)]
+    right = browser.post(path, body)
+
+    assert [*statuses, right.status_code] == [400, 400, 400, 400, 409, 409]
+    assert browser.get('session').status_code == 401
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('ask', [ask_to_sign_in, ask_to_sign_up], ids=['sign-in', 'sign-up'])
+def test_the_right_code_still_works_after_4_wrong_ones(ask: Any) -> None:
+    browser = BrowserClient()
+    path, body = ask(browser, 'sam@example.com')
+
+    statuses = [browser.post(path, wrong_code(body)).status_code for _ in range(4)]
+    right = browser.post(path, body)
+
+    assert [*statuses, right.status_code] == [400, 400, 400, 400, 200]
+    assert signed_in_email(browser) == 'sam@example.com'
+
+
 @pytest.mark.django_db
 def test_a_session_lasts_30_days_from_the_last_request() -> None:
     browser = BrowserClient()

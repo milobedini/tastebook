@@ -1,6 +1,11 @@
 import hmac
 
+from allauth.headless.account.inputs import ConfirmLoginCodeInput, VerifyEmailInput
+from allauth.headless.account.views import ConfirmLoginCodeView, VerifyEmailView
+from allauth.headless.base.response import ConflictResponse
+from allauth.headless.internal.restkit.response import ErrorResponse
 from django.conf import settings
+from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -75,3 +80,19 @@ class CurrentAccountView(APIView):
         names.is_valid(raise_exception=True)
         account = name_account(request.user, names.validated_data['name'])
         return Response(AccountSerializer(account).data)
+
+
+class ConfirmSignInCodeView(ConfirmLoginCodeView):
+    # The last wrong try ends the code, so it answers as a stopped code rather than leaving that to the next try.
+    def handle_invalid_input(self, input: ConfirmLoginCodeInput) -> HttpResponse:
+        if self.process.record_invalid_attempt():
+            return ErrorResponse(self.request, input=input)
+        return ConflictResponse(self.request)
+
+
+class VerifyEmailCodeView(VerifyEmailView):
+    # As ConfirmSignInCodeView, for the code that checks a new account's address.
+    def handle_invalid_input(self, input: VerifyEmailInput) -> HttpResponse:
+        if self.process.record_invalid_attempt():
+            return ErrorResponse(self.request, input=input)
+        return ConflictResponse(self.request)
