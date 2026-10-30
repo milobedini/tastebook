@@ -107,6 +107,9 @@ const toSummary = ({
 });
 
 export const handlers = [
+  http.get('/api/_allauth/browser/v1/config', () =>
+    HttpResponse.json({ status: 200, data: { socialaccount: { providers: [] } } })
+  ),
   http.get('/api/account/', () => HttpResponse.json<CurrentAccount>({ account: null })),
   http.get('/api/health/', () => HttpResponse.json<Health>({ status: 'ok', database: 'ok', version: '0.1.0' })),
   http.get('/api/courses/', () => HttpResponse.json<Course[]>(courses)),

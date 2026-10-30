@@ -6,7 +6,7 @@ import { Banner, Button, Field, Input, Page } from '../dino';
 import type { CodeFlow } from './auth-api';
 import { safeNextPath } from './safe-next-path';
 import { useSession } from './session-api';
-import { useConfirmCode, useRequestCode } from './sign-in-api';
+import { useConfirmCode, useGoogleSignIn, useRequestCode } from './sign-in-api';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CODE_PATTERN = /^\d{6}$/;
@@ -31,6 +31,13 @@ const Unreachable = () => (
   </Banner>
 );
 
+// allauth sends someone back from Google with ?error= when signing in there didn't work, cancelled included.
+const GoogleRefused = () => (
+  <Banner tone="danger" title="Couldn't sign in with Google">
+    Try again, or use an email code instead.
+  </Banner>
+);
+
 const actions = 'flex flex-wrap items-start gap-2';
 
 type EmailStepProps = {
@@ -38,10 +45,22 @@ type EmailStepProps = {
   onEmailChange: (email: string) => void;
   emailRef: RefObject<HTMLInputElement | null>;
   onCodeSent: (email: string, flow: CodeFlow) => void;
+  next: string;
+  isGoogleRefused: boolean;
+  onDismissGoogleRefused: () => void;
 };
 
-const EmailStep = ({ email, onEmailChange, emailRef, onCodeSent }: EmailStepProps) => {
+const EmailStep = ({
+  email,
+  onEmailChange,
+  emailRef,
+  onCodeSent,
+  next,
+  isGoogleRefused,
+  onDismissGoogleRefused
+}: EmailStepProps) => {
   const requestCode = useRequestCode();
+  const google = useGoogleSignIn();
   const [error, setError] = useState<string>();
   const [isUnreachable, setIsUnreachable] = useState(false);
 
@@ -54,6 +73,8 @@ const EmailStep = ({ email, onEmailChange, emailRef, onCodeSent }: EmailStepProp
     event.preventDefault();
     setError(undefined);
     setIsUnreachable(false);
+    onDismissGoogleRefused();
+    google.reset();
     const address = email.trim();
     if (!EMAIL_PATTERN.test(address)) {
       refuse(NOT_AN_ADDRESS);
@@ -75,11 +96,18 @@ const EmailStep = ({ email, onEmailChange, emailRef, onCodeSent }: EmailStepProp
     }
   };
 
+  const goToGoogle = () => {
+    setIsUnreachable(false);
+    onDismissGoogleRefused();
+    google.goToGoogle(`/sign-in?next=${encodeURIComponent(next)}`);
+  };
+
   return (
     <>
       <h1>Sign in</h1>
       <p>We'll email you a 6-digit code. New to Tastebook? The same code makes your account.</p>
-      {isUnreachable && <Unreachable />}
+      {(isUnreachable || google.isUnreachable) && <Unreachable />}
+      {isGoogleRefused && <GoogleRefused />}
       <form noValidate onSubmit={submit} className="flex flex-col gap-6">
         <Field label="Email address" error={error}>
           {(control) => (
@@ -99,6 +127,13 @@ const EmailStep = ({ email, onEmailChange, emailRef, onCodeSent }: EmailStepProp
           </Button>
         </div>
       </form>
+      {google.isOffered && (
+        <div className={actions}>
+          <Button variant="secondary" loading={google.isGoing} loadingLabel="Going to Google…" onClick={goToGoogle}>
+            Continue with Google
+          </Button>
+        </div>
+      )}
     </>
   );
 };
@@ -188,7 +223,7 @@ type SentCode = { email: string; flow: CodeFlow };
 
 export const SignInPage = () => {
   const { account } = useSession();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const emailRef = useRef<HTMLInputElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -206,6 +241,12 @@ export const SignInPage = () => {
     headingRef.current?.focus();
   };
 
+  const dismissGoogleRefused = () => {
+    if (searchParams.has('error')) {
+      setSearchParams({ next }, { replace: true });
+    }
+  };
+
   const showEmailStep = () => {
     flushSync(() => setSentCode(undefined));
     emailRef.current?.focus();
@@ -216,7 +257,15 @@ export const SignInPage = () => {
       <title>Sign in · Tastebook</title>
       <div className="flex max-w-100 flex-col gap-6">
         {sentCode === undefined ? (
-          <EmailStep email={email} onEmailChange={setEmail} emailRef={emailRef} onCodeSent={showCodeStep} />
+          <EmailStep
+            email={email}
+            onEmailChange={setEmail}
+            emailRef={emailRef}
+            onCodeSent={showCodeStep}
+            next={next}
+            isGoogleRefused={searchParams.has('error')}
+            onDismissGoogleRefused={dismissGoogleRefused}
+          />
         ) : (
           <CodeStep
             email={sentCode.email}

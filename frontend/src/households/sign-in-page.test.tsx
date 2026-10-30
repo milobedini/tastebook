@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { components } from '../api/schema';
 import { renderRoute } from '../test/render-route';
@@ -310,5 +310,119 @@ describe('SignInPage', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: 'What shall we cook tonight?' })).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/recipes');
+  });
+});
+
+const offerGoogle = () =>
+  server.use(
+    http.get('/api/_allauth/browser/v1/config', () =>
+      HttpResponse.json({
+        status: 200,
+        data: {
+          socialaccount: {
+            providers: [{ id: 'google', name: 'Google', client_id: 'tastebook', flows: ['provider_redirect'] }]
+          }
+        }
+      })
+    )
+  );
+
+const googleButton = () => screen.queryByRole('button', { name: 'Continue with Google' });
+
+// jsdom can't navigate, so the form posted to allauth is caught as it's submitted.
+const catchFormPosts = () => {
+  const submit = vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(() => undefined);
+  return () =>
+    submit.mock.contexts
+      .filter((form) => form instanceof HTMLFormElement)
+      .map((form) => ({
+        method: form.method,
+        path: new URL(form.action).pathname,
+        fields: Object.fromEntries(new FormData(form))
+      }));
+};
+
+describe('SignInPage with Google', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    // biome-ignore lint/suspicious/noDocumentCookie: jsdom has no Cookie Store; the next test may need no cookie
+    document.cookie = 'csrftoken=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  });
+
+  it('posts to allauth to go to Google, asking to come back to the sign-in page and on to next', async () => {
+    answerAllauth();
+    offerGoogle();
+    // biome-ignore lint/suspicious/noDocumentCookie: Django's account request sets this cookie; jsdom has no Cookie Store
+    document.cookie = 'csrftoken=from-the-cookie';
+    const formPosts = catchFormPosts();
+    renderRoute('/sign-in?next=/recipes/baguette');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Continue with Google' }));
+
+    await waitFor(() =>
+      expect(formPosts()).toEqual([
+        {
+          method: 'post',
+          path: '/api/_allauth/browser/v1/auth/provider/redirect',
+          fields: {
+            provider: 'google',
+            process: 'login',
+            callback_url: '/sign-in?next=%2Frecipes%2Fbaguette',
+            csrfmiddlewaretoken: 'from-the-cookie'
+          }
+        }
+      ])
+    );
+  });
+
+  it.each([
+    ['offers Google when the server has it set up', offerGoogle, true],
+    ['offers no Google when the server has no Google client', () => undefined, false],
+    [
+      'offers no Google when asking the server fails',
+      () => server.use(http.get('/api/_allauth/browser/v1/config', () => new HttpResponse(null, { status: 500 }))),
+      false
+    ]
+  ])('%s, and the email code either way', async (_, answer, isOffered) => {
+    answerAllauth();
+    answer();
+    const asked: string[] = [];
+    server.events.on('response:mocked', ({ request }) => asked.push(new URL(request.url).pathname));
+    renderRoute('/sign-in');
+
+    await waitFor(() => expect(asked).toContain('/api/_allauth/browser/v1/config'));
+    await waitFor(() => expect(googleButton() !== null).toBe(isOffered));
+    expect(screen.getByRole('button', { name: 'Send code' })).toBeInTheDocument();
+    server.events.removeAllListeners();
+  });
+
+  it('says signing in with Google did not work when Google sends someone back with an error, until the next press', async () => {
+    answerAllauth();
+    const { router } = renderRoute('/sign-in?next=%2Frecipes%2Fbaguette&error=cancelled&error_process=login');
+
+    const banner = await screen.findByRole('alert');
+    expect(banner).toHaveTextContent("Couldn't sign in with Google");
+    expect(banner).toHaveTextContent('Try again, or use an email code instead.');
+
+    await sendCode('sam@example.com');
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Check your email' })).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(router.state.location.search).toBe('?next=%2Frecipes%2Fbaguette');
+  });
+
+  it("says Tastebook couldn't be reached when going to Google fails before leaving", async () => {
+    answerAllauth();
+    offerGoogle();
+    const formPosts = catchFormPosts();
+    renderRoute('/sign-in');
+    const button = await screen.findByRole('button', { name: 'Continue with Google' });
+    server.use(http.get('/api/account/', () => HttpResponse.error()));
+
+    await userEvent.click(button);
+
+    const banner = await screen.findByRole('alert');
+    expect(banner).toHaveTextContent("Couldn't reach Tastebook");
+    expect(formPosts()).toEqual([]);
   });
 });
