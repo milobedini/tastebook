@@ -1,10 +1,12 @@
 import type { APIRequestContext } from '@playwright/test';
 import { expect } from '@playwright/test';
 
+import type { components } from '../src/api/schema.js';
+
 // A fresh throwaway address per test, so tests never share an account.
 export const newTestAccountEmail = (): string => `cook-${crypto.randomUUID()}@tastebook.test`;
 
-type SignInCode = { code: string };
+type SignInCode = components['schemas']['SignInCode'];
 
 // Reads the code the backend stored for a test account instead of emailing it.
 export const readSignInCode = async (request: APIRequestContext, email: string): Promise<string> => {
