@@ -49,8 +49,8 @@ const pending = (flow: string) =>
     { status: 401 }
   );
 
-const currentAccount = (email?: string) =>
-  HttpResponse.json<CurrentAccount>({ account: email === undefined ? null : { email } });
+const currentAccount = (email?: string, name = 'Sam') =>
+  HttpResponse.json<CurrentAccount>({ account: email === undefined ? null : { email, name } });
 
 const rejected = (status: 400 | 409, errors: { code: string; message: string; param?: string }[] = []) =>
   HttpResponse.json({ status, ...(errors.length === 0 ? {} : { errors }) }, { status });
@@ -249,6 +249,23 @@ describe('SignInPage', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: heading })).toBeInTheDocument();
     expect(router.state.location.pathname).toBe(landing);
+  });
+
+  it('sends a new account on to the name page, keeping where it was going', async () => {
+    const sent = answerAllauth();
+    server.use(
+      http.get('/api/account/', () =>
+        sent.length > 2 ? currentAccount('new@example.com', '') : currentAccount(undefined)
+      )
+    );
+    const { router } = renderRoute('/sign-in?next=/recipes/baguette');
+
+    await sendCode('new@example.com');
+    await signInWith('123456');
+
+    expect(await screen.findByRole('heading', { level: 1, name: "What's your name?" })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/welcome');
+    expect(router.state.location.search).toBe('?next=%2Frecipes%2Fbaguette');
   });
 
   it('goes straight to next when already signed in', async () => {

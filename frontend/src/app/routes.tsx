@@ -1,6 +1,6 @@
 import type { RouteObject } from 'react-router';
 
-import { SignInPage } from '../households';
+import { NameGate, SignInPage, WelcomePage } from '../households';
 import { RecipePage, RecipesPage } from '../recipes';
 import { AppLayout } from './app-layout';
 import { HomePage } from './home-page';
@@ -11,11 +11,17 @@ export const routes: RouteObject[] = [
   {
     Component: AppLayout,
     children: [
-      { path: '/', Component: HomePage },
-      { path: '/recipes', Component: RecipesPage },
-      { path: '/recipes/:slug', Component: RecipePage },
-      { path: '/sign-in', Component: SignInPage },
-      { path: '*', Component: NotFoundPage }
+      {
+        Component: NameGate,
+        children: [
+          { path: '/', Component: HomePage },
+          { path: '/recipes', Component: RecipesPage },
+          { path: '/recipes/:slug', Component: RecipePage },
+          { path: '/sign-in', Component: SignInPage },
+          { path: '/welcome', Component: WelcomePage },
+          { path: '*', Component: NotFoundPage }
+        ]
+      }
     ]
   }
 ];
