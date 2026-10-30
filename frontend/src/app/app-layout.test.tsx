@@ -1,4 +1,4 @@
-import { act, screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
 import { describe, expect, it } from 'vitest';
@@ -32,6 +32,32 @@ const answerTartSearch = () =>
 const searchBox = () => screen.getByRole('searchbox', { name: 'Search recipes' });
 
 const searchButton = () => screen.getByRole('button', { name: 'Search recipes' });
+
+const SESSION = '/api/_allauth/browser/v1/auth/session';
+
+const signedOut = () =>
+  HttpResponse.json({ status: 401, data: { flows: [] }, meta: { is_authenticated: false } }, { status: 401 });
+
+// Signed in until a DELETE signs out, which is recorded.
+const answerSignedIn = () => {
+  const signOuts: string[] = [];
+  server.use(
+    http.get(SESSION, () =>
+      signOuts.length > 0
+        ? signedOut()
+        : HttpResponse.json({
+            status: 200,
+            data: { user: { email: 'sam@example.com' }, methods: [] },
+            meta: { is_authenticated: true }
+          })
+    ),
+    http.delete(SESSION, ({ request }) => {
+      signOuts.push(new URL(request.url).pathname);
+      return signedOut();
+    })
+  );
+  return signOuts;
+};
 
 describe('AppLayout', () => {
   it.each(['/', '/recipes', '/recipes/apple-tart', '/no-such-page'])(
@@ -115,5 +141,67 @@ describe('AppLayout', () => {
     expect(searchBox()).toHaveValue('');
     expect(searchButton()).toHaveAttribute('aria-expanded', 'true');
     expect(searchBox()).toHaveFocus();
+  });
+
+  it('links Sign in back to the page and its search when signed out', async () => {
+    renderRoute('/recipes?q=soup');
+
+    const banner = screen.getByRole('banner');
+    expect(await within(banner).findByRole('link', { name: 'Sign in' })).toHaveAttribute(
+      'href',
+      '/sign-in?next=%2Frecipes%3Fq%3Dsoup'
+    );
+  });
+
+  it('signs out from the account menu and then offers Sign in', async () => {
+    const signOuts = answerSignedIn();
+    renderRoute('/recipes');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Account' }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Sign out' }));
+
+    const banner = screen.getByRole('banner');
+    expect(await within(banner).findByRole('link', { name: 'Sign in' })).toBeInTheDocument();
+    expect(within(banner).queryByRole('button', { name: 'Account' })).not.toBeInTheDocument();
+    expect(signOuts).toEqual([SESSION]);
+  });
+
+  it('shows neither Sign in nor Account until the session is known', async () => {
+    const answer: { send?: () => void } = {};
+    server.use(
+      http.get(
+        SESSION,
+        () =>
+          new Promise<Response>((resolve) => {
+            answer.send = () => resolve(signedOut());
+          })
+      )
+    );
+    renderRoute('/recipes');
+    const banner = screen.getByRole('banner');
+    await waitFor(() => expect(answer.send).toBeDefined());
+
+    expect(within(banner).getByRole('link', { name: 'Tastebook' })).toBeInTheDocument();
+    expect(within(banner).queryByRole('link', { name: 'Sign in' })).not.toBeInTheDocument();
+    expect(within(banner).queryByRole('button', { name: 'Account' })).not.toBeInTheDocument();
+
+    answer.send?.();
+
+    expect(await within(banner).findByRole('link', { name: 'Sign in' })).toBeInTheDocument();
+  });
+
+  it('shows neither Sign in nor Account on the sign-in page', async () => {
+    const { router } = renderRoute('/');
+    const banner = screen.getByRole('banner');
+    expect(await within(banner).findByRole('link', { name: 'Sign in' })).toBeInTheDocument();
+
+    await act(async () => {
+      await router.navigate('/sign-in');
+    });
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Sign in' })).toBeInTheDocument();
+    expect(within(banner).getByRole('link', { name: 'Tastebook' })).toBeInTheDocument();
+    expect(within(banner).queryByRole('link', { name: 'Sign in' })).not.toBeInTheDocument();
+    expect(within(banner).queryByRole('button', { name: 'Account' })).not.toBeInTheDocument();
   });
 });
