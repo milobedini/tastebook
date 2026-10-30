@@ -290,3 +290,7 @@ def test_reset_two_factor_takes_the_admin_from_a_session_that_passed_both_factor
     assert not Authenticator.objects.filter(user__email='sam@example.com').exists()
     assert output.startswith("Removed sam@example.com's authenticator")
     assert 'Set up two-factor sign-in' in page(client.get('/admin/', follow=True))
+
+    # The factor this session passed is gone: a new authenticator set up elsewhere doesn't count for it.
+    set_up_two_factor(signed_in(User.objects.get(email='sam@example.com')))
+    assert 'Enter your two-factor code' in page(client.get('/admin/', follow=True))

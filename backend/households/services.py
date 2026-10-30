@@ -104,13 +104,18 @@ def has_authenticator(user: AbstractBaseUser) -> bool:
 
 
 def passed_two_factors(request: HttpRequest) -> bool:
-    """Whether this session's sign-in included an authenticator or recovery code."""
-    return any(record.get('method') == 'mfa' for record in get_authentication_records(request, request.user))
+    """Whether this session's sign-in included an authenticator or recovery code that the account still has."""
+    used = [
+        record.get('id')
+        for record in get_authentication_records(request, request.user)
+        if record.get('method') == 'mfa'
+    ]
+    # Only factors that still exist count: after reset_two_factor, a new authenticator mustn't vouch for this session.
+    return Authenticator.objects.filter(user_id=request.user.pk, pk__in=used).exists()
 
 
 def may_open_admin(request: HttpRequest) -> bool:
-    # has_authenticator too: a session that passed before reset_two_factor loses the admin with the authenticator.
-    return is_staff_account(request.user) and has_authenticator(request.user) and passed_two_factors(request)
+    return is_staff_account(request.user) and passed_two_factors(request)
 
 
 def turn_on_two_factor(request: HttpRequest, form: ActivateTOTPForm) -> list[str]:
