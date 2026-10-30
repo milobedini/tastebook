@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -388,10 +388,13 @@ describe('SignInPage with Google', () => {
     answer();
     const asked: string[] = [];
     server.events.on('response:mocked', ({ request }) => asked.push(new URL(request.url).pathname));
-    renderRoute('/sign-in');
+    const { queryClient } = renderRoute('/sign-in');
 
     await waitFor(() => expect(asked).toContain('/api/_allauth/browser/v1/config'));
-    await waitFor(() => expect(googleButton() !== null).toBe(isOffered));
+    await waitFor(() => expect(queryClient.isFetching()).toBe(0));
+    // TanStack Query tells components a query settled on a zero timeout; let that render land before looking.
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+    expect(googleButton() !== null).toBe(isOffered);
     expect(screen.getByRole('button', { name: 'Send code' })).toBeInTheDocument();
     server.events.removeAllListeners();
   });
