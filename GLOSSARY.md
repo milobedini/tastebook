@@ -19,7 +19,7 @@ Names marked _planned_ don't exist in the code yet; use them when you build the 
 | Optional ingredient | An ingredient line the recipe works without. It doesn't count against a match or change diet tags. | `IngredientLine.optional` |
 | Amount | How much of an ingredient: a number, a range (2–3) or none ("to taste"). | `IngredientLine.amount`, `amount_max` |
 | Unit | A unit from Tastebook's fixed list (g, ml, tsp, cup…), or none ("2 eggs"). | `Unit` |
-| Unit system | Metric (the default) or US customary, for reading amounts. Amounts convert within a dimension (volume or weight); count units never convert. | `UnitSystem`, `convert()` |
+| Unit system | Metric (the default) or US customary, for reading amounts. Amounts convert within a dimension (volume or weight); count units never convert. An account's choice opens every recipe page in it. | `UnitSystem`, `convert()`, `User.unit_system` |
 | Step | One step of a recipe's method, in order. | `Step` |
 | Method | A recipe's steps, in order. | `Recipe.steps` |
 | Equipment | A tool from the shared equipment list (oven, hob, stand mixer…) that a recipe needs. | `Equipment` |
@@ -45,7 +45,7 @@ Names marked _planned_ don't exist in the code yet; use them when you build the 
 
 | Term | Meaning | In code |
 | --- | --- | --- |
-| Account | A person who has signed up. Signs in with an email code or Google. Has a name, shown on recipes it writes ("by Milo"). | `User` |
+| Account | A person who has signed up. Signs in with an email code or Google. Has a name, shown on recipes it writes ("by Milo"), and a unit system. | `User` |
 | Sign-in code | The 6-digit code emailed to sign in or sign up. Works once, for 10 minutes, and stops after 5 wrong tries. An address is sent at most 3 in 10 minutes. | `allauth`'s login code and email verification code |
 | Test account | A throwaway account at tastebook.test for end-to-end tests. Its codes are stored, not emailed, and production refuses it. | `StoredSignInCode`, `is_test_account()` |
 | Household | The people who cook together. Every account belongs to exactly one, once it has a name; a new one starts as "<name>'s household". It owns private recipes, the plan, the shopping list, the pantry and the household's equipment. | `Household` |
