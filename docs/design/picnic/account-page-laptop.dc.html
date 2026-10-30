@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>The account page, laptop</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.frame{position:relative;background:var(--color-ground);border:1px solid var(--color-line);border-radius:20px;overflow:hidden;flex-shrink:0;width:1280px;height:760px}
+.bar{border-bottom:1px solid var(--color-line)}
+.in{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:minmax(76px,auto);align-items:center;column-gap:24px;padding:0 32px;max-width:1200px;margin:0 auto;box-sizing:border-box}
+.wmk{display:inline-flex;align-items:center;min-height:44px;font-family:var(--font-serif);font-size:34px;line-height:36px;font-style:italic;color:var(--color-ink);text-decoration:none}
+.sf{width:360px}
+.av{width:44px;height:44px;padding:0;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-surface);color:var(--color-ink);display:inline-grid;place-items:center;font-family:var(--font-sans);font-size:19px;line-height:24px;font-weight:800;cursor:pointer}
+.page{padding:32px 32px 48px;max-width:1200px;margin:0 auto;box-sizing:border-box;display:flex;flex-direction:column}
+.page h1,.page h2{margin:0}
+.stack{display:flex;flex-direction:column;gap:32px;max-width:400px}
+.sec{display:flex;flex-direction:column;gap:16px}
+.sec p{margin:0;font-size:16px;line-height:24px;font-weight:600}
+.form{display:flex;flex-direction:column;gap:20px}
+.fld{display:flex;flex-direction:column;gap:6px}
+.help{margin:0;font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.toast{position:absolute;right:32px;bottom:32px;width:356px;min-height:56px;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-dock);color:var(--color-on-dock);box-shadow:var(--shadow-lift);display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;font-size:15px;line-height:20px;font-weight:800}
+.toast svg{width:18px;height:18px;flex-shrink:0}
+.col{display:flex;flex-direction:column;gap:10px}
+.notes{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:12px 40px;max-width:1280px}
+.notes p{margin:0;font-size:15px;line-height:22px;font-weight:600;color:var(--color-ink)}
+.notes p b{font-weight:800}
+</style>
+</helmet>
+<div style="width: 1392px; height: 1240px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">TAS-106 · /account · laptop, 1280 px</span>
+    <h1 class="ttl">The same column, on a laptop</h1>
+    <span class="cap">Nothing rearranges, as on the name and sign-in pages: the 400 px column sits at the page’s left edge, under the wordmark. Tablets (640 to 1024 px) look the same with the phone’s bar and 32 px gutters.</span>
+  </header>
+
+  <div class="col">
+    <span class="cap"><b>Units saved</b> · the toast sits at the bottom right from tablets up</span>
+    <div class="frame">
+      <header class="bar"><div class="in">
+        <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+        <div class="sf"><x-import component-from-global-scope="Dino.SearchInput" value="" on-value-change="{{noop}}" placeholder="Search recipes" aria-label="Search recipes"></x-import></div>
+        <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+      </div></header>
+      <main class="page"><div class="stack">
+        <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">account</x-import></h1>
+        <section class="sec" aria-labelledby="l-h-name">
+          <h2 id="l-h-name">Name</h2>
+          <form class="form" novalidate>
+            <div class="fld">
+              <label for="l-name" class="text-label">Your name</label>
+              <x-import component-from-global-scope="Dino.Input" id="l-name" type="text" auto-complete="name" max-length="{{fifty}}" default-value="Milo Bedini" aria-describedby="l-help"></x-import>
+              <p id="l-help" class="help">It shows on recipes you write, like “by Milo”.</p>
+            </div>
+            <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+          </form>
+        </section>
+        <section class="sec" aria-labelledby="l-h-units">
+          <h2 id="l-h-units">Units</h2>
+          <p>Recipes open in these units. You can still switch on any recipe.</p>
+          <div><x-import component-from-global-scope="Dino.SegmentedControl" label="Units" options="{{units}}" value="us" on-value-change="{{noop}}"></x-import></div>
+        </section>
+      </div></main>
+      <div class="toast" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg><span>Units saved</span></div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <p><b>Why the same column:</b> the page is two short settings, and the name page a new account has just seen used this column, so the field is where the eye expects it. A wider layout would leave the controls stranded.</p>
+    <p><b>Room to grow:</b> download everything and delete your account join as further sections in this column, each with its own Title heading; the delete action will be the page’s only danger button.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1392,"height":1240}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true, no: false, fifty: 50, noop: function () {},
+      units: [{ value: 'metric', label: 'Metric' }, { value: 'us', label: 'US customary' }]
+    };
+  }
+}
+</script>
+</body>
+</html>

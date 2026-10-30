@@ -25,6 +25,11 @@ class UserManager(BaseUserManager['User']):
 NAME_MAX_LENGTH = 50
 
 
+class UnitSystem(models.TextChoices):
+    METRIC = 'metric', 'Metric'
+    US = 'us', 'US customary'
+
+
 class Household(models.Model):
     name = models.CharField(max_length=100)
 
@@ -37,6 +42,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Blank until the account gives it on the name page; shown on recipes it writes ("by Milo").
     name = models.CharField(max_length=NAME_MAX_LENGTH, blank=True)
     household = models.ForeignKey(Household, null=True, blank=True, on_delete=models.PROTECT, related_name='members')
+    # Every recipe page opens in it; the switch on a recipe page doesn't change it.
+    unit_system = models.CharField(max_length=6, choices=UnitSystem.choices, default=UnitSystem.METRIC)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)

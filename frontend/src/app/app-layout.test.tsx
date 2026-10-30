@@ -39,7 +39,9 @@ const ACCOUNT = '/api/account/';
 const SESSION = '/api/_allauth/browser/v1/auth/session';
 
 const currentAccount = (email?: string) =>
-  HttpResponse.json<CurrentAccount>({ account: email === undefined ? null : { email, name: 'Sam' } });
+  HttpResponse.json<CurrentAccount>({
+    account: email === undefined ? null : { email, name: 'Sam', unit_system: 'metric' }
+  });
 
 // allauth answers a sign out with 401: nobody is signed in now.
 const signedOut = () =>
@@ -172,7 +174,18 @@ describe('AppLayout', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Account for Sam' }));
 
     const menu = await screen.findByRole('menu');
-    expect(menu).toHaveTextContent(/^SamSign out$/);
+    expect(menu).toHaveTextContent(/^SamAccountSign out$/);
+  });
+
+  it('opens the account page from the account menu', async () => {
+    answerSignedIn();
+    const { router } = renderRoute('/recipes');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Account for Sam' }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Account' }));
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Your account' })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/account');
   });
 
   it.each([

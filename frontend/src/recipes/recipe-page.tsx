@@ -14,6 +14,7 @@ import {
   ServingsStepper,
   StickeredPhoto
 } from '../dino';
+import { useSession } from '../households';
 import type { UnitSystem } from './convert';
 import { dietTagLabels, stickerTags } from './diet-tags';
 import { canShowOriginal, hasIngredients, type Reading, RecipeIngredients } from './recipe-ingredients';
@@ -82,18 +83,19 @@ const RecipeControls = ({
   );
 };
 
-// The servings, unit system and Show original aren't remembered, so every recipe opens as written, in metric.
-// The DOM keeps the phone's order at every width, so reading and focus order match; a laptop's grid places the
-// photo and ingredients on the left (5 parts) and the rest on the right (7).
-const RecipeBody = ({ recipe }: RecipeProps) => {
+// The servings and Show original aren't remembered, and the unit system opens as the account's, so every recipe opens
+// as written. The DOM keeps the phone's order at every width, so reading and focus order match; a laptop's grid places
+// the photo and ingredients on the left (5 parts) and the rest on the right (7).
+const RecipeBody = ({ recipe, preferredSystem }: RecipeDetailsProps) => {
   // The database holds exactly one of servings and a yield.
   const original = recipe.servings ?? recipe.yield_amount ?? 1;
   const [scaledTo, setScaledTo] = useState(original);
-  const [system, setSystem] = useState<UnitSystem>('metric');
+  const [chosenSystem, setChosenSystem] = useState<UnitSystem>();
+  const system = chosenSystem ?? preferredSystem;
   const [showOriginal, setShowOriginal] = useState(false);
   // Choosing a unit system asks for the amounts in it, not the original.
   const chooseSystem = (chosen: UnitSystem) => {
-    setSystem(chosen);
+    setChosenSystem(chosen);
     setShowOriginal(false);
   };
   const reading = { factor: scaledTo / original, system, showOriginal };
@@ -132,12 +134,14 @@ const RecipeBody = ({ recipe }: RecipeProps) => {
   );
 };
 
-const RecipeDetails = ({ recipe }: RecipeProps) => (
+type RecipeDetailsProps = RecipeProps & { preferredSystem: UnitSystem };
+
+const RecipeDetails = ({ recipe, preferredSystem }: RecipeDetailsProps) => (
   <>
     {/* React 19 needs <title> to have a single string child. */}
     <title>{`${recipe.title} · Tastebook`}</title>
-    {/* Keyed so another recipe starts at its own servings, in metric. */}
-    <RecipeBody key={recipe.id} recipe={recipe} />
+    {/* Keyed so another recipe starts at its own servings, in the account's units. */}
+    <RecipeBody key={recipe.id} recipe={recipe} preferredSystem={preferredSystem} />
   </>
 );
 
@@ -169,16 +173,31 @@ const RecipeUnavailable = ({ onRetry }: RecipeUnavailableProps) => (
   </>
 );
 
+// The account's unit system once the session has answered: metric signed out, or when the session can't be checked.
+const usePreferredSystem = (): UnitSystem | undefined => {
+  const { account, errorUpdatedAt } = useSession();
+  if (account !== undefined) {
+    return account?.unit_system ?? 'metric';
+  }
+  return errorUpdatedAt > 0 ? 'metric' : undefined;
+};
+
 type RecipeForSlugProps = { slug: string };
 
 const RecipeForSlug = ({ slug }: RecipeForSlugProps) => {
   const { data, errorUpdatedAt, refetch } = useRecipe(slug);
+  const preferredSystem = usePreferredSystem();
   if (data === null) {
     return <RecipeNotFound />;
   }
-  // A recipe already shown stays up if a background refetch fails.
+  // A recipe already shown stays up if a background refetch fails. It waits for the session, so a US account never
+  // sees metric first.
   if (data !== undefined) {
-    return <RecipeDetails recipe={data} />;
+    return preferredSystem === undefined ? (
+      <RecipeLoading />
+    ) : (
+      <RecipeDetails recipe={data} preferredSystem={preferredSystem} />
+    );
   }
   // A refetch resets a never-successful query to pending but leaves errorUpdatedAt, so the error stays up through its retry.
   if (errorUpdatedAt > 0) {

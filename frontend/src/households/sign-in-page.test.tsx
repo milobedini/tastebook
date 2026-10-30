@@ -50,7 +50,7 @@ const pending = (flow: string) =>
   );
 
 const currentAccount = (email?: string, name = 'Sam') =>
-  HttpResponse.json<CurrentAccount>({ account: email === undefined ? null : { email, name } });
+  HttpResponse.json<CurrentAccount>({ account: email === undefined ? null : { email, name, unit_system: 'metric' } });
 
 const limited = (retryAfter?: string) =>
   HttpResponse.json(

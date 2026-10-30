@@ -9,7 +9,7 @@ from django.db import connection, transaction
 from django.http import HttpRequest
 from django.utils import timezone
 
-from households.models import NAME_MAX_LENGTH, Household, StoredSignInCode, User
+from households.models import NAME_MAX_LENGTH, Household, StoredSignInCode, UnitSystem, User
 
 
 def is_test_account(email: str) -> bool:
@@ -38,6 +38,16 @@ def name_account(user: User, name: str) -> User:
         if account.household_id is None:
             account.household = Household.objects.create(name=household_name_for(name))
         account.save(update_fields=['name', 'household'])
+    return account
+
+
+def update_account(user: User, name: str | None = None, unit_system: UnitSystem | None = None) -> User:
+    """Saves whichever of the name and unit system are given, together; naming follows name_account."""
+    with transaction.atomic():
+        account = name_account(user, name) if name is not None else User.objects.select_for_update().get(pk=user.pk)
+        if unit_system is not None:
+            account.unit_system = unit_system
+            account.save(update_fields=['unit_system'])
     return account
 
 
