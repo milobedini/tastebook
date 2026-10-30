@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     'households',
     'allauth',
     'allauth.account',
+    'allauth.mfa',
     'allauth.headless',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
@@ -193,6 +194,12 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
 # Where a Google sign-in that went wrong before its state was known returns, with ?error=.
 HEADLESS_FRONTEND_URLS = {'socialaccount_login_error': '/sign-in'}
+
+# Staff only: an account with an authenticator is asked for its code at every sign-in (households.admin_site).
+MFA_SUPPORTED_TYPES = ['totp', 'recovery_codes']
+MFA_TOTP_ISSUER = 'Tastebook'
+# A code from the 30 seconds either side is accepted, for a phone whose clock has drifted.
+MFA_TOTP_TOLERANCE = 1
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
