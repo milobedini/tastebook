@@ -39,6 +39,7 @@ const saveName = async (name: string) => {
 
 describe('WelcomePage', () => {
   beforeEach(() => {
+    // biome-ignore lint/suspicious/noDocumentCookie: Django's account request sets this cookie; jsdom has no Cookie Store
     document.cookie = 'csrftoken=abc';
   });
 

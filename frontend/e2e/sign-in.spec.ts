@@ -18,15 +18,29 @@ const signInFromTheBar = async (page: Page, accessibility: Accessibility, email:
   await page.getByRole('button', { name: 'Sign in' }).click();
 };
 
-test('a new test account signs in from a recipe, signs out and signs in again', async ({ page, accessibility }) => {
+// Chromium names the heading "What's your name ?": the squiggle is inline-block, which adds a space around it.
+const NAME_PAGE_HEADING = /^What's your name ?\?$/;
+
+const giveName = async (page: Page, accessibility: Accessibility, name: string): Promise<void> => {
+  await expect(page.getByRole('heading', { level: 1, name: NAME_PAGE_HEADING })).toBeVisible();
+  await accessibility.check();
+  await page.getByRole('textbox', { name: 'Your name' }).fill(name);
+  await page.getByRole('button', { name: 'Continue' }).click();
+};
+
+test('a new test account signs in from a recipe, gives its name, signs out and signs in again', async ({
+  page,
+  accessibility
+}) => {
   const email = newTestAccountEmail();
   await page.goto('/recipes/baguette');
   await expect(page.getByRole('heading', { level: 1, name: 'Baguette' })).toBeVisible();
 
   await signInFromTheBar(page, accessibility, email);
+  await giveName(page, accessibility, 'Sam');
 
   await expect(page).toHaveURL(/\/recipes\/baguette$/);
-  const account = page.getByRole('banner').getByRole('button', { name: 'Account' });
+  const account = page.getByRole('banner').getByRole('button', { name: 'Account for Sam' });
   await expect(account).toBeVisible();
 
   await account.click();
@@ -34,8 +48,29 @@ test('a new test account signs in from a recipe, signs out and signs in again', 
   await expect(page.getByRole('banner').getByRole('link', { name: 'Sign in' })).toBeVisible();
   await expect(page).toHaveURL(/\/recipes\/baguette$/);
 
+  const visited: string[] = [];
+  page.on('framenavigated', (frame) => visited.push(frame.url()));
   await signInFromTheBar(page, accessibility, email);
 
   await expect(page).toHaveURL(/\/recipes\/baguette$/);
   await expect(account).toBeVisible();
+  expect(visited.filter((url) => url.includes('/welcome'))).toEqual([]);
+});
+
+test("a new test account's name page under forced colours", async ({ page, accessibility }, testInfo) => {
+  await page.emulateMedia({ forcedColors: 'active' });
+  const email = newTestAccountEmail();
+  await page.goto('/recipes/baguette');
+
+  await signInFromTheBar(page, accessibility, email);
+
+  const heading = page.getByRole('heading', { level: 1, name: NAME_PAGE_HEADING });
+  await expect(heading).toBeVisible();
+  const headingColour = await heading.evaluate((element) => getComputedStyle(element).color);
+  const squiggleStroke = await heading.locator('svg path').evaluate((path) => getComputedStyle(path).stroke);
+  expect(squiggleStroke).toBe(headingColour);
+  await testInfo.attach('name page under forced colours', {
+    body: await page.screenshot({ fullPage: true }),
+    contentType: 'image/png'
+  });
 });
