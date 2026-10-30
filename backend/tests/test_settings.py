@@ -22,6 +22,7 @@ print(json.dumps({
     'MAILERS': settings.MAILERS,
     'DEFAULT_FROM_EMAIL': settings.DEFAULT_FROM_EMAIL,
     'ALLAUTH_TRUSTED_CLIENT_IP_HEADER': getattr(settings, 'ALLAUTH_TRUSTED_CLIENT_IP_HEADER', None),
+    'GOOGLE_APPS': settings.SOCIALACCOUNT_PROVIDERS['google']['APPS'],
 }))
 """
 
@@ -147,3 +148,21 @@ def test_only_vercel_reads_the_clients_address_from_x_real_ip(env: dict[str, str
     settings = settings_with(env)
 
     assert settings['ALLAUTH_TRUSTED_CLIENT_IP_HEADER'] == expected
+
+
+GOOGLE_CLIENT = {'GOOGLE_OAUTH_CLIENT_ID': 'client.apps.googleusercontent.com', 'GOOGLE_OAUTH_CLIENT_SECRET': 'secret'}
+
+
+@pytest.mark.parametrize(
+    ('google', 'expected'),
+    [
+        (GOOGLE_CLIENT, [{'client_id': 'client.apps.googleusercontent.com', 'secret': 'secret'}]),
+        ({'GOOGLE_OAUTH_CLIENT_ID': 'client.apps.googleusercontent.com'}, []),
+        ({}, []),
+    ],
+    ids=['client-set', 'secret-missing', 'neither'],
+)
+def test_google_is_set_up_only_with_its_client_id_and_secret(google: dict[str, str], expected: list[object]) -> None:
+    settings = settings_with({'DJANGO_SECRET_KEY': 'test-only', 'VERCEL_ENV': 'preview', **google})
+
+    assert settings['GOOGLE_APPS'] == expected

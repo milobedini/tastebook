@@ -85,6 +85,8 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.headless',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'health',
     'recipes',
 ]
@@ -171,6 +173,26 @@ if VERCEL_ENV:
     ALLAUTH_TRUSTED_CLIENT_IP_HEADER = 'X-Real-IP'
 HEADLESS_ONLY = True
 HEADLESS_CLIENTS = ('browser',)
+
+SOCIALACCOUNT_ADAPTER = 'households.adapter.SocialAccountAdapter'
+GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID', '')
+GOOGLE_OAUTH_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET', '')
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        # Without the client (previews, local runs) Google isn't offered: its only redirect is production's address.
+        'APPS': [{'client_id': GOOGLE_OAUTH_CLIENT_ID, 'secret': GOOGLE_OAUTH_CLIENT_SECRET}]
+        if GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET
+        else [],
+        'SCOPE': ['profile', 'email'],
+    }
+}
+# Google checks the address, so a Google sign-in with an account's address signs in to that account.
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+# Google has checked the address (the adapter refuses one it hasn't), so signing in with Google sends no code.
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+# Where a Google sign-in that went wrong before its state was known returns, with ?error=.
+HEADLESS_FRONTEND_URLS = {'socialaccount_login_error': '/sign-in'}
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},

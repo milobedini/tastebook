@@ -5,7 +5,7 @@ requires-python = ">=3.14"
 dependencies = [
     "dj-database-url>=3.1.2",
     "django>=6.1.2",
-    "django-allauth[headless]>=65.21.0",
+    "django-allauth[headless,socialaccount]>=65.21.0",
     "djangorestframework>=3.18.3",
     "drf-spectacular>=0.30.0",
     "psycopg[binary]>=3.3.6",
@@ -17,6 +17,7 @@ dev = [
     "pytest>=9.1.1",
     "pytest-django>=4.14.0",
     "pytest-env>=1.8.1",
+    "responses>=0.26.3",
     "ruff>=0.17.2",
 ]
 

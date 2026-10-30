@@ -23,6 +23,8 @@ urlpatterns = [
     path('api/_allauth/browser/v1/auth/signup', SignUpView.as_api_view(client=Client.BROWSER)),
     path('api/_allauth/browser/v1/auth/email/verify', VerifyEmailCodeView.as_api_view(client=Client.BROWSER)),
     path('api/_allauth/', include('allauth.headless.urls')),
+    # Under HEADLESS_ONLY this is only the providers' own URLs: Google's client redirects to its callback here.
+    path('api/accounts/', include('allauth.urls')),
     path('api/recipes/', include('recipes.urls')),
     path('api/cuisines/', CuisineListView.as_view(), name='cuisine-list'),
     path('api/courses/', CourseListView.as_view(), name='course-list'),
