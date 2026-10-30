@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>The name page: checking, unreachable, and the way out</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.frame{position:relative;background:var(--color-ground);border:1px solid var(--color-line);border-radius:20px;overflow:hidden;flex-shrink:0;width:390px;height:600px}
+.bar{border-bottom:1px solid var(--color-line)}
+.in{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:minmax(76px,auto);align-items:center;column-gap:8px;padding:0 20px}
+.in.none{grid-template-columns:minmax(0,1fr) auto;column-gap:24px}
+.wmk{display:inline-flex;align-items:center;min-height:44px;font-family:var(--font-serif);font-size:34px;line-height:36px;font-style:italic;color:var(--color-ink);text-decoration:none}
+.av{width:44px;height:44px;padding:0;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-surface);color:var(--color-ink);display:inline-grid;place-items:center;cursor:pointer}
+.av.open{background:var(--color-line);border-color:var(--color-ink)}
+.menu{position:absolute;min-width:224px;max-width:320px;box-sizing:border-box;background:var(--color-surface);border:2px solid var(--color-field);border-radius:var(--radius-card);padding:6px;display:flex;flex-direction:column;gap:2px;color:var(--color-ink)}
+.mi{min-height:44px;display:flex;align-items:center;box-sizing:border-box;padding:10px 14px;border-radius:var(--radius-option);font-size:16px;line-height:24px;font-weight:600;color:var(--color-ink);text-decoration:none;cursor:pointer}
+.mi.fv{background:var(--color-line);outline:3px solid var(--color-ink);outline-offset:-3px}
+.page{padding:24px 20px 48px;display:flex;flex-direction:column;gap:24px}
+.page h1{margin:0}
+.page .lead{margin:0;font-size:16px;line-height:24px;font-weight:600}
+.stack{display:flex;flex-direction:column;gap:24px;max-width:400px}
+.fld{display:flex;flex-direction:column;gap:6px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.boards{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:40px;align-items:start}
+.col{display:flex;flex-direction:column;gap:10px}
+.notes{display:flex;flex-direction:column;gap:12px;max-width:1240px}
+.notes p{margin:0;font-size:15px;line-height:22px;font-weight:600;color:var(--color-ink)}
+.notes p b{font-weight:800}
+</style>
+</helmet>
+<div style="width: 1400px; height: 1160px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">TAS-103 · /welcome · phone, 390 px</span>
+    <h1 class="ttl">Before the form, and the way out</h1>
+    <span class="cap">Opened straight at /welcome, the page waits for the session like the recipe page waits for its recipe. Once the form shows, the account menu is the only way off it.</span>
+  </header>
+
+  <div class="boards">
+
+    <div class="col">
+      <span class="cap"><b>Checking your account</b> · after half a second; the bar shows no account end yet</span>
+      <div class="frame">
+        <header class="bar"><div class="in none">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+        </div></header>
+        <main class="page">
+          <x-import component-from-global-scope="Dino.Loading">Checking your account…</x-import>
+        </main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Couldn’t reach Tastebook</b> · the session failed; Try again asks once more</span>
+      <div class="frame">
+        <header class="bar"><div class="in none">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+        </div></header>
+        <main class="page">
+          <x-import component-from-global-scope="Dino.ErrorWithRetry" title="Couldn’t reach Tastebook" on-retry="{{retry}}">Check your connection and try again.</x-import>
+        </main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>The account menu, open</b> · no heading until there’s a name; Sign out is the way out</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av open" aria-label="Account" aria-haspopup="menu" aria-expanded="true"><span aria-hidden="true"><x-import component-from-global-scope="Dino.icons.UserRound" size="{{n20}}" stroke-width="{{sw}}" aria-hidden="true"></x-import></span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>What’s your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">name</x-import>?</h1>
+          <p class="lead">It shows on recipes you write, like “by Milo”.</p>
+          <form class="stack" novalidate>
+            <div class="fld">
+              <label for="m-name" class="text-label">Your name</label>
+              <x-import component-from-global-scope="Dino.Input" id="m-name" type="text" auto-complete="name" max-length="{{fifty}}" default-value=""></x-import>
+            </div>
+            <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Continue</x-import></div>
+          </form>
+        </div></main>
+        <div class="menu" role="menu" aria-label="Account" style="top: 68px; right: 20px">
+          <div class="mi fv" role="menuitem" tabindex="-1">Sign out</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <p><b>While the session is unknown the bar shows no account end</b> (docs/design.md, Layout: “Until it’s known whether someone is signed in, the bar shows neither”), and the page shows Dino’s Loading, then Error with retry, exactly as the recipe page does. Neither has a heading, as there’s nothing to name yet.</p>
+    <p><b>Sign out is the only item.</b> The boards’ “Account” item arrives with its page in TAS-106. Signing out lands on the page you were going to, signed out, where the gate no longer applies.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1400,"height":1160}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { icons: window.Dino.icons, yes: true, no: false, sw: 2.5, n20: 20, fifty: 50, retry: function () { return Promise.resolve(); } };
+  }
+}
+</script>
+</body>
+</html>

@@ -18,7 +18,8 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /** @description Saves the signed-in account's name. An account with no household gets one called "<name>'s household". */
+        patch: operations["current_account_partial_update"];
         trace?: never;
     };
     "/api/courses/": {
@@ -141,6 +142,7 @@ export interface components {
         Account: {
             /** Format: email */
             email: string;
+            name: string;
         };
         /** @enum {unknown} */
         BlankEnum: "";
@@ -243,6 +245,9 @@ export interface components {
             /** @description The UK name: courgette, coriander, plain flour. */
             name: string;
             readonly synonyms: string[];
+        };
+        PatchedAccountName: {
+            name?: string;
         };
         PhotoThumbnail: {
             readonly width: number;
@@ -364,6 +369,45 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["CurrentAccount"];
                 };
+            };
+        };
+    };
+    current_account_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedAccountName"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedAccountName"];
+                "multipart/form-data": components["schemas"]["PatchedAccountName"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Account"];
+                };
+            };
+            /** @description No response body */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No response body */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

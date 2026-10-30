@@ -4,13 +4,18 @@ from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotAuthenticated, NotFound
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from households.serializers import CurrentAccountSerializer, SignInCodeSerializer
-from households.services import is_test_account, latest_sign_in_code
+from households.serializers import (
+    AccountNameSerializer,
+    AccountSerializer,
+    CurrentAccountSerializer,
+    SignInCodeSerializer,
+)
+from households.services import is_test_account, latest_sign_in_code, name_account
 
 
 def may_read_codes(request: Request) -> bool:
@@ -55,3 +60,18 @@ class CurrentAccountView(APIView):
     def get(self, request: Request) -> Response:
         account = request.user if request.user.is_authenticated else None
         return Response(CurrentAccountSerializer({'account': account}).data)
+
+    @extend_schema(
+        operation_id='current_account_partial_update',
+        request=AccountNameSerializer,
+        responses={200: AccountSerializer, 400: None, 403: None},
+        description="Saves the signed-in account's name. An account with no household gets one called "
+        '"<name>\'s household".',
+    )
+    def patch(self, request: Request) -> Response:
+        if not request.user.is_authenticated:
+            raise NotAuthenticated
+        names = AccountNameSerializer(data=request.data)
+        names.is_valid(raise_exception=True)
+        account = name_account(request.user, names.validated_data['name'])
+        return Response(AccountSerializer(account).data)

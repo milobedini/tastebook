@@ -22,8 +22,21 @@ class UserManager(BaseUserManager['User']):
         return self.create_user(email, password, **extra_fields)
 
 
+NAME_MAX_LENGTH = 50
+
+
+class Household(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
+    # Blank until the account gives it on the name page; shown on recipes it writes ("by Milo").
+    name = models.CharField(max_length=NAME_MAX_LENGTH, blank=True)
+    household = models.ForeignKey(Household, null=True, blank=True, on_delete=models.PROTECT, related_name='members')
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
@@ -33,6 +46,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     EMAIL_FIELD = 'email'
     REQUIRED_FIELDS: list[str] = []
+
+    class Meta:
+        constraints = [
+            # Every named account belongs to a household: the name and the household are saved together.
+            models.CheckConstraint(
+                condition=models.Q(name='') | models.Q(household__isnull=False),
+                name='named_account_has_household',
+            ),
+        ]
 
     def __str__(self) -> str:
         return self.email

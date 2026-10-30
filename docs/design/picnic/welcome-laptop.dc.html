@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>The name page, laptop</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.frame{position:relative;background:var(--color-ground);border:1px solid var(--color-line);border-radius:20px;overflow:hidden;flex-shrink:0;width:1280px;height:560px}
+.bar{border-bottom:1px solid var(--color-line)}
+.in{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:minmax(76px,auto);align-items:center;column-gap:24px;padding:0 32px;max-width:1200px;margin:0 auto;box-sizing:border-box}
+.wmk{display:inline-flex;align-items:center;min-height:44px;font-family:var(--font-serif);font-size:34px;line-height:36px;font-style:italic;color:var(--color-ink);text-decoration:none}
+.sf{width:360px}
+.av{width:44px;height:44px;padding:0;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-surface);color:var(--color-ink);display:inline-grid;place-items:center;cursor:pointer}
+.page{padding:32px 32px 48px;max-width:1200px;margin:0 auto;box-sizing:border-box;display:flex;flex-direction:column;gap:24px}
+.page h1{margin:0}
+.page .lead{margin:0;font-size:16px;line-height:24px;font-weight:600}
+.stack{display:flex;flex-direction:column;gap:24px;max-width:400px}
+.fld{display:flex;flex-direction:column;gap:6px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.is-focus input{outline:1px solid var(--color-ink);outline-offset:0}
+.is-focus input:not([aria-invalid="true"]){border-color:var(--color-ink)}
+.col{display:flex;flex-direction:column;gap:10px}
+.notes{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:12px 40px;max-width:1280px}
+.notes p{margin:0;font-size:15px;line-height:22px;font-weight:600;color:var(--color-ink)}
+.notes p b{font-weight:800}
+</style>
+</helmet>
+<div style="width: 1392px; height: 1040px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">TAS-103 · /welcome · laptop, 1280 px</span>
+    <h1 class="ttl">The same column, on a laptop</h1>
+    <span class="cap">Nothing rearranges, as on the sign-in page: the form keeps its 400 px column at the page’s left edge, under the wordmark. Tablets (640 to 1024 px) look the same with the phone’s bar and 32 px gutters.</span>
+  </header>
+
+  <div class="col">
+    <span class="cap"><b>Typed, focus in the field</b></span>
+    <div class="frame">
+      <header class="bar"><div class="in">
+        <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+        <div class="sf"><x-import component-from-global-scope="Dino.SearchInput" value="" on-value-change="{{noop}}" placeholder="Search recipes" aria-label="Search recipes"></x-import></div>
+        <button type="button" class="av" aria-label="Account" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true"><x-import component-from-global-scope="Dino.icons.UserRound" size="{{n20}}" stroke-width="{{sw}}" aria-hidden="true"></x-import></span></button>
+      </div></header>
+      <main class="page"><div class="stack">
+        <h1>What’s your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">name</x-import>?</h1>
+        <p class="lead">It shows on recipes you write, like “by Milo”.</p>
+        <form class="stack" novalidate>
+          <div class="fld is-focus">
+            <label for="l-name" class="text-label">Your name</label>
+            <x-import component-from-global-scope="Dino.Input" id="l-name" type="text" auto-complete="name" max-length="{{fifty}}" default-value="Milo"></x-import>
+          </div>
+          <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Continue</x-import></div>
+        </form>
+      </div></main>
+    </div>
+  </div>
+
+  <div class="notes">
+    <p><b>Why the sign-in page’s column:</b> it’s the next screen a new account sees after signing in, so the form stays where the eye just was; a centred card would be a new pattern for one page.</p>
+    <p><b>Why the field is 400 px for a 50-character name:</b> long names fit at Body size, and the field reads as one field, not a search bar.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1392,"height":1040}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { icons: window.Dino.icons, yes: true, no: false, sw: 2.5, n20: 20, fifty: 50, noop: function () {} };
+  }
+}
+</script>
+</body>
+</html>

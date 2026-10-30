@@ -20,10 +20,9 @@ const useAccountEnd = (): TopBarAccount | undefined => {
   if (!account) {
     return { status: 'signed-out', signInTo: `${SIGN_IN_PATH}?next=${encodeURIComponent(pathname + search)}` };
   }
-  // The name is blank until TAS-103 asks for it, so the avatar shows its icon and is named "Account".
   return {
     status: 'signed-in',
-    name: '',
+    name: account.name,
     menuItems: [
       {
         kind: 'action',

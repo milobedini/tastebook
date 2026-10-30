@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from pytest_django.fixtures import Settings
 from rest_framework.test import APIClient
 
-from households.models import StoredSignInCode, User
+from households.models import Household, StoredSignInCode, User
 
 AUTH = '/api/_allauth/browser/v1/auth'
 CODE_SUBJECT = re.compile(r'Your Tastebook code is (\d{6})')
@@ -251,5 +251,97 @@ def test_the_current_account_follows_signing_in_and_out() -> None:
     browser.delete('session')
     signed_out = browser.client.get('/api/account/')
 
-    assert (signed_in.status_code, signed_in.json()) == (200, {'account': {'email': 'sam@example.com'}})
+    assert (signed_in.status_code, signed_in.json()) == (200, {'account': {'email': 'sam@example.com', 'name': ''}})
     assert (signed_out.status_code, signed_out.json()) == (200, {'account': None})
+
+
+def save_name(browser: BrowserClient, name: str) -> HttpResponse:
+    return browser.client.patch('/api/account/', {'name': name}, format='json', **browser.csrf_header())
+
+
+@pytest.mark.django_db
+def test_saving_a_name_makes_a_household_of_one() -> None:
+    browser = BrowserClient()
+    sign_up(browser, 'sam@example.com')
+
+    saved = save_name(browser, '  Milo ')
+    current = browser.client.get('/api/account/')
+
+    household = User.objects.get(email='sam@example.com').household
+    assert (saved.status_code, saved.json()) == (200, {'email': 'sam@example.com', 'name': 'Milo'})
+    assert current.json() == {'account': {'email': 'sam@example.com', 'name': 'Milo'}}
+    assert household is not None
+    assert (household.name, household.members.count()) == ("Milo's household", 1)
+
+
+@pytest.mark.django_db
+def test_two_accounts_get_a_household_each() -> None:
+    sam = BrowserClient()
+    sign_up(sam, 'sam@example.com')
+    jo = BrowserClient()
+    sign_up(jo, 'jo@example.com')
+
+    save_name(sam, 'Milo')
+    save_name(jo, 'Jo')
+
+    assert set(Household.objects.values_list('name', flat=True)) == {"Milo's household", "Jo's household"}
+    assert (
+        User.objects.get(email='sam@example.com').household_id != User.objects.get(email='jo@example.com').household_id
+    )
+
+
+@pytest.mark.django_db
+def test_saving_a_name_again_keeps_the_household_and_its_name() -> None:
+    browser = BrowserClient()
+    sign_up(browser, 'sam@example.com')
+
+    save_name(browser, 'Milo')
+    save_name(browser, 'Milo Bedini')
+
+    assert User.objects.get(email='sam@example.com').name == 'Milo Bedini'
+    assert list(Household.objects.values_list('name', flat=True)) == ["Milo's household"]
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('name', ['', '   ', 'a' * 51])
+def test_a_blank_or_too_long_name_is_refused(name: str) -> None:
+    browser = BrowserClient()
+    sign_up(browser, 'sam@example.com')
+
+    refused = save_name(browser, name)
+    current = browser.client.get('/api/account/')
+
+    assert (refused.status_code, 'name' in refused.json()) == (400, True)
+    assert current.json() == {'account': {'email': 'sam@example.com', 'name': ''}}
+    assert Household.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_a_name_of_fifty_characters_is_saved() -> None:
+    browser = BrowserClient()
+    sign_up(browser, 'sam@example.com')
+
+    saved = save_name(browser, 'a' * 50)
+
+    assert (saved.status_code, saved.json()) == (200, {'email': 'sam@example.com', 'name': 'a' * 50})
+
+
+@pytest.mark.django_db
+def test_a_visitor_who_isnt_signed_in_cant_save_a_name() -> None:
+    browser = BrowserClient()
+
+    refused = save_name(browser, 'Milo')
+
+    assert refused.status_code == 403
+    assert Household.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_saving_a_name_without_the_csrf_header_is_refused() -> None:
+    browser = BrowserClient()
+    sign_up(browser, 'sam@example.com')
+
+    refused = browser.client.patch('/api/account/', {'name': 'Milo'}, format='json')
+
+    assert refused.status_code == 403
+    assert User.objects.get(email='sam@example.com').name == ''
