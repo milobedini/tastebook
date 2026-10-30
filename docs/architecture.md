@@ -52,8 +52,8 @@ Each build runs Django's migrations against its own database (`backend/build.py`
 - **Sessions:** Django's database sessions, in cookies on the same domain as the API. A session lasts 30 days from its last request: every request sets the cookie again.
 - **Email:** Resend over SMTP from `noreply@tastebook.dev` (`DJANGO_DEFAULT_FROM_EMAIL`), production only; `RESEND_API_KEY` is a Production secret and production won't start without it. Previews send no email; locally and in CI it goes to the console.
 - **Previews:** email codes only; Google can't redirect to preview addresses that change per PR. Since previews send no email, only test accounts sign in there: addresses at `tastebook.test` (reserved by RFC 2606, so nobody can own one), whose codes the backend stores instead of sending. End-to-end tests read them from `GET /api/test-accounts/code/?email=`, which on previews needs the previews' bypass secret in `X-Test-Account-Secret`. Locally and in CI it needs nothing; on production it answers 404 and signing up refuses a `tastebook.test` address.
-- **Staff:** the Django admin is for staff accounts only, and staff need two-factor sign-in with an authenticator app (allauth's MFA), because the admin can change every recipe and account.
-- **Deleting an account** (UK GDPR's right to erasure): the account's private recipes are deleted; its public recipes stay, credited to "a former member", so saved links keep working.
+- **Staff:** the Django admin is for staff accounts only, and staff need two-factor sign-in with an authenticator app (allauth's MFA), because the admin can change every recipe and account. _planned: TAS-107_
+- **Deleting an account** (UK GDPR's right to erasure): the account's private recipes are deleted; its public recipes stay, credited to "a former member", so saved links keep working. _planned_
 
 ## Photos
 
