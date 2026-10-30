@@ -39,7 +39,9 @@ const ACCOUNT = '/api/account/';
 const SESSION = '/api/_allauth/browser/v1/auth/session';
 
 const currentAccount = (email?: string) =>
-  HttpResponse.json<CurrentAccount>({ account: email === undefined ? null : { email, name: 'Sam' } });
+  HttpResponse.json<CurrentAccount>({
+    account: email === undefined ? null : { email, name: 'Sam', unit_system: 'metric' }
+  });
 
 // allauth answers a sign out with 401: nobody is signed in now.
 const signedOut = () =>

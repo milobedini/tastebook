@@ -18,7 +18,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** @description Saves the signed-in account's name. An account with no household gets one called "<name>'s household". */
+        /** @description Saves the signed-in account's name, unit system or both. An account with no household gets one called "<name>'s household"; a later name leaves the household's name as it is. */
         patch: operations["current_account_partial_update"];
         trace?: never;
     };
@@ -143,6 +143,7 @@ export interface components {
             /** Format: email */
             email: string;
             name: string;
+            unit_system: components["schemas"]["UnitSystem"];
         };
         /** @enum {unknown} */
         BlankEnum: "";
@@ -246,8 +247,9 @@ export interface components {
             name: string;
             readonly synonyms: string[];
         };
-        PatchedAccountName: {
+        PatchedAccountChanges: {
             name?: string;
+            unit_system?: components["schemas"]["UnitSystem"];
         };
         PhotoThumbnail: {
             readonly width: number;
@@ -344,6 +346,12 @@ export interface components {
          * @enum {string}
          */
         UnitEnum: "g" | "kg" | "ml" | "l" | "tsp" | "tbsp" | "cup" | "oz" | "lb" | "fl_oz" | "pinch" | "clove" | "tin" | "slice" | "bunch" | "handful";
+        /**
+         * @description * `metric` - Metric
+         *     * `us` - US customary
+         * @enum {string}
+         */
+        UnitSystem: "metric" | "us";
     };
     responses: never;
     parameters: never;
@@ -381,9 +389,9 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": components["schemas"]["PatchedAccountName"];
-                "application/x-www-form-urlencoded": components["schemas"]["PatchedAccountName"];
-                "multipart/form-data": components["schemas"]["PatchedAccountName"];
+                "application/json": components["schemas"]["PatchedAccountChanges"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedAccountChanges"];
+                "multipart/form-data": components["schemas"]["PatchedAccountChanges"];
             };
         };
         responses: {

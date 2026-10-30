@@ -17,7 +17,7 @@ type SentSave = { body: unknown; csrfToken: string | null };
 // Signed in as sam@example.com with no name, until a PATCH saves one.
 const answerNameless = () => {
   const saves: SentSave[] = [];
-  const state: { account: Account } = { account: { email: 'sam@example.com', name: '' } };
+  const state: { account: Account } = { account: { email: 'sam@example.com', name: '', unit_system: 'metric' } };
   server.use(
     http.get(ACCOUNT, () => HttpResponse.json<CurrentAccount>({ account: state.account })),
     http.patch(ACCOUNT, async ({ request }) => {
@@ -112,7 +112,7 @@ describe('WelcomePage', () => {
   });
 
   it.each([
-    ['a named account', { email: 'sam@example.com', name: 'Sam' }],
+    ['a named account', { email: 'sam@example.com', name: 'Sam', unit_system: 'metric' as const }],
     ['a visitor who is signed out', null]
   ])('lets %s open any page', async (_, account) => {
     server.use(http.get(ACCOUNT, () => HttpResponse.json<CurrentAccount>({ account })));
@@ -123,7 +123,7 @@ describe('WelcomePage', () => {
   });
 
   it.each([
-    ['a named account', { email: 'sam@example.com', name: 'Sam' }],
+    ['a named account', { email: 'sam@example.com', name: 'Sam', unit_system: 'metric' as const }],
     ['a visitor who is signed out', null]
   ])('sends %s on from the name page to next', async (_, account) => {
     server.use(http.get(ACCOUNT, () => HttpResponse.json<CurrentAccount>({ account })));
