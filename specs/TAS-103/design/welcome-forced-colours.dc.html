@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>The name page under forced colours</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.hc{--canvas:#000000;--text:#ffffff;--hl:#1aebff;background:var(--canvas);color:var(--text);border-radius:20px;overflow:hidden;width:390px;height:660px;flex-shrink:0;font-family:var(--font-sans)}
+.hc .bar{border-bottom:1px solid var(--text);min-height:76px;padding:0 20px;display:flex;align-items:center;gap:8px}
+.hc .wm{font-family:var(--font-serif);font-size:34px;line-height:36px;font-style:italic;flex-grow:1}
+.hc .c{width:44px;height:44px;box-sizing:border-box;border:2px solid var(--text);border-radius:999px;display:inline-grid;place-items:center;color:var(--text);background:transparent;padding:0}
+.hc .pg{padding:24px 20px 48px;display:flex;flex-direction:column;gap:24px}
+.hc h2{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400;font-style:normal}
+.hc .sq{position:relative;display:inline-block;font-style:italic}
+.hc .sq svg{position:absolute;left:0;bottom:-8px;width:100%;height:10px}
+.hc .lead{margin:0;font-size:16px;line-height:24px;font-weight:600}
+.hc .fld{display:flex;flex-direction:column;gap:6px}
+.hc .lbl{font-size:15px;line-height:20px;font-weight:800}
+.hc .box{height:48px;box-sizing:border-box;border:2px solid var(--text);border-radius:999px;padding:0 18px;display:flex;align-items:center;font-size:16px;font-weight:700}
+.hc .box.ring{border-width:3px;outline:1px solid var(--hl)}
+.hc .err{margin:0;display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:17px;font-weight:700}
+.hc .err svg{flex-shrink:0;margin-top:1px}
+.hc .ban{border:2px solid var(--text);border-radius:20px;padding:14px 14px 14px 16px;display:grid;grid-template-columns:22px minmax(0,1fr);column-gap:12px}
+.hc .ban b{font-weight:800}
+.hc .ban span{display:block;font-weight:600}
+.hc .acts{display:flex;flex-wrap:wrap;gap:8px}
+.hc .b{height:44px;padding:0 20px;border-radius:999px;border:2px solid var(--text);box-sizing:border-box;display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--text);font:800 15px/20px var(--font-sans);white-space:nowrap}
+.hc .b.ring{outline:3px solid var(--hl);outline-offset:0}
+.row{display:flex;gap:40px;align-items:flex-start}
+.col{display:flex;flex-direction:column;gap:10px}
+.checks{display:flex;flex-direction:column;gap:10px;max-width:420px}
+.checks p{margin:0;font-size:15px;line-height:22px;font-weight:600}
+.checks p b{font-weight:800}
+</style>
+</helmet>
+<div style="width: 1400px; height: 1120px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">TAS-103 · /welcome · forced colours</span>
+    <h1 class="ttl">Under forced colours</h1>
+    <span class="cap">Simulated in Windows’ High Contrast Black: fills drop; text, borders and outlines take the system’s colours (CanvasText white, Highlight cyan). Every state still reads without colour.</span>
+  </header>
+
+  <div class="row">
+
+    <div class="col">
+      <span class="cap"><b>Blank name</b> · focus back in the field</span>
+      <div class="hc">
+        <div class="bar">
+          <span class="wm">Tastebook</span>
+          <span class="c" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></span>
+          <span class="c" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg></span>
+        </div>
+        <div class="pg">
+          <h2>What’s your <span class="sq">name<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6 Q 14 1 26 6 T 50 6 T 74 6 T 98 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span>?</h2>
+          <p class="lead">It shows on recipes you write, like “by Milo”.</p>
+          <div class="fld">
+            <span class="lbl">Your name</span>
+            <span class="box ring"></span>
+            <p class="err"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>Enter your name, like Milo.</p>
+          </div>
+          <div class="acts"><span class="b">Continue</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Couldn’t reach Tastebook</b> · focus on Continue</span>
+      <div class="hc">
+        <div class="bar">
+          <span class="wm">Tastebook</span>
+          <span class="c" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></span>
+          <span class="c" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg></span>
+        </div>
+        <div class="pg">
+          <h2>What’s your <span class="sq">name<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6 Q 14 1 26 6 T 50 6 T 74 6 T 98 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span>?</h2>
+          <p class="lead">It shows on recipes you write, like “by Milo”.</p>
+          <div class="ban"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg><div><b>Couldn’t reach Tastebook</b><span>Check your connection and try again.</span></div></div>
+          <div class="fld">
+            <span class="lbl">Your name</span>
+            <span class="box">Milo</span>
+          </div>
+          <div class="acts"><span class="b ring">Continue</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="checks">
+      <span class="cap">What to check on the built page</span>
+      <p><b>The squiggle</b> under “name” turns CanvasText: Chromium keeps an SVG’s own colour under forced colours, so check it isn’t still peach (specs/lessons, forced-colours-keeps-an-svgs-own-colour).</p>
+      <p><b>The error</b> keeps its icon and its words; its text goes to CanvasText, so nothing rests on the danger colour.</p>
+      <p><b>The banner</b> keeps its 2 px border and its icon.</p>
+      <p><b>Continue</b> loses the peach but keeps its 2 px transparent border, which forced colours draws, so it stays an outlined pill.</p>
+      <p><b>The avatar</b> keeps its 2 px transparent border, drawn here, round the person icon.</p>
+      <p><b>Focus</b> is the Highlight ring on the button and the field’s thicker border with its outline.</p>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1400,"height":1120}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
