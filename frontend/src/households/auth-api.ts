@@ -1,6 +1,10 @@
+import type { components } from '../api/schema';
+
 // allauth's headless endpoints aren't DRF views, so they're outside the OpenAPI schema: the few read here are
 // typed by hand from allauth's headless spec.
 const AUTH_PATH = '/api/_allauth/browser/v1/auth';
+
+const ACCOUNT_PATH = '/api/account/';
 
 type AuthError = { code: string; param?: string; message: string };
 type Flow = { id: string; is_pending?: boolean };
@@ -10,7 +14,7 @@ type AuthBody = {
   errors?: AuthError[];
 };
 
-export type Account = { email: string };
+export type Account = components['schemas']['Account'];
 
 export type CodeFlow = 'login_by_code' | 'verify_email';
 
@@ -54,10 +58,10 @@ const toResult = (status: number, body: AuthBody): AuthResult => {
   throw new Error(`Sign-in request failed with ${status}`);
 };
 
-const send = async (method: 'GET' | 'POST' | 'DELETE', path: string, payload?: object): Promise<AuthResult> => {
-  // Django sets the CSRF cookie on the first session request, which every page makes; this covers a press before it.
-  if (method !== 'GET' && csrfToken() === undefined) {
-    await send('GET', '/session');
+const send = async (method: 'POST' | 'DELETE', path: string, payload?: object): Promise<AuthResult> => {
+  // The account request every page makes sets the CSRF cookie; this covers a press before it has answered.
+  if (csrfToken() === undefined) {
+    await fetch(`${window.location.origin}${ACCOUNT_PATH}`, { credentials: 'same-origin' });
   }
   const token = csrfToken();
   const response = await fetch(`${window.location.origin}${AUTH_PATH}${path}`, {
@@ -65,14 +69,12 @@ const send = async (method: 'GET' | 'POST' | 'DELETE', path: string, payload?: o
     credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
-      ...(method !== 'GET' && token !== undefined ? { 'X-CSRFToken': token } : {})
+      ...(token === undefined ? {} : { 'X-CSRFToken': token })
     },
     body: payload === undefined ? undefined : JSON.stringify(payload)
   });
   return toResult(response.status, await readBody(response));
 };
-
-export const getSession = () => send('GET', '/session');
 
 export const requestCode = (email: string) => send('POST', '/code/request', { email });
 

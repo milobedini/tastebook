@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { type Account, getSession, signOut } from './auth-api';
+import { api } from '../api/client';
+import { type Account, signOut } from './auth-api';
 
 export const SESSION_KEY = ['households', 'session'];
 
@@ -9,8 +10,11 @@ export const useSession = () => {
   const { data, isPending, isError } = useQuery({
     queryKey: SESSION_KEY,
     queryFn: async (): Promise<Account | null> => {
-      const result = await getSession();
-      return result.kind === 'signed-in' ? result.account : null;
+      const { data: current, error } = await api.GET('/api/account/');
+      if (error || !current) {
+        throw new Error('Session check failed');
+      }
+      return current.account;
     }
   });
   return { account: data, isPending, isError };

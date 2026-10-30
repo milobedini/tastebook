@@ -7,6 +7,7 @@ import type { components } from '../api/schema';
 import { renderRoute } from '../test/render-route';
 import { server } from '../test/server';
 
+type CurrentAccount = components['schemas']['CurrentAccount'];
 type RecipeSummary = components['schemas']['RecipeSummary'];
 
 const appleTart: RecipeSummary = {
@@ -33,8 +34,14 @@ const searchBox = () => screen.getByRole('searchbox', { name: 'Search recipes' }
 
 const searchButton = () => screen.getByRole('button', { name: 'Search recipes' });
 
+const ACCOUNT = '/api/account/';
+
 const SESSION = '/api/_allauth/browser/v1/auth/session';
 
+const currentAccount = (email?: string) =>
+  HttpResponse.json<CurrentAccount>({ account: email === undefined ? null : { email } });
+
+// allauth answers a sign out with 401: nobody is signed in now.
 const signedOut = () =>
   HttpResponse.json({ status: 401, data: { flows: [] }, meta: { is_authenticated: false } }, { status: 401 });
 
@@ -42,15 +49,7 @@ const signedOut = () =>
 const answerSignedIn = () => {
   const signOuts: string[] = [];
   server.use(
-    http.get(SESSION, () =>
-      signOuts.length > 0
-        ? signedOut()
-        : HttpResponse.json({
-            status: 200,
-            data: { user: { email: 'sam@example.com' }, methods: [] },
-            meta: { is_authenticated: true }
-          })
-    ),
+    http.get(ACCOUNT, () => currentAccount(signOuts.length > 0 ? undefined : 'sam@example.com')),
     http.delete(SESSION, ({ request }) => {
       signOuts.push(new URL(request.url).pathname);
       return signedOut();
@@ -170,10 +169,10 @@ describe('AppLayout', () => {
     const answer: { send?: () => void } = {};
     server.use(
       http.get(
-        SESSION,
+        ACCOUNT,
         () =>
           new Promise<Response>((resolve) => {
-            answer.send = () => resolve(signedOut());
+            answer.send = () => resolve(currentAccount());
           })
       )
     );

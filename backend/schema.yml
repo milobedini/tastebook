@@ -4,6 +4,23 @@ info:
   version: 0.1.0
   description: Recipe hub API
 paths:
+  /api/account/:
+    get:
+      operationId: current_account_retrieve
+      description: The account signed in on this browser, or null when nobody is.
+      tags:
+      - account
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentAccount'
+          description: ''
   /api/courses/:
     get:
       operationId: courses_list
@@ -237,6 +254,14 @@ paths:
           description: No response body
 components:
   schemas:
+    Account:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
     BlankEnum:
       enum:
       - ''
@@ -266,6 +291,15 @@ components:
       required:
       - name
       - slug
+    CurrentAccount:
+      type: object
+      properties:
+        account:
+          allOf:
+          - $ref: '#/components/schemas/Account'
+          nullable: true
+      required:
+      - account
     DatabaseEnum:
       enum:
       - ok
@@ -746,3 +780,11 @@ components:
         * `slice` - slice
         * `bunch` - bunch
         * `handful` - handful
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

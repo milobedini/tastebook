@@ -7,6 +7,7 @@ import type { components } from '../api/schema';
 import { renderRoute } from '../test/render-route';
 import { server } from '../test/server';
 
+type CurrentAccount = components['schemas']['CurrentAccount'];
 type Recipe = components['schemas']['Recipe'];
 
 const AUTH = '/api/_allauth/browser/v1/auth';
@@ -48,8 +49,8 @@ const pending = (flow: string) =>
     { status: 401 }
   );
 
-const signedOut = () =>
-  HttpResponse.json({ status: 401, data: { flows: [] }, meta: { is_authenticated: false } }, { status: 401 });
+const currentAccount = (email?: string) =>
+  HttpResponse.json<CurrentAccount>({ account: email === undefined ? null : { email } });
 
 const rejected = (status: 400 | 409, errors: { code: string; message: string; param?: string }[] = []) =>
   HttpResponse.json({ status, ...(errors.length === 0 ? {} : { errors }) }, { status });
@@ -66,7 +67,7 @@ const answerAllauth = () => {
     return body as Record<string, string>;
   };
   server.use(
-    http.get(`${AUTH}/session`, () => (state.signedInAs ? signedIn(state.signedInAs) : signedOut())),
+    http.get('/api/account/', () => currentAccount(state.signedInAs)),
     http.post(`${AUTH}/code/request`, async ({ request }) => {
       const { email } = await record('code/request', request);
       return email === 'sam@example.com'
@@ -252,7 +253,7 @@ describe('SignInPage', () => {
 
   it('goes straight to next when already signed in', async () => {
     answerAllauth();
-    server.use(http.get(`${AUTH}/session`, () => signedIn('sam@example.com')));
+    server.use(http.get('/api/account/', () => currentAccount('sam@example.com')));
     const { router } = renderRoute('/sign-in?next=/recipes');
 
     expect(await screen.findByRole('heading', { level: 1, name: 'What shall we cook tonight?' })).toBeInTheDocument();

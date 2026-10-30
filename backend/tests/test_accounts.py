@@ -230,3 +230,26 @@ def test_a_test_address_is_refused_on_production_and_has_its_code_stored_elsewhe
         stored and bool(re.fullmatch(r'\d{6}', stored.code)),
     ) == expected
     assert mail.outbox == []
+
+
+@pytest.mark.django_db
+def test_the_current_account_is_null_with_a_200_for_a_visitor_and_sets_the_csrf_cookie() -> None:
+    client = APIClient()
+
+    response = client.get('/api/account/')
+
+    assert (response.status_code, response.json()) == (200, {'account': None})
+    assert client.cookies['csrftoken'].value != ''
+
+
+@pytest.mark.django_db
+def test_the_current_account_follows_signing_in_and_out() -> None:
+    browser = BrowserClient()
+    sign_up(browser, 'sam@example.com')
+
+    signed_in = browser.client.get('/api/account/')
+    browser.delete('session')
+    signed_out = browser.client.get('/api/account/')
+
+    assert (signed_in.status_code, signed_in.json()) == (200, {'account': {'email': 'sam@example.com'}})
+    assert (signed_out.status_code, signed_out.json()) == (200, {'account': None})
