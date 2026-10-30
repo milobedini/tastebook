@@ -66,6 +66,7 @@ Tests are black box: they go through a public interface and assert what a user o
 - [a] call the subject the way a user or caller does, with a concrete input, and assert a literal, observable result: rendered text, a role's state, a response body, a row in the database.
 - [a] add a failing test first when fixing a bug, and run it against the unchanged code to prove it fails.
 - [a] use `it.each` / `pytest.mark.parametrize` for cases that differ only by input.
+- [a] when a page shows nothing new once a request settles, wait for it to settle (`queryClient.isFetching()` from `renderRoute`) before asserting something is absent; an absence checked earlier passes whatever the response.
 - [a] when a change alters a story's look on purpose, commit its updated baselines (`frontend/visual/baselines/`) in the same PR, so the diff shows the old and new images.
 - [n] make baselines anywhere but a GitHub Actions Linux runner: fonts and anti-aliasing differ, and every shot would fail.
 
