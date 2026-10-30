@@ -165,6 +165,23 @@ describe('AppLayout', () => {
     expect(signOuts).toEqual([SESSION]);
   });
 
+  it.each([
+    ['the server fails', () => new HttpResponse(null, { status: 500 })],
+    ['the network fails', () => HttpResponse.error()]
+  ])('says signing out failed and stays signed in when %s', async (_, answer) => {
+    answerSignedIn();
+    server.use(http.delete(SESSION, answer));
+    renderRoute('/recipes');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Account' }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Sign out' }));
+
+    expect(await screen.findByText("Couldn't sign out. Check your connection and try again.")).toBeInTheDocument();
+    const banner = screen.getByRole('banner');
+    expect(within(banner).getByRole('button', { name: 'Account' })).toBeInTheDocument();
+    expect(within(banner).queryByRole('link', { name: 'Sign in' })).not.toBeInTheDocument();
+  });
+
   it('shows neither Sign in nor Account until the session is known', async () => {
     const answer: { send?: () => void } = {};
     server.use(

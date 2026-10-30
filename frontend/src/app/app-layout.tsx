@@ -1,10 +1,12 @@
 import { Outlet, useLocation } from 'react-router';
 
-import { TopBar, type TopBarAccount } from '../dino';
+import { Toaster, TopBar, type TopBarAccount, toast } from '../dino';
 import { useSession, useSignOut } from '../households';
 import { useRecipeSearch } from '../recipes';
 
 const SIGN_IN_PATH = '/sign-in';
+
+const SIGN_OUT_FAILED = "Couldn't sign out. Check your connection and try again.";
 
 const useAccountEnd = (): TopBarAccount | undefined => {
   const { pathname, search } = useLocation();
@@ -22,7 +24,13 @@ const useAccountEnd = (): TopBarAccount | undefined => {
   return {
     status: 'signed-in',
     name: '',
-    menuItems: [{ kind: 'action', label: 'Sign out', onSelect: () => signOut.mutate() }]
+    menuItems: [
+      {
+        kind: 'action',
+        label: 'Sign out',
+        onSelect: () => signOut.mutate(undefined, { onError: () => toast.error(SIGN_OUT_FAILED) })
+      }
+    ]
   };
 };
 
@@ -38,6 +46,7 @@ export const AppLayout = () => {
         account={account}
       />
       <Outlet />
+      <Toaster />
     </>
   );
 };
