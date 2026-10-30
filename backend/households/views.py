@@ -17,12 +17,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from households.serializers import (
-    AccountNameSerializer,
+    AccountChangesSerializer,
     AccountSerializer,
     CurrentAccountSerializer,
     SignInCodeSerializer,
 )
-from households.services import is_test_account, latest_sign_in_code, name_account, seconds_until_allowed
+from households.services import is_test_account, latest_sign_in_code, seconds_until_allowed, update_account
 
 
 def may_read_codes(request: Request) -> bool:
@@ -70,17 +70,17 @@ class CurrentAccountView(APIView):
 
     @extend_schema(
         operation_id='current_account_partial_update',
-        request=AccountNameSerializer,
+        request=AccountChangesSerializer,
         responses={200: AccountSerializer, 400: None, 403: None},
-        description="Saves the signed-in account's name. An account with no household gets one called "
-        '"<name>\'s household".',
+        description="Saves the signed-in account's name, unit system or both. An account with no household gets one "
+        'called "<name>\'s household"; a later name leaves the household\'s name as it is.',
     )
     def patch(self, request: Request) -> Response:
         if not request.user.is_authenticated:
             raise NotAuthenticated
-        names = AccountNameSerializer(data=request.data)
-        names.is_valid(raise_exception=True)
-        account = name_account(request.user, names.validated_data['name'])
+        changes = AccountChangesSerializer(data=request.data)
+        changes.is_valid(raise_exception=True)
+        account = update_account(request.user, **changes.validated_data)
         return Response(AccountSerializer(account).data)
 
 

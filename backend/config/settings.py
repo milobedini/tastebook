@@ -222,5 +222,8 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '0.1.0',
     'SERVE_INCLUDE_SCHEMA': False,
     # Named for the glossary's term rather than the field it first appears on.
-    'ENUM_NAME_OVERRIDES': {'DietTag': 'recipes.models.DietTag'},
+    'ENUM_NAME_OVERRIDES': {
+        'DietTag': 'recipes.models.DietTag',
+        'UnitSystem': 'households.models.UnitSystem',
+    },
 }

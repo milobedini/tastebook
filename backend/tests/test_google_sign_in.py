@@ -114,7 +114,7 @@ def test_a_new_address_signs_up_with_google_named_from_its_profile_in_a_househol
     account = User.objects.get(email='milo@example.com')
     assert (back.status_code, back['Location']) == (302, BACK_TO_SIGN_IN)
     assert signed_in_email(browser) == 'milo@example.com'
-    assert current_account(browser) == {'email': 'milo@example.com', 'name': 'Milo'}
+    assert current_account(browser) == {'email': 'milo@example.com', 'name': 'Milo', 'unit_system': 'metric'}
     assert account.household is not None
     assert account.household.name == "Milo's household"
 
@@ -129,7 +129,7 @@ def test_an_address_with_an_account_signs_in_to_that_account_with_google() -> No
     sign_in_with_google(browser, google_profile(email='SAM@example.com', given_name='Samantha'))
 
     assert list(User.objects.values_list('email', 'name')) == [('sam@example.com', 'Sam')]
-    assert current_account(browser) == {'email': 'sam@example.com', 'name': 'Sam'}
+    assert current_account(browser) == {'email': 'sam@example.com', 'name': 'Sam', 'unit_system': 'metric'}
 
 
 @pytest.mark.django_db
@@ -161,7 +161,7 @@ def test_without_a_first_name_that_fits_a_google_sign_up_is_left_for_the_name_pa
 
     sign_in_with_google(browser, google_profile(given_name=given_name))
 
-    assert current_account(browser) == {'email': 'milo@example.com', 'name': ''}
+    assert current_account(browser) == {'email': 'milo@example.com', 'name': '', 'unit_system': 'metric'}
     assert User.objects.get(email='milo@example.com').household is None
 
 
