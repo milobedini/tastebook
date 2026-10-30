@@ -72,7 +72,7 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    'households.admin_apps.StaffAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

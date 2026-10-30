@@ -1,0 +1,39 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}{% if form.errors %}Error: {% endif %}{{ block.super }}{% endblock %}
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">
+{% endblock %}
+{% block usertools %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block content %}<div id="content-main">
+
+<form method="post">{% csrf_token %}
+<div>
+{% if form.errors %}
+    <p class="errornote">Please correct the error below.</p>
+{% endif %}
+
+<p>Open your authenticator app and enter the 6-digit code for Tastebook. Lost your phone? Enter one of your recovery codes instead.</p>
+
+<fieldset class="module aligned">
+<div class="form-row">
+    <div class="flex-container{% if form.code.errors %} errors{% endif %}">
+        {{ form.code.label_tag }}
+        {{ form.code.errors }}
+        {{ form.code }}
+    </div>
+</div>
+</fieldset>
+
+<div class="submit-row">
+    <input type="submit" value="Continue" class="default">
+</div>
+
+</div>
+</form></div>
+{% endblock %}
