@@ -11,6 +11,8 @@ import { server } from '../test/server';
 type Recipe = components['schemas']['Recipe'];
 type IngredientLine = components['schemas']['IngredientLine'];
 type RecipePhoto = components['schemas']['RecipePhoto'];
+type CurrentAccount = components['schemas']['CurrentAccount'];
+type UnitSystem = components['schemas']['UnitSystem'];
 
 const shakshuka: Recipe = {
   id: 7,
@@ -138,6 +140,26 @@ const holdRecipe = (respond: () => Response) => {
     })
   );
   return () => gate.release();
+};
+
+const withFlour: Recipe = { ...shakshuka, ingredient_lines: [line(1, 'plain flour', { amount: 1, unit: 'cup' })] };
+
+// Signed in as Sam, who chose these units, with the recipe above; records any PATCH to the account.
+const answerSignedIn = (unitSystem: UnitSystem) => {
+  const saves: unknown[] = [];
+  server.use(
+    http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>(withFlour)),
+    http.get('/api/account/', () =>
+      HttpResponse.json<CurrentAccount>({
+        account: { email: 'sam@example.com', name: 'Sam', unit_system: unitSystem }
+      })
+    ),
+    http.patch('/api/account/', async ({ request }) => {
+      saves.push(await request.json());
+      return new HttpResponse(null, { status: 500 });
+    })
+  );
+  return saves;
 };
 
 describe('RecipePage', () => {
@@ -592,6 +614,57 @@ describe('RecipePage', () => {
       'Salt 1–2 pinches'
     ]);
     expect(steps()).toEqual(['Heat the oven to 180°C (160°C fan).', 'Rub 200 g of the butter into the flour.']);
+  });
+
+  it.each([
+    ['metric', 'Metric', 'Plain flour 240 ml'],
+    ['us', 'US', 'Plain flour 1 cup']
+  ] as const)("opens in a signed-in account's units, %s", async (unitSystem, radio, flour) => {
+    const saves = answerSignedIn(unitSystem);
+
+    renderRoute('/recipes/shakshuka');
+
+    const ingredients = await screen.findByRole('region', { name: 'Ingredients' });
+    const units = screen.getByRole('group', { name: 'Units' });
+    expect(within(units).getByRole('radio', { name: radio })).toBeChecked();
+    expect(itemsOf(within(ingredients).getByRole('list'))).toEqual([flour]);
+    expect(saves).toEqual([]);
+  });
+
+  it('opens in metric when signed out', async () => {
+    server.use(http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>(withFlour)));
+    const { queryClient } = renderRoute('/recipes/shakshuka');
+
+    const units = await screen.findByRole('group', { name: 'Units' });
+    await waitFor(() => expect(queryClient.isFetching()).toBe(0));
+    expect(within(units).getByRole('radio', { name: 'Metric' })).toBeChecked();
+    expect(within(units).getByRole('radio', { name: 'US' })).not.toBeChecked();
+  });
+
+  it("opens in metric when the session can't be checked", async () => {
+    server.use(
+      http.get('/api/recipes/:slug/', () => HttpResponse.json<Recipe>(withFlour)),
+      http.get('/api/account/', () => new HttpResponse(null, { status: 500 }))
+    );
+
+    renderRoute('/recipes/shakshuka');
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Shakshuka' })).toBeInTheDocument();
+    const units = screen.getByRole('group', { name: 'Units' });
+    expect(within(units).getByRole('radio', { name: 'Metric' })).toBeChecked();
+  });
+
+  it('switches units for this visit only, without saving them on the account', async () => {
+    const saves = answerSignedIn('us');
+    const { queryClient } = renderRoute('/recipes/shakshuka');
+
+    const units = await screen.findByRole('group', { name: 'Units' });
+    await userEvent.click(within(units).getByRole('radio', { name: 'Metric' }));
+
+    expect(within(units).getByRole('radio', { name: 'Metric' })).toBeChecked();
+    expect(screen.getByText('240 ml')).toBeInTheDocument();
+    await waitFor(() => expect(queryClient.isMutating()).toBe(0));
+    expect(saves).toEqual([]);
   });
 
   it('shows the amounts and method as the source wrote them, offered only while they differ from what is shown', async () => {

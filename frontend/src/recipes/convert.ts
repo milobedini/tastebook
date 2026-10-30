@@ -6,7 +6,7 @@ type IngredientLine = components['schemas']['IngredientLine'];
 
 type Quantity = Pick<IngredientLine, 'amount' | 'amount_max' | 'unit'>;
 
-export type UnitSystem = 'metric' | 'us';
+export type UnitSystem = components['schemas']['UnitSystem'];
 
 type Dimension = 'mass' | 'volume';
 type MeasuredUnit = Extract<Unit, 'g' | 'kg' | 'oz' | 'lb' | 'ml' | 'l' | 'tsp' | 'tbsp' | 'cup' | 'fl_oz'>;
