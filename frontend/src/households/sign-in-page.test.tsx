@@ -52,6 +52,12 @@ const pending = (flow: string) =>
 const currentAccount = (email?: string, name = 'Sam') =>
   HttpResponse.json<CurrentAccount>({ account: email === undefined ? null : { email, name } });
 
+const limited = (retryAfter?: string) =>
+  HttpResponse.json(
+    { status: 429 },
+    { status: 429, headers: retryAfter === undefined ? {} : { 'Retry-After': retryAfter } }
+  );
+
 const rejected = (status: 400 | 409, errors: { code: string; message: string; param?: string }[] = []) =>
   HttpResponse.json({ status, ...(errors.length === 0 ? {} : { errors }) }, { status });
 
@@ -174,6 +180,35 @@ describe('SignInPage', () => {
     expect(emailField()).toHaveValue('cook@tastebook.test');
   });
 
+  it.each([
+    ['420', "You've asked for too many codes. Try again in 7 minutes."],
+    ['60', "You've asked for too many codes. Try again in 1 minute."],
+    ['61', "You've asked for too many codes. Try again in 2 minutes."],
+    [undefined, "You've asked for too many codes. Try again in a few minutes."]
+  ])('says when to try again when asked for too many codes (Retry-After %s)', async (retryAfter, message) => {
+    answerAllauth();
+    server.use(http.post(`${AUTH}/code/request`, () => limited(retryAfter)));
+    renderRoute('/sign-in');
+
+    await sendCode('sam@example.com');
+
+    await waitFor(() => expect(emailField()).toHaveAccessibleDescription(message));
+    expect(emailField()).toHaveFocus();
+    expect(screen.getByRole('heading', { level: 1, name: 'Sign in' })).toBeInTheDocument();
+  });
+
+  it('says when to try again when a new address is refused a sign-up for too many requests', async () => {
+    answerAllauth();
+    server.use(http.post(`${AUTH}/signup`, () => limited('30')));
+    renderRoute('/sign-in');
+
+    await sendCode('new@example.com');
+
+    await waitFor(() =>
+      expect(emailField()).toHaveAccessibleDescription("You've asked for too many codes. Try again in 1 minute.")
+    );
+  });
+
   it('says how to fix a code that is not 6 digits, and sends nothing', async () => {
     const sent = answerAllauth();
     renderRoute('/sign-in');
@@ -192,9 +227,9 @@ describe('SignInPage', () => {
       "That code isn't right. Check the email and try again."
     ],
     [
-      'a code that has run out',
+      'a code that has stopped working',
       () => rejected(409),
-      'That code has run out. Use a different email or send a new code from step 1.'
+      'That code has stopped working. Use a different email or send a new code from step 1.'
     ]
   ])('says so for %s and keeps it in the field', async (_, answer, message) => {
     answerAllauth();

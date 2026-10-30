@@ -14,7 +14,15 @@ const CODE_PATTERN = /^\d{6}$/;
 const NOT_AN_ADDRESS = 'Enter your email address, like sam@example.com.';
 const NOT_A_CODE = 'Enter the 6-digit code from the email, like 123456.';
 const WRONG_CODE = "That code isn't right. Check the email and try again.";
-const RUN_OUT = 'That code has run out. Use a different email or send a new code from step 1.';
+const STOPPED = 'That code has stopped working. Use a different email or send a new code from step 1.';
+
+const minutes = (seconds: number): string => {
+  const count = Math.ceil(seconds / 60);
+  return count === 1 ? '1 minute' : `${count} minutes`;
+};
+
+const tooManyCodes = (retryAfterSeconds: number | undefined): string =>
+  `You've asked for too many codes. Try again in ${retryAfterSeconds === undefined ? 'a few minutes' : minutes(retryAfterSeconds)}.`;
 
 // No action of its own: the form's main button is the retry.
 const Unreachable = () => (
@@ -55,6 +63,10 @@ const EmailStep = ({ email, onEmailChange, emailRef, onCodeSent }: EmailStepProp
       const result = await requestCode.mutateAsync(address);
       if (result.kind === 'code-sent') {
         onCodeSent(address, result.flow);
+        return;
+      }
+      if (result.kind === 'limited') {
+        refuse(tooManyCodes(result.retryAfterSeconds));
         return;
       }
       refuse(result.errors[0]?.message ?? NOT_AN_ADDRESS);
@@ -126,7 +138,7 @@ const CodeStep = ({ email, flow, headingRef, onSignedIn, onDifferentEmail }: Cod
         return;
       }
       if (result.status === 409) {
-        refuse(RUN_OUT);
+        refuse(STOPPED);
         return;
       }
       refuse(result.errors[0]?.code === 'incorrect_code' ? WRONG_CODE : (result.errors[0]?.message ?? WRONG_CODE));
