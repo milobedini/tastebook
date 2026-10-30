@@ -39,7 +39,7 @@ const ACCOUNT = '/api/account/';
 const SESSION = '/api/_allauth/browser/v1/auth/session';
 
 const currentAccount = (email?: string) =>
-  HttpResponse.json<CurrentAccount>({ account: email === undefined ? null : { email } });
+  HttpResponse.json<CurrentAccount>({ account: email === undefined ? null : { email, name: 'Sam' } });
 
 // allauth answers a sign out with 401: nobody is signed in now.
 const signedOut = () =>
@@ -156,13 +156,23 @@ describe('AppLayout', () => {
     const signOuts = answerSignedIn();
     renderRoute('/recipes');
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Account' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Account for Sam' }));
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Sign out' }));
 
     const banner = screen.getByRole('banner');
     expect(await within(banner).findByRole('link', { name: 'Sign in' })).toBeInTheDocument();
-    expect(within(banner).queryByRole('button', { name: 'Account' })).not.toBeInTheDocument();
+    expect(within(banner).queryByRole('button', { name: 'Account for Sam' })).not.toBeInTheDocument();
     expect(signOuts).toEqual([SESSION]);
+  });
+
+  it('names the account menu after the account', async () => {
+    answerSignedIn();
+    renderRoute('/recipes');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Account for Sam' }));
+
+    const menu = await screen.findByRole('menu');
+    expect(menu).toHaveTextContent(/^SamSign out$/);
   });
 
   it.each([
@@ -173,12 +183,12 @@ describe('AppLayout', () => {
     server.use(http.delete(SESSION, answer));
     renderRoute('/recipes');
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Account' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Account for Sam' }));
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Sign out' }));
 
     expect(await screen.findByText("Couldn't sign out. Check your connection and try again.")).toBeInTheDocument();
     const banner = screen.getByRole('banner');
-    expect(within(banner).getByRole('button', { name: 'Account' })).toBeInTheDocument();
+    expect(within(banner).getByRole('button', { name: 'Account for Sam' })).toBeInTheDocument();
     expect(within(banner).queryByRole('link', { name: 'Sign in' })).not.toBeInTheDocument();
   });
 
