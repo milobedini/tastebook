@@ -2,11 +2,10 @@ import { Search, X } from 'lucide-react';
 import { type ComponentProps, useRef } from 'react';
 
 import { cn } from '@/dino/cn';
+import { fieldControlStates, isAriaDisabled } from '@/dino/field-control';
 
 // Disabled is aria-disabled, never disabled, so the field stays focusable (docs/design.md, States).
 type InputProps = Omit<ComponentProps<'input'>, 'disabled'>;
-
-const isAriaDisabled = (value: InputProps['aria-disabled']) => value === true || value === 'true';
 
 export const Input = ({ className, type = 'text', readOnly, ...props }: InputProps) => (
   <input
@@ -14,11 +13,7 @@ export const Input = ({ className, type = 'text', readOnly, ...props }: InputPro
     readOnly={readOnly || isAriaDisabled(props['aria-disabled'])}
     className={cn(
       'h-12 w-full min-w-0 rounded-pill border-2 border-field bg-transparent px-4.5 font-bold text-body text-ink transition-colors placeholder:font-semibold placeholder:text-muted',
-      'hover:not-aria-invalid:not-aria-disabled:border-muted',
-      'focus-visible:not-aria-invalid:border-ink focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-ink',
-      'aria-invalid:border-danger',
-      'aria-disabled:cursor-not-allowed aria-disabled:border-dashed aria-disabled:bg-surface aria-disabled:text-muted',
-      'forced-colors:aria-disabled:border-[GrayText] forced-colors:aria-disabled:text-[GrayText]',
+      ...fieldControlStates,
       className
     )}
     {...props}

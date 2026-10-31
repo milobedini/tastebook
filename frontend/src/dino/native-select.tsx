@@ -2,11 +2,10 @@ import { ChevronDown } from 'lucide-react';
 import type { ComponentProps, KeyboardEvent, MouseEvent } from 'react';
 
 import { cn } from '@/dino/cn';
+import { fieldControlStates, isAriaDisabled } from '@/dino/field-control';
 
 // Disabled is aria-disabled, never disabled, so the select stays focusable (docs/design.md, States).
 type NativeSelectProps = Omit<ComponentProps<'select'>, 'disabled'>;
-
-const isAriaDisabled = (value: NativeSelectProps['aria-disabled']) => value === true || value === 'true';
 
 export const NativeSelect = ({ className, onMouseDown, onKeyDown, ...props }: NativeSelectProps) => {
   const isDisabled = isAriaDisabled(props['aria-disabled']);
@@ -30,11 +29,7 @@ export const NativeSelect = ({ className, onMouseDown, onKeyDown, ...props }: Na
       <select
         className={cn(
           'h-12 w-full min-w-0 cursor-pointer appearance-none rounded-pill border-2 border-field bg-transparent pr-11.5 pl-4.5 font-bold text-body text-ink transition-colors',
-          'hover:not-aria-invalid:not-aria-disabled:border-muted',
-          'focus-visible:not-aria-invalid:border-ink focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-ink',
-          'aria-invalid:border-danger',
-          'aria-disabled:cursor-not-allowed aria-disabled:border-dashed aria-disabled:bg-surface aria-disabled:text-muted',
-          'forced-colors:aria-disabled:border-[GrayText] forced-colors:aria-disabled:text-[GrayText]',
+          ...fieldControlStates,
           className
         )}
         onMouseDown={mouseDown}

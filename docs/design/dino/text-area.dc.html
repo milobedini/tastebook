@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Dino in Picnic: text area</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.pn{color-scheme:dark}
+.serif{font-family:var(--font-serif);font-weight:400}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.h2{margin:0;font-size:28px;line-height:30px;font-style:italic}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.lbl{font-size:15px;line-height:20px;font-weight:800}
+.help{margin:0;font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.err{margin:0;display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:17px;font-weight:700;color:var(--color-danger)}
+.ta{display:block;width:100%;min-width:0;min-height:96px;border-radius:24px;border:2px solid var(--color-field);background:transparent;color:var(--color-ink);padding:10px 18px;box-sizing:border-box;font:700 16px/24px var(--font-sans);outline:0;resize:none;field-sizing:content;overflow-wrap:break-word;transition:border-color 120ms ease-out}
+.ta::placeholder{color:var(--color-muted);font-weight:600;opacity:1}
+.ta:hover:not([aria-invalid="true"]):not([aria-disabled="true"]),.ta.is-hover{border-color:var(--color-muted)}
+.ta:focus-visible:not([aria-invalid="true"]),.ta.is-focus{border-color:var(--color-ink)}
+.ta:focus-visible,.ta.is-focus{outline:1px solid var(--color-ink);outline-offset:0}
+.ta[aria-invalid="true"]{border-color:var(--color-danger)}
+.ta[aria-disabled="true"]{background:var(--color-surface);border-style:dashed;color:var(--color-muted);cursor:not-allowed}
+.in{width:100%;height:48px;border-radius:999px;border:2px solid var(--color-field);background:transparent;color:var(--color-ink);padding:0 18px;box-sizing:border-box;font:700 16px/24px var(--font-sans);outline:0}
+.spec{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;font-size:16px;line-height:24px;font-weight:600}
+.spec b{font-weight:800}
+@media (prefers-reduced-motion: reduce){.ta{transition:none}}
+</style>
+</helmet>
+<div class="pn" style="width: 1320px; height: 1420px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 44px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">Dino in Picnic · TAS-112</span>
+    <h1 class="serif" style="margin: 0; font-size: 46px; line-height: 44px">Text area</h1>
+  </header>
+
+  <section aria-labelledby="st" style="display: flex; flex-direction: column; gap: 20px">
+    <h2 id="st" class="serif h2">States</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 40px; align-items: start">
+      <div class="fld">
+        <label class="lbl" for="t1">Method step</label>
+        <textarea id="t1" class="ta" placeholder="Like “Fry the onions until soft.”" aria-describedby="t1-h"></textarea>
+        <p id="t1-h" class="help">Default · three lines tall, 24 px corners, help text below</p>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="t2">Method step</label>
+        <textarea id="t2" class="ta is-hover" placeholder="Like “Fry the onions until soft.”"></textarea>
+        <p class="help">Hover · border lightens to Muted</p>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="t3">Method step</label>
+        <textarea id="t3" class="ta is-focus">Fry the onions</textarea>
+        <p class="help">Focus · the border turns Ink and thickens to 3 px</p>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="t4">Method step</label>
+        <textarea id="t4" class="ta">Fry the onions until soft and golden, about 10 minutes.</textarea>
+        <p class="help">Filled · text in bold Body, Ink</p>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="t5">Method</label>
+        <textarea id="t5" class="ta" aria-invalid="true" aria-describedby="t5-e"></textarea>
+        <p id="t5-e" class="err"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>Add at least one step.</p>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="t6">Description</label>
+        <textarea id="t6" class="ta" aria-disabled="true" readonly="" aria-describedby="t6-h">Fry the onions until soft and golden.</textarea>
+        <p id="t6-h" class="help">Disabled · says why: “Imported recipes keep their description.” Still focusable; text can be selected, not changed</p>
+      </div>
+    </div>
+  </section>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; align-items: start">
+    <section aria-labelledby="gr" style="display: flex; flex-direction: column; gap: 20px; grid-column: span 2">
+      <h2 id="gr" class="serif h2">Grows with its text</h2>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; align-items: start">
+        <div class="fld">
+          <label class="lbl" for="g1">Method step</label>
+          <textarea id="g1" class="ta">Fry the onions.</textarea>
+          <p class="help">One line: stays at its three-line minimum</p>
+        </div>
+        <div class="fld">
+          <label class="lbl" for="g2">Method step</label>
+          <textarea id="g2" class="ta is-focus" style="height: 144px">Fry the onions.
+Add the garlic.
+Stir in the spices.
+Add the tomatoes.
+Simmer for 20 minutes.</textarea>
+          <p class="help">Five lines: the box grows to fit, never scrolls inside, has no drag handle and no maximum; the page scrolls</p>
+        </div>
+      </div>
+    </section>
+    <section aria-labelledby="nr" style="display: flex; flex-direction: column; gap: 20px">
+      <h2 id="nr" class="serif h2">At 320 px</h2>
+      <div class="fld" style="width: 320px">
+        <label class="lbl" for="n1">Description</label>
+        <textarea id="n1" class="ta">https://www.bbcgoodfood.com/recipes/chana-masala-with-crispy-chickpeas-and-spinach</textarea>
+        <p class="help">Fills its column; a long web address wraps, so nothing scrolls sideways</p>
+      </div>
+    </section>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; align-items: start">
+    <section aria-labelledby="bs" style="display: flex; flex-direction: column; gap: 20px">
+      <h2 id="bs" class="serif h2">Beside a text field</h2>
+      <div style="display: flex; flex-direction: column; gap: 24px">
+        <div class="fld">
+          <label class="lbl" for="b1">Recipe name</label>
+          <x-import component-from-global-scope="Dino.Input" id="b1" default-value="Chana masala" style="display: block; width: 100%"></x-import>
+        </div>
+        <div class="fld">
+          <label class="lbl" for="b2">Description</label>
+          <textarea id="b2" class="ta" aria-describedby="b2-h">A weeknight curry: chickpeas simmered with tomatoes, ginger and garam masala.</textarea>
+          <p id="b2-h" class="help">The same border, type, side padding and gap; text starts where Input’s does</p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="an" style="display: flex; flex-direction: column; gap: 20px; grid-column: span 2">
+      <h2 id="an" class="serif h2">Anatomy</h2>
+      <ul class="spec">
+        <li><b>Box:</b> 2 px Field border on the ground, no fill, 24 px corners (Rounded card, the Combobox list’s corner), full width of its column.</li>
+        <li><b>Padding:</b> 10 px top and bottom, 18 px at the sides, as Input’s text sits.</li>
+        <li><b>Height:</b> at least 96 px (three lines of Body at 24 px, padding and border); grows with its text through CSS field sizing. Where a browser can’t size it to its text, it keeps 96 px, scrolls inside and can be dragged taller.</li>
+        <li><b>Text:</b> Body in bold, Ink; placeholder in Body, Muted, an example (“Like …”), never the label.</li>
+        <li><b>States:</b> the field’s five, exactly: hover Muted border; focus Ink, 3 px; invalid Danger with the error below; disabled dashed on Surface in Muted, focusable and read-only. No pressed or loading state, as for Input.</li>
+        <li><b>Keyboard:</b> Tab in, Enter adds a line, Tab out.</li>
+        <li><b>Grows into:</b> one size and no variants. If a form needs a limit, a count can take the help line’s place later; not part of this issue.</li>
+      </ul>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":1420}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

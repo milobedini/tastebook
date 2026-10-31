@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Proposed rule change: the text area’s corner</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.pn{color-scheme:dark}
+.serif{font-family:var(--font-serif);font-weight:400}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.h2{margin:0;font-size:28px;line-height:30px;font-style:italic}
+.body{margin:0;font-size:16px;line-height:24px;font-weight:600;max-width:68ch}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.lbl{font-size:15px;line-height:20px;font-weight:800}
+.help{margin:0;font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.ta{display:block;width:100%;min-width:0;min-height:96px;border:2px solid var(--color-field);background:transparent;color:var(--color-ink);padding:10px 18px;box-sizing:border-box;font:700 16px/24px var(--font-sans);outline:0;resize:none;field-sizing:content;overflow-wrap:break-word}
+</style>
+</helmet>
+<div class="pn" style="width: 1320px; height: 660px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 44px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">Dino in Picnic · TAS-112 · docs/design.md, Space and shape › Corners</span>
+    <h1 class="serif" style="margin: 0; font-size: 46px; line-height: 44px">Proposed rule change</h1>
+  </header>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; align-items: start">
+    <section aria-labelledby="now" style="display: flex; flex-direction: column; gap: 16px">
+      <h2 id="now" class="serif h2">The rule today</h2>
+      <p class="body">“Pill (999 px) for controls (buttons, chips, <b>fields</b>, steppers) and the dock … 24 px for cards and panels.”</p>
+    </section>
+    <section aria-labelledby="new" style="display: flex; flex-direction: column; gap: 16px">
+      <h2 id="new" class="serif h2">Proposed</h2>
+      <p class="body">“Pill (999 px) for controls (buttons, chips, one-line fields, steppers) and the dock … 24 px for cards, panels <b>and a text area</b>.” Text area joins the Components table after Field, and leaves Still to settle.</p>
+    </section>
+  </div>
+
+  <section aria-labelledby="why" style="display: flex; flex-direction: column; gap: 20px">
+    <h2 id="why" class="serif h2">Why: a pill on a box three lines tall</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; align-items: start">
+      <div class="fld">
+        <label class="lbl" for="r1">Method step · pill</label>
+        <textarea id="r1" class="ta" style="border-radius: 999px">Fry the onions until soft and golden, about 10 minutes, then add the garlic and cook for a minute more.</textarea>
+        <p class="help">At three lines the ends curve 48 px in and crowd the first and last lines; as it grows, the box becomes a lozenge</p>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="r2">Method step · 24 px, proposed</label>
+        <textarea id="r2" class="ta" style="border-radius: 24px">Fry the onions until soft and golden, about 10 minutes, then add the garlic and cook for a minute more.</textarea>
+        <p class="help">Clears the text with the same side padding as Input, and matches the Combobox list under a field</p>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="r3">Method step · 20 px</label>
+        <textarea id="r3" class="ta" style="border-radius: 20px">Fry the onions until soft and golden, about 10 minutes, then add the garlic and cook for a minute more.</textarea>
+        <p class="help">Not chosen: 20 px is notes’ and banners’, things you read, not type into</p>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":660}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
