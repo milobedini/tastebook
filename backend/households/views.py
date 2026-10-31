@@ -16,13 +16,23 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from households.models import User
 from households.serializers import (
     AccountChangesSerializer,
     AccountSerializer,
     CurrentAccountSerializer,
+    HouseholdChangesSerializer,
+    HouseholdSerializer,
     SignInCodeSerializer,
 )
-from households.services import is_test_account, latest_sign_in_code, seconds_until_allowed, update_account
+from households.services import (
+    is_test_account,
+    latest_sign_in_code,
+    members_seen_by,
+    rename_household,
+    seconds_until_allowed,
+    update_account,
+)
 
 
 def may_read_codes(request: Request) -> bool:
@@ -82,6 +92,42 @@ class CurrentAccountView(APIView):
         changes.is_valid(raise_exception=True)
         account = update_account(request.user, **changes.validated_data)
         return Response(AccountSerializer(account).data)
+
+
+def household_body(account: User) -> dict[str, Any]:
+    return HouseholdSerializer({'name': account.household.name, 'members': members_seen_by(account)}).data
+
+
+class HouseholdView(APIView):
+    def signed_in_member(self, request: Request) -> User:
+        if not request.user.is_authenticated:
+            raise NotAuthenticated
+        # A nameless account has no household yet; the name page gives it one.
+        if request.user.household_id is None:
+            raise NotFound
+        return request.user
+
+    @extend_schema(
+        operation_id='household_retrieve',
+        responses={200: HouseholdSerializer, 403: None, 404: None},
+        description="The signed-in account's household: its name and its members, the account first. 404 for an "
+        'account with no household yet.',
+    )
+    def get(self, request: Request) -> Response:
+        return Response(household_body(self.signed_in_member(request)))
+
+    @extend_schema(
+        operation_id='household_partial_update',
+        request=HouseholdChangesSerializer,
+        responses={200: HouseholdSerializer, 400: None, 403: None, 404: None},
+        description="Renames the signed-in account's household. Any member may.",
+    )
+    def patch(self, request: Request) -> Response:
+        account = self.signed_in_member(request)
+        changes = HouseholdChangesSerializer(data=request.data)
+        changes.is_valid(raise_exception=True)
+        rename_household(account, changes.validated_data['name'])
+        return Response(household_body(User.objects.select_related('household').get(pk=account.pk)))
 
 
 def rate_limited(request: HttpRequest, seconds: int) -> HttpResponse:
