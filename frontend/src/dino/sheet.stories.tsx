@@ -96,6 +96,37 @@ export const Open = {
       await expectClosed();
     });
 
+    await step('Drag the handle', async () => {
+      const sheet = await openSheet();
+      const settle = () => Promise.all(sheet.getAnimations().map((animation) => animation.finished));
+      await settle();
+      const grab = canvasElement.ownerDocument.querySelector('[data-slot="sheet-grab"]');
+      if (!(grab instanceof HTMLElement)) throw new Error('The grab handle is missing');
+      const top = grab.getBoundingClientRect().top + 12;
+      // One session, so a press in one call is still held in the next.
+      const user = userEvent.setup();
+      const press = () => user.pointer({ keys: '[MouseLeft>]', target: grab, coords: { clientX: 100, clientY: top } });
+      const moveTo = (y: number) => user.pointer({ target: grab, coords: { clientX: 100, clientY: y } });
+      const release = (y: number) =>
+        user.pointer({ keys: '[/MouseLeft]', target: grab, coords: { clientX: 100, clientY: y } });
+
+      // A short drag: the sheet follows the pointer, then springs back open.
+      await press();
+      await moveTo(top + 40);
+      await expect(sheet).toHaveStyle({ transform: 'matrix(1, 0, 0, 1, 0, 40)' });
+      await release(top + 40);
+      await settle();
+      await expect(sheet).toHaveStyle({ transform: 'none' });
+      await expect(body.getByRole('dialog', { name: 'Add to the list' })).toBeVisible();
+
+      // Past a quarter of its height, it closes.
+      await press();
+      await moveTo(top + sheet.offsetHeight / 2);
+      await release(top + sheet.offsetHeight / 2);
+      await expectClosed();
+      await expect(trigger).toHaveFocus();
+    });
+
     await step('Ends open', async () => {
       await openSheet();
     });
