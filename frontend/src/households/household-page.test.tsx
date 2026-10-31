@@ -330,6 +330,7 @@ describe('HouseholdPage', () => {
       expect(within(screen.getByRole('list', { name: 'Members' })).getAllByRole('listitem')).toHaveLength(1)
     );
     expect(screen.getByRole('list', { name: 'Members' })).toHaveTextContent(/^M ?Milo \(you\)$/);
+    await waitFor(() => expect(screen.getByRole('heading', { level: 2, name: 'Members' })).toHaveFocus());
   });
 
   it.each([
@@ -350,6 +351,7 @@ describe('HouseholdPage', () => {
     expect(
       within(screen.getByRole('list', { name: 'Members' })).getByText('Ann', { ignore: '.sr-only' })
     ).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Remove Ann' })).toHaveFocus());
   });
 
   it('leaves once asked, and shows the new household of one', async () => {

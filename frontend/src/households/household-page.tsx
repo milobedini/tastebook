@@ -101,12 +101,13 @@ const Members = ({ household }: { household: Household }) => {
   const remove = async (member: Member) => {
     try {
       const result = await removeMember.mutateAsync(member);
+      // Either way the row goes, so focus needs somewhere to land.
+      setRemoved(member.id);
       if (result.kind === 'gone') {
         toast.info(`${member.name} isn't in your household any more.`);
         return;
       }
       toast.success(`Removed ${member.name}`);
-      setRemoved(member.id);
     } catch {
       toast.error(`Couldn't remove ${member.name}. Check your connection and try again.`);
     }
