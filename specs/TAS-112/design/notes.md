@@ -4,9 +4,9 @@ Canvas: https://claude.ai/artifact/TAoKjBfsxhCx6oE3oNxCSE
 
 ## Boards
 
-- `Main.dc.html` (1320 × 1420), **Text area**: every state (default with placeholder, hover, focus, filled, invalid with its error, disabled with its reason), growing with its text (one line stays at the three-line minimum, five lines grow the box), a long web address wrapping at 320 px, the text area beside Dino's Input, and its anatomy.
-- `Phone.dc.html` (390 × 700), **Text area at phone width**: a description with help text, a focused method step and an invalid empty step with its error, at 20 px gutters.
-- `ProposedRuleChange.dc.html` (1320 × 660), **Proposed rule change**: the text area's corner, comparing pill, 24 px and 20 px on a three-line box.
+- `docs/design/dino/text-area.dc.html` (1320 × 1420), **Text area**: every state (default with placeholder, hover, focus, filled, invalid with its error, disabled with its reason), growing with its text (one line stays at the three-line minimum, five lines grow the box), a long web address wrapping at 320 px, the text area beside Dino's Input, and its anatomy.
+- `docs/design/dino/text-area-phone.dc.html` (390 × 700), **Text area at phone width**: a description with help text, a focused method step and an invalid empty step with its error, at 20 px gutters.
+- `docs/design/dino/text-area-corners.dc.html` (1320 × 660), **Proposed rule change**: the text area's corner, comparing pill, 24 px and 20 px on a three-line box.
 
 ## Decisions
 
