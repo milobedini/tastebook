@@ -2,7 +2,7 @@ from typing import Any
 
 from rest_framework import serializers
 
-from households.models import NAME_MAX_LENGTH, UnitSystem
+from households.models import HOUSEHOLD_NAME_MAX_LENGTH, NAME_MAX_LENGTH, UnitSystem
 
 
 class SignInCodeSerializer(serializers.Serializer):
@@ -27,3 +27,18 @@ class AccountChangesSerializer(serializers.Serializer):
 
 class CurrentAccountSerializer(serializers.Serializer):
     account = AccountSerializer(allow_null=True)
+
+
+class MemberSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    is_you = serializers.BooleanField()
+
+
+class HouseholdSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    members = MemberSerializer(many=True)
+
+
+class HouseholdChangesSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=HOUSEHOLD_NAME_MAX_LENGTH)

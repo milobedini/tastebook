@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>The household page’s invite link, phone</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.frame{position:relative;background:var(--color-ground);border:1px solid var(--color-line);border-radius:20px;overflow:hidden;flex-shrink:0;width:390px;height:940px}
+.bar{border-bottom:1px solid var(--color-line)}
+.in{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:minmax(76px,auto);align-items:center;column-gap:8px;padding:0 20px}
+.wmk{display:inline-flex;align-items:center;min-height:44px;font-family:var(--font-serif);font-size:34px;line-height:36px;font-style:italic;color:var(--color-ink);text-decoration:none}
+.av{width:44px;height:44px;padding:0;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-surface);color:var(--color-ink);display:inline-grid;place-items:center;font-family:var(--font-sans);font-size:19px;line-height:24px;font-weight:800;cursor:pointer}
+.page{padding:24px 20px 48px;display:flex;flex-direction:column}
+.page h1,.page h2{margin:0}
+.stack{display:flex;flex-direction:column;gap:32px;max-width:400px}
+.sec{display:flex;flex-direction:column;gap:16px}
+.sec p{margin:0;font-size:16px;line-height:24px;font-weight:600}
+.form{display:flex;flex-direction:column;gap:20px}
+.fld{display:flex;flex-direction:column;gap:6px}
+.help{margin:0;font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.sec p.help{font-size:13px;line-height:17px;font-weight:700}
+.acts{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.fr button{outline:3px solid var(--color-ink);outline-offset:0}
+.mem{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.mem li{display:flex;align-items:center;gap:12px;min-height:56px;padding:6px 0;box-sizing:border-box;border-top:1px solid var(--color-line);font-size:16px;line-height:24px;font-weight:600;overflow-wrap:anywhere}
+.mem li:first-child{border-top:0}
+.you{color:var(--color-muted)}
+.toast{position:absolute;left:16px;right:16px;bottom:16px;min-height:56px;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-dock);color:var(--color-on-dock);box-shadow:var(--shadow-lift);display:flex;align-items:center;gap:12px;padding:4px 18px;font-size:15px;line-height:20px;font-weight:800}
+.toast svg{width:18px;height:18px;flex-shrink:0}
+.scrim{position:absolute;inset:0;background:var(--color-scrim)}
+.dlg{position:absolute;left:20px;right:20px;top:50%;transform:translateY(-50%);box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-card);background:var(--color-surface);color:var(--color-ink);padding:22px;display:flex;flex-direction:column;gap:12px}
+.dlg h2{margin:0;font-family:var(--font-serif);font-size:34px;line-height:36px;font-weight:400;font-style:italic}
+.dlg p{margin:0;font-size:16px;line-height:24px;font-weight:600;color:var(--color-muted)}
+.dlg .btns{margin-top:8px;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px}
+.boards{display:grid;grid-template-columns:repeat(5, minmax(0, 1fr));gap:40px;align-items:start}
+.col{display:flex;flex-direction:column;gap:10px}
+.notes{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:12px 40px}
+.notes p{margin:0;font-size:15px;line-height:22px;font-weight:600;color:var(--color-ink)}
+.notes p b{font-weight:800}
+</style>
+</helmet>
+<div style="width: 2240px; height: 2560px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">TAS-108 part 2 · /household · phone, 390 px · signed in as Milo Bedini · today is 31 October</span>
+    <h1 class="ttl">The invite link</h1>
+    <span class="cap">A third section under Members, in one of three states: no link, a live link, an expired link. Make and Copy are secondary buttons, so Save name stays the screen’s one peach button; Cancel link is a ghost button that asks first in a dialog.</span>
+  </header>
+
+  <div class="boards">
+
+    <div class="col">
+      <span class="cap"><b>No link</b> · none made yet, or the last one was cancelled</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="a-h-name">
+            <h2 id="a-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="a-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="a-name" type="text" max-length="{{hundred}}" default-value="The Bedinis" aria-describedby="a-help"></x-import>
+                <p id="a-help" class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="a-h-mem">
+            <h2 id="a-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="a-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+          <section class="sec" aria-labelledby="a-h-inv">
+            <h2 id="a-h-inv">Invite someone</h2>
+            <p>Make a link to invite someone. It works for 7 days, for anyone you send it to.</p>
+            <div class="acts"><x-import component-from-global-scope="Dino.Button" variant="secondary" loading="{{no}}" loading-label="Making…"><x-import component-from-global-scope="Dino.icons.Link" aria-hidden="true" stroke-width="{{sw}}"></x-import>Make invite link</x-import></div>
+          </section>
+        </div></main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Making the link</b> · the button keeps its size and ignores presses</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="b-h-name">
+            <h2 id="b-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="b-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="b-name" type="text" max-length="{{hundred}}" default-value="The Bedinis" aria-describedby="b-help"></x-import>
+                <p id="b-help" class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="b-h-mem">
+            <h2 id="b-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="b-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+          <section class="sec" aria-labelledby="b-h-inv">
+            <h2 id="b-h-inv">Invite someone</h2>
+            <p>Make a link to invite someone. It works for 7 days, for anyone you send it to.</p>
+            <div class="acts"><x-import component-from-global-scope="Dino.Button" variant="secondary" loading="{{yes}}" loading-label="Making…"><x-import component-from-global-scope="Dino.icons.Link" aria-hidden="true" stroke-width="{{sw}}"></x-import>Make invite link</x-import></div>
+          </section>
+        </div></main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>A live link</b> · read-only; focusing it selects the address</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="c-h-name">
+            <h2 id="c-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="c-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="c-name" type="text" max-length="{{hundred}}" default-value="The Bedinis" aria-describedby="c-help"></x-import>
+                <p id="c-help" class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="c-h-mem">
+            <h2 id="c-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="c-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+          <section class="sec" aria-labelledby="c-h-inv">
+            <h2 id="c-h-inv">Invite someone</h2>
+            <div class="fld">
+              <label for="c-link" class="text-label">Invite link</label>
+              <x-import component-from-global-scope="Dino.Input" id="c-link" type="text" read-only="{{yes}}" default-value="{{address}}" aria-describedby="c-ihelp"></x-import>
+              <p id="c-ihelp" class="help">Anyone with this link can join until 7 November.</p>
+            </div>
+            <div class="acts">
+              <x-import component-from-global-scope="Dino.Button" variant="secondary"><x-import component-from-global-scope="Dino.icons.Copy" aria-hidden="true" stroke-width="{{sw}}"></x-import>Copy link</x-import>
+              <x-import component-from-global-scope="Dino.Button" variant="ghost">Cancel link</x-import>
+            </div>
+          </section>
+        </div></main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Link copied</b> · Copy link keeps focus; the toast confirms it</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="d-h-name">
+            <h2 id="d-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="d-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="d-name" type="text" max-length="{{hundred}}" default-value="The Bedinis" aria-describedby="d-help"></x-import>
+                <p id="d-help" class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="d-h-mem">
+            <h2 id="d-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="d-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+          <section class="sec" aria-labelledby="d-h-inv">
+            <h2 id="d-h-inv">Invite someone</h2>
+            <div class="fld">
+              <label for="d-link" class="text-label">Invite link</label>
+              <x-import component-from-global-scope="Dino.Input" id="d-link" type="text" read-only="{{yes}}" default-value="{{address}}" aria-describedby="d-ihelp"></x-import>
+              <p id="d-ihelp" class="help">Anyone with this link can join until 7 November.</p>
+            </div>
+            <div class="acts">
+              <span class="fr"><x-import component-from-global-scope="Dino.Button" variant="secondary"><x-import component-from-global-scope="Dino.icons.Copy" aria-hidden="true" stroke-width="{{sw}}"></x-import>Copy link</x-import></span>
+              <x-import component-from-global-scope="Dino.Button" variant="ghost">Cancel link</x-import>
+            </div>
+          </section>
+        </div></main>
+        <div class="toast" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg><span>Link copied</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Couldn’t copy</b> · the clipboard was refused</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="e-h-name">
+            <h2 id="e-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="e-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="e-name" type="text" max-length="{{hundred}}" default-value="The Bedinis" aria-describedby="e-help"></x-import>
+                <p id="e-help" class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="e-h-mem">
+            <h2 id="e-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="e-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+          <section class="sec" aria-labelledby="e-h-inv">
+            <h2 id="e-h-inv">Invite someone</h2>
+            <div class="fld">
+              <label for="e-link" class="text-label">Invite link</label>
+              <x-import component-from-global-scope="Dino.Input" id="e-link" type="text" read-only="{{yes}}" default-value="{{address}}" aria-describedby="e-ihelp"></x-import>
+              <p id="e-ihelp" class="help">Anyone with this link can join until 7 November.</p>
+            </div>
+            <div class="acts">
+              <x-import component-from-global-scope="Dino.Button" variant="secondary"><x-import component-from-global-scope="Dino.icons.Copy" aria-hidden="true" stroke-width="{{sw}}"></x-import>Copy link</x-import>
+              <x-import component-from-global-scope="Dino.Button" variant="ghost">Cancel link</x-import>
+            </div>
+          </section>
+        </div></main>
+        <div class="toast" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg><span>Couldn’t copy the link. Select it and copy it yourself.</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Cancel link, asked first</b> · focus starts on Keep link</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page" aria-hidden="true"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec">
+            <h2>Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="f-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="f-name" type="text" max-length="{{hundred}}" default-value="The Bedinis" tab-index="-1"></x-import>
+                <p class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" tab-index="-1" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec">
+            <h2>Members</h2>
+            <ul class="mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+          <section class="sec">
+            <h2>Invite someone</h2>
+            <div class="fld">
+              <label for="f-link" class="text-label">Invite link</label>
+              <x-import component-from-global-scope="Dino.Input" id="f-link" type="text" read-only="{{yes}}" default-value="{{address}}" tab-index="-1"></x-import>
+              <p class="help">Anyone with this link can join until 7 November.</p>
+            </div>
+            <div class="acts">
+              <x-import component-from-global-scope="Dino.Button" variant="secondary" tab-index="-1"><x-import component-from-global-scope="Dino.icons.Copy" aria-hidden="true" stroke-width="{{sw}}"></x-import>Copy link</x-import>
+              <x-import component-from-global-scope="Dino.Button" variant="ghost" tab-index="-1">Cancel link</x-import>
+            </div>
+          </section>
+        </div></main>
+        <div class="scrim" aria-hidden="true"></div>
+        <section class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="f-dt" aria-describedby="f-dd">
+          <h2 id="f-dt">Cancel this invite link?</h2>
+          <p id="f-dd">Anyone who opens it will be told it no longer works. You can make a new link afterwards.</p>
+          <div class="btns">
+            <span class="fr"><x-import component-from-global-scope="Dino.Button" variant="secondary">Keep link</x-import></span>
+            <x-import component-from-global-scope="Dino.Button" variant="danger">Cancel link</x-import>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Link cancelled</b> · back to no link; focus moves to Make invite link</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="g-h-name">
+            <h2 id="g-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="g-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="g-name" type="text" max-length="{{hundred}}" default-value="The Bedinis" aria-describedby="g-help"></x-import>
+                <p id="g-help" class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="g-h-mem">
+            <h2 id="g-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="g-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+          <section class="sec" aria-labelledby="g-h-inv">
+            <h2 id="g-h-inv">Invite someone</h2>
+            <p>Make a link to invite someone. It works for 7 days, for anyone you send it to.</p>
+            <div class="acts"><span class="fr"><x-import component-from-global-scope="Dino.Button" variant="secondary" loading="{{no}}" loading-label="Making…"><x-import component-from-global-scope="Dino.icons.Link" aria-hidden="true" stroke-width="{{sw}}"></x-import>Make invite link</x-import></span></div>
+          </section>
+        </div></main>
+        <div class="toast" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg><span>Link cancelled</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>An expired link</b> · no Copy or Cancel, only a new link</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="h-h-name">
+            <h2 id="h-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="h-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="h-name" type="text" max-length="{{hundred}}" default-value="The Bedinis" aria-describedby="h-help"></x-import>
+                <p id="h-help" class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="h-h-mem">
+            <h2 id="h-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="h-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+          <section class="sec" aria-labelledby="h-h-inv">
+            <h2 id="h-h-inv">Invite someone</h2>
+            <p>This invite link expired on 7 November.</p>
+            <div class="acts"><x-import component-from-global-scope="Dino.Button" variant="secondary" loading="{{no}}" loading-label="Making…"><x-import component-from-global-scope="Dino.icons.Link" aria-hidden="true" stroke-width="{{sw}}"></x-import>Make a new link</x-import></div>
+          </section>
+        </div></main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Couldn’t make a link</b> · offline or a 5xx; the section stays as it was</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="i-h-name">
+            <h2 id="i-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="i-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="i-name" type="text" max-length="{{hundred}}" default-value="The Bedinis" aria-describedby="i-help"></x-import>
+                <p id="i-help" class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="i-h-mem">
+            <h2 id="i-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="i-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+          <section class="sec" aria-labelledby="i-h-inv">
+            <h2 id="i-h-inv">Invite someone</h2>
+            <p>Make a link to invite someone. It works for 7 days, for anyone you send it to.</p>
+            <div class="acts"><x-import component-from-global-scope="Dino.Button" variant="secondary" loading="{{no}}" loading-label="Making…"><x-import component-from-global-scope="Dino.icons.Link" aria-hidden="true" stroke-width="{{sw}}"></x-import>Make invite link</x-import></div>
+          </section>
+        </div></main>
+        <div class="toast" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg><span>Couldn’t make a link. Check your connection and try again.</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Couldn’t cancel the link</b> · offline or a 5xx; the link stays live</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="j-h-name">
+            <h2 id="j-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="j-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="j-name" type="text" max-length="{{hundred}}" default-value="The Bedinis" aria-describedby="j-help"></x-import>
+                <p id="j-help" class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="j-h-mem">
+            <h2 id="j-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="j-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+          <section class="sec" aria-labelledby="j-h-inv">
+            <h2 id="j-h-inv">Invite someone</h2>
+            <div class="fld">
+              <label for="j-link" class="text-label">Invite link</label>
+              <x-import component-from-global-scope="Dino.Input" id="j-link" type="text" read-only="{{yes}}" default-value="{{address}}" aria-describedby="j-ihelp"></x-import>
+              <p id="j-ihelp" class="help">Anyone with this link can join until 7 November.</p>
+            </div>
+            <div class="acts">
+              <x-import component-from-global-scope="Dino.Button" variant="secondary"><x-import component-from-global-scope="Dino.icons.Copy" aria-hidden="true" stroke-width="{{sw}}"></x-import>Copy link</x-import>
+              <x-import component-from-global-scope="Dino.Button" variant="ghost">Cancel link</x-import>
+            </div>
+          </section>
+        </div></main>
+        <div class="toast" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg><span>Couldn’t cancel the link. Check your connection and try again.</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <p><b>The section is “Invite someone”, the field “Invite link”.</b> The spec named both the heading and the field “Invite link”, which reads twice in a row; I renamed the heading so it says what the section is for, and kept the field’s label, which the tests find it by. The copy otherwise is the spec’s.</p>
+    <p><b>Save name stays the one peach button</b> (Rules: one peach button per screen). Make invite link, Make a new link and Copy link are secondary, each with its icon (Link, Copy); Cancel link is a ghost button, so the quieter way out sits beside the thing you came for. The danger colour appears only in the dialog, on the button that does it.</p>
+    <p><b>The live link is a read-only Input in a Field</b>, the whole address in it and cut off at the field’s edge on a phone; the help line gives the last day. Focusing the field selects the whole address, so “Select it and copy it yourself” is one tap and a Copy. The date is day and month only, as the spec assumes.</p>
+    <p><b>Cancel asks first, in ConfirmDialog</b> (its own board), whose way out now says “Keep link”. Focus starts on Keep link, so Enter never cancels by accident. After cancelling, the section goes back to no link with the toast “Link cancelled” and focus on Make invite link, so it isn’t lost with the button that was pressed.</p>
+    <p><b>An expired link says so in words, in Body</b>, not a butter Note or a warning Banner: it’s a plain fact about time with one way on, and the section’s single button is that way. The expired address isn’t shown, as it can’t be used.</p>
+    <p><b>Failures are toasts and change nothing</b>, as on the name: the section stays as it was, so pressing the same button again is the retry. A link made by another member at the same moment comes back as the same link (the spec’s one live link), so there’s no clash to draw.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2240,"height":2560}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      icons: window.Dino.icons, yes: true, no: false, sw: 2.5, hundred: 100,
+      address: 'https://tastebook.dev/join/sHkKGqwqOQOuI_I7N_kPbU1WDQnUFE0Le4NJGeiYHUQ'
+    };
+  }
+}
+</script>
+</body>
+</html>

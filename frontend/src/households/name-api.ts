@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '../api/client';
 import type { Account } from './auth-api';
+import { HOUSEHOLD_KEY } from './household-api';
 import { SESSION_KEY } from './session-api';
 
 export const NAME_MAX_LENGTH = 50;
@@ -16,7 +17,8 @@ const refusal = (body: unknown): string => {
   return Array.isArray(messages) && typeof messages[0] === 'string' ? messages[0] : NOT_A_NAME;
 };
 
-// Saves the name and puts the answer straight in the session, so the gate lets the person through at once.
+// Saves the name and puts the answer straight in the session, so the gate lets the person through at once; the
+// household's members show the new name too.
 export const useSaveName = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -30,7 +32,11 @@ export const useSaveName = () => {
       }
       throw new Error(`Saving the name failed with ${response.status}`);
     },
-    onSuccess: (result) =>
-      result.kind === 'saved' ? queryClient.setQueryData<Account | null>(SESSION_KEY, result.account) : undefined
+    onSuccess: (result) => {
+      if (result.kind === 'saved') {
+        queryClient.setQueryData<Account | null>(SESSION_KEY, result.account);
+        return queryClient.invalidateQueries({ queryKey: HOUSEHOLD_KEY });
+      }
+    }
   });
 };

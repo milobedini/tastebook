@@ -70,6 +70,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/household/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The signed-in account's household: its name and its members, the account first. 404 for an account with no household yet. */
+        get: operations["household_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Renames the signed-in account's household. Any member may. */
+        patch: operations["household_partial_update"];
+        trace?: never;
+    };
     "/api/ingredients/": {
         parameters: {
             query?: never;
@@ -192,6 +210,10 @@ export interface components {
             database: components["schemas"]["DatabaseEnum"];
             version: string;
         };
+        Household: {
+            name: string;
+            members: components["schemas"]["Member"][];
+        };
         Ingredient: {
             slug: string;
             /** @description The UK name: courgette, coriander, plain flour. */
@@ -247,9 +269,17 @@ export interface components {
             name: string;
             readonly synonyms: string[];
         };
+        Member: {
+            id: number;
+            name: string;
+            is_you: boolean;
+        };
         PatchedAccountChanges: {
             name?: string;
             unit_system?: components["schemas"]["UnitSystem"];
+        };
+        PatchedHouseholdChanges: {
+            name?: string;
         };
         PhotoThumbnail: {
             readonly width: number;
@@ -473,6 +503,85 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Health"];
                 };
+            };
+        };
+    };
+    household_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Household"];
+                };
+            };
+            /** @description No response body */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No response body */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    household_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedHouseholdChanges"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedHouseholdChanges"];
+                "multipart/form-data": components["schemas"]["PatchedHouseholdChanges"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Household"];
+                };
+            };
+            /** @description No response body */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No response body */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No response body */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
