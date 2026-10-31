@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>The household page, before it loads</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.frame{position:relative;background:var(--color-ground);border:1px solid var(--color-line);border-radius:20px;overflow:hidden;flex-shrink:0;width:390px;height:660px}
+.bar{border-bottom:1px solid var(--color-line)}
+.in{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:minmax(76px,auto);align-items:center;column-gap:8px;padding:0 20px}
+.in.bare{grid-template-columns:minmax(0,1fr) auto}
+.wmk{display:inline-flex;align-items:center;min-height:44px;font-family:var(--font-serif);font-size:34px;line-height:36px;font-style:italic;color:var(--color-ink);text-decoration:none}
+.av{width:44px;height:44px;padding:0;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-surface);color:var(--color-ink);display:inline-grid;place-items:center;font-family:var(--font-sans);font-size:19px;line-height:24px;font-weight:800;cursor:pointer}
+.av.open{background:var(--color-line);border-color:var(--color-ink)}
+.page{padding:24px 20px 48px;display:flex;flex-direction:column}
+.page h1,.page h2{margin:0}
+.stack{display:flex;flex-direction:column;gap:32px;max-width:400px}
+.sec{display:flex;flex-direction:column;gap:16px}
+.form{display:flex;flex-direction:column;gap:20px}
+.fld{display:flex;flex-direction:column;gap:6px}
+.help{margin:0;font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.mem{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.mem li{display:flex;align-items:center;gap:12px;min-height:56px;padding:6px 0;box-sizing:border-box;border-top:1px solid var(--color-line);font-size:16px;line-height:24px;font-weight:600;overflow-wrap:anywhere}
+.mem li:first-child{border-top:0}
+.you{color:var(--color-muted)}
+.menu{position:absolute;min-width:224px;max-width:320px;box-sizing:border-box;background:var(--color-surface);border:2px solid var(--color-field);border-radius:var(--radius-card);padding:6px;display:flex;flex-direction:column;gap:2px;color:var(--color-ink)}
+.mh{padding:10px 14px 8px;font-size:15px;line-height:20px;font-weight:800;overflow-wrap:anywhere}
+.sep{border-top:1px solid var(--color-line);margin:2px 8px 4px}
+.mi{min-height:44px;display:flex;align-items:center;box-sizing:border-box;padding:10px 14px;border-radius:var(--radius-option);font-size:16px;line-height:24px;font-weight:600;color:var(--color-ink);text-decoration:none;cursor:pointer}
+.mi.fv{background:var(--color-line);outline:3px solid var(--color-ink);outline-offset:-3px}
+.boards{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:40px;align-items:start}
+.col{display:flex;flex-direction:column;gap:10px}
+.notes{display:flex;flex-direction:column;gap:12px;max-width:1240px}
+.notes p{margin:0;font-size:15px;line-height:22px;font-weight:600;color:var(--color-ink)}
+.notes p b{font-weight:800}
+</style>
+</helmet>
+<div style="width: 1400px; height: 1900px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">TAS-108 part 1 · /household · phone, 390 px</span>
+    <h1 class="ttl">The way in, and before the page</h1>
+    <span class="cap">The account menu gains Household between Account and Sign out. Opened straight at /household, the page waits for the session as the account page does, then for the household; signed out, it sends you to sign in and back.</span>
+  </header>
+
+  <div class="boards">
+
+    <div class="col">
+      <span class="cap"><b>The account menu, open</b> · from any page; focus on Household</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av open" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="true"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <div class="page" style="gap: 16px">
+          <h1>What shall we <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">cook</x-import> tonight?</h1>
+          <span class="cap">24 recipes</span>
+        </div>
+        <div class="menu" role="menu" aria-label="Milo Bedini" style="top: 68px; right: 20px">
+          <div class="mh">Milo Bedini</div>
+          <div class="sep" aria-hidden="true"></div>
+          <a href="#" class="mi" role="menuitem">Account</a>
+          <a href="#" class="mi fv" role="menuitem">Household</a>
+          <div class="mi" role="menuitem" tabindex="-1">Sign out</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Checking your account</b> · the bar has no account end yet</span>
+      <div class="frame">
+        <header class="bar"><div class="in bare">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+        </div></header>
+        <main class="page">
+          <x-import component-from-global-scope="Dino.Loading">Checking your account…</x-import>
+        </main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Couldn’t reach Tastebook</b> · the session failed</span>
+      <div class="frame">
+        <header class="bar"><div class="in bare">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+        </div></header>
+        <main class="page">
+          <x-import component-from-global-scope="Dino.ErrorWithRetry" title="Couldn’t reach Tastebook" on-retry="{{retry}}">Check your connection and try again.</x-import>
+        </main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Getting your household</b> · signed in; after half a second</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page">
+          <x-import component-from-global-scope="Dino.Loading">Getting your household…</x-import>
+        </main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Couldn’t load your household</b> · Try again fetches it once more</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page">
+          <x-import component-from-global-scope="Dino.ErrorWithRetry" title="Couldn’t load your household" on-retry="{{retry}}">Check your connection and try again.</x-import>
+        </main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>A household of one</b> · a new account, just after naming itself</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Sam Jones" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">S</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="g-h-name">
+            <h2 id="g-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="g-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="g-name" type="text" max-length="{{hundred}}" default-value="Sam’s household" aria-describedby="g-help"></x-import>
+                <p id="g-help" class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="g-h-mem">
+            <h2 id="g-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="g-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Sam Jones"></x-import><span>Sam Jones <span class="you">(you)</span></span></li>
+            </ul>
+          </section>
+        </div></main>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <p><b>Household sits between Account and Sign out</b>: the two places you manage go together, and leaving stays last. The menu’s heading is still the person’s name. Choosing it opens /household and puts focus on the new page as any link does.</p>
+    <p><b>Two waits, the same two components.</b> While the session is unknown the bar has no account end and the page shows “Checking your account…”, then “Couldn’t reach Tastebook” if it fails, exactly as the account page. Once someone is signed in the household is asked for, with “Getting your household…” and “Couldn’t load your household”. Neither shows a heading, as there’s nothing to name yet. Signed out there’s no page: /household goes to sign in and back.</p>
+    <p><b>A household of one shows just you.</b> Every new account has one; part 2’s invite link (next boards) is how a second member arrives, so the list never needs an empty state.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1400,"height":1900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { icons: window.Dino.icons, yes: true, no: false, hundred: 100, retry: function () { return Promise.resolve(); } };
+  }
+}
+</script>
+</body>
+</html>
