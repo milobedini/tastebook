@@ -127,7 +127,7 @@ class HouseholdView(APIView):
         changes = HouseholdChangesSerializer(data=request.data)
         changes.is_valid(raise_exception=True)
         rename_household(account, changes.validated_data['name'])
-        return Response(household_body(User.objects.select_related('household').get(pk=account.pk)))
+        return Response(household_body(account))
 
 
 def rate_limited(request: HttpRequest, seconds: int) -> HttpResponse:
