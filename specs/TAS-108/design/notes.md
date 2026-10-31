@@ -4,13 +4,13 @@ Canvas: https://claude.ai/artifact/P7WaaMvyXKsSTVPCjB1SyM
 
 ## Boards
 
-- `household-page.dc.html` — The household page (part 1), phone 390 px: as it opens, saving the name, name saved, blank name, refused by the server (over 100 characters), couldn't save the name.
-- `household-page-session.dc.html` — The way in, and before the page: the account menu with Household between Account and Sign out, checking your account, couldn't reach Tastebook, getting your household, couldn't load your household, a household of one.
-- `household-page-laptop.dc.html` — On a laptop, 1280 px: the same 400 px column at the left edge, link copied with the toast at the bottom right.
-- `household-page-invite.dc.html` — The invite link (part 2), phone: no link, making the link, a live link, link copied, couldn't copy, Cancel link asked first, link cancelled, an expired link, couldn't make a link, couldn't cancel the link.
-- `confirm-dialog.dc.html` — ConfirmDialog (changed): default, KeepLabel, as it opens (focus on Keep link), at 320 px, under forced colours, and the prop change.
-- `proposed-rule-change.dc.html` — Proposed rule change to docs/design.md's Dialog rule.
-- `household-page-forced-colours.dc.html` — Under forced colours: a live link copied, and a blank name with no link, plus what to check on the built page.
+- `docs/design/picnic/household-page.dc.html` — The household page (part 1), phone 390 px: as it opens, saving the name, name saved, blank name, refused by the server (over 100 characters), couldn't save the name.
+- `docs/design/picnic/household-page-session.dc.html` — The way in, and before the page: the account menu with Household between Account and Sign out, checking your account, couldn't reach Tastebook, getting your household, couldn't load your household, a household of one.
+- `docs/design/picnic/household-page-laptop.dc.html` — On a laptop, 1280 px: the same 400 px column at the left edge, link copied with the toast at the bottom right.
+- `docs/design/picnic/household-page-invite.dc.html` — The invite link (part 2), phone: no link, making the link, a live link, link copied, couldn't copy, Cancel link asked first, link cancelled, an expired link, couldn't make a link, couldn't cancel the link.
+- `docs/design/dino/confirm-dialog.dc.html` — ConfirmDialog (changed): default, KeepLabel, as it opens (focus on Keep link), at 320 px, under forced colours, and the prop change.
+- `docs/design/dino/confirm-dialog-rule-change.dc.html` — Proposed rule change to docs/design.md's Dialog rule.
+- `docs/design/picnic/household-page-forced-colours.dc.html` — Under forced colours: a live link copied, and a blank name with no link, plus what to check on the built page.
 
 ## Decisions
 
