@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '../api/client';
 import { type Account, signOut } from './auth-api';
+import { forgetHousehold } from './household-api';
 
 export const SESSION_KEY = ['households', 'session'];
 
@@ -25,9 +26,12 @@ export const useSignOut = () => {
   return useMutation({
     mutationFn: signOut,
     // allauth's signed-in user has no name, so a sign out that left someone signed in asks the account again.
-    onSuccess: (result) =>
-      result.kind === 'signed-in'
-        ? queryClient.invalidateQueries({ queryKey: SESSION_KEY })
-        : queryClient.setQueryData<Account | null>(SESSION_KEY, null)
+    onSuccess: async (result) => {
+      if (result.kind === 'signed-in') {
+        return queryClient.invalidateQueries({ queryKey: SESSION_KEY });
+      }
+      forgetHousehold(queryClient);
+      queryClient.setQueryData<Account | null>(SESSION_KEY, null);
+    }
   });
 };

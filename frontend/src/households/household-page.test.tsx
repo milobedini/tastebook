@@ -49,6 +49,68 @@ const answerHousehold = () => {
   return renames;
 };
 
+const AUTH = '/api/_allauth/browser/v1/auth';
+
+const accounts: Partial<Record<string, { name: string; household: Household }>> = {
+  'milo@example.com': {
+    name: 'Milo',
+    household: { name: "Milo's household", members: [{ id: 1, name: 'Milo', is_you: true }] }
+  },
+  'jo@example.com': {
+    name: 'Jo',
+    household: { name: "Jo's household", members: [{ id: 3, name: 'Jo', is_you: true }] }
+  }
+};
+
+// A stand-in for the server with Milo signed in: a DELETE signs out, and any emailed code then signs in as Jo.
+const answerTwoAccounts = () => {
+  const state: { signedInAs?: string } = { signedInAs: 'milo@example.com' };
+  const signedIn = () => (state.signedInAs === undefined ? undefined : accounts[state.signedInAs]);
+  server.use(
+    http.get('/api/account/', () => {
+      const { signedInAs } = state;
+      const account = signedIn();
+      return HttpResponse.json<CurrentAccount>({
+        account:
+          signedInAs === undefined || account === undefined
+            ? null
+            : { email: signedInAs, name: account.name, unit_system: 'metric' }
+      });
+    }),
+    http.get(HOUSEHOLD, () => {
+      const account = signedIn();
+      return account === undefined
+        ? new HttpResponse(null, { status: 403 })
+        : HttpResponse.json<Household>(account.household);
+    }),
+    http.delete(`${AUTH}/session`, () => {
+      state.signedInAs = undefined;
+      return HttpResponse.json(
+        { status: 401, data: { flows: [] }, meta: { is_authenticated: false } },
+        { status: 401 }
+      );
+    }),
+    http.post(`${AUTH}/code/request`, () =>
+      HttpResponse.json(
+        {
+          status: 401,
+          data: { flows: [{ id: 'login_by_code', is_pending: true }] },
+          meta: { is_authenticated: false }
+        },
+        { status: 401 }
+      )
+    ),
+    http.post(`${AUTH}/code/confirm`, () => {
+      state.signedInAs = 'jo@example.com';
+      return HttpResponse.json({
+        status: 200,
+        data: { user: { email: 'jo@example.com' }, methods: [] },
+        meta: { is_authenticated: true }
+      });
+    })
+  );
+};
+
 const nameField = () => screen.getByRole('textbox', { name: 'Household name' });
 
 const saveName = async (name: string) => {
@@ -196,5 +258,25 @@ describe('HouseholdPage', () => {
     expect(router.state.location.pathname + router.state.location.search).toBe('/sign-in?next=%2Fhousehold');
     await waitFor(() => expect(queryClient.isFetching()).toBe(0));
     expect(asked.count).toBe(0);
+  });
+
+  it("shows the next account its own household after signing out, not the last one's", async () => {
+    answerTwoAccounts();
+    const { queryClient } = renderRoute('/household');
+    expect(await screen.findByRole('textbox', { name: 'Household name' })).toHaveValue("Milo's household");
+
+    await userEvent.click(screen.getByRole('button', { name: 'Account for Milo' }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Sign out' }));
+    await userEvent.type(await screen.findByRole('textbox', { name: 'Email address' }), 'jo@example.com');
+    await userEvent.click(screen.getByRole('button', { name: 'Send code' }));
+    await userEvent.type(await screen.findByRole('textbox', { name: 'Code' }), '123456');
+    await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Your household' })).toBeInTheDocument();
+    await waitFor(() => expect(queryClient.isFetching()).toBe(0));
+    expect(nameField()).toHaveValue("Jo's household");
+    const members = screen.getByRole('list', { name: 'Members' });
+    expect(within(members).getByText('Jo')).toBeInTheDocument();
+    expect(within(members).queryByText('Milo')).not.toBeInTheDocument();
   });
 });
