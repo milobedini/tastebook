@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Proposed rule change</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.pair{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:24px}
+.card{border:2px solid var(--color-field);border-radius:var(--radius-card);padding:20px 22px;display:flex;flex-direction:column;gap:8px}
+.card.new{border-color:var(--color-ink);background:var(--color-surface)}
+.card p{margin:0;font-size:16px;line-height:24px;font-weight:600}
+.why{display:flex;flex-direction:column;gap:10px}
+.why p{margin:0;font-size:15px;line-height:22px;font-weight:600}
+.why p b{font-weight:800}
+</style>
+</helmet>
+<div style="width: 1000px; height: 560px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 32px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">docs/design.md › Components › Dialog · lands in TAS-108 part 2</span>
+    <h1 class="ttl">Proposed rule change</h1>
+  </header>
+
+  <div class="pair">
+    <div class="card">
+      <span class="cap">Today</span>
+      <p>For anything that can’t be undone: says exactly what happens; the danger button names the action (“Delete account”), the other is “Cancel”.</p>
+    </div>
+    <div class="card new">
+      <span class="cap">Proposed</span>
+      <p>For anything that can’t be undone: says exactly what happens; the danger button names the action (“Delete account”), the other is “Cancel”, or names what it keeps when the action itself is a cancel (“Keep link”).</p>
+    </div>
+  </div>
+
+  <div class="why">
+    <p><b>Why:</b> “Cancel” beside “Cancel link” reads as two ways to cancel, and the safe one is the one people are least sure of (NN/g 4, consistency; NN/g 5, error prevention). Naming what stays makes the way out unmistakable.</p>
+    <p><b>What it doesn’t change:</b> every other dialog keeps “Cancel”, the way out keeps its look, place and first focus, and the danger button still names the action. The spec already makes this edit in part 2; this board is where to say no before it does.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1000,"height":560}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

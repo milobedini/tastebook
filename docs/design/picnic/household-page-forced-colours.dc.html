@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>The household page under forced colours</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.hc{--canvas:#000000;--text:#ffffff;--hl:#1aebff;position:relative;background:var(--canvas);color:var(--text);border-radius:20px;overflow:hidden;width:390px;height:940px;flex-shrink:0;font-family:var(--font-sans)}
+.hc .bar{border-bottom:1px solid var(--text);min-height:76px;padding:0 20px;display:flex;align-items:center;gap:8px}
+.hc .wm{font-family:var(--font-serif);font-size:34px;line-height:36px;font-style:italic;flex-grow:1}
+.hc .c{width:44px;height:44px;box-sizing:border-box;border:2px solid var(--text);border-radius:999px;display:inline-grid;place-items:center;color:var(--text);background:transparent;padding:0;font-size:19px;line-height:24px;font-weight:800;flex-shrink:0}
+.hc .pg{padding:24px 20px 48px;display:flex;flex-direction:column;gap:32px}
+.hc h2{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400;font-style:normal}
+.hc h3{margin:0;font-family:var(--font-serif);font-size:28px;line-height:30px;font-weight:400;font-style:italic}
+.hc .sq{position:relative;display:inline-block;font-style:italic}
+.hc .sq svg{position:absolute;left:0;bottom:-8px;width:100%;height:10px}
+.hc .sec{display:flex;flex-direction:column;gap:16px}
+.hc .sec p{margin:0;font-size:16px;line-height:24px;font-weight:600}
+.hc .fld{display:flex;flex-direction:column;gap:6px}
+.hc .lbl{font-size:15px;line-height:20px;font-weight:800}
+.hc .help{margin:0;font-size:13px;line-height:17px;font-weight:700}
+.hc .err{margin:0;display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:17px;font-weight:700}
+.hc .box{height:48px;box-sizing:border-box;border:2px solid var(--text);border-radius:999px;padding:0 18px;display:flex;align-items:center;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden}
+.hc .box.f{border-width:3px}
+.hc .acts{display:flex;flex-wrap:wrap;gap:8px}
+.hc .b{height:44px;padding:0 20px;border-radius:999px;border:2px solid var(--text);box-sizing:border-box;display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--text);font:800 15px/20px var(--font-sans);white-space:nowrap}
+.hc .b.g{border-color:transparent}
+.hc .b.f{outline:3px solid var(--hl);outline-offset:0}
+.hc .mem{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.hc .mem li{display:flex;align-items:center;gap:12px;min-height:56px;padding:6px 0;box-sizing:border-box;border-top:1px solid var(--text);font-size:16px;line-height:24px;font-weight:600}
+.hc .mem li:first-child{border-top:0}
+.hc .toast{position:absolute;left:16px;right:16px;bottom:16px;min-height:56px;box-sizing:border-box;border:2px solid var(--text);border-radius:999px;display:flex;align-items:center;gap:12px;padding:4px 18px;font:800 15px/20px var(--font-sans)}
+.row{display:flex;gap:40px;align-items:flex-start}
+.col{display:flex;flex-direction:column;gap:10px}
+.checks{display:flex;flex-direction:column;gap:10px;max-width:420px}
+.checks p{margin:0;font-size:15px;line-height:22px;font-weight:600}
+.checks p b{font-weight:800}
+</style>
+</helmet>
+<div style="width: 1400px; height: 1260px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">TAS-108 · /household · forced colours</span>
+    <h1 class="ttl">Under forced colours</h1>
+    <span class="cap">Simulated in Windows’ High Contrast Black: fills drop; text, borders and outlines take the system’s colours (CanvasText white, Highlight cyan). Every state still reads without colour.</span>
+  </header>
+
+  <div class="row">
+
+    <div class="col">
+      <span class="cap"><b>A live link, copied</b> · focus on Copy link</span>
+      <div class="hc">
+        <div class="bar">
+          <span class="wm">Tastebook</span>
+          <span class="c" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></span>
+          <span class="c" aria-hidden="true">M</span>
+        </div>
+        <div class="pg">
+          <h2>Your <span class="sq">household<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6 Q 14 1 26 6 T 50 6 T 74 6 T 98 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></h2>
+          <div class="sec">
+            <h3>Name</h3>
+            <div class="fld">
+              <span class="lbl">Household name</span>
+              <span class="box">The Bedinis</span>
+              <p class="help">Everyone in the household sees it.</p>
+            </div>
+            <div class="acts"><span class="b">Save name</span></div>
+          </div>
+          <div class="sec">
+            <h3>Members</h3>
+            <ul class="mem">
+              <li><span class="c">M</span><span>Milo Bedini (you)</span></li>
+              <li><span class="c">A</span><span>Ann Okafor</span></li>
+            </ul>
+          </div>
+          <div class="sec">
+            <h3>Invite someone</h3>
+            <div class="fld">
+              <span class="lbl">Invite link</span>
+              <span class="box">https://tastebook.dev/join/sHkKGqwqOQOuI_I7N</span>
+              <p class="help">Anyone with this link can join until 7 November.</p>
+            </div>
+            <div class="acts">
+              <span class="b f"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>Copy link</span>
+              <span class="b g">Cancel link</span>
+            </div>
+          </div>
+        </div>
+        <div class="toast"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>Link copied</div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Blank name, no link</b> · focus in the field</span>
+      <div class="hc">
+        <div class="bar">
+          <span class="wm">Tastebook</span>
+          <span class="c" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></span>
+          <span class="c" aria-hidden="true">M</span>
+        </div>
+        <div class="pg">
+          <h2>Your <span class="sq">household<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6 Q 14 1 26 6 T 50 6 T 74 6 T 98 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span></h2>
+          <div class="sec">
+            <h3>Name</h3>
+            <div class="fld">
+              <span class="lbl">Household name</span>
+              <span class="box f"></span>
+              <p class="err"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>Enter a name for your household, like The Bedinis.</p>
+            </div>
+            <div class="acts"><span class="b">Save name</span></div>
+          </div>
+          <div class="sec">
+            <h3>Members</h3>
+            <ul class="mem">
+              <li><span class="c">M</span><span>Milo Bedini (you)</span></li>
+              <li><span class="c">A</span><span>Ann Okafor</span></li>
+            </ul>
+          </div>
+          <div class="sec">
+            <h3>Invite someone</h3>
+            <p>Make a link to invite someone. It works for 7 days, for anyone you send it to.</p>
+            <div class="acts"><span class="b"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>Make invite link</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="checks">
+      <span class="cap">What to check on the built page</span>
+      <p><b>The squiggle</b> under “household” turns CanvasText: Chromium keeps an SVG’s own colour under forced colours, so check it isn’t still peach (the e2e test compares its stroke with the heading’s colour).</p>
+      <p><b>The avatars</b> keep their 2 px transparent border, drawn here, so each is still a circle beside its name.</p>
+      <p><b>The read-only link</b> keeps its field border, so it reads as something to copy from, not as body text.</p>
+      <p><b>Save name</b> loses the peach but keeps its border; Copy link and Make invite link are outlined anyway; Cancel link, a ghost button, shows as text until it takes focus or the pointer.</p>
+      <p><b>The field’s error</b> keeps its icon, so it doesn’t rest on the danger colour; the toast keeps its border and icon.</p>
+      <p><b>The dialog</b> is drawn under forced colours on the ConfirmDialog board.</p>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1400,"height":1260}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

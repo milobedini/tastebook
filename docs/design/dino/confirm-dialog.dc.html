@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>ConfirmDialog with a named way out</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.box{position:relative;background:var(--color-ground);border:1px solid var(--color-line);border-radius:20px;overflow:hidden;flex-shrink:0;width:390px;height:420px}
+.box.narrow{width:320px}
+.ghostpage{position:absolute;inset:0;padding:24px 20px;display:flex;flex-direction:column;gap:16px}
+.ghostpage span{display:block;height:14px;border-radius:var(--radius-pill);background:var(--color-line)}
+.scrim{position:absolute;inset:0;background:var(--color-scrim)}
+.dlg{position:absolute;left:20px;right:20px;top:50%;transform:translateY(-50%);box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-card);background:var(--color-surface);color:var(--color-ink);padding:22px;display:flex;flex-direction:column;gap:12px}
+.dlg h2{margin:0;font-family:var(--font-serif);font-size:34px;line-height:36px;font-weight:400;font-style:italic}
+.dlg p{margin:0;font-size:16px;line-height:24px;font-weight:600;color:var(--color-muted)}
+.dlg .btns{margin-top:8px;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px}
+.fr button{outline:3px solid var(--color-ink);outline-offset:0}
+.hc{--canvas:#000000;--text:#ffffff;--hl:#1aebff;background:var(--canvas);border-color:var(--text)}
+.hc .ghostpage span{background:transparent;border:1px solid var(--text)}
+.hc .scrim{background:transparent}
+.hc .dlg{background:var(--canvas);border-color:var(--text);color:var(--text)}
+.hc .dlg p{color:var(--text)}
+.hcb{height:44px;padding:0 20px;border-radius:999px;border:2px solid var(--text);box-sizing:border-box;display:inline-flex;align-items:center;background:transparent;color:var(--text);font:800 15px/20px var(--font-sans);white-space:nowrap}
+.hcb.f{outline:3px solid var(--hl);outline-offset:0}
+.grid{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:40px;align-items:start}
+.col{display:flex;flex-direction:column;gap:10px}
+.api{display:flex;flex-direction:column;gap:12px;max-width:390px}
+.api p{margin:0;font-size:15px;line-height:22px;font-weight:600}
+.api p b{font-weight:800}
+.api code{font-family:ui-monospace,monospace;font-size:13px;line-height:20px;background:var(--color-surface);border-radius:6px;padding:1px 6px}
+.api pre{margin:0;font-family:ui-monospace,monospace;font-size:13px;line-height:20px;background:var(--color-surface);border-radius:var(--radius-note);padding:14px 16px;white-space:pre-wrap}
+</style>
+</helmet>
+<div style="width: 1400px; height: 1240px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">Dino · ConfirmDialog · changed in TAS-108 part 2</span>
+    <h1 class="ttl">ConfirmDialog, with a named way out</h1>
+    <span class="cap">One new optional prop, cancelLabel. Left out, the way out still says “Cancel”, so every existing dialog and its baselines stay as they are. Given, it names what the way out keeps, for a dialog whose action is itself a cancel.</span>
+  </header>
+
+  <div class="grid">
+
+    <div class="col">
+      <span class="cap"><b>Default</b> · no cancelLabel: “Cancel”, unchanged</span>
+      <div class="box">
+        <div class="ghostpage" aria-hidden="true"><span style="width: 60%"></span><span style="width: 85%"></span><span style="width: 70%"></span></div>
+        <div class="scrim" aria-hidden="true"></div>
+        <section class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="a-t" aria-describedby="a-d">
+          <h2 id="a-t">Delete your account?</h2>
+          <p id="a-d">Your 12 private recipes will be deleted. Your 3 public recipes stay.</p>
+          <div class="btns">
+            <x-import component-from-global-scope="Dino.Button" variant="secondary">Cancel</x-import>
+            <x-import component-from-global-scope="Dino.Button" variant="danger">Delete account</x-import>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>KeepLabel</b> · cancelLabel “Keep link” beside “Cancel link”</span>
+      <div class="box">
+        <div class="ghostpage" aria-hidden="true"><span style="width: 60%"></span><span style="width: 85%"></span><span style="width: 70%"></span></div>
+        <div class="scrim" aria-hidden="true"></div>
+        <section class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="b-t" aria-describedby="b-d">
+          <h2 id="b-t">Cancel this invite link?</h2>
+          <p id="b-d">Anyone who opens it will be told it no longer works. You can make a new link afterwards.</p>
+          <div class="btns">
+            <x-import component-from-global-scope="Dino.Button" variant="secondary">Keep link</x-import>
+            <x-import component-from-global-scope="Dino.Button" variant="danger">Cancel link</x-import>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>As it opens</b> · focus on the way out, so Enter keeps</span>
+      <div class="box">
+        <div class="ghostpage" aria-hidden="true"><span style="width: 60%"></span><span style="width: 85%"></span><span style="width: 70%"></span></div>
+        <div class="scrim" aria-hidden="true"></div>
+        <section class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="c-t" aria-describedby="c-d">
+          <h2 id="c-t">Cancel this invite link?</h2>
+          <p id="c-d">Anyone who opens it will be told it no longer works. You can make a new link afterwards.</p>
+          <div class="btns">
+            <span class="fr"><x-import component-from-global-scope="Dino.Button" variant="secondary">Keep link</x-import></span>
+            <x-import component-from-global-scope="Dino.Button" variant="danger">Cancel link</x-import>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>At 320 px</b> · the buttons wrap, the action last</span>
+      <div class="box narrow">
+        <div class="ghostpage" aria-hidden="true"><span style="width: 60%"></span><span style="width: 85%"></span><span style="width: 70%"></span></div>
+        <div class="scrim" aria-hidden="true"></div>
+        <section class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d">
+          <h2 id="d-t">Cancel this invite link?</h2>
+          <p id="d-d">Anyone who opens it will be told it no longer works. You can make a new link afterwards.</p>
+          <div class="btns">
+            <x-import component-from-global-scope="Dino.Button" variant="secondary">Keep link</x-import>
+            <x-import component-from-global-scope="Dino.Button" variant="danger">Cancel link</x-import>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Forced colours</b> · simulated; the panel’s transparent border is drawn</span>
+      <div class="box hc">
+        <div class="ghostpage" aria-hidden="true"><span style="width: 60%"></span><span style="width: 85%"></span><span style="width: 70%"></span></div>
+        <div class="scrim" aria-hidden="true"></div>
+        <section class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="e-t" aria-describedby="e-d">
+          <h2 id="e-t">Cancel this invite link?</h2>
+          <p id="e-d">Anyone who opens it will be told it no longer works. You can make a new link afterwards.</p>
+          <div class="btns">
+            <span class="hcb f">Keep link</span>
+            <span class="hcb">Cancel link</span>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="api">
+      <span class="cap">The change</span>
+<pre>type ConfirmDialogProps = {
+  trigger: ReactElement;
+  title: string;
+  description: string;
+  confirmLabel: string;
+  cancelLabel?: string; // default 'Cancel'
+  onConfirm: () =&gt; void;
+};</pre>
+      <p><b>Only the label changes.</b> The way out keeps its look (secondary), its place (first, on the left), its focus as the dialog opens, and Escape. The danger button still names the action.</p>
+      <p><b>When to give one:</b> only when the action is itself a cancel or a removal whose word would clash with “Cancel” (“Keep link”, later “Keep member”). Say what stays, in two or three words.</p>
+      <p><b>Stories:</b> a new <code>KeepLabel</code>, open, with its two baselines; <code>boards.ts</code> names this board for it.</p>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1400,"height":1240}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>The household page, phone</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/dino/tokens.css">
+<link rel="stylesheet" href="ds/dino/components/bundle.css">
+<script src="ds/dino/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.cap{font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.cap b{color:var(--color-ink)}
+.ttl{margin:0;font-family:var(--font-serif);font-size:46px;line-height:44px;font-weight:400}
+.frame{position:relative;background:var(--color-ground);border:1px solid var(--color-line);border-radius:20px;overflow:hidden;flex-shrink:0;width:390px;height:780px}
+.bar{border-bottom:1px solid var(--color-line)}
+.in{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:minmax(76px,auto);align-items:center;column-gap:8px;padding:0 20px}
+.wmk{display:inline-flex;align-items:center;min-height:44px;font-family:var(--font-serif);font-size:34px;line-height:36px;font-style:italic;color:var(--color-ink);text-decoration:none}
+.av{width:44px;height:44px;padding:0;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-surface);color:var(--color-ink);display:inline-grid;place-items:center;font-family:var(--font-sans);font-size:19px;line-height:24px;font-weight:800;cursor:pointer}
+.page{padding:24px 20px 48px;display:flex;flex-direction:column}
+.page h1,.page h2{margin:0}
+.stack{display:flex;flex-direction:column;gap:32px;max-width:400px}
+.sec{display:flex;flex-direction:column;gap:16px}
+.sec p{margin:0;font-size:16px;line-height:24px;font-weight:600}
+.form{display:flex;flex-direction:column;gap:20px}
+.fld{display:flex;flex-direction:column;gap:6px}
+.help{margin:0;font-size:13px;line-height:17px;font-weight:700;color:var(--color-muted)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.err{margin:0;display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:17px;font-weight:700;color:var(--color-danger)}
+.err svg{width:16px;height:16px;flex-shrink:0;margin-top:1px}
+.is-focus input{outline:1px solid var(--color-ink);outline-offset:0}
+.is-focus input:not([aria-invalid="true"]){border-color:var(--color-ink)}
+.mem{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.mem li{display:flex;align-items:center;gap:12px;min-height:56px;padding:6px 0;box-sizing:border-box;border-top:1px solid var(--color-line);font-size:16px;line-height:24px;font-weight:600;overflow-wrap:anywhere}
+.mem li:first-child{border-top:0}
+.you{color:var(--color-muted)}
+.toast{position:absolute;left:16px;right:16px;bottom:16px;min-height:56px;box-sizing:border-box;border:2px solid transparent;border-radius:var(--radius-pill);background:var(--color-dock);color:var(--color-on-dock);box-shadow:var(--shadow-lift);display:flex;align-items:center;gap:12px;padding:4px 18px 4px 18px;font-size:15px;line-height:20px;font-weight:800}
+.toast svg{width:18px;height:18px;flex-shrink:0}
+.boards{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:40px;align-items:start}
+.col{display:flex;flex-direction:column;gap:10px}
+.notes{display:flex;flex-direction:column;gap:12px;max-width:1240px}
+.notes p{margin:0;font-size:15px;line-height:22px;font-weight:600;color:var(--color-ink)}
+.notes p b{font-weight:800}
+</style>
+</helmet>
+<div style="width: 1400px; height: 2200px; box-sizing: border-box; padding: 56px; background: var(--color-ground); color: var(--color-ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 6px">
+    <span class="cap">TAS-108 part 1 · /household · phone, 390 px · signed in as Milo Bedini, in a household with Ann Okafor</span>
+    <h1 class="ttl">The household page</h1>
+    <span class="cap">The account page’s column and form for the household’s name, then who’s in it. The name saves with its button and a toast confirms it. Part 2 adds the invite link under Members (its own board).</span>
+  </header>
+
+  <div class="boards">
+
+    <div class="col">
+      <span class="cap"><b>As it opens</b> · from the account menu’s Household item</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="a-h-name">
+            <h2 id="a-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="a-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="a-name" type="text" max-length="{{hundred}}" default-value="Milo’s household" aria-describedby="a-help"></x-import>
+                <p id="a-help" class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="a-h-mem">
+            <h2 id="a-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="a-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+        </div></main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Saving the name</b> · the button keeps its size and ignores presses</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="b-h-name">
+            <h2 id="b-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="b-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="b-name" type="text" max-length="{{hundred}}" default-value="The Bedinis" aria-describedby="b-help"></x-import>
+                <p id="b-help" class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{yes}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="b-h-mem">
+            <h2 id="b-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="b-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+        </div></main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Name saved</b> · the field holds the trimmed name</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="c-h-name">
+            <h2 id="c-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="c-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="c-name" type="text" max-length="{{hundred}}" default-value="The Bedinis" aria-describedby="c-help"></x-import>
+                <p id="c-help" class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="c-h-mem">
+            <h2 id="c-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="c-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+        </div></main>
+        <div class="toast" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg><span>Household name saved</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Blank name</b> · nothing is sent; focus back in the field</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="d-h-name">
+            <h2 id="d-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld is-focus">
+                <label for="d-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="d-name" type="text" max-length="{{hundred}}" default-value="" aria-invalid="true" aria-describedby="d-err"></x-import>
+                <p id="d-err" class="err"><x-import component-from-global-scope="Dino.icons.CircleAlert" aria-hidden="true" stroke-width="{{sw}}"></x-import>Enter a name for your household, like The Bedinis.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="d-h-mem">
+            <h2 id="d-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="d-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+        </div></main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Refused by the server</b> · a backstop: the field stops at 100</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="e-h-name">
+            <h2 id="e-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld is-focus">
+                <label for="e-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="e-name" type="text" default-value="The Bedinis, the Okafors and everyone who turns up on a Sunday for a roast and stays for pudding" aria-invalid="true" aria-describedby="e-err"></x-import>
+                <p id="e-err" class="err"><x-import component-from-global-scope="Dino.icons.CircleAlert" aria-hidden="true" stroke-width="{{sw}}"></x-import>Ensure this field has no more than 100 characters.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="e-h-mem">
+            <h2 id="e-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="e-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+        </div></main>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="cap"><b>Couldn’t save the name</b> · offline or a 5xx; the typed name is kept</span>
+      <div class="frame">
+        <header class="bar"><div class="in">
+          <a href="#" class="wmk"><x-import component-from-global-scope="Dino.Wordmark"></x-import></a>
+          <x-import component-from-global-scope="Dino.IconButton" icon="{{icons.Search}}" label="Search recipes"></x-import>
+          <button type="button" class="av" aria-label="Account for Milo Bedini" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">M</span></button>
+        </div></header>
+        <main class="page"><div class="stack">
+          <h1>Your <x-import component-from-global-scope="Dino.Squiggle" emphasis="{{yes}}">household</x-import></h1>
+          <section class="sec" aria-labelledby="f-h-name">
+            <h2 id="f-h-name">Name</h2>
+            <form class="form" novalidate>
+              <div class="fld">
+                <label for="f-name" class="text-label">Household name</label>
+                <x-import component-from-global-scope="Dino.Input" id="f-name" type="text" max-length="{{hundred}}" default-value="The Bedinis" aria-describedby="f-help"></x-import>
+                <p id="f-help" class="help">Everyone in the household sees it.</p>
+              </div>
+              <div class="acts"><x-import component-from-global-scope="Dino.Button" type="submit" loading="{{no}}" loading-label="Saving…">Save name</x-import></div>
+            </form>
+          </section>
+          <section class="sec" aria-labelledby="f-h-mem">
+            <h2 id="f-h-mem">Members</h2>
+            <ul class="mem" aria-labelledby="f-h-mem">
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Milo Bedini"></x-import><span>Milo Bedini <span class="you">(you)</span></span></li>
+              <li><x-import component-from-global-scope="Dino.Avatar" name="Ann Okafor"></x-import><span>Ann Okafor</span></li>
+            </ul>
+          </section>
+        </div></main>
+        <div class="toast" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg><span>Couldn’t save the household’s name. Check your connection and try again.</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <p><b>The account page’s shape, for the household.</b> “Your household” is the Display XL title with the screen’s one squiggle under “household”; “Name” and “Members” are Title section headings, so part 2’s “Invite link” and TAS-109’s Leave slot in as sections of their own. “Save name” is the screen’s one peach button, at every stage of both parts.</p>
+    <p><b>The name works as on the account page</b>: the same field and errors in the field’s own line, a 100-character limit, and a help line saying who sees the name. A failed save is a toast and the typed name stays, so pressing Save name again is the retry. The top bar doesn’t change: it shows the person, not the household.</p>
+    <p><b>Members are a plain list, not controls.</b> Each row is the Avatar and the name in Body, 56 px tall with a Line hairline between rows; you come first with “(you)” in Muted, the others by name. No email addresses. Nothing in a row is pressable yet: TAS-109 adds Remove and Leave at the row’s end, and 56 px leaves room for a 44 px button there.</p>
+    <p><b>A long name wraps</b> rather than truncating, in the field’s error and in a member’s row, so nothing is hidden at 320 px.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1400,"height":2200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { icons: window.Dino.icons, yes: true, no: false, sw: 2.5, hundred: 100 };
+  }
+}
+</script>
+</body>
+</html>

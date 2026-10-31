@@ -1,5 +1,6 @@
 import math
 import time
+from dataclasses import dataclass
 from typing import Any
 
 from allauth.account.authentication import get_authentication_records
@@ -14,6 +15,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from django.db import connection, transaction
+from django.db.models.functions import Lower
 from django.http import HttpRequest
 from django.utils import timezone
 
@@ -57,6 +59,28 @@ def update_account(user: User, name: str | None = None, unit_system: UnitSystem 
             account.unit_system = unit_system
             account.save(update_fields=['unit_system'])
     return account
+
+
+@dataclass(frozen=True)
+class Member:
+    id: int
+    name: str
+    is_you: bool
+
+
+def members_seen_by(account: User) -> list[Member]:
+    """The account's household's members: the account first, then the others by name."""
+    members = User.objects.filter(household_id=account.household_id).order_by(Lower('name'), 'pk')
+    seen = [Member(id=member.pk, name=member.name, is_you=member.pk == account.pk) for member in members]
+    return sorted(seen, key=lambda member: not member.is_you)
+
+
+def rename_household(account: User, name: str) -> Household:
+    """Renames the account's household and returns it."""
+    household = Household.objects.get(pk=account.household_id)
+    household.name = name
+    household.save(update_fields=['name'])
+    return household
 
 
 def name_from_google(profile: dict[str, Any]) -> str:
