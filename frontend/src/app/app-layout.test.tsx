@@ -174,7 +174,7 @@ describe('AppLayout', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Account for Sam' }));
 
     const menu = await screen.findByRole('menu');
-    expect(menu).toHaveTextContent(/^SamAccountSign out$/);
+    expect(menu).toHaveTextContent(/^SamAccountHouseholdSign out$/);
   });
 
   it('opens the account page from the account menu', async () => {
@@ -186,6 +186,25 @@ describe('AppLayout', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Your account' })).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/account');
+  });
+
+  it('opens the household page from the account menu', async () => {
+    answerSignedIn();
+    server.use(
+      http.get('/api/household/', () =>
+        HttpResponse.json<components['schemas']['Household']>({
+          name: "Sam's household",
+          members: [{ id: 1, name: 'Sam', is_you: true }]
+        })
+      )
+    );
+    const { router } = renderRoute('/recipes');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Account for Sam' }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Household' }));
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Your household' })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/household');
   });
 
   it.each([

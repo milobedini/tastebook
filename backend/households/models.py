@@ -23,6 +23,7 @@ class UserManager(BaseUserManager['User']):
 
 
 NAME_MAX_LENGTH = 50
+HOUSEHOLD_NAME_MAX_LENGTH = 100
 
 
 class UnitSystem(models.TextChoices):
@@ -31,7 +32,7 @@ class UnitSystem(models.TextChoices):
 
 
 class Household(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=HOUSEHOLD_NAME_MAX_LENGTH)
 
     def __str__(self) -> str:
         return self.name
