@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
-import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { expect, fireEvent, userEvent, waitFor, within } from 'storybook/test';
 
 import { Button } from '@/dino/button';
 import { CheckboxRow } from '@/dino/checkbox-row';
@@ -113,6 +113,11 @@ export const Open = {
       // A short drag: the sheet follows the pointer, then springs back open.
       await press();
       await moveTo(top + 40);
+      await expect(sheet).toHaveStyle({ transform: 'matrix(1, 0, 0, 1, 0, 40)' });
+      // A second finger lifted far down the strip mid-drag neither moves nor closes the sheet.
+      const farDown = { pointerId: 99, isPrimary: false, clientX: 100, clientY: top + sheet.offsetHeight };
+      fireEvent.pointerMove(grab, farDown);
+      fireEvent.pointerUp(grab, farDown);
       await expect(sheet).toHaveStyle({ transform: 'matrix(1, 0, 0, 1, 0, 40)' });
       await release(top + 40);
       await settle();

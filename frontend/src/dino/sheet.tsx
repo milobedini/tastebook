@@ -23,7 +23,8 @@ type SheetPanelProps = {
 
 // Its own component so the drag starts afresh each time the sheet opens: Radix unmounts it once it has closed.
 const SheetPanel = ({ title, description, children, close, ref }: SheetPanelProps) => {
-  const [dragStartY, setDragStartY] = useState<number | null>(null);
+  // Only the pointer that started the drag moves or ends it: a second finger on the strip is ignored.
+  const [drag, setDrag] = useState<{ pointerId: number; startY: number } | null>(null);
   const [offset, setOffset] = useState(0);
 
   // Radix hears Escape on the document before the focused control does, so a control that handles Escape itself
@@ -38,18 +39,18 @@ const SheetPanel = ({ title, description, children, close, ref }: SheetPanelProp
   const startDrag = (event: PointerEvent<HTMLDivElement>) => {
     if (!event.isPrimary || event.button !== 0) return;
     event.currentTarget.setPointerCapture(event.pointerId);
-    setDragStartY(event.clientY);
+    setDrag({ pointerId: event.pointerId, startY: event.clientY });
   };
   const followDrag = (event: PointerEvent<HTMLDivElement>) => {
-    if (dragStartY === null) return;
-    setOffset(Math.max(0, event.clientY - dragStartY));
+    if (drag?.pointerId !== event.pointerId) return;
+    setOffset(Math.max(0, event.clientY - drag.startY));
   };
   // A closing sheet keeps its offset: the slide out has no start of its own, so it carries on from there.
   const endDrag = (event: PointerEvent<HTMLDivElement>) => {
-    if (dragStartY === null) return;
-    const dragged = Math.max(0, event.clientY - dragStartY);
+    if (drag?.pointerId !== event.pointerId) return;
+    const dragged = Math.max(0, event.clientY - drag.startY);
     const height = event.currentTarget.parentElement?.offsetHeight ?? 0;
-    setDragStartY(null);
+    setDrag(null);
     if (dragged > 0 && dragged >= height * closingShare) {
       setOffset(dragged);
       close();
@@ -57,8 +58,9 @@ const SheetPanel = ({ title, description, children, close, ref }: SheetPanelProp
       setOffset(0);
     }
   };
-  const cancelDrag = () => {
-    setDragStartY(null);
+  const cancelDrag = (event: PointerEvent<HTMLDivElement>) => {
+    if (drag?.pointerId !== event.pointerId) return;
+    setDrag(null);
     setOffset(0);
   };
 
@@ -72,7 +74,7 @@ const SheetPanel = ({ title, description, children, close, ref }: SheetPanelProp
       style={offset > 0 ? { transform: `translateY(${offset}px)` } : undefined}
       className={cn(
         'fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[90dvh] w-full max-w-xl flex-col overflow-y-auto rounded-t-sheet border-2 border-transparent border-b-0 bg-surface px-4.5 pt-1.5 pb-6 text-ink shadow-lift duration-150 ease-out data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
-        dragStartY === null ? 'transition-transform' : 'transition-none'
+        drag === null ? 'transition-transform' : 'transition-none'
       )}
     >
       {/* The sheet's top 24 px, handle included: a pointer shortcut, since Escape and Close serve the keyboard. */}
