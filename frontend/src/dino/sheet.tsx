@@ -38,6 +38,8 @@ const SheetPanel = ({ title, description, children, close, ref }: SheetPanelProp
 
   const startDrag = (event: PointerEvent<HTMLDivElement>) => {
     if (!event.isPrimary || event.button !== 0) return;
+    // A press on the Close button is a press, not the start of a drag.
+    if (event.target instanceof Element && event.target.closest('button')) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     setDrag({ pointerId: event.pointerId, startY: event.clientY });
   };
@@ -77,30 +79,31 @@ const SheetPanel = ({ title, description, children, close, ref }: SheetPanelProp
         drag === null ? 'transition-transform' : 'transition-none'
       )}
     >
-      {/* The sheet's top 24 px, handle included: a pointer shortcut, since Escape and Close serve the keyboard. */}
+      {/* The whole header drags, edge to edge, so a thumb needn't find the handle: a pointer shortcut, since Escape
+          and Close serve the keyboard. */}
       <div
-        aria-hidden="true"
         data-slot="sheet-grab"
         onPointerDown={startDrag}
         onPointerMove={followDrag}
         onPointerUp={endDrag}
         onPointerCancel={cancelDrag}
-        className="absolute inset-x-0 top-0 h-6 cursor-grab touch-none select-none active:cursor-grabbing"
-      />
-      <span
-        aria-hidden="true"
-        className="mx-auto h-1.25 w-10 shrink-0 rounded-pill bg-field forced-colors:bg-[CanvasText]"
-      />
-      <div className="mt-3.5 flex items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <Dialog.Title className="text-display-l">{title}</Dialog.Title>
-          {description && <Dialog.Description className="text-muted">{description}</Dialog.Description>}
+        className="-mx-4.5 -mt-1.5 flex shrink-0 cursor-grab touch-none select-none flex-col px-4.5 pt-1.5 pb-3 active:cursor-grabbing"
+      >
+        <span
+          aria-hidden="true"
+          className="mx-auto h-1.25 w-10 shrink-0 rounded-pill bg-field forced-colors:bg-[CanvasText]"
+        />
+        <div className="mt-3.5 flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <Dialog.Title className="text-display-l">{title}</Dialog.Title>
+            {description && <Dialog.Description className="text-muted">{description}</Dialog.Description>}
+          </div>
+          <Dialog.Close asChild>
+            <IconButton icon={X} label="Close" />
+          </Dialog.Close>
         </div>
-        <Dialog.Close asChild>
-          <IconButton icon={X} label="Close" />
-        </Dialog.Close>
       </div>
-      <div className="mt-3 flex flex-col gap-3">{children}</div>
+      <div className="flex flex-col gap-3">{children}</div>
     </Dialog.Content>
   );
 };
