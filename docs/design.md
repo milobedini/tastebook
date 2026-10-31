@@ -198,7 +198,7 @@ Review checks new UI against these.
 
 **Shape**
 
-- Pills for controls, 24 px for cards, 32 px for sheets, 10 px for checkboxes, square for polaroids.
+- Pills for controls (one-line fields among them), 24 px for cards and text areas, 32 px for sheets, 10 px for checkboxes, square for polaroids.
 - The press shadow only under the main action and the timer; the lift only under polaroids, the dock and sheets.
 - Every pastel control, every filled panel (notes, toasts, sheets, dialogs) and the dock's current tab has a 2 px transparent border, which forced colours draws.
 
