@@ -26,7 +26,7 @@ const preview: Preview = {
   afterEach: ({ canvasElement }) => {
     const shortControls = [
       ...canvasElement.ownerDocument.body.querySelectorAll<HTMLElement>(
-        'button, a[href], input, select, [role="checkbox"], [role="switch"], [role="menuitem"]'
+        'button, a[href], input, textarea, select, [role="checkbox"], [role="switch"], [role="menuitem"]'
       )
     ]
       .filter((control) => control.checkVisibility())
