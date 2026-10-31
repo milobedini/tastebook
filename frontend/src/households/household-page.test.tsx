@@ -30,6 +30,7 @@ const answerHousehold = () => {
   const renames: Rename[] = [];
   const state: { household: Household } = {
     household: {
+      id: 10,
       name: "Milo's household",
       members: [
         { id: 1, name: 'Milo', is_you: true },
@@ -54,11 +55,11 @@ const AUTH = '/api/_allauth/browser/v1/auth';
 const accounts: Partial<Record<string, { name: string; household: Household }>> = {
   'milo@example.com': {
     name: 'Milo',
-    household: { name: "Milo's household", members: [{ id: 1, name: 'Milo', is_you: true }] }
+    household: { id: 11, name: "Milo's household", members: [{ id: 1, name: 'Milo', is_you: true }] }
   },
   'jo@example.com': {
     name: 'Jo',
-    household: { name: "Jo's household", members: [{ id: 3, name: 'Jo', is_you: true }] }
+    household: { id: 12, name: "Jo's household", members: [{ id: 3, name: 'Jo', is_you: true }] }
   }
 };
 
@@ -158,6 +159,7 @@ describe('HouseholdPage', () => {
       http.get(HOUSEHOLD, async () => {
         await released;
         return HttpResponse.json<Household>({
+          id: 10,
           name: "Milo's household",
           members: [{ id: 1, name: 'Milo', is_you: true }]
         });
